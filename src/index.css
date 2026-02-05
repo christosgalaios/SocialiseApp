@@ -1,0 +1,267 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Quicksand", sans-serif;
+  --font-heading: "Outfit", sans-serif;
+
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --color-paper: var(--bg-paper);
+  --color-dark: var(--dark);
+  --color-text: var(--text);
+}
+
+:root {
+  /* The Warm Hearth Palette - Human Connection Initiative */
+  --primary: #E2725B;
+  /* Community Terracotta - HSL(11, 71%, 62%) */
+  --primary-glow: rgba(226, 114, 91, 0.2);
+  --secondary: #2D5F5D;
+  /* Open Door Teal - HSL(178, 36%, 27%) */
+  --secondary-glow: rgba(45, 95, 93, 0.2);
+  --accent: #F4B942;
+  /* Latecomer Gold (The Dot) - HSL(40, 89%, 61%) */
+  --bg-paper: #F9F7F2;
+  /* Paper White - HSL(43, 33%, 96%) */
+  --dark: #1A1C1C;
+  /* Soft Charcoal for text/contrast */
+  --text: #1A1C1C;
+  --text-muted: #5C6363;
+
+  /* Tactile UI (Analog-Digital) */
+  --glass: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(45, 95, 93, 0.1);
+  --glass-highlight: rgba(255, 255, 255, 0.4);
+
+  /* Utilities */
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 20px);
+
+  /* Theme-adaptive Brand Colors */
+  --brand-primary: var(--primary);
+  --brand-secondary: var(--secondary);
+}
+
+.dark {
+  --bg-paper: #1A1C1C;
+  /* Deep Charcoal - No Smearing */
+  --text: #F9F7F2;
+  /* Off-White Typography */
+  --text-muted: #8E9696;
+  --text-muted-more: #5C6363;
+  --dark: #0A0A0A;
+  --brand-primary: #E58A7B;
+  /* Desaturated Terracotta (Human Hearth) */
+  --brand-secondary: #5D8E8C;
+  /* Desaturated Teal (Open Door) */
+  --glass: rgba(36, 38, 38, 0.85);
+  /* Elevated surface */
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-highlight: rgba(255, 255, 255, 0.03);
+}
+
+.dark .premium-card {
+  background-color: #242626;
+  /* Elevation Level 1 */
+  box-shadow: none;
+  /* depth via elevation, not shadow */
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+.dark .glass-2 {
+  background: rgba(42, 44, 44, 0.9);
+  /* Elevation Level 2 */
+  box-shadow: none;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+@layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+  }
+
+  html {
+    height: 100%;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+    background-color: var(--bg-paper);
+  }
+
+  body {
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    margin: 0;
+    overflow: hidden;
+    background-color: var(--bg-paper);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  #root {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  body {
+    background-color: var(--bg-paper);
+    color: var(--text);
+    user-select: none;
+    font-family: 'Quicksand', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.01em;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    letter-spacing: -0.02em;
+    font-weight: 700;
+    font-family: 'Outfit', sans-serif;
+  }
+
+  input,
+  textarea,
+  select {
+    color: white;
+    font-family: inherit;
+  }
+
+  input::placeholder {
+    color: var(--text-muted);
+  }
+
+  input[type="date"],
+  input[type="time"] {
+    color-scheme: dark;
+  }
+}
+
+@layer components {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .premium-card {
+    background: white;
+    background-color: white;
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    border-radius: 24px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .premium-card:active {
+    transform: scale(0.98);
+    border-color: var(--primary);
+  }
+
+  .glass-2 {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 8px 32px 0 rgba(45, 95, 93, 0.1);
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .glow-primary {
+    box-shadow: 0 0 20px var(--primary-glow);
+  }
+
+  .glow-secondary {
+    box-shadow: 0 0 20px var(--secondary-glow);
+  }
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse-soft {
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.8;
+    transform: scale(0.98);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 12s linear infinite;
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 3s ease-in-out infinite;
+}
+
+/* Custom Overrides */
+.text-primary {
+  color: var(--brand-primary);
+}
+
+.text-secondary {
+  color: var(--brand-secondary);
+}
+
+.text-accent {
+  color: var(--accent);
+}
+
+.bg-paper {
+  background-color: var(--bg-paper);
+}
+
+.bg-terracotta {
+  background-color: var(--primary);
+}
+
+.bg-teal {
+  background-color: var(--secondary);
+}
+
+@keyframes text-gradient-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-text-gradient {
+  background-size: 300% auto;
+  animation: text-gradient-flow 6s ease-in-out infinite;
+}

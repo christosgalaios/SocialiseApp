@@ -1,0 +1,59 @@
+import { motion } from 'framer-motion';
+import { Check, Clock, Users, Calendar, MapPin } from 'lucide-react';
+
+const EventCard = ({ event, onClick, compact = false, isJoined = false }) => (
+  <motion.div
+    layoutId={`event-${event.id}`}
+    whileTap={{ scale: 0.96 }}
+    className={`premium-card overflow-hidden group ${compact ? 'flex gap-4 p-4' : 'mb-6 shadow-2xl'}`}
+    onClick={() => onClick(event)}
+  >
+    {compact ? (
+      <>
+        <div className="relative w-24 h-24 shrink-0 overflow-hidden rounded-2xl shadow-inner border border-paper/10">
+          <img src={event.image} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={event.title} />
+          {isJoined && (
+            <div className="absolute inset-0 bg-primary/40 backdrop-blur-sm flex items-center justify-center">
+              <Check className="text-white" size={24} strokeWidth={3} />
+            </div>
+          )}
+        </div>
+        <div className="flex-1 py-1">
+          <div className="flex justify-between items-start mb-1">
+            <h4 className="font-extrabold text-lg leading-tight tracking-tight text-secondary">{event.title}</h4>
+            {event.price === 0 && <span className="bg-primary/10 text-primary text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest">Free</span>}
+          </div>
+          <p className="text-xs text-secondary/60 font-bold mb-3 flex items-center gap-1.5">
+            <Clock size={12} /> {event.date} • {event.time}
+          </p>
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 rounded-full bg-secondary/10 flex items-center justify-center border border-secondary/5">
+              <Users size={10} className="text-secondary" />
+            </div>
+            <span className="text-[10px] font-black uppercase tracking-widest text-secondary/70">{event.attendees} going</span>
+          </div>
+        </div>
+      </>
+    ) : (
+      <>
+        <div className="relative h-52 overflow-hidden">
+          <img src={event.image} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt={event.title} />
+          <div className="absolute inset-0 bg-gradient-to-t from-secondary/80 via-transparent to-transparent" />
+          <div className="absolute top-4 left-4 flex gap-2">
+            <span className="bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full text-[10px] font-black text-secondary uppercase tracking-widest shadow-lg">{event.category}</span>
+            {isJoined && <span className="bg-primary px-3 py-1.5 rounded-full text-[10px] font-black text-white uppercase tracking-widest shadow-lg">GOING</span>}
+          </div>
+          <div className="absolute bottom-4 left-4 right-4 translate-y-1 group-hover:translate-y-0 transition-transform duration-500">
+            <h3 className="text-3xl font-black mb-1 truncate text-white drop-shadow-lg tracking-tighter">{event.title}</h3>
+            <div className="flex items-center gap-4 text-white/90 text-xs font-bold">
+              <span className="flex items-center gap-1.5"><Calendar size={14} /> {event.date}</span>
+              <span className="flex items-center gap-1.5"><MapPin size={14} /> {event.location?.split(',')[0]}</span>
+            </div>
+          </div>
+        </div>
+      </>
+    )}
+  </motion.div>
+);
+
+export default EventCard;

@@ -1,0 +1,34 @@
+import { motion } from 'framer-motion';
+import { Sparkles } from 'lucide-react';
+
+const MicroMeetCard = ({ meet, onClick }) => (
+  <motion.div
+    whileTap={{ scale: 0.95 }}
+    className="min-w-[300px] premium-card p-6 mr-4 relative overflow-hidden group shadow-2xl"
+    onClick={() => onClick(meet)}
+  >
+    <div className="absolute -right-8 -top-8 w-32 h-32 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/20 transition-all duration-700" />
+    <div className="flex items-center gap-2 mb-4">
+      <div className="flex items-center gap-2 px-3 py-1 bg-accent/10 rounded-full border border-accent/20 shadow-inner">
+        <Sparkles className="text-accent" size={12} strokeWidth={3} />
+        <span className="text-[10px] font-black text-accent uppercase tracking-widest">{meet.matchScore}% Alignment</span>
+      </div>
+    </div>
+    <h3 className="text-2xl font-black mb-1 tracking-tighter text-secondary">{meet.title}</h3>
+    <p className="text-sm text-secondary/70 font-bold mb-6 uppercase tracking-wider text-[10px]">{meet.theme}</p>
+    <div className="flex items-center justify-between mt-auto">
+      <div className="flex -space-x-2.5">
+        {meet.avatars.map((av, i) => (
+          <img key={i} src={av} className="w-10 h-10 rounded-full border-2 border-paper shadow-lg" alt="attendee" />
+        ))}
+        <div className="w-10 h-10 rounded-full bg-secondary/10 border-2 border-paper flex items-center justify-center text-[10px] font-black text-secondary">+{meet.spotsLeft}</div>
+      </div>
+      <div className="text-right">
+        <p className="text-[10px] text-secondary/70 font-black uppercase tracking-widest mb-0.5">{meet.date}</p>
+        <p className="text-xs text-primary font-black uppercase tracking-widest">Limited Space</p>
+      </div>
+    </div>
+  </motion.div>
+);
+
+export default MicroMeetCard;
