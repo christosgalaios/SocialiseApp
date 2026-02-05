@@ -16,42 +16,32 @@ export const MangoProvider = ({ children }) => {
     const [coords, setCoords] = useState({ x: 0, y: 0 }); // Functionally persistent drag coordinates
 
     // Trigger celebration (e.g., when user joins an event)
-    const celebrate = useCallback((customMessage = null) => {
+    const celebrate = useCallback(() => {
         setPose('celebrate');
-        setMessage(customMessage || "Yay! 🎉");
         setIsVisible(true);
 
         // Reset after animation
         setTimeout(() => {
-            setMessage(null);
             setPose('wave');
         }, 3000);
     }, []);
 
     // Show curiosity (e.g., during loading or exploration)
-    const showCuriosity = useCallback((customMessage = null) => {
+    const showCuriosity = useCallback(() => {
         setPose('curious');
-        setMessage(customMessage);
         setIsVisible(true);
     }, []);
 
     // Show loneliness (e.g., empty states)
-    const showLonely = useCallback((customMessage = null) => {
+    const showLonely = useCallback(() => {
         setPose('lonely');
-        setMessage(customMessage || "It's quiet here...");
         setIsVisible(true);
     }, []);
 
     // Wave greeting (e.g., home screen, after login)
-    const wave = useCallback((customMessage = null) => {
+    const wave = useCallback(() => {
         setPose('wave');
-        setMessage(customMessage);
         setIsVisible(true);
-
-        // Clear message after a bit
-        if (customMessage) {
-            setTimeout(() => setMessage(null), 4000);
-        }
     }, []);
 
     // Peek from edge (e.g., near Create button)

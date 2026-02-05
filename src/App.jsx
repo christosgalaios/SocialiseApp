@@ -80,8 +80,24 @@ function App() {
   // eslint-disable-next-line no-unused-vars
   const [slideDir, setSlideDir] = useState(0);
   const mainContentRef = useRef(null);
+  const lastHomeExitRef = useRef(0);
 
   const setActiveTab = (id, direction = 0) => {
+    // Logic for Mango's home persistence
+    if (activeTab === 'home' && id !== 'home') {
+      // Leaving home
+      lastHomeExitRef.current = Date.now();
+    } else if (activeTab !== 'home' && id === 'home') {
+      // Returning to home
+      const timeAway = Date.now() - lastHomeExitRef.current;
+      if (timeAway > 10000) { // 10 seconds
+        // Reset position and play!
+        mango.setCoords({ x: 0, y: 0 });
+        mango.setPose('playing');
+        setTimeout(() => mango.setPose('wave'), 4000);
+      }
+    }
+
     setSlideDir(direction);
     setActiveTabState(id);
     // Scroll to top when tab changes or is re-clicked
@@ -737,7 +753,7 @@ function App() {
             />
 
             {/* Mango Assistant - Global Persistent Cat */}
-            <MangoAssistant />
+            {activeTab === 'home' && <MangoAssistant />}
 
             <IOSInstallPrompt />
           </motion.div>

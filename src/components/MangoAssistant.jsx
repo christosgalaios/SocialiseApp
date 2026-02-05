@@ -10,7 +10,7 @@ import { useMango } from '../contexts/MangoContext';
  * based on the global MangoContext state
  */
 const MangoAssistant = () => {
-    const { pose, isVisible, message, position, coords, setCoords } = useMango();
+    const { pose, isVisible, message, position, coords, setCoords, setPose } = useMango();
 
     // Determine effective visibility - default to true if we want her to "live" on the screen
     // But allow context to hide her explicitly
@@ -29,6 +29,7 @@ const MangoAssistant = () => {
                     // Pass persistence props
                     initialCoords={coords}
                     onPositionChange={setCoords}
+                    onPoseChange={setPose}
                 />
             )}
         </AnimatePresence>

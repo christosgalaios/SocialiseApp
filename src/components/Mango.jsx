@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { motion, useMotionValue, useTransform, AnimatePresence, useVelocity } from 'framer-motion';
+import { motion, useMotionValue, useTransform, AnimatePresence, useVelocity, useDragControls } from 'framer-motion';
 
 /**
  * MangoSVG - A playful orange tabby kitten with interactive poses
@@ -249,7 +249,7 @@ const MangoSVG = ({ pose = 'wave', size = 80, isDragging = false }) => {
             // CARRIED pose - held by scruff like mama cat carries kitten
             case 'carried':
                 return (
-                    <g>
+                    <g transform="translate(0, 25)">
                         {/* Limp dangling tail */}
                         <path d="M45 50 Q52 60 48 72" stroke={orange} strokeWidth="6" strokeLinecap="round" fill="none" />
 
@@ -260,7 +260,7 @@ const MangoSVG = ({ pose = 'wave', size = 80, isDragging = false }) => {
                         {/* Head tilted back (scruff being held) */}
                         <ellipse cx="40" cy="26" rx="16" ry="14" fill={orange} />
 
-                        {/* Scruff pinch point at top */}
+                        {/* Scruff pinch point at top - adjusted to be near center (40,40) with translation */}
                         <ellipse cx="40" cy="12" rx="6" ry="4" fill={orangeDark} />
 
                         {/* Ears flopping */}
@@ -543,6 +543,74 @@ const MangoSVG = ({ pose = 'wave', size = 80, isDragging = false }) => {
                     </g>
                 );
 
+            // PLAYING pose - Upside down with ball
+            case 'playing':
+                return (
+                    <g>
+                        {/* Upside down transformation group */}
+                        <motion.g
+                            animate={{ rotate: 180, y: -20 }} // Moved UP (-y) to avoid bottom bar clipping
+                            style={{ originX: "40px", originY: "40px" }}
+                        >
+                            {/* Body curled */}
+                            <ellipse cx="40" cy="50" rx="22" ry="18" fill={orange} />
+                            <ellipse cx="40" cy="52" rx="12" ry="10" fill={white} />
+
+                            {/* Paws batting */}
+                            <motion.g animate={{ x: [-2, 2, -2], y: [-2, 2, -2] }} transition={{ duration: 0.3, repeat: Infinity }}>
+                                <ellipse cx="28" cy="30" rx="6" ry="5" fill={white} />
+                                <ellipse cx="52" cy="30" rx="6" ry="5" fill={white} />
+                            </motion.g>
+
+                            {/* Head upside down */}
+                            <ellipse cx="40" cy="68" rx="18" ry="16" fill={orange} />
+
+                            {/* Ears */}
+                            <path d="M22 62 L26 44 L34 60 Z" fill={orange} />
+                            <path d="M48 60 L54 44 L60 62 Z" fill={orange} />
+
+                            {/* Eyes - Wide and excited */}
+                            <ellipse cx="34" cy="72" rx="4" ry="6" fill={white} />
+                            <ellipse cx="46" cy="72" rx="4" ry="6" fill={white} />
+                            <circle cx="34" cy="72" r="2" fill="#1a3a38" />
+                            <circle cx="46" cy="72" r="2" fill="#1a3a38" />
+
+                            {/* Nose & Mouth */}
+                            <ellipse cx="40" cy="78" rx="2" ry="1.5" fill={pink} />
+                            <path d="M38 80 Q40 82 42 80" stroke={orangeDark} strokeWidth="2" fill="none" strokeLinecap="round" />
+
+                            {/* Tail wiggling */}
+                            <motion.path
+                                d="M40 32 Q30 20 20 30"
+                                stroke={orange}
+                                strokeWidth="6"
+                                strokeLinecap="round"
+                                fill="none"
+                                animate={{ d: ["M40 32 Q30 20 20 30", "M40 32 Q50 20 60 30", "M40 32 Q30 20 20 30"] }}
+                                transition={{ duration: 0.6, repeat: Infinity }}
+                            />
+                        </motion.g>
+
+                        {/* The Ball - Floating and bouncing */}
+                        <motion.circle
+                            cx="40"
+                            cy="10" // Moved ball UP
+                            r="8"
+                            fill="#F4B942" // Brand Yellow
+                            animate={{ y: [-15, -5, -15] }} // Bouncing high
+                            transition={{ duration: 0.8, repeat: Infinity, ease: "easeInOut" }}
+                        />
+                        <motion.circle
+                            cx="37"
+                            cy="7"
+                            r="2"
+                            fill="rgba(255,255,255,0.6)"
+                            animate={{ y: [-15, -5, -15] }}
+                            transition={{ duration: 0.8, repeat: Infinity, ease: "easeInOut" }}
+                        />
+                    </g>
+                );
+
             case 'peek':
                 return (
                     <g>
@@ -616,7 +684,8 @@ const Mango = ({
     size = 80,
     interactive = true,
     initialCoords = { x: 0, y: 0 },
-    onPositionChange = () => { }
+    onPositionChange = () => { },
+    onPoseChange = () => { } // Notify parent on internal pose change
 }) => {
     const [currentPose, setCurrentPose] = useState(initialPose);
     const [isDragging, setIsDragging] = useState(false);
@@ -629,6 +698,7 @@ const Mango = ({
     const tapStartTimeRef = useRef(0);
     const hasDraggedRef = useRef(false);
     const containerRef = useRef(null);
+    const dragControls = useDragControls();
 
     // For dragging position - initialize from persisted coords
     const x = useMotionValue(initialCoords.x);
@@ -650,6 +720,17 @@ const Mango = ({
         'inline': 'relative',
     };
 
+    // Sync internal pose when prop changes (external control)
+    useEffect(() => {
+        setCurrentPose(initialPose);
+    }, [initialPose]);
+
+    // Update internal pose and notify parent
+    const updatePose = useCallback((newPose) => {
+        setCurrentPose(newPose);
+        onPoseChange(newPose);
+    }, [onPoseChange]);
+
     // Reset idle timer on interaction
     const resetIdleTimer = useCallback(() => {
         if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
@@ -659,14 +740,14 @@ const Mango = ({
 
         idleTimerRef.current = setTimeout(() => {
             // After 10s idle -> clean
-            setCurrentPose('clean');
+            updatePose('clean');
 
             idleTimerRef.current = setTimeout(() => {
                 // After 30s total (10+20) -> sleep
-                setCurrentPose('sleep');
+                updatePose('sleep');
             }, 20000);
         }, 10000);
-    }, [isDragging]);
+    }, [isDragging, updatePose]);
 
     // Initialize idle timer on mount and pose change
     useEffect(() => {
@@ -677,7 +758,7 @@ const Mango = ({
     }, [resetIdleTimer, currentPose]);
 
     // Handle tap start (pointer down)
-    const handlePointerDown = useCallback(() => {
+    const handlePointerDown = useCallback((event) => {
         if (!interactive) return;
 
         resetIdleTimer();
@@ -786,16 +867,6 @@ const Mango = ({
     if (!interactive) {
         return (
             <div className={`${positionClasses[position]} z-50`}>
-                {message && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 10, scale: 0.8 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        className="absolute -top-14 left-1/2 -translate-x-1/2 bg-white rounded-2xl px-4 py-2 shadow-lg border border-secondary/10 whitespace-nowrap z-10"
-                    >
-                        <span className="text-sm font-bold text-secondary">{message}</span>
-                        <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white rotate-45 border-r border-b border-secondary/10" />
-                    </motion.div>
-                )}
                 <MangoSVG pose={initialPose} size={size} />
             </div>
         );
@@ -807,7 +878,6 @@ const Mango = ({
             className={`${positionClasses[position]} z-50 touch-none select-none`}
             drag
             dragMomentum={false}
-            dragElastic={0.1}
             // Constrain: can't go below ground (positive Y from start = going down)
             // Can go up freely (negative Y)
             dragConstraints={{
@@ -831,21 +901,6 @@ const Mango = ({
             } : undefined}
             whileTap={{ scale: isDragging ? 1.1 : 1 }}
         >
-            <AnimatePresence mode="wait">
-                {message && !isDragging && (
-                    <motion.div
-                        key="message"
-                        initial={{ opacity: 0, y: 10, scale: 0.8 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.8 }}
-                        className="absolute -top-14 left-1/2 -translate-x-1/2 bg-white rounded-2xl px-4 py-2 shadow-lg border border-secondary/10 whitespace-nowrap z-10"
-                    >
-                        <span className="text-sm font-bold text-secondary">{message}</span>
-                        <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white rotate-45 border-r border-b border-secondary/10" />
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
             <motion.div
                 style={{
                     rotate: isDragging ? wiggleRotation : 0
