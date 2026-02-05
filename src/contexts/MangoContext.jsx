@@ -10,9 +10,10 @@ const MangoContext = createContext(null);
 
 export const MangoProvider = ({ children }) => {
     const [pose, setPose] = useState('wave');
-    const [isVisible, setIsVisible] = useState(false);
+    const [isVisible, setIsVisible] = useState(true);
     const [message, setMessage] = useState(null);
-    const [position, setPosition] = useState('corner-br');
+    const [position, setPosition] = useState('bottom-left'); // Default: above Home button
+    const [coords, setCoords] = useState({ x: 0, y: 0 }); // Functionally persistent drag coordinates
 
     // Trigger celebration (e.g., when user joins an event)
     const celebrate = useCallback((customMessage = null) => {
@@ -85,6 +86,7 @@ export const MangoProvider = ({ children }) => {
         isVisible,
         message,
         position,
+        coords,
         // Actions
         celebrate,
         showCuriosity,
@@ -97,6 +99,7 @@ export const MangoProvider = ({ children }) => {
         setPose,
         setMessage,
         setPosition,
+        setCoords,
         setIsVisible,
     };
 

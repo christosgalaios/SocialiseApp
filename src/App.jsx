@@ -32,6 +32,7 @@ import EventDetailSheet from './components/EventDetailSheet';
 import IOSInstallPrompt from './components/IOSInstallPrompt';
 import VideoWall from './components/VideoWall';
 import Mango from './components/Mango';
+import MangoAssistant from './components/MangoAssistant';
 import Confetti from './components/Confetti';
 import RealtimePing from './components/RealtimePing';
 import WarmthScore from './components/WarmthScore';
@@ -735,17 +736,8 @@ function App() {
               onClose={() => setRealtimePing(prev => ({ ...prev, isVisible: false }))}
             />
 
-            {/* Mango Assistant - Appears in corner on home */}
-            {activeTab === 'home' && !selectedEvent && (
-              <motion.div
-                className="fixed bottom-28 right-4 md:bottom-8 md:right-8 z-40"
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 1, type: "spring" }}
-              >
-                <Mango pose="wave" size={60} />
-              </motion.div>
-            )}
+            {/* Mango Assistant - Global Persistent Cat */}
+            <MangoAssistant />
 
             <IOSInstallPrompt />
           </motion.div>
