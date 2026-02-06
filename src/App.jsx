@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  BarChart3, Mail, ShieldCheck, Zap, Check, Heart, User, Sparkles, ChevronRight, LogOut, Camera, Users
+  BarChart3, Mail, ShieldCheck, Zap, Check, Heart, User, Crown, ChevronRight, LogOut, Camera, Users
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from './api';
@@ -12,6 +12,7 @@ import {
   INITIAL_EVENTS,
   INITIAL_MICRO_MEETS,
   COMMUNITIES,
+  SUGGESTED_COMMUNITIES,
   INITIAL_MESSAGES,
   FEED_POSTS,
   DEMO_USER
@@ -35,8 +36,16 @@ import VideoWall from './components/VideoWall';
 import Mango from './components/Mango';
 import MangoAssistant from './components/MangoAssistant';
 import Confetti from './components/Confetti';
+import ExploreFilters from './components/ExploreFilters';
+import TribeSheet from './components/TribeSheet';
+import TribeDiscovery from './components/TribeDiscovery';
 import RealtimePing from './components/RealtimePing';
 import WarmthScore from './components/WarmthScore';
+import MyBookingsSheet from './components/MyBookingsSheet';
+import SavedEventsSheet from './components/SavedEventsSheet';
+import ProUpgradeModal from './components/ProUpgradeModal';
+import HelpSheet from './components/HelpSheet';
+import OnboardingFlow from './components/OnboardingFlow';
 import { useMango } from './contexts/MangoContext';
 
 // --- ANIMATION VARIANTS ---
@@ -119,10 +128,31 @@ function App() {
   const [activeCategory, setActiveCategory] = useState('All');
   const [showMatchModal, setShowMatchModal] = useState(null);
 
+  // Explore Filter State
+  const [sizeFilter, setSizeFilter] = useState('all'); // 'all' | 'micro' | 'large'
+  const [dateRange, setDateRange] = useState({ start: null, end: null });
+  const [thisWeekActive, setThisWeekActive] = useState(false);
+
   // Delight moments state
   const [showConfetti, setShowConfetti] = useState(false);
   const [realtimePing, setRealtimePing] = useState({ isVisible: false, name: '', avatar: '', action: '' });
   const mango = useMango();
+
+  // Hub State
+  const [selectedTribe, setSelectedTribe] = useState(null);
+  const [showTribeDiscovery, setShowTribeDiscovery] = useState(false);
+  const [userTribes, setUserTribes] = useLocalStorage('socialise_tribes', COMMUNITIES.map(c => c.id));
+
+  // Profile Modals State
+  const [showBookings, setShowBookings] = useState(false);
+  const [showSaved, setShowSaved] = useState(false);
+  const [showProModal, setShowProModal] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
+  const [savedEvents, setSavedEvents] = useLocalStorage('socialise_saved', []);
+
+  // Onboarding State
+  const [showOnboarding, setShowOnboarding] = useLocalStorage('socialise_onboarding_shown', false);
+  const [userPreferences, setUserPreferences] = useLocalStorage('socialise_preferences', null);
 
   // Authenticated User State
   const [user, setUser] = useLocalStorage('socialise_user', null);
@@ -162,6 +192,21 @@ function App() {
     localStorage.removeItem('socialise_token');
     setAppState('auth');
     showToast('Signed out successfully', 'info');
+  };
+
+  // Tribe handlers
+  const handleJoinTribe = (tribe) => {
+    if (!userTribes.includes(tribe.id)) {
+      setUserTribes([...userTribes, tribe.id]);
+      showToast(`Joined ${tribe.name}!`, 'success');
+    }
+  };
+
+  const handleLeaveTribe = (tribeId) => {
+    setUserTribes(userTribes.filter(id => id !== tribeId));
+    setSelectedTribe(null);
+    const tribe = COMMUNITIES.find(c => c.id === tribeId);
+    showToast(`Left ${tribe?.name || 'tribe'}`, 'info');
   };
 
   const [pullY, setPullY] = useState(0);
@@ -313,11 +358,38 @@ function App() {
     showToast('Experience published successfully!', 'success');
   };
 
+  // Parse date string like "Feb 7" to a Date object
+  const parseEventDate = (dateStr) => {
+    if (!dateStr) return null;
+    const currentYear = new Date().getFullYear();
+    const parsed = new Date(`${dateStr} ${currentYear}`);
+    return isNaN(parsed.getTime()) ? null : parsed;
+  };
+
   const filteredEvents = events.filter(e => {
+    // Search filter
     const matchesSearch = e.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       e.location?.toLowerCase().includes(searchQuery.toLowerCase());
+    if (!matchesSearch) return false;
+
+    // Category filter
     const matchesCategory = activeCategory === 'All' || e.category === activeCategory;
-    return matchesSearch && matchesCategory;
+    if (!matchesCategory) return false;
+
+    // Size filter
+    if (sizeFilter === 'micro' && !e.isMicroMeet) return false;
+    if (sizeFilter === 'large' && e.isMicroMeet) return false;
+
+    // Date range filter
+    if (dateRange.start || dateRange.end) {
+      const eventDate = parseEventDate(e.date);
+      if (eventDate) {
+        if (dateRange.start && eventDate < dateRange.start) return false;
+        if (dateRange.end && eventDate > dateRange.end) return false;
+      }
+    }
+
+    return true;
   }).sort((a, b) => (a.isMicroMeet === b.isMicroMeet) ? 0 : a.isMicroMeet ? -1 : 1);
 
   // Match Analysis Placeholder Modal
@@ -419,9 +491,9 @@ function App() {
                         <motion.header variants={itemVariants} className="flex justify-between items-center mb-8">
                           <div>
                             <p className="text-[10px] font-black text-secondary/60 uppercase tracking-widest mb-1">Wednesday, 4 Feb</p>
-                            <h1 className="text-3xl md:text-5xl font-black tracking-tighter leading-tight">
-                              Good Afternoon,<br />
-                              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary drop-shadow-sm filter animate-text-gradient">{user?.name?.split(' ')[0]}</span>.
+                            <h1 className="text-3xl md:text-5xl font-black tracking-tighter leading-tight text-primary">
+                              Good Afternoon<span className="text-accent">,</span><br />
+                              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary drop-shadow-sm filter animate-text-gradient">{user?.name?.split(' ')[0]}</span><span className="text-accent">.</span>
                             </h1>
                           </div>
                           <motion.button
@@ -448,7 +520,7 @@ function App() {
                         <div className="max-w-[100vw] -mx-5 px-5 md:mx-0 md:px-0">
                           <motion.div variants={itemVariants} className="flex items-center gap-2 mb-6">
                             <div className="w-8 h-8 rounded-xl bg-amber-500/20 flex items-center justify-center border border-amber-500/30"><Zap size={16} className="text-amber-500" /></div>
-                            <h2 className="text-xl font-bold tracking-tight text-secondary">Curated Micro-Meets</h2>
+                            <h2 className="text-xl font-bold tracking-tight text-primary">Curated Micro-Meets<span className="text-accent">.</span></h2>
                           </motion.div>
 
                           {/* 
@@ -469,7 +541,7 @@ function App() {
 
                         {/* Your Events */}
                         <motion.section variants={itemVariants}>
-                          <h2 className="text-xl font-bold mb-6 tracking-tight">Your Next Events</h2>
+                          <h2 className="text-xl font-bold mb-6 tracking-tight text-primary">Your Next Events<span className="text-accent">.</span></h2>
                           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                             {filteredEvents.filter(e => !e.isMicroMeet).slice(0, 3).map(event => (
                               <EventCard key={event.id} event={event} isJoined={joinedEvents.includes(event.id)} onClick={setSelectedEvent} />
@@ -486,32 +558,32 @@ function App() {
                         className="p-5 md:p-10 max-w-7xl mx-auto pb-32"
                       >
                         <header className="mb-10">
-                          <h1 className="text-4xl font-black tracking-tighter mb-2">Community Hub</h1>
+                          <h1 className="text-4xl font-black tracking-tighter mb-2 text-primary">Community Hub<span className="text-accent">.</span></h1>
                           <p className="text-gray-400 font-medium">Your tribes and local buzz.</p>
                         </header>
 
                         <div className="grid md:grid-cols-3 gap-8">
                           {/* Live Feed - Span 2 cols on Desktop */}
-                          <div className="md:col-span-2 space-y-8">
-                            <div>
-                              <h3 className="text-xs font-black text-gray-500 uppercase tracking-widest mb-4">Live Pulse</h3>
-                              {FEED_POSTS.map(post => (
-                                <FeedItem key={post.id} post={post} />
-                              ))}
-                            </div>
+                          <div className="md:col-span-2 space-y-4">
+                            <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-4">Live Pulse<span className="text-accent">.</span></h3>
+                            {FEED_POSTS.map(post => (
+                              <FeedItem key={post.id} post={post} />
+                            ))}
                           </div>
 
                           {/* Local Tribes - Span 1 col (Sidebar style on desktop) */}
                           <div>
-                            <h3 className="text-xs font-black text-gray-500 uppercase tracking-widest mb-4">Your Tribes</h3>
+                            <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-4">Your Tribes<span className="text-accent">.</span></h3>
                             <div className="space-y-4">
-                              {COMMUNITIES.map(comm => (
+                              {COMMUNITIES.filter(c => userTribes.includes(c.id)).map(comm => (
                                 <motion.div
                                   whileHover={{ scale: 1.02 }}
+                                  whileTap={{ scale: 0.98 }}
                                   key={comm.id}
+                                  onClick={() => setSelectedTribe(comm)}
                                   className="premium-card p-4 flex items-center gap-4 group cursor-pointer"
                                 >
-                                  <div className="w-12 h-12 rounded-[18px] bg-white/5 flex items-center justify-center text-2xl border border-white/5 shadow-inner group-hover:bg-white/10 transition-colors">
+                                  <div className="w-12 h-12 rounded-[18px] bg-secondary/10 flex items-center justify-center text-2xl border border-secondary/20 shadow-inner group-hover:bg-secondary/20 transition-colors">
                                     {comm.avatar}
                                   </div>
                                   <div className="flex-1 min-w-0">
@@ -519,11 +591,14 @@ function App() {
                                       <h4 className="font-bold text-sm truncate">{comm.name}</h4>
                                       {comm.unread > 0 && <span className="bg-primary text-[10px] font-black px-1.5 rounded-md text-white">{comm.unread}</span>}
                                     </div>
-                                    <p className="text-[11px] text-gray-400 truncate opacity-70">{comm.lastMessage}</p>
+                                    <p className="text-[11px] text-secondary/60 truncate">{comm.lastMessage}</p>
                                   </div>
                                 </motion.div>
                               ))}
-                              <button className="w-full py-4 border border-dashed border-white/10 rounded-[20px] text-xs font-bold text-gray-500 hover:text-white hover:border-white/30 transition-all uppercase tracking-widest">
+                              <button
+                                onClick={() => setShowTribeDiscovery(true)}
+                                className="w-full py-4 border border-dashed border-primary/30 rounded-[20px] text-xs font-bold text-primary hover:bg-primary/5 hover:border-primary/50 transition-all uppercase tracking-widest"
+                              >
                                 + Find New Tribe
                               </button>
                             </div>
@@ -539,33 +614,22 @@ function App() {
                         className="p-5 md:p-10 max-w-7xl mx-auto pb-32"
                       >
                         <header className="mb-8">
-                          <h1 className="text-4xl font-black tracking-tighter mb-6">Explore</h1>
+                          <h1 className="text-4xl font-black tracking-tighter mb-6 text-primary">Explore<span className="text-accent">.</span></h1>
 
-                          {/* Search & Filter Bar */}
-                          <div className="sticky top-0 z-40 bg-dark/80 backdrop-blur-xl py-4 -mx-5 px-5 md:mx-0 md:px-0 md:relative md:bg-transparent md:backdrop-blur-none md:max-w-xl">
-                            <div className="relative mb-6">
-                              <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-gray-500"><Zap size={20} /></div>
-                              <input
-                                type="text"
-                                placeholder="Search events, vibes, people..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full glass-2 border-white/10 rounded-[24px] pl-12 pr-6 py-4 text-sm font-bold focus:outline-none focus:border-primary transition-all shadow-lg placeholder:text-gray-600"
-                              />
-                            </div>
-
-                            {/* Mobile Horizontal Category List (Hidden on Desktop if using Sidebar) */}
-                            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2 md:hidden">
-                              {CATEGORIES.map(cat => (
-                                <button
-                                  key={cat.id}
-                                  onClick={() => setActiveCategory(cat.id)}
-                                  className={`px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-wider whitespace-nowrap transition-all border ${activeCategory === cat.id ? 'bg-white text-black border-white shadow-lg scale-105' : 'glass-2 border-white/10 text-gray-400 hover:text-white'}`}
-                                >
-                                  {cat.label}
-                                </button>
-                              ))}
-                            </div>
+                          {/* Filters */}
+                          <div className="sticky top-0 z-40 bg-secondary/10 backdrop-blur-xl py-4 -mx-5 px-5 md:mx-0 md:px-0 md:relative md:bg-transparent md:backdrop-blur-none border-b border-secondary/10 md:border-none">
+                            <ExploreFilters
+                              searchQuery={searchQuery}
+                              setSearchQuery={setSearchQuery}
+                              activeCategory={activeCategory}
+                              setActiveCategory={setActiveCategory}
+                              sizeFilter={sizeFilter}
+                              setSizeFilter={setSizeFilter}
+                              dateRange={dateRange}
+                              setDateRange={setDateRange}
+                              thisWeekActive={thisWeekActive}
+                              setThisWeekActive={setThisWeekActive}
+                            />
                           </div>
                         </header>
 
@@ -611,9 +675,9 @@ function App() {
                                   onChange={handleAvatarUpload}
                                 />
                                 <div className="absolute inset-0 bg-primary/20 blur-3xl -z-10 transform scale-150" />
-                                {proEnabled && <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 md:left-0 md:translate-x-0 z-20 bg-amber-500 text-[10px] font-black px-3 py-1 rounded-full text-white shadow-lg border border-white/20 whitespace-nowrap flex items-center gap-1"><Sparkles size={10} /> PRO</div>}
+                                {proEnabled && <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 md:left-0 md:translate-x-0 z-20 bg-amber-500 text-[10px] font-black px-3 py-1 rounded-full text-white shadow-lg border border-white/20 whitespace-nowrap flex items-center gap-1"><Crown size={10} /> PRO</div>}
                               </div>
-                              <h1 className="text-3xl font-black tracking-tighter mb-2">{user?.name}</h1>
+                              <h1 className="text-3xl font-black tracking-tighter mb-2 text-primary">{user?.name}<span className="text-accent">.</span></h1>
                               <p className="text-sm text-gray-400 font-medium max-w-xs leading-relaxed">{user?.bio}</p>
                             </div>
 
@@ -665,28 +729,44 @@ function App() {
 
 
                           {!proEnabled && (
-                            <motion.div variants={itemVariants} className="mt-8 pt-8 border-t border-white/5 text-center">
-                              <p className="text-xs text-gray-500 mb-6 px-4 font-medium leading-relaxed italic">Unlock advanced matchmaking and event analytics for £12.99/mo</p>
-                              <button className="w-full bg-gradient-to-r from-primary to-accent py-4 rounded-2xl text-[12px] font-black uppercase tracking-widest shadow-2xl glow-primary transition-all active:scale-95 text-white">Go Pro</button>
+                            <motion.div variants={itemVariants} className="mt-8 pt-8 border-t border-secondary/10 text-center">
+                              <p className="text-xs text-secondary/60 mb-6 px-4 font-medium leading-relaxed italic">Unlock advanced matchmaking and event analytics for £12.99/mo</p>
+                              <button
+                                onClick={() => setShowProModal(true)}
+                                className="w-full bg-gradient-to-r from-primary to-accent py-4 rounded-2xl text-[12px] font-black uppercase tracking-widest shadow-2xl glow-primary transition-all active:scale-95 text-white"
+                              >
+                                Go Pro
+                              </button>
                             </motion.div>
                           )}
                         </motion.div>
 
-                        <motion.div variants={itemVariants} className="premium-card overflow-hidden mt-6 rounded-[32px] bg-white/5 border border-white/5 bg-secondary/10">
+                        <motion.div variants={itemVariants} className="premium-card overflow-hidden mt-6 rounded-[32px] bg-secondary/5 border border-secondary/10">
                           {[
-                            { label: 'My Bookings', icon: Check },
-                            { label: 'Saved Experiences', icon: Heart },
-                            { label: 'Socialise Pass', icon: Zap },
-                            { label: 'Help & Privacy', icon: ShieldCheck }
+                            { label: 'My Bookings', icon: Check, action: () => setShowBookings(true), badge: joinedEvents.length },
+                            { label: 'Saved Experiences', icon: Heart, action: () => setShowSaved(true), badge: savedEvents.length },
+                            { label: 'Socialise Pass', icon: Zap, action: () => setShowProModal(true) },
+                            { label: 'Help & Privacy', icon: ShieldCheck, action: () => setShowHelp(true) }
                           ].map((item) => (
-                            <button key={item.label} className="w-full flex items-center justify-between p-6 border-b border-white/5 last:border-0 hover:bg-white/5 transition-all active:pl-8">
+                            <button
+                              key={item.label}
+                              onClick={item.action}
+                              className="w-full flex items-center justify-between p-6 border-b border-secondary/10 last:border-0 hover:bg-secondary/5 transition-all active:pl-8"
+                            >
                               <div className="flex items-center gap-5">
-                                <div className="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center border border-white/5 shadow-inner">
+                                <div className="w-10 h-10 rounded-2xl bg-secondary/10 flex items-center justify-center border border-secondary/10">
                                   <item.icon size={20} className="text-primary" />
                                 </div>
-                                <span className="font-extrabold text-[15px] tracking-tight">{item.label}</span>
+                                <span className="font-extrabold text-[15px] tracking-tight text-secondary">{item.label}</span>
                               </div>
-                              <ChevronRight className="text-gray-600" size={20} />
+                              <div className="flex items-center gap-2">
+                                {item.badge > 0 && (
+                                  <span className="bg-primary text-white text-[10px] font-black px-2 py-0.5 rounded-full">
+                                    {item.badge}
+                                  </span>
+                                )}
+                                <ChevronRight className="text-secondary/40" size={20} />
+                              </div>
                             </button>
                           ))}
                         </motion.div>
@@ -738,6 +818,69 @@ function App() {
                     setShowMatchModal(null);
                   }}
                   onCancel={() => setShowMatchModal(null)}
+                />
+              )}
+              {/* Tribe Modals */}
+              <TribeSheet
+                tribe={selectedTribe}
+                isOpen={!!selectedTribe}
+                onClose={() => setSelectedTribe(null)}
+                onLeave={handleLeaveTribe}
+              />
+              <TribeDiscovery
+                isOpen={showTribeDiscovery}
+                onClose={() => setShowTribeDiscovery(false)}
+                onJoin={handleJoinTribe}
+                joinedTribes={userTribes}
+              />
+              {/* Profile Modals */}
+              <MyBookingsSheet
+                isOpen={showBookings}
+                onClose={() => setShowBookings(false)}
+                bookings={events.filter(e => joinedEvents.includes(e.id))}
+                onCancel={(id) => {
+                  setJoinedEvents(joinedEvents.filter(eid => eid !== id));
+                  showToast('Booking cancelled', 'info');
+                }}
+              />
+              <SavedEventsSheet
+                isOpen={showSaved}
+                onClose={() => setShowSaved(false)}
+                savedEvents={events.filter(e => savedEvents.includes(e.id))}
+                onRemove={(id) => {
+                  setSavedEvents(savedEvents.filter(eid => eid !== id));
+                  showToast('Removed from saved', 'info');
+                }}
+                onSelect={(event) => {
+                  setShowSaved(false);
+                  setSelectedEvent(event);
+                }}
+              />
+              <ProUpgradeModal
+                isOpen={showProModal}
+                onClose={() => setShowProModal(false)}
+                onUpgrade={() => {
+                  setProEnabled(true);
+                  setShowConfetti(true);
+                  showToast('Welcome to Socialise Pro! 🎉', 'success');
+                }}
+              />
+              <HelpSheet
+                isOpen={showHelp}
+                onClose={() => setShowHelp(false)}
+              />
+            </AnimatePresence>
+
+            {/* Onboarding Flow */}
+            <AnimatePresence>
+              {user && !showOnboarding && !userPreferences && (
+                <OnboardingFlow
+                  userName={user.name}
+                  onComplete={(prefs) => {
+                    setUserPreferences(prefs);
+                    setShowOnboarding(true);
+                    showToast(`Welcome, ${user.name.split(' ')[0]}! Let's find your tribe.`, 'success');
+                  }}
                 />
               )}
             </AnimatePresence>

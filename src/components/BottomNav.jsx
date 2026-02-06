@@ -95,7 +95,7 @@ const BottomNav = ({ activeTab, setActiveTab, onCreateClick, hasEvents = true })
               {isActive && (
                 <motion.span
                   layoutId="nav-indicator"
-                  className="text-primary font-black text-lg leading-none mt-0.5"
+                  className="text-accent font-black text-lg leading-none mt-0.5"
                   style={{ fontFamily: "'Outfit', sans-serif" }}
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}

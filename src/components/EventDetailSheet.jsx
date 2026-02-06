@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  X, Sparkles, Calendar, Clock, MapPin,
+  X, Wand2, Calendar, Clock, MapPin,
   ChevronRight, Zap, ShieldCheck, Heart,
   MessageCircle, Check, Send
 } from 'lucide-react';
@@ -36,7 +36,7 @@ const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMe
           <div className="absolute bottom-8 left-8 right-8">
             <div className="flex items-center gap-2.5 mb-3">
               <span className="px-4 py-1.5 bg-white/20 backdrop-blur-md text-[10px] font-black uppercase rounded-full shadow-2xl border border-white/20 tracking-widest text-white">{event.category}</span>
-              {event.isMicroMeet && <span className="px-4 py-1.5 bg-accent/90 backdrop-blur text-[10px] font-black uppercase rounded-full shadow-2xl border border-accent/30 flex items-center gap-2 tracking-widest text-white"><Sparkles size={12} /> AI Curated</span>}
+              {event.isMicroMeet && <span className="px-4 py-1.5 bg-accent/90 backdrop-blur text-[10px] font-black uppercase rounded-full shadow-2xl border border-accent/30 flex items-center gap-2 tracking-widest text-white"><Wand2 size={12} /> AI Curated</span>}
             </div>
             <h2 className="text-4xl font-black leading-none tracking-tighter text-white drop-shadow-lg">{event.title}</h2>
           </div>

@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Volume2, VolumeX, Heart, Sparkles } from 'lucide-react';
+import { Play, Volume2, VolumeX, Heart, Wand2 } from 'lucide-react';
 import { ADVERTISED_EVENTS } from '../data/mockData';
 
 /**
@@ -24,7 +24,7 @@ const CuratedIntroCard = ({ userName = "You" }) => (
                 transition={{ delay: 0.3, type: "spring" }}
                 className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center mb-6 backdrop-blur-sm"
             >
-                <Sparkles className="text-white" size={28} />
+                <Wand2 className="text-white" size={28} />
             </motion.div>
 
             <motion.h3

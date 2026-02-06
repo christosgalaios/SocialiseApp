@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Send, Sparkles, MapPin, Calendar, Users } from 'lucide-react';
+import { X, Send, Wand2, MapPin, Calendar, Users } from 'lucide-react';
 import { useMango } from '../contexts/MangoContext';
 import { INITIAL_EVENTS, INITIAL_MICRO_MEETS, DEMO_USER } from '../data/mockData';
 
@@ -127,8 +127,8 @@ const MangoChat = () => {
                         {msg.text && (
                             <div
                                 className={`max-w-[80%] p-4 rounded-2xl shadow-sm relative ${msg.type === 'user'
-                                        ? 'bg-gradient-to-br from-terracotta to-orange-600 text-white rounded-tr-sm'
-                                        : 'bg-white border border-gray-100 text-gray-800 rounded-tl-sm'
+                                    ? 'bg-gradient-to-br from-terracotta to-orange-600 text-white rounded-tr-sm'
+                                    : 'bg-white border border-gray-100 text-gray-800 rounded-tl-sm'
                                     }`}
                             >
                                 <p className="leading-relaxed" dangerouslySetInnerHTML={{

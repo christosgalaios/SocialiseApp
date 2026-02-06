@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Sparkles } from 'lucide-react';
+import { Wand2 } from 'lucide-react';
 
 const MicroMeetCard = ({ meet, onClick }) => (
   <motion.div
@@ -10,7 +10,7 @@ const MicroMeetCard = ({ meet, onClick }) => (
     <div className="absolute -right-8 -top-8 w-32 h-32 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/20 transition-all duration-700" />
     <div className="flex items-center gap-2 mb-4">
       <div className="flex items-center gap-2 px-3 py-1 bg-accent/10 rounded-full border border-accent/20 shadow-inner">
-        <Sparkles className="text-accent" size={12} strokeWidth={3} />
+        <Wand2 className="text-accent" size={12} strokeWidth={3} />
         <span className="text-[10px] font-black text-accent uppercase tracking-widest">{meet.matchScore}% Alignment</span>
       </div>
     </div>

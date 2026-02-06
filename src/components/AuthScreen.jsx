@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, ChevronLeft, ChevronRight, Quote } from 'lucide-react';
+import { Crown, ChevronLeft, ChevronRight, Quote } from 'lucide-react';
 import Mango from './Mango';
 
 // Testimonials from community members
@@ -100,7 +100,7 @@ const AuthScreen = ({ onLogin }) => {
           transition={{ delay: 0.2 }}
         >
           <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-lg text-white">
-            <Sparkles size={20} />
+            <Crown size={20} />
           </div>
           <span className="text-xl font-black tracking-tighter text-secondary">Socialise.</span>
         </motion.div>
@@ -172,8 +172,8 @@ const AuthScreen = ({ onLogin }) => {
                   key={i}
                   onClick={() => setActiveTestimonial(i)}
                   className={`w-2 h-2 rounded-full transition-all ${i === activeTestimonial
-                      ? 'bg-primary w-6'
-                      : 'bg-secondary/20 hover:bg-secondary/40'
+                    ? 'bg-primary w-6'
+                    : 'bg-secondary/20 hover:bg-secondary/40'
                     }`}
                 />
               ))}
