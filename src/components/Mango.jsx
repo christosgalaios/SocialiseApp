@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { useMango } from '../contexts/MangoContext';
 import { motion, useMotionValue, useTransform, AnimatePresence, useVelocity, useDragControls } from 'framer-motion';
 
 /**
@@ -687,6 +688,7 @@ const Mango = ({
     onPositionChange = () => { },
     onPoseChange = () => { } // Notify parent on internal pose change
 }) => {
+    const { toggleChat, hasNotification } = useMango();
     const [currentPose, setCurrentPose] = useState(initialPose);
     const [isDragging, setIsDragging] = useState(false);
     const [isHolding, setIsHolding] = useState(false);
@@ -912,6 +914,8 @@ const Mango = ({
                     scale: { duration: 0.2 }
                 }}
             >
+
+
                 <MangoSVG pose={currentPose} size={size} isDragging={isDragging} />
             </motion.div>
         </motion.div>

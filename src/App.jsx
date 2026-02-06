@@ -29,6 +29,7 @@ import EventCard from './components/EventCard';
 import FeedItem from './components/FeedItem';
 import CreateEventModal from './components/CreateEventModal';
 import EventDetailSheet from './components/EventDetailSheet';
+import MangoChat from './components/MangoChat';
 import IOSInstallPrompt from './components/IOSInstallPrompt';
 import VideoWall from './components/VideoWall';
 import Mango from './components/Mango';
@@ -133,6 +134,8 @@ function App() {
       setNotifications(prev => prev.filter(n => n.id !== id));
     }, 3000);
   };
+
+
 
   const handleLogin = async (type) => {
     try {
@@ -341,11 +344,16 @@ function App() {
     </div>
   );
 
+  // Memoize splash finish handler to prevent re-renders breaking the splash animation
+  const handleSplashFinish = useCallback(() => {
+    setAppState(user ? 'app' : 'auth');
+  }, [user]);
+
   return (
     <div className="h-[100dvh] w-full flex flex-col bg-paper font-sans overflow-hidden">
       <AnimatePresence mode="wait">
         {appState === 'splash' && (
-          <SplashScreen key="splash" onFinish={() => setAppState(user ? 'app' : 'auth')} />
+          <SplashScreen key="splash" onFinish={handleSplashFinish} />
         )}
 
         {appState === 'auth' && (
@@ -654,15 +662,7 @@ function App() {
                             ))}
                           </div>
 
-                          {/* Mango celebrating in corner for high warmth */}
-                          <motion.div
-                            className="absolute top-4 right-4"
-                            initial={{ scale: 0, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            transition={{ delay: 1.5, type: "spring" }}
-                          >
-                            <Mango pose="celebrate" size={50} />
-                          </motion.div>
+
 
                           {!proEnabled && (
                             <motion.div variants={itemVariants} className="mt-8 pt-8 border-t border-white/5 text-center">
@@ -758,6 +758,9 @@ function App() {
             <IOSInstallPrompt />
           </motion.div>
         )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {mango.isChatOpen && <MangoChat />}
       </AnimatePresence>
     </div>
   );

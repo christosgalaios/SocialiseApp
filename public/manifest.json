@@ -2,21 +2,21 @@
   "name": "Socialise",
   "short_name": "Socialise",
   "description": "Discover tribes and join micro-meets.",
-  "theme_color": "#0f172a",
-  "background_color": "#0f172a",
+  "theme_color": "#F9F7F2",
+  "background_color": "#F9F7F2",
   "display": "standalone",
   "scope": "/",
   "start_url": "/",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/pwa-192x192.png",
+      "src": "/logo.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/pwa-512x512.png",
+      "src": "/logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"

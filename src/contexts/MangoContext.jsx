@@ -12,6 +12,8 @@ export const MangoProvider = ({ children }) => {
     const [pose, setPose] = useState('wave');
     const [isVisible, setIsVisible] = useState(true);
     const [message, setMessage] = useState(null);
+    const [isChatOpen, setIsChatOpen] = useState(false);
+    const [hasNotification, setHasNotification] = useState(false);
     const [position, setPosition] = useState('bottom-left'); // Default: above Home button
     const [coords, setCoords] = useState({ x: 0, y: 0 }); // Functionally persistent drag coordinates
 
@@ -91,6 +93,15 @@ export const MangoProvider = ({ children }) => {
         setPosition,
         setCoords,
         setIsVisible,
+        // Chat
+        isChatOpen,
+        hasNotification,
+        setIsChatOpen,
+        setHasNotification,
+        toggleChat: () => {
+            setIsChatOpen(prev => !prev);
+            setHasNotification(false); // Clear notification on open
+        }
     };
 
     return (
