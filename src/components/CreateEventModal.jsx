@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Image, AlertCircle, Check } from 'lucide-react';
 import { CATEGORIES } from '../data/mockData';
+import LocationPicker from './LocationPicker';
 
 const CreateEventModal = ({ onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -114,8 +115,8 @@ const CreateEventModal = ({ onClose, onSubmit }) => {
                   key={cat.id}
                   onClick={() => setFormData({ ...formData, category: cat.id })}
                   className={`px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all ${formData.category === cat.id
-                      ? 'bg-primary text-white'
-                      : 'bg-secondary/5 text-secondary/70 border border-secondary/10 hover:border-secondary/30'
+                    ? 'bg-primary text-white'
+                    : 'bg-secondary/5 text-secondary/70 border border-secondary/10 hover:border-secondary/30'
                     }`}
                 >
                   <cat.icon size={14} />
@@ -150,12 +151,22 @@ const CreateEventModal = ({ onClose, onSubmit }) => {
           {/* Location */}
           <div className="space-y-2">
             <label className="text-[10px] font-black text-secondary/50 uppercase tracking-widest ml-3">Location</label>
-            <input
-              type="text"
-              placeholder="Venue name or address"
+            <LocationPicker
+              apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
               value={formData.location}
-              onChange={e => setFormData({ ...formData, location: e.target.value })}
-              className={`w-full bg-secondary/5 border rounded-2xl px-4 py-4 text-sm font-bold focus:outline-none focus:border-primary transition-all placeholder:text-secondary/30 ${errors.location ? 'border-red-500' : 'border-secondary/10'}`}
+              onChange={(loc) => {
+                // If simple string update (legacy/manual typing fallback if we allowed it)
+                if (typeof loc === 'string') {
+                  setFormData({ ...formData, location: loc });
+                } else {
+                  // Update location with address and store coordinates
+                  setFormData({
+                    ...formData,
+                    location: loc.address,
+                    coordinates: { lat: loc.lat, lng: loc.lng }
+                  });
+                }
+              }}
             />
             {errors.location && (
               <p className="text-xs text-red-500 flex items-center gap-1 ml-3">
