@@ -796,13 +796,11 @@ const Mango = ({
             return;
         }
 
-        // Quick tap = playful animation
+        // Quick tap = open chat
         if (tapDuration < 300 && !hasDraggedRef.current && !isDragging) {
-            setCurrentPose('playful');
-            // Return to initial pose after animation
-            setTimeout(() => setCurrentPose(initialPose), 800);
+            toggleChat();
         }
-    }, [interactive, isDragging, isHolding, initialPose]);
+    }, [interactive, isDragging, isHolding, toggleChat]);
 
     // Handle drag start
     const handleDragStart = useCallback(() => {
