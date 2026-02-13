@@ -1,38 +1,37 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const SplashScreen = ({ onFinish }) => {
-    // Narrative Phases:
-    // 'host' - S (the host) fades in alone, looking around
-    // 'members' - "ocialise" letters arrive but spaced out, distant
-    // 'huddle' - S pulls everyone close, letters squeeze together
-    // 'latecomer' - The dot appears awkwardly from far right
-    // 'welcome' - Group opens up slightly, dot slides in gently
-    // 'together' - Full "Socialise." with brand colors, warm and unified
     const [phase, setPhase] = useState('host');
+    const timeoutsRef = useRef([]);
 
     useEffect(() => {
-        // Phase 1: Host (S appears alone)
-        // Already starting in 'host' phase
-
-        // Phase 2: Members arrive (distant letters)
-        setTimeout(() => setPhase('members'), 1200);
-
-        // Phase 3: Huddle (letters come close)
-        setTimeout(() => setPhase('huddle'), 2800);
-
-        // Phase 4: Latecomer (dot appears awkwardly)
-        setTimeout(() => setPhase('latecomer'), 4200);
-
-        // Phase 5: Welcome (group makes room)
-        setTimeout(() => setPhase('welcome'), 5000);
-
-        // Phase 6: Together (brand colors, unified)
-        setTimeout(() => setPhase('together'), 6200);
-
-        // Final handoff
-        setTimeout(onFinish, 8000);
+        const add = (fn, ms) => {
+            const id = setTimeout(fn, ms);
+            timeoutsRef.current.push(id);
+            return id;
+        };
+        add(() => setPhase('members'), 1200);
+        add(() => setPhase('huddle'), 2800);
+        add(() => setPhase('latecomer'), 4200);
+        add(() => setPhase('welcome'), 5000);
+        add(() => setPhase('together'), 6200);
+        add(onFinish, 8000);
+        return () => {
+            timeoutsRef.current.forEach(clearTimeout);
+            timeoutsRef.current = [];
+        };
     }, [onFinish]);
+
+    const handleTap = () => {
+        if (phase !== 'together') {
+            timeoutsRef.current.forEach(clearTimeout);
+            timeoutsRef.current = [];
+            setPhase('together');
+        } else {
+            onFinish();
+        }
+    };
 
     const showMembers = ['members', 'huddle', 'latecomer', 'welcome', 'together'].includes(phase);
     const showDot = ['latecomer', 'welcome', 'together'].includes(phase);
@@ -58,10 +57,14 @@ const SplashScreen = ({ onFinish }) => {
 
     return (
         <motion.div
+            role="button"
+            tabIndex={0}
+            onClick={handleTap}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleTap(); }}
             initial={{ opacity: 0, backgroundColor: "var(--bg-paper)" }}
             animate={{ opacity: 1, backgroundColor: "var(--bg-paper)" }}
             exit={{ opacity: 0, transition: { duration: 0.8 } }}
-            className="fixed inset-0 z-[1000] flex flex-col items-center justify-center overflow-hidden"
+            className="fixed inset-0 z-[1000] flex flex-col items-center justify-center overflow-hidden cursor-pointer"
         >
             {/* Warm glow in final phase */}
             <AnimatePresence>

@@ -1,0 +1,21 @@
+---
+description: Socialise design system, architecture, and patterns from ANTIGRAVITY_BRAIN
+alwaysApply: true
+---
+
+# Antigravity Brain (Socialise)
+
+**Full reference**: `ANTIGRAVITY_BRAIN.md`. Follow it for design and architecture.
+
+## Design
+- **Palette**: Primary `#E2725B` (terracotta), Secondary `#2D5F5D` (teal), Accent `#F4B942`, Paper `#F9F7F2`, Text `#1A1C1C`, Muted `#5C6363`. No pure white backgrounds.
+- **Fonts**: Outfit (headings), Quicksand (body).
+- **Contrast**: Never white text on paper/secondary backgrounds; use `text-secondary` or `text-primary`. Inputs must have `color: var(--text)`.
+- **UI**: Heavy roundness (`rounded-[24px]`/`rounded-[32px]` for cards/modals). Modals: `bg-secondary/60 backdrop-blur-sm`, paper content. Light mode only.
+
+## Stack & patterns
+- React 19 + Vite, Tailwind 4, Framer Motion, Lucide. Maps: `@react-google-maps/api` + `use-places-autocomplete`; `LocationPicker.jsx`; graceful failure if `VITE_GOOGLE_MAPS_API_KEY` missing.
+- Comments: max depth 1 (Comment → Reply). Bottom nav, sheets for My Bookings/Saved/Help.
+
+## When editing
+- Preserve "Warm Hearth" feel and the rules above. Check ANTIGRAVITY_BRAIN.md for learnings and roadmap.
