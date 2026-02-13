@@ -108,7 +108,7 @@ const MangoChat = () => {
                     </div>
                 </div>
                 <button
-                    onClick={() => setIsChatOpen(false)}
+                    onClick={() => { setIsChatOpen(false); setPose('wave'); }}
                     className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500"
                 >
                     <X size={24} />

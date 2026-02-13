@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  BarChart3, Mail, ShieldCheck, Zap, Check, Heart, User, Crown, ChevronRight, LogOut, Camera, Users
+  BarChart3, Mail, ShieldCheck, Zap, Check, Heart, User, Crown, ChevronRight, LogOut, Camera, Users, Settings, MessageCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from './api';
@@ -45,7 +45,14 @@ import MyBookingsSheet from './components/MyBookingsSheet';
 import SavedEventsSheet from './components/SavedEventsSheet';
 import ProUpgradeModal from './components/ProUpgradeModal';
 import HelpSheet from './components/HelpSheet';
+import UserProfileSheet from './components/UserProfileSheet';
 import OnboardingFlow from './components/OnboardingFlow';
+import {
+  HomeSkeleton,
+  HubSkeleton,
+  ExploreSkeleton,
+  ProfileSkeleton
+} from './components/Skeleton';
 import { useMango } from './contexts/MangoContext';
 
 // --- ANIMATION VARIANTS ---
@@ -92,22 +99,19 @@ function App() {
   const mainContentRef = useRef(null);
   const lastHomeExitRef = useRef(0);
 
-  const setActiveTab = (id, direction = 0) => {
-    // Logic for Mango's home persistence
+    const setActiveTab = (id, direction = 0) => {
     if (activeTab === 'home' && id !== 'home') {
-      // Leaving home
       lastHomeExitRef.current = Date.now();
     } else if (activeTab !== 'home' && id === 'home') {
-      // Returning to home
       const timeAway = Date.now() - lastHomeExitRef.current;
-      if (timeAway > 10000) { // 10 seconds
-        // Reset position and play!
+      if (timeAway > 10000) {
+        mango.setMessage('Welcome back!');
         mango.setCoords({ x: 0, y: 0 });
         mango.setPose('playing');
+        setTimeout(() => mango.setMessage(null), 2500);
         setTimeout(() => mango.setPose('wave'), 4000);
       }
     }
-
     setSlideDir(direction);
     setActiveTabState(id);
     // Scroll to top when tab changes or is re-clicked
@@ -154,6 +158,24 @@ function App() {
   const [showOnboarding, setShowOnboarding] = useLocalStorage('socialise_onboarding_shown', false);
   const [userPreferences, setUserPreferences] = useLocalStorage('socialise_preferences', null);
 
+  // Other user profile (feed/comment/chat click)
+  const [selectedUserProfile, setSelectedUserProfile] = useState(null);
+
+  // Profile sub-tab: Profile | Settings
+  const [profileSubTab, setProfileSubTab] = useState('profile');
+  const [experimentalFeatures, setExperimentalFeatures] = useLocalStorage('socialise_experimental', false);
+
+  // Content loading: show skeletons then reveal (big-platform style)
+  const [contentReady, setContentReady] = useState(false);
+  useEffect(() => {
+    if (appState !== 'app') {
+      setContentReady(false);
+      return;
+    }
+    const t = setTimeout(() => setContentReady(true), 600);
+    return () => clearTimeout(t);
+  }, [appState]);
+
   // Authenticated User State
   const [user, setUser] = useLocalStorage('socialise_user', null);
 
@@ -187,12 +209,12 @@ function App() {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     setUser(null);
     localStorage.removeItem('socialise_token');
     setAppState('auth');
     showToast('Signed out successfully', 'info');
-  };
+  }, []);
 
   // Tribe handlers
   const handleJoinTribe = (tribe) => {
@@ -277,26 +299,28 @@ function App() {
     }
   };
 
-  // Persistent Session Check
+  // Persistent Session Check - run once on mount so splash can finish without effect re-runs
+  const handleLogoutRef = useRef(handleLogout);
+  handleLogoutRef.current = handleLogout;
   useEffect(() => {
+    let cancelled = false;
     const checkSession = async () => {
       const token = localStorage.getItem('socialise_token');
-      if (token && !user) {
-        try {
-          const userData = await api.getMe(token);
-          setUser(userData);
-          // Removed setAppState('app') to allow SplashScreen to finish
-        } catch (err) {
-          console.error("Session invalid", err);
-          handleLogout();
-        }
+      if (!token) return;
+      try {
+        const userData = await api.getMe(token);
+        if (!cancelled) setUser(userData);
+      } catch (err) {
+        console.error('Session invalid', err);
+        if (!cancelled) handleLogoutRef.current();
       }
-      // Removed else if (user) block to prevent skipping splash
     };
-    // Simulate check
-    setTimeout(checkSession, 100);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Run once on mount
+    const t = setTimeout(checkSession, 100);
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
+  }, []);
 
   // Dark Mode Application
 
@@ -330,10 +354,12 @@ function App() {
 
   const sendMessage = (eventId, text) => {
     if (!text.trim()) return;
+    const name = user?.name ?? 'Guest';
+    const parts = name.split(' ');
     const newMessage = {
       id: Date.now(),
-      user: `${user.name.split(' ')[0]} ${user.name.split(' ')[1]?.[0] || ''}.`,
-      avatar: user.avatar,
+      user: `${parts[0] ?? ''} ${parts[1]?.[0] ?? ''}.`.trim() || 'Guest',
+      avatar: user?.avatar ?? '',
       message: text,
       time: "Just now",
       isMe: true
@@ -350,7 +376,7 @@ function App() {
       id: Date.now(),
       ...data,
       attendees: 1,
-      host: user.name,
+      host: user?.name ?? 'Host',
       image: "https://images.unsplash.com/photo-1511632765486-a01980e01ea3?w=500&q=80" // Default party image
     };
     setEvents([newEvent, ...events]);
@@ -406,7 +432,7 @@ function App() {
         </div>
         <h3 className="text-2xl font-black mb-2">High Synergy Detected</h3>
         <p className="text-sm text-gray-400 mb-8 leading-relaxed">
-          Our AI has analyzed the attendee list. You have a <span className="text-primary font-black">94% match</span> with this tribe based on your interests in <span className="text-white font-bold">{event.matchTags?.slice(0, 2).join(' & ')}</span>.
+          Our AI has analyzed the attendee list. You have a <span className="text-primary font-black">94% match</span> with this tribe based on your interests in <span className="text-white font-bold">{(event.matchTags?.slice(0, 2).join(' & ')) ?? 'this event'}</span>.
         </p>
         <div className="flex gap-3">
           <button onClick={onCancel} className="flex-1 py-4 rounded-xl font-bold bg-white/5 hover:bg-white/10 transition-colors">Cancel</button>
@@ -416,14 +442,15 @@ function App() {
     </div>
   );
 
-  // Memoize splash finish handler to prevent re-renders breaking the splash animation
+  const userRef = useRef(user);
+  userRef.current = user;
   const handleSplashFinish = useCallback(() => {
-    setAppState(user ? 'app' : 'auth');
-  }, [user]);
+    setAppState(userRef.current ? 'app' : 'auth');
+  }, []);
 
   return (
     <div className="h-[100dvh] w-full flex flex-col bg-paper font-sans overflow-hidden">
-      <AnimatePresence mode="wait">
+      <AnimatePresence>
         {appState === 'splash' && (
           <SplashScreen key="splash" onFinish={handleSplashFinish} />
         )}
@@ -435,9 +462,8 @@ function App() {
         {appState === 'app' && (
           <motion.div
             key="app"
-            initial={{ opacity: 0 }}
+            initial={{ opacity: 1 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
             className="flex-1 flex flex-col relative overflow-hidden pt-[env(safe-area-inset-top)]"
           >
             {/* Global Toast Notifications */}
@@ -480,6 +506,7 @@ function App() {
                 <motion.div style={{ translateY: pullY }} className="min-h-full">
                   <AnimatePresence mode="wait">
                     {activeTab === 'home' && (
+                      contentReady ? (
                       <motion.div
                         key="home"
                         variants={containerVariants}
@@ -549,9 +576,11 @@ function App() {
                           </div>
                         </motion.section>
                       </motion.div>
+                      ) : ( <HomeSkeleton /> )
                     )}
 
                     {activeTab === 'hub' && (
+                      contentReady ? (
                       <motion.div
                         key="hub"
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -567,7 +596,7 @@ function App() {
                           <div className="md:col-span-2 space-y-4">
                             <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-4">Live Pulse<span className="text-accent">.</span></h3>
                             {FEED_POSTS.map(post => (
-                              <FeedItem key={post.id} post={post} />
+                              <FeedItem key={post.id} post={post} currentUser={{ name: user?.name ?? 'Guest', avatar: user?.avatar ?? '' }} onOpenProfile={setSelectedUserProfile} />
                             ))}
                           </div>
 
@@ -605,9 +634,11 @@ function App() {
                           </div>
                         </div>
                       </motion.div>
+                      ) : ( <HubSkeleton /> )
                     )}
 
                     {activeTab === 'explore' && (
+                      contentReady ? (
                       <motion.div
                         key="explore"
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -640,18 +671,72 @@ function App() {
                           ))}
                         </div>
                       </motion.div>
+                      ) : ( <ExploreSkeleton /> )
                     )}
 
                     {activeTab === 'profile' && (
+                      contentReady ? (
                       <motion.div
                         key="profile"
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                         className="p-5 md:p-10 max-w-4xl mx-auto pb-32 relative"
                       >
-                        {/* Abstract background shape */}
-                        <div className="absolute top-20 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
-                        <div className="absolute bottom-40 left-0 w-48 h-48 bg-secondary/5 rounded-full blur-[80px] pointer-events-none" />
+                        {/* Profile / Settings tabs */}
+                        <div className="flex gap-2 mb-6">
+                          <button
+                            onClick={() => setProfileSubTab('profile')}
+                            className={`flex-1 py-3 px-4 rounded-2xl font-bold text-sm transition-all ${profileSubTab === 'profile' ? 'bg-primary text-white' : 'bg-secondary/10 text-secondary/70 hover:bg-secondary/15'}`}
+                          >
+                            Profile
+                          </button>
+                          <button
+                            onClick={() => setProfileSubTab('settings')}
+                            className={`flex-1 py-3 px-4 rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${profileSubTab === 'settings' ? 'bg-primary text-white' : 'bg-secondary/10 text-secondary/70 hover:bg-secondary/15'}`}
+                          >
+                            <Settings size={18} />
+                            Settings
+                          </button>
+                        </div>
 
+                        {profileSubTab === 'settings' ? (
+                          <motion.div
+                            initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                            className="space-y-6"
+                          >
+                            <div className="premium-card rounded-[32px] overflow-hidden border border-secondary/10">
+                              <div className="p-4 border-b border-secondary/10">
+                                <h2 className="font-black text-secondary text-lg">Experimental features</h2>
+                                <p className="text-xs text-secondary/60 mt-1">Try upcoming features early.</p>
+                              </div>
+                              <div className="p-4 flex items-center justify-between">
+                                <span className="font-bold text-secondary">Enable experimental features</span>
+                                <button
+                                  role="switch"
+                                  aria-checked={experimentalFeatures}
+                                  onClick={() => setExperimentalFeatures(!experimentalFeatures)}
+                                  className={`relative w-12 h-7 rounded-full transition-colors ${experimentalFeatures ? 'bg-primary' : 'bg-secondary/20'}`}
+                                >
+                                  <motion.div
+                                    className="absolute top-1 w-5 h-5 rounded-full bg-white shadow"
+                                    animate={{ x: experimentalFeatures ? 24 : 0 }}
+                                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                                    style={{ left: 4 }}
+                                  />
+                                </button>
+                              </div>
+                              {experimentalFeatures && (
+                                <div className="border-t border-secondary/10 p-4 space-y-2">
+                                  <div className="flex items-center gap-3 p-3 rounded-2xl bg-secondary/5">
+                                    <MessageCircle className="text-secondary" size={20} />
+                                    <span className="font-bold text-secondary">Group Chats</span>
+                                    <span className="ml-auto text-[10px] font-bold uppercase tracking-wider text-secondary/50">Coming soon</span>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </motion.div>
+                        ) : (
+                        <>
                         <motion.div variants={containerVariants} initial="hidden" animate="show" className="space-y-6 relative">
                           {/* Header with avatar and WarmthScore side by side on desktop */}
                           <motion.div variants={itemVariants} className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-10">
@@ -779,7 +864,10 @@ function App() {
                           <LogOut size={18} />
                           Log Out
                         </motion.button>
+                        </>
+                        )}
                       </motion.div>
+                      ) : ( <ProfileSkeleton /> )
                     )}
                   </AnimatePresence>
                 </motion.div>
@@ -795,6 +883,7 @@ function App() {
             <AnimatePresence>
               {selectedEvent && (
                 <EventDetailSheet
+                  key="event-detail"
                   event={selectedEvent}
                   isJoined={joinedEvents.includes(selectedEvent.id)}
                   onJoin={() => {
@@ -807,11 +896,13 @@ function App() {
                   onClose={() => setSelectedEvent(null)}
                   messages={chatMessages[selectedEvent.id] || []}
                   onSendMessage={(text) => sendMessage(selectedEvent.id, text)}
+                  onOpenProfile={setSelectedUserProfile}
                 />
               )}
-              {showCreate && <CreateEventModal onClose={() => setShowCreate(false)} onSubmit={createNewEvent} />}
+              {showCreate && <CreateEventModal key="create-event" onClose={() => setShowCreate(false)} onSubmit={createNewEvent} />}
               {showMatchModal && (
                 <MatchAnalysisModal
+                  key="match-modal"
                   event={showMatchModal}
                   onConfirm={() => {
                     handleJoin(showMatchModal.id);
@@ -822,12 +913,14 @@ function App() {
               )}
               {/* Tribe Modals */}
               <TribeSheet
+                key="tribe-sheet"
                 tribe={selectedTribe}
                 isOpen={!!selectedTribe}
                 onClose={() => setSelectedTribe(null)}
                 onLeave={handleLeaveTribe}
               />
               <TribeDiscovery
+                key="tribe-discovery"
                 isOpen={showTribeDiscovery}
                 onClose={() => setShowTribeDiscovery(false)}
                 onJoin={handleJoinTribe}
@@ -835,6 +928,7 @@ function App() {
               />
               {/* Profile Modals */}
               <MyBookingsSheet
+                key="bookings"
                 isOpen={showBookings}
                 onClose={() => setShowBookings(false)}
                 bookings={events.filter(e => joinedEvents.includes(e.id))}
@@ -844,6 +938,7 @@ function App() {
                 }}
               />
               <SavedEventsSheet
+                key="saved"
                 isOpen={showSaved}
                 onClose={() => setShowSaved(false)}
                 savedEvents={events.filter(e => savedEvents.includes(e.id))}
@@ -857,6 +952,7 @@ function App() {
                 }}
               />
               <ProUpgradeModal
+                key="pro"
                 isOpen={showProModal}
                 onClose={() => setShowProModal(false)}
                 onUpgrade={() => {
@@ -866,8 +962,16 @@ function App() {
                 }}
               />
               <HelpSheet
+                key="help"
                 isOpen={showHelp}
                 onClose={() => setShowHelp(false)}
+              />
+              <UserProfileSheet
+                key="user-profile"
+                profile={selectedUserProfile}
+                isOpen={!!selectedUserProfile}
+                onClose={() => setSelectedUserProfile(null)}
+                onMessage={(p) => showToast(`Opening chat with ${p.name}…`, 'info')}
               />
             </AnimatePresence>
 
@@ -875,11 +979,11 @@ function App() {
             <AnimatePresence>
               {user && !showOnboarding && !userPreferences && (
                 <OnboardingFlow
-                  userName={user.name}
+                  userName={user?.name ?? 'there'}
                   onComplete={(prefs) => {
                     setUserPreferences(prefs);
                     setShowOnboarding(true);
-                    showToast(`Welcome, ${user.name.split(' ')[0]}! Let's find your tribe.`, 'success');
+                    showToast(`Welcome, ${user?.name?.split(' ')[0] ?? 'there'}! Let's find your tribe.`, 'success');
                   }}
                 />
               )}

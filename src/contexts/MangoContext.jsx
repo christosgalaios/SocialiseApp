@@ -17,14 +17,15 @@ export const MangoProvider = ({ children }) => {
     const [position, setPosition] = useState('bottom-left'); // Default: above Home button
     const [coords, setCoords] = useState({ x: 0, y: 0 }); // Functionally persistent drag coordinates
 
-    // Trigger celebration (e.g., when user joins an event)
-    const celebrate = useCallback(() => {
+    // Trigger celebration (e.g., when user joins an event). Optional message shows in bubble.
+    const celebrate = useCallback((msg = null) => {
         setPose('celebrate');
         setIsVisible(true);
+        if (msg) setMessage(msg);
 
-        // Reset after animation
         setTimeout(() => {
             setPose('wave');
+            if (msg) setMessage(null);
         }, 3000);
     }, []);
 
@@ -99,8 +100,11 @@ export const MangoProvider = ({ children }) => {
         setIsChatOpen,
         setHasNotification,
         toggleChat: () => {
-            setIsChatOpen(prev => !prev);
-            setHasNotification(false); // Clear notification on open
+            setIsChatOpen(prev => {
+                if (prev) setPose('wave');
+                return !prev;
+            });
+            setHasNotification(false);
         }
     };
 

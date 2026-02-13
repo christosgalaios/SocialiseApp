@@ -57,9 +57,8 @@ const AuthScreen = ({ onLogin }) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
+      initial={{ opacity: 1 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.8 }}
       key="auth-screen"
       className="fixed inset-0 z-[500] bg-paper flex flex-col p-8 md:p-10 relative overflow-hidden text-dark"
     >

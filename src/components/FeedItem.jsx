@@ -43,7 +43,7 @@ const INITIAL_COMMENTS = {
   ],
 };
 
-const CommentItem = ({ comment, onReact, onReply, isReply = false, currentUser, myReaction }) => {
+const CommentItem = ({ comment, onReact, onReply, isReply = false, currentUser, myReaction, onOpenProfile }) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showReplyInput, setShowReplyInput] = useState(false);
   const [replyText, setReplyText] = useState('');
@@ -59,16 +59,29 @@ const CommentItem = ({ comment, onReact, onReply, isReply = false, currentUser, 
     }
   };
 
+  const isCurrentUser = currentUser?.name && comment.user === currentUser.name;
+  const handleProfileClick = () => {
+    if (onOpenProfile && !isCurrentUser) onOpenProfile({ name: comment.user, avatar: comment.avatar });
+  };
+
   return (
     <div className={`flex gap-2 group/comment ${isReply ? 'ml-10' : ''}`}>
-      <img
-        src={comment.avatar}
-        alt={comment.user}
-        className={`rounded-full object-cover border border-secondary/10 ${isReply ? 'w-6 h-6' : 'w-8 h-8'}`}
-      />
+      {onOpenProfile && !isCurrentUser ? (
+        <button type="button" onClick={handleProfileClick} className="flex-shrink-0 rounded-full focus:outline-none focus:ring-2 focus:ring-primary/30">
+          <img src={comment.avatar} alt={comment.user} className={`rounded-full object-cover border border-secondary/10 ${isReply ? 'w-6 h-6' : 'w-8 h-8'}`} />
+        </button>
+      ) : (
+        <img src={comment.avatar} alt={comment.user} className={`rounded-full object-cover border border-secondary/10 flex-shrink-0 ${isReply ? 'w-6 h-6' : 'w-8 h-8'}`} />
+      )}
       <div className="flex-1 min-w-0">
         <div className="bg-secondary/5 rounded-2xl px-3 py-2 relative">
-          <span className="text-xs font-bold text-secondary">{comment.user}</span>
+          {onOpenProfile && !isCurrentUser ? (
+            <button type="button" onClick={handleProfileClick} className="text-xs font-bold text-secondary hover:text-primary transition-colors text-left">
+              {comment.user}
+            </button>
+          ) : (
+            <span className="text-xs font-bold text-secondary">{comment.user}</span>
+          )}
           <p className="text-sm text-secondary/80">{comment.text}</p>
 
           {/* Emoji picker trigger */}
@@ -196,10 +209,11 @@ const CommentItem = ({ comment, onReact, onReply, isReply = false, currentUser, 
                   key={reply.id}
                   comment={reply}
                   onReact={onReact}
-                  onReply={() => { }}
+                  onReply={() => {}}
                   isReply={true}
                   currentUser={currentUser}
                   myReaction={myReaction}
+                  onOpenProfile={onOpenProfile}
                 />
               ))}
             </motion.div>
@@ -210,7 +224,7 @@ const CommentItem = ({ comment, onReact, onReply, isReply = false, currentUser, 
   );
 };
 
-const FeedItem = ({ post, currentUser = { name: 'Ben B.', avatar: '/ben-avatar.png' } }) => {
+const FeedItem = ({ post, currentUser = { name: 'Ben B.', avatar: '/ben-avatar.png' }, onOpenProfile }) => {
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(post.likes);
   const [showComments, setShowComments] = useState(false);
@@ -318,13 +332,31 @@ const FeedItem = ({ post, currentUser = { name: 'Ben B.', avatar: '/ben-avatar.p
     >
       <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
       <div className="flex items-center gap-3 mb-4">
-        <img src={post.avatar} className="w-10 h-10 rounded-[14px] object-cover border border-secondary/10 shadow-inner" alt={post.user} />
-        <div>
-          <h4 className="text-sm font-black tracking-tight text-secondary">{post.user}</h4>
-          <p className="text-[10px] font-bold text-secondary/40 uppercase tracking-widest flex items-center gap-1.5">
-            <span className="text-primary">{post.community}</span> • {post.time}
-          </p>
-        </div>
+        {onOpenProfile ? (
+          <button
+            type="button"
+            onClick={() => onOpenProfile({ name: post.user, avatar: post.avatar, community: post.community })}
+            className="flex items-center gap-3 text-left focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-2xl -m-1 p-1"
+          >
+            <img src={post.avatar} className="w-10 h-10 rounded-[14px] object-cover border border-secondary/10 shadow-inner" alt={post.user} />
+            <div>
+              <h4 className="text-sm font-black tracking-tight text-secondary">{post.user}</h4>
+              <p className="text-[10px] font-bold text-secondary/40 uppercase tracking-widest flex items-center gap-1.5">
+                <span className="text-primary">{post.community}</span> • {post.time}
+              </p>
+            </div>
+          </button>
+        ) : (
+          <>
+            <img src={post.avatar} className="w-10 h-10 rounded-[14px] object-cover border border-secondary/10 shadow-inner" alt={post.user} />
+            <div>
+              <h4 className="text-sm font-black tracking-tight text-secondary">{post.user}</h4>
+              <p className="text-[10px] font-bold text-secondary/40 uppercase tracking-widest flex items-center gap-1.5">
+                <span className="text-primary">{post.community}</span> • {post.time}
+              </p>
+            </div>
+          </>
+        )}
       </div>
       <p className="text-[15px] font-medium leading-relaxed mb-4 tracking-tight text-secondary/90">{post.content}</p>
       {post.image && (
@@ -382,6 +414,7 @@ const FeedItem = ({ post, currentUser = { name: 'Ben B.', avatar: '/ben-avatar.p
                         onReply={handleReply}
                         currentUser={currentUser}
                         myReaction={myReactions[c.id]}
+                        onOpenProfile={onOpenProfile}
                       />
                     </motion.div>
                   ))}

@@ -265,3 +265,25 @@
   background-size: 300% auto;
   animation: text-gradient-flow 6s ease-in-out infinite;
 }
+
+/* Skeleton loading - big-platform style shimmer */
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--glass-border) 0%,
+    var(--glass-highlight) 35%,
+    var(--glass-border) 70%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  border-radius: inherit;
+}

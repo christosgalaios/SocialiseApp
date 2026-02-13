@@ -80,11 +80,10 @@ const LocationPicker = ({ value, onChange, apiKey }) => {
 };
 
 const MapSearch = ({ value, onChange }) => {
-    // If value is a string (legacy), we treat it as address only. 
-    // Ideally value should be { address: string, lat: number, lng: number }
-    const [selectedLocation, setSelectedLocation] = useState(
-        typeof value === 'object' ? value : { address: value, lat: defaultCenter.lat, lng: defaultCenter.lng }
-    );
+    const initialLocation = typeof value === 'object' && value?.address != null
+        ? value
+        : { address: typeof value === 'string' ? value : '', lat: defaultCenter.lat, lng: defaultCenter.lng };
+    const [selectedLocation, setSelectedLocation] = useState(initialLocation);
 
     const {
         ready,
@@ -93,12 +92,19 @@ const MapSearch = ({ value, onChange }) => {
         setValue,
         clearSuggestions,
     } = usePlacesAutocomplete({
-        requestOptions: {
-            /* Define search scope here */
-        },
+        requestOptions: {},
         debounce: 300,
         defaultValue: typeof value === 'string' ? value : value?.address || '',
     });
+
+    useEffect(() => {
+        const nextAddress = typeof value === 'string' ? value : value?.address ?? '';
+        const nextLocation = typeof value === 'object' && value?.address != null
+            ? value
+            : { address: nextAddress, lat: defaultCenter.lat, lng: defaultCenter.lng };
+        setSelectedLocation(nextLocation);
+        setValue(nextAddress, false);
+    }, [value, setValue]);
 
     const handleSelect = async (address) => {
         setValue(address, false);

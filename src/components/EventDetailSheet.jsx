@@ -6,7 +6,7 @@ import {
   MessageCircle, Check, Send
 } from 'lucide-react';
 
-const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMessage }) => {
+const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMessage, onOpenProfile }) => {
   const [activeTab, setActiveTab] = useState('info');
   const [inputText, setInputText] = useState('');
 
@@ -26,40 +26,43 @@ const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMe
       >
         <div className="w-16 h-1.5 bg-secondary/10 rounded-full mx-auto my-5 shrink-0" />
 
-        {/* Header Image Area */}
-        <div className="relative h-64 shrink-0 mx-5 rounded-[32px] overflow-hidden shadow-2xl border border-secondary/10 group">
-          <img src={event.image} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt={event.title} />
-          <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-secondary/80 to-transparent" />
-          <button onClick={onClose} className="absolute top-5 right-5 w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30 active:scale-90 transition-all shadow-2xl text-white">
-            <X size={24} strokeWidth={2.5} />
-          </button>
-          <div className="absolute bottom-8 left-8 right-8">
-            <div className="flex items-center gap-2.5 mb-3">
-              <span className="px-4 py-1.5 bg-white/20 backdrop-blur-md text-[10px] font-black uppercase rounded-full shadow-2xl border border-white/20 tracking-widest text-white">{event.category}</span>
-              {event.isMicroMeet && <span className="px-4 py-1.5 bg-accent/90 backdrop-blur text-[10px] font-black uppercase rounded-full shadow-2xl border border-accent/30 flex items-center gap-2 tracking-widest text-white"><Wand2 size={12} /> AI Curated</span>}
+        {/* Scrollable area: image scrolls up, tabs + content get more space */}
+        <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+          <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar flex flex-col">
+            {/* Header Image - scrolls up and hides */}
+            <div className="relative h-64 shrink-0 mx-5 rounded-[32px] overflow-hidden shadow-2xl border border-secondary/10 group">
+              <img src={event.image} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt={event.title} />
+              <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-secondary/80 to-transparent" />
+              <div className="absolute bottom-8 left-8 right-8">
+                <div className="flex items-center gap-2.5 mb-3">
+                  <span className="px-4 py-1.5 bg-white/20 backdrop-blur-md text-[10px] font-black uppercase rounded-full shadow-2xl border border-white/20 tracking-widest text-white">{event.category}</span>
+                  {event.isMicroMeet && <span className="px-4 py-1.5 bg-accent/90 backdrop-blur text-[10px] font-black uppercase rounded-full shadow-2xl border border-accent/30 flex items-center gap-2 tracking-widest text-white"><Wand2 size={12} /> AI Curated</span>}
+                </div>
+                <h2 className="text-4xl font-black leading-none tracking-tighter text-white drop-shadow-lg">{event.title}</h2>
+              </div>
             </div>
-            <h2 className="text-4xl font-black leading-none tracking-tighter text-white drop-shadow-lg">{event.title}</h2>
-          </div>
-        </div>
 
-        {/* Tab Selection */}
-        <div className="flex px-10 mt-8 mb-4">
-          {['info', 'chat'].map(tab => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`flex-1 py-4 text-[12px] font-black uppercase tracking-[0.2em] transition-all relative border-b-2 ${activeTab === tab ? 'border-primary text-secondary' : 'border-secondary/5 text-secondary/40'}`}
-            >
-              {tab === 'info' ? 'The Experience' : 'Community Hub'}
-              {tab === 'chat' && messages.length > 0 && (
-                <span className="ml-3 bg-primary/10 text-primary px-2 py-0.5 rounded-md text-[10px]">{messages.length}</span>
-              )}
-            </button>
-          ))}
-        </div>
+            {/* Sticky bar: close + tabs - stays at top when image scrolls away */}
+            <div className="sticky top-0 z-10 bg-paper border-b border-secondary/10 flex items-stretch shrink-0">
+              <button onClick={onClose} className="p-4 flex items-center justify-center text-secondary/70 hover:text-secondary active:scale-90 transition-all" aria-label="Close">
+                <X size={24} strokeWidth={2.5} />
+              </button>
+              {['info', 'chat'].map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`flex-1 py-4 text-[12px] font-black uppercase tracking-[0.2em] transition-all relative border-b-2 -mb-px ${activeTab === tab ? 'border-primary text-secondary' : 'border-transparent text-secondary/40'}`}
+                >
+                  {tab === 'info' ? 'The Experience' : 'Community Hub'}
+                  {tab === 'chat' && messages.length > 0 && (
+                    <span className="ml-3 bg-primary/10 text-primary px-2 py-0.5 rounded-md text-[10px]">{messages.length}</span>
+                  )}
+                </button>
+              ))}
+            </div>
 
-        {/* Content Area */}
-        <div className="flex-1 overflow-y-auto px-8 py-6 no-scrollbar">
+            {/* Content Area */}
+            <div className="px-8 py-6">
           <AnimatePresence mode="wait">
             {activeTab === 'info' ? (
               <motion.div key="info" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
@@ -131,14 +134,30 @@ const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMe
                       <div key={msg.id} className={`flex gap-4 ${msg.isMe ? 'flex-row-reverse' : ''} ${msg.isSystem ? 'justify-center py-2' : ''}`}>
                         {!msg.isSystem && (
                           <div className="relative shrink-0">
-                            <img src={msg.avatar} className="w-12 h-12 rounded-[18px] object-cover shadow-2xl border border-white/10" alt="avatar" />
+                            {onOpenProfile && !msg.isMe ? (
+                              <button
+                                type="button"
+                                onClick={() => onOpenProfile({ name: msg.user, avatar: msg.avatar })}
+                                className="rounded-[18px] focus:outline-none focus:ring-2 focus:ring-primary/40"
+                              >
+                                <img src={msg.avatar} className="w-12 h-12 rounded-[18px] object-cover shadow-2xl border border-white/10" alt={msg.user} />
+                              </button>
+                            ) : (
+                              <img src={msg.avatar} className="w-12 h-12 rounded-[18px] object-cover shadow-2xl border border-white/10" alt={msg.user} />
+                            )}
                             {msg.isHost && <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-primary rounded-full border-2 border-dark flex items-center justify-center"><Check size={10} strokeWidth={4} className="text-white" /></div>}
                           </div>
                         )}
                         <div className={`${msg.isSystem ? 'w-full text-center' : 'max-w-[75%]'} ${msg.isMe ? 'items-end flex flex-col' : ''}`}>
                           {!msg.isSystem && (
                             <div className="flex items-center gap-2 mb-1.5 px-1">
-                              <span className={`text-[10px] font-black uppercase tracking-widest ${msg.isHost ? 'text-primary' : 'text-secondary/60'}`}>{msg.user}</span>
+                              {onOpenProfile && !msg.isMe ? (
+                                <button type="button" onClick={() => onOpenProfile({ name: msg.user, avatar: msg.avatar })} className={`text-[10px] font-black uppercase tracking-widest hover:text-primary transition-colors ${msg.isHost ? 'text-primary' : 'text-secondary/60'}`}>
+                                  {msg.user}
+                                </button>
+                              ) : (
+                                <span className={`text-[10px] font-black uppercase tracking-widest ${msg.isHost ? 'text-primary' : 'text-secondary/60'}`}>{msg.user}</span>
+                              )}
                               <span className="text-[9px] text-secondary/40 font-black">{msg.time}</span>
                             </div>
                           )}
@@ -153,6 +172,8 @@ const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMe
               </motion.div>
             )}
           </AnimatePresence>
+            </div>
+          </div>
         </div>
 
         {/* Footer Area */}
@@ -165,7 +186,7 @@ const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMe
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && (onSendMessage(inputText), setInputText(''))}
-                className="flex-1 bg-secondary/5 border border-secondary/10 rounded-[22px] px-6 py-5 text-sm font-bold focus:outline-none focus:border-primary transition-all shadow-inner placeholder:text-secondary/30 text-secondary"
+                className="flex-1 bg-secondary/5 border border-secondary/10 rounded-[22px] px-6 py-5 text-sm font-bold focus:outline-none focus:border-primary transition-all shadow-inner placeholder:text-secondary/30 text-[var(--text)]"
               />
               <button
                 onClick={() => { onSendMessage(inputText); setInputText(''); }}

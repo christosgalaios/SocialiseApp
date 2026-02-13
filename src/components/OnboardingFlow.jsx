@@ -39,7 +39,7 @@ const OnboardingFlow = ({ onComplete, userName = 'there' }) => {
 
     const steps = [
         {
-            title: `Hey ${userName.split(' ')[0]}!`,
+            title: `Hey ${(userName || 'there').split(' ')[0]}!`,
             subtitle: 'What are you into?',
             desc: 'Pick at least 2 interests'
         },
