@@ -60,6 +60,23 @@ export const INITIAL_MESSAGES = {
   ]
 };
 
+/** Chats pulled from each community (group chat per community). Used by Group Chats when connected to a community. */
+export const COMMUNITY_CHATS = {
+  1: [
+    { id: 1, user: "Marcus V.", avatar: "https://i.pravatar.cc/150?u=marcus", message: "Great session yesterday on AI Agents! Anyone caught the recording?", time: "2h ago", isMe: false },
+    { id: 2, user: "Sarah K.", avatar: "https://i.pravatar.cc/150?u=sarah", message: "Yes! Will share the link in a sec", time: "1h ago", isMe: false },
+    { id: 3, user: "James M.", avatar: "https://i.pravatar.cc/150?u=james", message: "Anyone up for pub quiz tonight?", time: "45m ago", isMe: false },
+  ],
+  2: [
+    { id: 1, user: "Elena P.", avatar: "https://i.pravatar.cc/150?u=elena", message: "Photos from last week's hike! ⛰️", time: "3h ago", isMe: false },
+    { id: 2, user: "Alex", avatar: "https://i.pravatar.cc/150?u=alex", message: "Stunning! Where was this?", time: "2h ago", isMe: false },
+  ],
+  3: [
+    { id: 1, user: "Tom H.", avatar: "https://i.pravatar.cc/150?u=tom", message: "Who's coming to the Wingspan tournament next week? Still have 2 spots!", time: "1h ago", isMe: false },
+    { id: 2, user: "Host", avatar: "https://i.pravatar.cc/150?u=host", message: "New games arriving Thursday", time: "30m ago", isMe: false },
+  ],
+};
+
 export const FEED_POSTS = [
   { id: 1, user: "Marcus V.", avatar: "https://i.pravatar.cc/150?u=marcus", community: "London Tech Socials", communityId: 1, content: "Great session yesterday on AI Agents! Anyone caught the recording?", image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80", time: "12m ago", likes: 8, comments: 3 },
   { id: 2, user: "Elena P.", avatar: "https://i.pravatar.cc/150?u=elena", community: "Hiking Enthusiasts", communityId: 2, content: "View from the summit today! ⛰️", image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80", time: "1h ago", likes: 24, comments: 7 },

@@ -46,6 +46,7 @@ import SavedEventsSheet from './components/SavedEventsSheet';
 import ProUpgradeModal from './components/ProUpgradeModal';
 import HelpSheet from './components/HelpSheet';
 import UserProfileSheet from './components/UserProfileSheet';
+import GroupChatsSheet from './components/GroupChatsSheet';
 import OnboardingFlow from './components/OnboardingFlow';
 import {
   HomeSkeleton,
@@ -150,6 +151,7 @@ function App() {
   // Profile Modals State
   const [showBookings, setShowBookings] = useState(false);
   const [showSaved, setShowSaved] = useState(false);
+  const [showGroupChats, setShowGroupChats] = useState(false);
   const [showProModal, setShowProModal] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [savedEvents, setSavedEvents] = useLocalStorage('socialise_saved', []);
@@ -200,7 +202,6 @@ function App() {
       } else {
         // Simulated Google login
         showToast('Google login simulated', 'success');
-        // Use the same Ben persona for now to keep consistency as requested
         setUser(DEMO_USER);
         setAppState('app');
       }
@@ -726,11 +727,15 @@ function App() {
                               </div>
                               {experimentalFeatures && (
                                 <div className="border-t border-secondary/10 p-4 space-y-2">
-                                  <div className="flex items-center gap-3 p-3 rounded-2xl bg-secondary/5">
+                                  <button
+                                    type="button"
+                                    onClick={() => setShowGroupChats(true)}
+                                    className="w-full flex items-center gap-3 p-3 rounded-2xl bg-secondary/5 hover:bg-secondary/10 transition-colors text-left"
+                                  >
                                     <MessageCircle className="text-secondary" size={20} />
                                     <span className="font-bold text-secondary">Group Chats</span>
-                                    <span className="ml-auto text-[10px] font-bold uppercase tracking-wider text-secondary/50">Coming soon</span>
-                                  </div>
+                                    <span className="ml-auto text-[10px] font-bold uppercase tracking-wider text-secondary/50">WhatsApp</span>
+                                  </button>
                                 </div>
                               )}
                             </div>
@@ -965,6 +970,11 @@ function App() {
                 key="help"
                 isOpen={showHelp}
                 onClose={() => setShowHelp(false)}
+              />
+              <GroupChatsSheet
+                isOpen={showGroupChats}
+                onClose={() => setShowGroupChats(false)}
+                joinedCommunities={COMMUNITIES.filter((c) => userTribes.includes(c.id))}
               />
               <UserProfileSheet
                 key="user-profile"
