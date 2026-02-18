@@ -14,15 +14,64 @@ concurrency:
 
 jobs:
   build-and-deploy:
+    # Skip if this is an automated version-bump commit to avoid infinite loops.
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: master
+          # Full history needed so we can also push to develop later.
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      # Increment the minor version (y in x.y.z) and reset patch to 0.
+      # The new version is committed back to master and synced to develop
+      # so the next develop push increments from the correct baseline.
+      - name: Bump minor version
+        id: version
+        run: |
+          node -e "
+            const fs = require('fs');
+            const p = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+            const [x, y] = p.version.split('.').map(Number);
+            p.version = [x, y + 1, 0].join('.');
+            fs.writeFileSync('package.json', JSON.stringify(p, null, 2) + '\n');
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, 'version=' + p.version + '\n');
+          "
+
+      - name: Commit and push version bump to master
+        run: |
+          git add package.json
+          git commit -m "chore: bump version to ${{ steps.version.outputs.version }} [skip ci]"
+          git push origin master
+
+      # Sync the new baseline version to develop so the next develop push
+      # increments patch from x.(y+1).0 rather than the old x.y.z.
+      - name: Sync version to develop
+        run: |
+          git fetch origin develop
+          git checkout -B develop origin/develop
+          node -e "
+            const fs = require('fs');
+            const p = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+            p.version = '${{ steps.version.outputs.version }}';
+            fs.writeFileSync('package.json', JSON.stringify(p, null, 2) + '\n');
+          "
+          git add package.json
+          git commit -m "chore: sync version ${{ steps.version.outputs.version }} from master [skip ci]"
+          git push origin develop
+          git checkout master
 
       - name: Install dependencies
         run: npm ci
