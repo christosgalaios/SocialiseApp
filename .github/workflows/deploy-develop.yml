@@ -1,0 +1,45 @@
+name: Deploy develop → preview
+
+on:
+  push:
+    branches: [develop]
+
+permissions:
+  contents: write
+
+# Only one preview deploy at a time. Never cancel in-progress; queue instead.
+concurrency:
+  group: deploy-preview
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (preview)
+        run: npm run build
+        env:
+          NODE_ENV: production
+          # Base URL for https://christosgalaios.github.io/SocialiseApp/dev/
+          VITE_BASE_URL: /SocialiseApp/dev/
+          VITE_GOOGLE_MAPS_API_KEY: ${{ secrets.VITE_GOOGLE_MAPS_API_KEY }}
+
+      - name: Deploy to gh-pages (dev subfolder)
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: dist
+          branch: gh-pages
+          # Deploys into /dev/ without touching the root production build.
+          target-folder: dev
+          clean: true

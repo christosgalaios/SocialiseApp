@@ -1,0 +1,46 @@
+name: Deploy master → production
+
+on:
+  push:
+    branches: [master]
+
+permissions:
+  contents: write
+
+# Only one production deploy at a time. Never cancel in-progress; queue instead.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (production)
+        run: npm run build
+        env:
+          NODE_ENV: production
+          # Base URL for https://christosgalaios.github.io/SocialiseApp/
+          VITE_BASE_URL: /SocialiseApp/
+          VITE_GOOGLE_MAPS_API_KEY: ${{ secrets.VITE_GOOGLE_MAPS_API_KEY }}
+
+      - name: Deploy to gh-pages (root)
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: dist
+          branch: gh-pages
+          clean: true
+          # Preserve the /dev/ subfolder so a master deploy never wipes the
+          # preview environment deployed by the develop workflow.
+          clean-exclude: '["dev"]'

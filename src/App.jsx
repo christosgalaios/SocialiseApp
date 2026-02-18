@@ -77,7 +77,14 @@ const itemVariants = {
 const useLocalStorage = (key, initialValue) => {
   const [value, setValue] = useState(() => {
     const jsonValue = localStorage.getItem(key);
-    if (jsonValue != null) return JSON.parse(jsonValue);
+    if (jsonValue != null) {
+      try {
+        return JSON.parse(jsonValue);
+      } catch {
+        // Corrupt storage — discard and fall through to initial value
+        localStorage.removeItem(key);
+      }
+    }
     if (typeof initialValue === 'function') {
       return initialValue();
     }
