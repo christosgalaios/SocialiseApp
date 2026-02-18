@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { version as APP_VERSION } from '../package.json';
 import {
   BarChart3, Mail, ShieldCheck, Zap, Check, Heart, User, Crown, ChevronRight, LogOut, Camera, Users, Settings, MessageCircle
 } from 'lucide-react';
@@ -876,6 +877,14 @@ function App() {
                           <LogOut size={18} />
                           Log Out
                         </motion.button>
+
+                        <motion.p
+                          variants={itemVariants}
+                          className="text-center text-[11px] tracking-widest mt-6 pb-2"
+                          style={{ color: 'var(--muted)', opacity: 0.45 }}
+                        >
+                          v{APP_VERSION}
+                        </motion.p>
                         </>
                         )}
                       </motion.div>
