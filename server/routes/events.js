@@ -251,4 +251,34 @@ router.post('/:id/chat', authenticateToken, loadUserProfile, async (req, res) =>
     res.status(201).json(data);
 });
 
+// --- GET /api/events/recommendations ---
+// Returns micro-meets sorted by personal match score (authenticated only)
+router.get('/recommendations/for-you', authenticateToken, loadUserProfile, async (req, res) => {
+    const { limit = 10 } = req.query;
+
+    const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .eq('is_micro_meet', true)
+        .eq('status', 'active')
+        .order('created_at', { ascending: false })
+        .limit(Number(limit) * 3); // Fetch more, then filter by score
+
+    if (error) {
+        console.error('[events recommendations GET]', error);
+        return res.status(500).json({ message: 'Failed to fetch recommendations' });
+    }
+
+    // Enrich with match scores
+    const enriched = await enrichEvents(data || [], req.user.id);
+
+    // Filter and sort by match score, limit results
+    const recommendations = enriched
+        .filter(e => e.matchScore >= 40) // Only high-match recommendations
+        .sort((a, b) => b.matchScore - a.matchScore)
+        .slice(0, Number(limit));
+
+    res.json(recommendations);
+});
+
 module.exports = router;
