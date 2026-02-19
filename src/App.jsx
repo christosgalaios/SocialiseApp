@@ -946,7 +946,7 @@ function App() {
                                 <span className="inline-block px-3 py-1 mb-2 bg-accent/10 rounded-full border border-accent/20 text-[10px] font-black text-accent uppercase tracking-widest">{user.selectedTitle}</span>
                               )}
                               <p className="text-sm text-gray-400 font-medium max-w-xs leading-relaxed mb-3">{user?.bio}</p>
-                              <div className="flex items-center gap-5">
+                              <div className="flex items-center justify-center md:justify-start gap-5">
                                 <div className="text-center">
                                   <span className="text-lg font-black text-secondary">{user?.followers ?? 0}</span>
                                   <p className="text-[9px] font-bold text-secondary/40 uppercase tracking-widest">Followers</p>
