@@ -61,6 +61,19 @@ const loadUserProfile = (req, res, next) => {
     next();
 };
 
+// Optional JWT extraction — returns userId if valid token present, null otherwise
+const extractUserId = (authHeader) => {
+    if (!authHeader) return null;
+    const token = authHeader.split(' ')[1];
+    if (!token) return null;
+    try {
+        const payload = jwt.verify(token, SECRET_KEY);
+        return payload.id;
+    } catch {
+        return null;
+    }
+};
+
 // POST /api/auth/login
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
@@ -142,4 +155,4 @@ router.get('/me', authenticateToken, (req, res) => {
     res.json(userWithoutPassword);
 });
 
-module.exports = { router, authenticateToken, loadUserProfile, readUsers, writeUsers };
+module.exports = { router, authenticateToken, loadUserProfile, extractUserId, readUsers, writeUsers };
