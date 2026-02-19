@@ -7,16 +7,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import api from './api';
 import './index.css';
 
-// --- DATA & CONSTANTS ---
+// --- DATA & CONSTANTS (UI config only — no mock data) ---
 import {
   CATEGORIES,
-  INITIAL_EVENTS,
-  INITIAL_MICRO_MEETS,
-  COMMUNITIES,
-  SUGGESTED_COMMUNITIES,
-  INITIAL_MESSAGES,
-  FEED_POSTS,
-  DEMO_USER,
   XP_LEVELS,
   UNLOCKABLE_TITLES,
   PROFILE_STATS
@@ -135,11 +128,11 @@ function App() {
     }
   };
 
-  const [events, setEvents] = useState([...INITIAL_EVENTS, ...INITIAL_MICRO_MEETS]);
-  const [joinedEvents, setJoinedEvents] = useLocalStorage('socialise_joined', []);
+  const [events, setEvents] = useState([]);
+  const [joinedEvents, setJoinedEvents] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [showCreate, setShowCreate] = useState(false);
-  const [chatMessages, setChatMessages] = useLocalStorage('socialise_chats', INITIAL_MESSAGES);
+  const [chatMessages, setChatMessages] = useState({});
   const [proEnabled, setProEnabled] = useLocalStorage('socialise_pro', false);
 
   const [notifications, setNotifications] = useState([]);
@@ -166,7 +159,9 @@ function App() {
   // Hub State
   const [selectedTribe, setSelectedTribe] = useState(null);
   const [showTribeDiscovery, setShowTribeDiscovery] = useState(false);
-  const [userTribes, setUserTribes] = useLocalStorage('socialise_tribes', COMMUNITIES.map(c => c.id));
+  const [communities, setCommunities] = useState([]);
+  const [feedPosts, setFeedPosts] = useState([]);
+  const [userTribes, setUserTribes] = useLocalStorage('socialise_tribes', []);
 
   // Profile Modals State
   const [showBookings, setShowBookings] = useState(false);
@@ -174,7 +169,7 @@ function App() {
   const [showGroupChats, setShowGroupChats] = useState(false);
   const [showProModal, setShowProModal] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
-  const [savedEvents, setSavedEvents] = useLocalStorage('socialise_saved', []);
+  const [savedEvents, setSavedEvents] = useState([]);
 
   // Onboarding State
   const [showOnboarding, setShowOnboarding] = useLocalStorage('socialise_onboarding_shown', false);
@@ -237,6 +232,33 @@ function App() {
   // Authenticated User State
   const [user, setUser] = useLocalStorage('socialise_user', null);
 
+  // Fetch all data from API when app is ready
+  const dataFetchedForUser = useRef(null);
+  const fetchAllData = useCallback(async () => {
+    try {
+      const [eventsData, communitiesData, feedData] = await Promise.all([
+        api.getEvents(),
+        api.getCommunities(),
+        api.getFeed(),
+      ]);
+      setEvents(eventsData || []);
+      setJoinedEvents((eventsData || []).filter(e => e.isJoined).map(e => e.id));
+      setSavedEvents((eventsData || []).filter(e => e.isSaved).map(e => e.id));
+      setCommunities(communitiesData || []);
+      setUserTribes((communitiesData || []).filter(c => c.isJoined).map(c => c.id));
+      setFeedPosts(feedData || []);
+    } catch (err) {
+      console.error('Failed to load data:', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (appState !== 'app' || !user) return;
+    if (dataFetchedForUser.current === user.id) return;
+    dataFetchedForUser.current = user.id;
+    fetchAllData();
+  }, [appState, user, fetchAllData]);
+
   const showToast = (message, type = 'info') => {
     const id = Date.now();
     setNotifications(prev => [...prev, { id, message, type }]);
@@ -247,20 +269,19 @@ function App() {
 
 
 
-  const handleLogin = async (type) => {
+  const handleLogin = async (type, credentials) => {
     try {
-      if (type === 'demo') {
-        const response = await api.login('ben@demo.com', 'password');
-        setUser(response.user);
-        localStorage.setItem('socialise_token', response.token);
-        showToast('Logged in as Ben Barnes (Demo)', 'success');
-        setAppState('app');
+      let response;
+      if (type === 'register') {
+        response = await api.register(credentials.email, credentials.password, credentials.name);
       } else {
-        // Simulated Google login
-        showToast('Google login simulated', 'success');
-        setUser(DEMO_USER);
-        setAppState('app');
+        response = await api.login(credentials.email, credentials.password);
       }
+      setUser(response.user);
+      localStorage.setItem('socialise_token', response.token);
+      dataFetchedForUser.current = null; // Ensure data is fetched for new session
+      showToast(`Welcome${type === 'register' ? '' : ' back'}, ${response.user.name?.split(' ')[0] || 'there'}!`, 'success');
+      setAppState('app');
     } catch (err) {
       showToast(err.message, 'error');
     }
@@ -269,23 +290,42 @@ function App() {
   const handleLogout = useCallback(() => {
     setUser(null);
     localStorage.removeItem('socialise_token');
+    dataFetchedForUser.current = null;
+    setEvents([]);
+    setCommunities([]);
+    setFeedPosts([]);
+    setJoinedEvents([]);
+    setSavedEvents([]);
     setAppState('auth');
     showToast('Signed out successfully', 'info');
   }, []);
 
   // Tribe handlers
-  const handleJoinTribe = (tribe) => {
-    if (!userTribes.includes(tribe.id)) {
-      setUserTribes([...userTribes, tribe.id]);
-      showToast(`Joined ${tribe.name}!`, 'success');
+  const handleJoinTribe = async (tribe) => {
+    if (userTribes.includes(tribe.id)) return;
+    setUserTribes(prev => [...prev, tribe.id]);
+    showToast(`Joined ${tribe.name}!`, 'success');
+    try {
+      await api.joinCommunity(tribe.id);
+      setCommunities(prev => prev.map(c => c.id === tribe.id ? { ...c, isJoined: true } : c));
+    } catch (err) {
+      setUserTribes(prev => prev.filter(id => id !== tribe.id));
+      showToast(err.message, 'error');
     }
   };
 
-  const handleLeaveTribe = (tribeId) => {
-    setUserTribes(userTribes.filter(id => id !== tribeId));
+  const handleLeaveTribe = async (tribeId) => {
+    const tribe = communities.find(c => c.id === tribeId);
+    setUserTribes(prev => prev.filter(id => id !== tribeId));
     setSelectedTribe(null);
-    const tribe = COMMUNITIES.find(c => c.id === tribeId);
     showToast(`Left ${tribe?.name || 'tribe'}`, 'info');
+    try {
+      await api.leaveCommunity(tribeId);
+      setCommunities(prev => prev.map(c => c.id === tribeId ? { ...c, isJoined: false } : c));
+    } catch (err) {
+      setUserTribes(prev => [...prev, tribeId]);
+      showToast(err.message, 'error');
+    }
   };
 
   const [pullY, setPullY] = useState(0);
@@ -332,13 +372,15 @@ function App() {
         if (window.navigator?.vibrate) window.navigator.vibrate(50);
       } catch (e) { /* ignore */ }
 
-      setTimeout(() => {
+      fetchAllData().then(() => {
         setIsRefreshing(false);
         setPullY(0);
         setRecommendedLimit(3);
         showToast('Feed refreshed', 'success');
-        setEvents(prev => [...prev].sort(() => Math.random() - 0.5));
-      }, 2000);
+      }).catch(() => {
+        setIsRefreshing(false);
+        setPullY(0);
+      });
     } else {
       setPullY(0);
     }
@@ -392,15 +434,49 @@ function App() {
     };
   }, []);
 
-  // Dark Mode Application
+  // Fetch chat messages when event detail opens
+  useEffect(() => {
+    if (!selectedEvent) return;
+    let cancelled = false;
+    const fetchChat = async () => {
+      try {
+        const messages = await api.getEventChat(selectedEvent.id);
+        if (cancelled) return;
+        setChatMessages(prev => ({
+          ...prev,
+          [selectedEvent.id]: (messages || []).map(m => ({
+            id: m.id,
+            user: m.user_name,
+            avatar: m.user_avatar,
+            message: m.message,
+            time: m.created_at ? new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
+            isMe: m.user_id === user?.id,
+            isHost: m.is_host,
+            isSystem: m.is_system,
+          }))
+        }));
+      } catch (err) {
+        console.error('Failed to fetch chat:', err);
+      }
+    };
+    fetchChat();
+    return () => { cancelled = true; };
+  }, [selectedEvent?.id, user?.id]);
 
-
-  // Mock API Interactions
-  const handleJoin = (id) => {
+  // Event join / leave
+  const handleJoin = async (id) => {
     if (joinedEvents.includes(id)) {
+      // Optimistic leave
       setJoinedEvents(prev => prev.filter(e => e !== id));
       showToast('You left the event.', 'info');
+      try {
+        await api.leaveEvent(id);
+      } catch (err) {
+        setJoinedEvents(prev => [...prev, id]);
+        showToast(err.message, 'error');
+      }
     } else {
+      // Optimistic join
       setJoinedEvents(prev => [...prev, id]);
       showToast('You\'re going! Added to your calendar.', 'success');
 
@@ -417,54 +493,54 @@ function App() {
         }, 1500);
       }
 
-      // Trigger delight moments!
+      // Trigger delight moments
       setShowConfetti(true);
       mango.celebrate("You're in! 🎉");
 
-      // Simulate someone else joining too (realtime ping)
-      setTimeout(() => {
-        const randomNames = ['Sarah', 'Marcus', 'Priya', 'Alex', 'Jordan'];
-        const randomName = randomNames[Math.floor(Math.random() * randomNames.length)];
-        setRealtimePing({
-          isVisible: true,
-          name: randomName,
-          avatar: `https://i.pravatar.cc/100?u=${randomName}`,
-          action: 'also joined!'
-        });
-      }, 2000);
+      try {
+        await api.joinEvent(id);
+      } catch (err) {
+        setJoinedEvents(prev => prev.filter(e => e !== id));
+        showToast(err.message, 'error');
+      }
     }
   };
 
-  const sendMessage = (eventId, text) => {
+  const sendMessage = async (eventId, text) => {
     if (!text.trim()) return;
     const name = user?.name ?? 'Guest';
     const parts = name.split(' ');
-    const newMessage = {
-      id: Date.now(),
+    const optimisticId = 'temp-' + Date.now();
+    const optimisticMsg = {
+      id: optimisticId,
       user: `${parts[0] ?? ''} ${parts[1]?.[0] ?? ''}.`.trim() || 'Guest',
       avatar: user?.avatar ?? '',
       message: text,
-      time: "Just now",
+      time: 'Just now',
       isMe: true
     };
 
     setChatMessages(prev => ({
       ...prev,
-      [eventId]: [...(prev[eventId] || []), newMessage]
+      [eventId]: [...(prev[eventId] || []), optimisticMsg]
     }));
+
+    try {
+      await api.sendEventMessage(eventId, text);
+    } catch (err) {
+      showToast('Failed to send message', 'error');
+    }
   };
 
-  const createNewEvent = (data) => {
-    const newEvent = {
-      id: Date.now(),
-      ...data,
-      attendees: 1,
-      host: user?.name ?? 'Host',
-      image: "https://images.unsplash.com/photo-1511632765486-a01980e01ea3?w=500&q=80" // Default party image
-    };
-    setEvents([newEvent, ...events]);
-    setShowCreate(false);
-    showToast('Experience published successfully!', 'success');
+  const createNewEvent = async (data) => {
+    try {
+      const newEvent = await api.createEvent(data);
+      setEvents(prev => [newEvent, ...prev]);
+      setShowCreate(false);
+      showToast('Experience published successfully!', 'success');
+    } catch (err) {
+      showToast(err.message || 'Failed to create event', 'error');
+    }
   };
 
   // Parse date string like "Feb 7" to a Date object
@@ -500,7 +576,8 @@ function App() {
 
     // Inclusivity tag filter
     if (activeTags.length > 0) {
-      if (!e.tags || !activeTags.every(t => e.tags.includes(t))) return false;
+      const eventTags = e.tags || e.inclusivity_tags || [];
+      if (!activeTags.every(t => eventTags.includes(t))) return false;
     }
 
     return true;
@@ -626,8 +703,7 @@ function App() {
                         <VideoWall
                           userName={user?.name?.split(' ')[0] || 'You'}
                           onEventSelect={(id) => {
-                            // Find event in events array or mock data
-                            const event = events.find(e => e.id === id) || INITIAL_EVENTS.find(e => e.id === id);
+                            const event = events.find(e => e.id === id);
                             if (event) setSelectedEvent(event);
                           }} />
 
@@ -665,11 +741,14 @@ function App() {
                             className="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 overflow-x-auto md:overflow-visible pb-8 md:pb-0 snap-x md:snap-none no-scrollbar"
                             variants={containerVariants}
                           >
-                            {INITIAL_MICRO_MEETS.map(meet => (
+                            {events.filter(e => e.isMicroMeet || e.is_micro_meet).map(meet => (
                               <div key={meet.id} className="snap-center shrink-0">
                                 <MicroMeetCard meet={meet} onClick={setSelectedEvent} />
                               </div>
                             ))}
+                            {events.filter(e => e.isMicroMeet || e.is_micro_meet).length === 0 && (
+                              <div className="text-center text-secondary/40 text-sm font-medium py-8 w-full">No micro-meets available yet</div>
+                            )}
                           </motion.div>
                         </div>
 
@@ -683,8 +762,7 @@ function App() {
                             <button
                               onClick={() => {
                                 setRecommendedLimit(3);
-                                setEvents(prev => [...prev].sort(() => Math.random() - 0.5));
-                                showToast('Recommendations refreshed', 'success');
+                                fetchAllData().then(() => showToast('Recommendations refreshed', 'success'));
                               }}
                               className="w-8 h-8 rounded-full bg-secondary/10 border border-secondary/15 flex items-center justify-center text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all"
                               title="Refresh recommendations"
@@ -745,16 +823,27 @@ function App() {
                           {/* Live Feed - Span 2 cols on Desktop */}
                           <div className="md:col-span-2 space-y-4">
                             <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-4">Live Pulse<span className="text-accent">.</span></h3>
-                            {FEED_POSTS.map(post => (
-                              <FeedItem key={post.id} post={post} currentUser={{ name: user?.name ?? 'Guest', avatar: user?.avatar ?? '' }} onOpenProfile={setSelectedUserProfile} />
-                            ))}
+                            {feedPosts.length > 0 ? feedPosts.map(post => (
+                              <FeedItem key={post.id} post={{
+                                ...post,
+                                user: post.user_name || post.user,
+                                avatar: post.user_avatar || post.avatar,
+                                community: post.community_name || post.community,
+                                communityId: post.community_id || post.communityId,
+                                time: post.created_at ? new Date(post.created_at).toLocaleDateString() : post.time,
+                                likes: Object.values(post.reactions || {}).reduce((a, b) => a + b, 0),
+                                comments: 0,
+                              }} currentUser={{ name: user?.name ?? 'Guest', avatar: user?.avatar ?? '' }} onOpenProfile={setSelectedUserProfile} />
+                            )) : (
+                              <div className="text-center text-secondary/40 text-sm font-medium py-8">No posts yet. Be the first!</div>
+                            )}
                           </div>
 
                           {/* Local Tribes - Span 1 col (Sidebar style on desktop) */}
                           <div>
                             <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-4">Your Tribes<span className="text-accent">.</span></h3>
                             <div className="space-y-4">
-                              {COMMUNITIES.filter(c => userTribes.includes(c.id)).map(comm => (
+                              {communities.filter(c => userTribes.includes(c.id)).map(comm => (
                                 <motion.div
                                   whileHover={{ scale: 1.02 }}
                                   whileTap={{ scale: 0.98 }}
@@ -768,9 +857,8 @@ function App() {
                                   <div className="flex-1 min-w-0">
                                     <div className="flex justify-between items-center mb-0.5">
                                       <h4 className="font-bold text-sm truncate">{comm.name}</h4>
-                                      {comm.unread > 0 && <span className="bg-primary text-[10px] font-black px-1.5 rounded-md text-white">{comm.unread}</span>}
                                     </div>
-                                    <p className="text-[11px] text-secondary/60 truncate">{comm.lastMessage}</p>
+                                    <p className="text-[11px] text-secondary/60 truncate">{comm.members || 0} members</p>
                                   </div>
                                 </motion.div>
                               ))}
@@ -1330,7 +1418,7 @@ function App() {
               <GroupChatsSheet
                 isOpen={showGroupChats}
                 onClose={() => setShowGroupChats(false)}
-                joinedCommunities={COMMUNITIES.filter((c) => userTribes.includes(c.id))}
+                joinedCommunities={communities.filter((c) => userTribes.includes(c.id))}
               />
               <UserProfileSheet
                 key="user-profile"
@@ -1395,7 +1483,7 @@ function App() {
         )}
       </AnimatePresence>
       <AnimatePresence>
-        {mango.isChatOpen && <MangoChat />}
+        {mango.isChatOpen && <MangoChat user={user} events={events} />}
       </AnimatePresence>
     </div>
   );
