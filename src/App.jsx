@@ -1483,7 +1483,7 @@ function App() {
         )}
       </AnimatePresence>
       <AnimatePresence>
-        {mango.isChatOpen && <MangoChat />}
+        {mango.isChatOpen && <MangoChat user={user} events={events} />}
       </AnimatePresence>
     </div>
   );

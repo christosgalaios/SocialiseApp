@@ -1,15 +1,24 @@
-import { useState } from 'react';
-import { AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { X, Users, MessageCircle, LogOut, Bell, BellOff, Star, UserPlus, UserCheck, Shield, Heart } from 'lucide-react';
-import { FEED_POSTS, COMMUNITY_REVIEWS } from '../data/mockData';
+import api from '../api';
 import FeedItem from './FeedItem';
 
 const TribeSheet = ({ tribe, isOpen, onClose, onLeave }) => {
     const [notificationsOn, setNotificationsOn] = useState(true);
     const [isFollowing, setIsFollowing] = useState(true);
     const [activeSection, setActiveSection] = useState('activity'); // 'activity' | 'reviews'
-    const tribePosts = FEED_POSTS.filter(p => p.communityId === tribe?.id);
-    const reviews = tribe ? (COMMUNITY_REVIEWS[tribe.id] || []) : [];
+    const [tribePosts, setTribePosts] = useState([]);
+    const reviews = [];
+
+    useEffect(() => {
+        if (!isOpen || !tribe?.id) return;
+        let cancelled = false;
+        api.getFeed({ community_id: tribe.id }).then(data => {
+            if (!cancelled) setTribePosts(data || []);
+        }).catch(() => {});
+        return () => { cancelled = true; };
+    }, [isOpen, tribe?.id]);
 
     if (!tribe) return null;
 
