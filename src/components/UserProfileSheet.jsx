@@ -1,6 +1,15 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, MessageCircle, UserPlus, UserCheck, Users } from 'lucide-react';
+
+const MotionDiv = motion.div;
+import { X, MessageCircle, UserPlus, UserCheck } from 'lucide-react';
+
+// Deterministic hash for stable follower counts based on name
+const nameHash = (name, seed = 5) => {
+    let hash = 0;
+    for (let i = 0; i < (name || '').length; i++) hash = ((hash << seed) - hash) + name.charCodeAt(i);
+    return Math.abs(hash);
+};
 
 /**
  * Sheet showing another user's profile (avatar, name, optional community/bio).
@@ -13,20 +22,20 @@ const UserProfileSheet = ({ profile, isOpen, onClose, onMessage }) => {
 
     const { name, avatar, community } = profile;
     const bio = profile.bio ?? (community ? `Member of ${community}` : 'Part of the Socialise community.');
-    const followers = profile.followers ?? Math.floor(Math.random() * 200 + 20);
-    const following = profile.following ?? Math.floor(Math.random() * 100 + 10);
+    const followers = profile.followers ?? (nameHash(name, 5) % 180 + 20);
+    const following = profile.following ?? (nameHash(name, 3) % 90 + 10);
 
     return (
         <AnimatePresence>
             {isOpen && (
-                <motion.div
+                <MotionDiv
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     className="fixed inset-0 z-[90] bg-secondary/60 backdrop-blur-sm"
                     onClick={onClose}
                 >
-                    <motion.div
+                    <MotionDiv
                         initial={{ y: '100%' }}
                         animate={{ y: 0 }}
                         exit={{ y: '100%' }}
@@ -95,8 +104,8 @@ const UserProfileSheet = ({ profile, isOpen, onClose, onMessage }) => {
                                 </div>
                             </div>
                         </div>
-                    </motion.div>
-                </motion.div>
+                    </MotionDiv>
+                </MotionDiv>
             )}
         </AnimatePresence>
     );

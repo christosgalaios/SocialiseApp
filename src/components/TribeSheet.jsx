@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Users, MessageCircle, Calendar, ChevronRight, LogOut, Bell, BellOff, Star, UserPlus, UserCheck, Shield, Heart } from 'lucide-react';
+import { AnimatePresence } from 'framer-motion';
+import { X, Users, MessageCircle, LogOut, Bell, BellOff, Star, UserPlus, UserCheck, Shield, Heart } from 'lucide-react';
 import { FEED_POSTS, COMMUNITY_REVIEWS } from '../data/mockData';
 import FeedItem from './FeedItem';
 
