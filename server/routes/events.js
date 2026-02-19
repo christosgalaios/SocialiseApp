@@ -1,12 +1,13 @@
 const express = require('express');
 const supabase = require('../supabase');
-const { authenticateToken, loadUserProfile, extractUserId } = require('./auth');
+const { authenticateToken, loadUserProfile, extractUserId, readUsers } = require('./auth');
+const { enrichEventsWithMatches } = require('../matching');
 
 const router = express.Router();
 
 // --- Helpers ---
 
-// Attach attendee count + isJoined + isSaved to each event row
+// Attach attendee count + isJoined + isSaved + match scores to each event row
 async function enrichEvents(events, userId) {
     if (!events.length) return events;
 
@@ -34,7 +35,15 @@ async function enrichEvents(events, userId) {
     const joinedSet = new Set((userRsvps || []).map(r => r.event_id));
     const savedSet = new Set((userSaved || []).map(r => r.event_id));
 
-    return events.map(e => ({
+    // Get user profile for matching micro-meets
+    let userProfile = null;
+    if (userId) {
+        const users = readUsers();
+        userProfile = users.find(u => u.id === userId);
+    }
+
+    // Enrich events with matching scores if applicable
+    let enrichedEvents = events.map(e => ({
         ...e,
         attendees: countMap[e.id] || 0,
         spots: e.max_spots,
@@ -43,6 +52,12 @@ async function enrichEvents(events, userId) {
         isJoined: joinedSet.has(e.id),
         isSaved: savedSet.has(e.id),
     }));
+
+    if (userProfile) {
+        enrichedEvents = enrichEventsWithMatches(enrichedEvents, userProfile);
+    }
+
+    return enrichedEvents;
 }
 
 // --- GET /api/events ---

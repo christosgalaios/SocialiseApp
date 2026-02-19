@@ -741,7 +741,7 @@ function App() {
                             className="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 overflow-x-auto md:overflow-visible pb-8 md:pb-0 snap-x md:snap-none no-scrollbar"
                             variants={containerVariants}
                           >
-                            {events.filter(e => e.isMicroMeet || e.is_micro_meet).map(meet => (
+                            {events.filter(e => e.isMicroMeet || e.is_micro_meet).sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0)).map(meet => (
                               <div key={meet.id} className="snap-center shrink-0">
                                 <MicroMeetCard meet={meet} onClick={setSelectedEvent} />
                               </div>
