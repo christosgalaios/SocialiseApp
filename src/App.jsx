@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { version as APP_VERSION } from '../package.json';
 import {
-  BarChart3, Mail, ShieldCheck, Zap, Check, Heart, User, Crown, ChevronRight, ChevronLeft, LogOut, Camera, Users, Settings, MessageCircle
+  Mail, ShieldCheck, Zap, Check, Heart, Crown, ChevronRight, ChevronLeft, LogOut, Camera, Users, Settings, MessageCircle, RefreshCw, ArrowLeft, Lock
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from './api';
@@ -186,9 +186,42 @@ function App() {
   // Avatar crop modal
   const [avatarCropImage, setAvatarCropImage] = useState(null);
 
-  // Profile sub-tab: Profile | Settings
+  // Profile sub-tab: profile | settings
   const [profileSubTab, setProfileSubTab] = useState('profile');
   const [experimentalFeatures, setExperimentalFeatures] = useLocalStorage('socialise_experimental', false);
+
+  // Home recommended pagination
+  const [recommendedLimit, setRecommendedLimit] = useState(3);
+  // Explore pagination
+  const [exploreLimit, setExploreLimit] = useState(6);
+  // Level detail modal
+  const [showLevelDetail, setShowLevelDetail] = useState(false);
+
+  // Reset explore limit when filters change
+  useEffect(() => {
+    setExploreLimit(6);
+  }, [searchQuery, activeCategory, sizeFilter, dateRange, activeTags, thisWeekActive]);
+
+  // Scroll-to-bottom → load more (home recommended & explore)
+  useEffect(() => {
+    const el = mainContentRef.current;
+    if (!el) return;
+    let cooldown = false;
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = el;
+      if (scrollTop + clientHeight >= scrollHeight - 120 && !cooldown) {
+        cooldown = true;
+        if (activeTab === 'home') {
+          setRecommendedLimit(prev => prev + 3);
+        } else if (activeTab === 'explore') {
+          setExploreLimit(prev => prev + 6);
+        }
+        setTimeout(() => { cooldown = false; }, 800);
+      }
+    };
+    el.addEventListener('scroll', handleScroll, { passive: true });
+    return () => el.removeEventListener('scroll', handleScroll);
+  }, [activeTab]);
 
   // Content loading: show skeletons then reveal (big-platform style)
   const [contentReady, setContentReady] = useState(false);
@@ -261,7 +294,7 @@ function App() {
   const hasVibratedRef = useRef(false);
 
   const handleTouchStart = (e) => {
-    if (mainContentRef.current?.scrollTop === 0) {
+    if (activeTab === 'home' && mainContentRef.current?.scrollTop === 0) {
       touchStartY.current = e.touches[0].clientY;
       hasVibratedRef.current = false;
     }
@@ -269,8 +302,8 @@ function App() {
 
   const handleTouchMove = (e) => {
     const touchY = e.touches[0].clientY;
-    // Only track if we started at top
-    if (mainContentRef.current?.scrollTop === 0 && touchStartY.current > 0) {
+    // Only pull-to-refresh on home tab when at the top
+    if (activeTab === 'home' && mainContentRef.current?.scrollTop === 0 && touchStartY.current > 0) {
       const deltaY = touchY - touchStartY.current;
       if (deltaY > 0 && !isRefreshing) {
         const newPullY = Math.min(deltaY * 0.4, 150);
@@ -302,6 +335,7 @@ function App() {
       setTimeout(() => {
         setIsRefreshing(false);
         setPullY(0);
+        setRecommendedLimit(3);
         showToast('Feed refreshed', 'success');
         setEvents(prev => [...prev].sort(() => Math.random() - 0.5));
       }, 2000);
@@ -641,13 +675,25 @@ function App() {
 
                         {/* Recommended Events - sorted by relevance to user preferences */}
                         <motion.section variants={itemVariants}>
-                          <div className="flex items-center gap-2 mb-6">
-                            <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20"><Heart size={16} className="text-primary" /></div>
-                            <h2 className="text-xl font-bold tracking-tight text-primary">Recommended for You<span className="text-accent">.</span></h2>
+                          <div className="flex items-center justify-between mb-6">
+                            <div className="flex items-center gap-2">
+                              <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20"><Heart size={16} className="text-primary" /></div>
+                              <h2 className="text-xl font-bold tracking-tight text-primary">Recommended for You<span className="text-accent">.</span></h2>
+                            </div>
+                            <button
+                              onClick={() => {
+                                setRecommendedLimit(3);
+                                setEvents(prev => [...prev].sort(() => Math.random() - 0.5));
+                                showToast('Recommendations refreshed', 'success');
+                              }}
+                              className="w-8 h-8 rounded-full bg-secondary/10 border border-secondary/15 flex items-center justify-center text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all"
+                              title="Refresh recommendations"
+                            >
+                              <RefreshCw size={14} strokeWidth={2.5} />
+                            </button>
                           </div>
-                          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                            {filteredEvents.filter(e => !e.isMicroMeet).sort((a, b) => {
-                              // Score events by how well they match user preferences
+                          {(() => {
+                            const recommended = filteredEvents.filter(e => !e.isMicroMeet).sort((a, b) => {
                               const interests = userPreferences?.interests || user?.interests || [];
                               const scoreEvent = (ev) => {
                                 let score = 0;
@@ -657,10 +703,27 @@ function App() {
                                 return score;
                               };
                               return scoreEvent(b) - scoreEvent(a);
-                            }).slice(0, 3).map(event => (
-                              <EventCard key={event.id} event={event} isJoined={joinedEvents.includes(event.id)} onClick={setSelectedEvent} />
-                            ))}
-                          </div>
+                            });
+                            const visible = recommended.slice(0, recommendedLimit);
+                            const hasMore = recommendedLimit < recommended.length;
+                            return (
+                              <>
+                                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                                  {visible.map(event => (
+                                    <EventCard key={event.id} event={event} isJoined={joinedEvents.includes(event.id)} onClick={setSelectedEvent} />
+                                  ))}
+                                </div>
+                                {hasMore && (
+                                  <div className="flex justify-center mt-4">
+                                    <div className="flex items-center gap-2 text-secondary/40 text-xs font-bold animate-pulse">
+                                      <div className="w-4 h-4 border-2 border-secondary/30 border-t-primary rounded-full animate-spin" />
+                                      Scroll for more
+                                    </div>
+                                  </div>
+                                )}
+                              </>
+                            );
+                          })()}
                         </motion.section>
                       </motion.div>
                       ) : ( <HomeSkeleton /> )
@@ -764,10 +827,18 @@ function App() {
 
                         {/* Events Grid */}
                         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                          {filteredEvents.map(event => (
+                          {filteredEvents.slice(0, exploreLimit).map(event => (
                             <EventCard key={event.id} event={event} isJoined={joinedEvents.includes(event.id)} onClick={setSelectedEvent} />
                           ))}
                         </div>
+                        {exploreLimit < filteredEvents.length && (
+                          <div className="flex justify-center mt-6">
+                            <div className="flex items-center gap-2 text-secondary/40 text-xs font-bold animate-pulse">
+                              <div className="w-4 h-4 border-2 border-secondary/30 border-t-primary rounded-full animate-spin" />
+                              Scroll for more
+                            </div>
+                          </div>
+                        )}
                       </motion.div>
                       ) : ( <ExploreSkeleton /> )
                     )}
@@ -779,28 +850,19 @@ function App() {
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                         className="p-5 md:p-10 max-w-4xl mx-auto pb-32 relative"
                       >
-                        {/* Profile / Settings tabs */}
-                        <div className="flex gap-2 mb-6">
-                          <button
-                            onClick={() => setProfileSubTab('profile')}
-                            className={`flex-1 py-3 px-4 rounded-2xl font-bold text-sm transition-all ${profileSubTab === 'profile' ? 'bg-primary text-white' : 'bg-secondary/10 text-secondary/70 hover:bg-secondary/15'}`}
-                          >
-                            Profile
-                          </button>
-                          <button
-                            onClick={() => setProfileSubTab('settings')}
-                            className={`flex-1 py-3 px-4 rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${profileSubTab === 'settings' ? 'bg-primary text-white' : 'bg-secondary/10 text-secondary/70 hover:bg-secondary/15'}`}
-                          >
-                            <Settings size={18} />
-                            Settings
-                          </button>
-                        </div>
-
                         {profileSubTab === 'settings' ? (
                           <motion.div
                             initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                             className="space-y-6"
                           >
+                            {/* Back button */}
+                            <button
+                              onClick={() => setProfileSubTab('profile')}
+                              className="flex items-center gap-2 text-secondary/60 hover:text-secondary font-bold text-sm mb-2 transition-colors"
+                            >
+                              <ArrowLeft size={18} />
+                              Back to Profile
+                            </button>
                             <div className="premium-card rounded-[32px] overflow-hidden border border-secondary/10">
                               <div className="p-4 border-b border-secondary/10">
                                 <h2 className="font-black text-secondary text-lg">Experimental features</h2>
@@ -833,6 +895,21 @@ function App() {
                                     <span className="font-bold text-secondary">Group Chats</span>
                                     <span className="ml-auto text-[10px] font-bold uppercase tracking-wider text-secondary/50">WhatsApp</span>
                                   </button>
+                                  <div className="flex items-center gap-3 p-3 rounded-2xl bg-secondary/5">
+                                    <ShieldCheck className="text-green-500" size={20} />
+                                    <span className="font-bold text-secondary">Safe Mode</span>
+                                    <span className="ml-auto text-[10px] font-black text-green-500 uppercase tracking-wider">On</span>
+                                  </div>
+                                  <div className="flex items-center gap-3 p-3 rounded-2xl bg-secondary/5">
+                                    <Zap className="text-accent" size={20} />
+                                    <span className="font-bold text-secondary">Smart Match</span>
+                                    <span className="ml-auto text-[10px] font-black text-accent uppercase tracking-wider">94%</span>
+                                  </div>
+                                  <div className="flex items-center gap-3 p-3 rounded-2xl bg-secondary/5">
+                                    <Mail className="text-secondary" size={20} />
+                                    <span className="font-bold text-secondary">Invitations</span>
+                                    <span className="ml-auto text-[10px] font-black text-secondary uppercase tracking-wider">3 pending</span>
+                                  </div>
                                 </div>
                               )}
                             </div>
@@ -869,7 +946,7 @@ function App() {
                                 <span className="inline-block px-3 py-1 mb-2 bg-accent/10 rounded-full border border-accent/20 text-[10px] font-black text-accent uppercase tracking-widest">{user.selectedTitle}</span>
                               )}
                               <p className="text-sm text-gray-400 font-medium max-w-xs leading-relaxed mb-3">{user?.bio}</p>
-                              <div className="flex items-center gap-5">
+                              <div className="flex items-center justify-center md:justify-start gap-5">
                                 <div className="text-center">
                                   <span className="text-lg font-black text-secondary">{user?.followers ?? 0}</span>
                                   <p className="text-[9px] font-bold text-secondary/40 uppercase tracking-widest">Followers</p>
@@ -882,14 +959,25 @@ function App() {
                               </div>
                             </div>
 
-                            {/* WarmthScore */}
+                            {/* Level Circle */}
                             <div className="flex-1 flex justify-center md:justify-end">
-                              <WarmthScore score={78} streak={5} />
+                              {(() => {
+                                const cl = XP_LEVELS.filter(l => l.xpRequired <= userXP).pop() || XP_LEVELS[0];
+                                const nl = XP_LEVELS.find(l => l.xpRequired > userXP) || XP_LEVELS[XP_LEVELS.length - 1];
+                                const xpIn = userXP - cl.xpRequired;
+                                const xpNeed = nl.xpRequired - cl.xpRequired;
+                                const prog = xpNeed > 0 ? Math.min((xpIn / xpNeed) * 100, 100) : 100;
+                                return <WarmthScore level={cl.level} levelProgress={prog} levelIcon={cl.icon} streak={5} />;
+                              })()}
                             </div>
                           </motion.div>
 
-                          {/* XP & Level Progress */}
-                          <motion.div variants={itemVariants} className="premium-card p-6 overflow-hidden relative">
+                          {/* XP & Level Progress — tap to see full level roadmap */}
+                          <motion.div
+                            variants={itemVariants}
+                            className="premium-card p-6 overflow-hidden relative cursor-pointer active:scale-[0.98] transition-transform"
+                            onClick={() => setShowLevelDetail(true)}
+                          >
                             <div className="absolute -right-10 -top-10 w-40 h-40 bg-accent/5 rounded-full blur-3xl" />
                             {(() => {
                               const currentLevel = XP_LEVELS.filter(l => l.xpRequired <= userXP).pop() || XP_LEVELS[0];
@@ -910,6 +998,7 @@ function App() {
                                     <div className="text-right">
                                       <span className="text-2xl font-black text-accent">{userXP}</span>
                                       <p className="text-[9px] font-bold text-secondary/40 uppercase tracking-widest">Total XP</p>
+                                      <p className="text-[8px] font-bold text-primary/50 uppercase tracking-widest mt-0.5">Tap for roadmap</p>
                                     </div>
                                   </div>
                                   <div className="w-full h-3 bg-secondary/10 rounded-full overflow-hidden mb-2">
@@ -956,68 +1045,37 @@ function App() {
                             </div>
                           </motion.div>
 
-                          {/* Achievements / Unlockable Titles */}
-                          <motion.div variants={itemVariants} className="premium-card p-6">
-                            <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-4">Achievements<span className="text-accent">.</span></h3>
-                            <div className="grid grid-cols-2 gap-3">
-                              {UNLOCKABLE_TITLES.map(title => {
-                                const isUnlocked = userUnlockedTitles.includes(title.id);
-                                return (
-                                  <div
-                                    key={title.id}
-                                    className={`p-4 rounded-2xl border transition-all ${isUnlocked
-                                      ? 'bg-accent/5 border-accent/20'
-                                      : 'bg-secondary/5 border-secondary/10 opacity-50'
-                                    }`}
-                                  >
+                          {/* Achievements — only show unlocked ones */}
+                          {userUnlockedTitles.length > 0 && (
+                            <motion.div variants={itemVariants} className="premium-card p-6">
+                              <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-4">Achievements<span className="text-accent">.</span></h3>
+                              <div className="grid grid-cols-2 gap-3">
+                                {UNLOCKABLE_TITLES.filter(t => userUnlockedTitles.includes(t.id)).map(title => (
+                                  <div key={title.id} className="p-4 rounded-2xl border bg-accent/5 border-accent/20">
                                     <span className="text-2xl">{title.icon}</span>
-                                    <h4 className={`text-xs font-bold mt-2 ${isUnlocked ? 'text-secondary' : 'text-secondary/40'}`}>{title.title}</h4>
+                                    <h4 className="text-xs font-bold mt-2 text-secondary">{title.title}</h4>
                                     <p className="text-[9px] text-secondary/40 mt-0.5">{title.description}</p>
-                                    {isUnlocked && <span className="inline-block mt-2 text-[8px] font-black text-accent uppercase tracking-widest">+{title.xpReward} XP</span>}
+                                    <span className="inline-block mt-2 text-[8px] font-black text-accent uppercase tracking-widest">+{title.xpReward} XP</span>
                                   </div>
-                                );
-                              })}
-                            </div>
-                          </motion.div>
-
-                          {/* Quick Stats Grid */}
-                          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                            {/* Hero Card - My Connections (spans 2 cols) */}
-                            <motion.div
-                              variants={itemVariants}
-                              className="col-span-2 md:col-span-1 md:row-span-2 premium-card p-6 flex flex-col items-center justify-center gap-4 text-center transition-all hover:scale-[1.02] active:scale-95 cursor-pointer relative overflow-hidden group"
-                            >
-                              <div className="absolute -right-8 -top-8 w-32 h-32 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors" />
-                              <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20">
-                                <Users className="text-primary" size={28} />
-                              </div>
-                              <div>
-                                <span className="text-3xl font-black text-secondary">{joinedEvents.length}</span>
-                                <p className="text-[10px] font-black uppercase tracking-widest text-secondary/60 mt-1">Connections</p>
+                                ))}
                               </div>
                             </motion.div>
+                          )}
 
-                            {/* Smaller cards */}
-                            {[
-                              { icon: Mail, color: 'text-secondary', bg: 'bg-secondary/10', label: 'Invitations', value: '3' },
-                              { icon: ShieldCheck, color: 'text-green-500', bg: 'bg-green-500/10', label: 'Safe Mode', value: 'On' },
-                              { icon: Zap, color: 'text-accent', bg: 'bg-accent/10', label: 'Smart Match', value: '94%' }
-                            ].map((tool, i) => (
-                              <motion.div
-                                key={i}
-                                variants={itemVariants}
-                                className="premium-card p-4 flex items-center gap-4 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer"
-                              >
-                                <div className={`w-12 h-12 rounded-xl ${tool.bg} flex items-center justify-center`}>
-                                  <tool.icon className={tool.color} size={20} />
-                                </div>
-                                <div className="text-left">
-                                  <p className="font-black text-lg text-secondary">{tool.value}</p>
-                                  <p className="text-[9px] font-bold uppercase tracking-widest text-secondary/50">{tool.label}</p>
-                                </div>
-                              </motion.div>
-                            ))}
-                          </div>
+                          {/* Connections Card */}
+                          <motion.div
+                            variants={itemVariants}
+                            className="premium-card p-6 flex items-center gap-6 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer relative overflow-hidden group"
+                          >
+                            <div className="absolute -right-8 -top-8 w-32 h-32 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors" />
+                            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20">
+                              <Users className="text-primary" size={28} />
+                            </div>
+                            <div>
+                              <span className="text-3xl font-black text-secondary">{joinedEvents.length}</span>
+                              <p className="text-[10px] font-black uppercase tracking-widest text-secondary/60 mt-1">Connections</p>
+                            </div>
+                          </motion.div>
 
 
 
@@ -1039,6 +1097,7 @@ function App() {
                             { label: 'My Bookings', icon: Check, action: () => setShowBookings(true), badge: joinedEvents.length },
                             { label: 'Saved Experiences', icon: Heart, action: () => setShowSaved(true), badge: savedEvents.length },
                             { label: 'Socialise Pass', icon: Zap, action: () => setShowProModal(true) },
+                            { label: 'Settings', icon: Settings, action: () => setProfileSubTab('settings') },
                             { label: 'Help & Privacy', icon: ShieldCheck, action: () => setShowHelp(true) }
                           ].map((item) => (
                             <button
@@ -1142,6 +1201,92 @@ function App() {
                 onJoin={handleJoinTribe}
                 joinedTribes={userTribes}
               />
+              {/* Level Detail Modal */}
+              {showLevelDetail && (
+                <motion.div
+                  key="level-detail"
+                  className="fixed inset-0 z-[200] flex items-end justify-center bg-secondary/60 backdrop-blur-xl"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setShowLevelDetail(false)}
+                >
+                  <motion.div
+                    className="w-full max-w-lg bg-paper rounded-t-[40px] p-6 pb-12 max-h-[85vh] overflow-y-auto no-scrollbar border-t border-secondary/10"
+                    initial={{ y: '100%' }}
+                    animate={{ y: 0 }}
+                    exit={{ y: '100%' }}
+                    transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+                    onClick={e => e.stopPropagation()}
+                  >
+                    <div className="w-12 h-1.5 bg-secondary/20 rounded-full mx-auto mb-6" />
+                    <h2 className="text-2xl font-black text-secondary mb-1">Level Roadmap<span className="text-accent">.</span></h2>
+                    <p className="text-xs text-secondary/50 mb-6 font-medium">Your progress and upcoming unlocks</p>
+
+                    {(() => {
+                      const currentLevel = XP_LEVELS.filter(l => l.xpRequired <= userXP).pop() || XP_LEVELS[0];
+                      return (
+                        <div className="space-y-3">
+                          {XP_LEVELS.map((lvl, i) => {
+                            const isCurrentLevel = lvl.level === currentLevel.level;
+                            const isUnlocked = userXP >= lvl.xpRequired;
+                            const nextLvl = XP_LEVELS[i + 1];
+                            const xpIn = isCurrentLevel ? userXP - lvl.xpRequired : 0;
+                            const xpNeed = nextLvl ? nextLvl.xpRequired - lvl.xpRequired : 0;
+                            const prog = isCurrentLevel && xpNeed > 0 ? Math.min((xpIn / xpNeed) * 100, 100) : 0;
+                            return (
+                              <div
+                                key={lvl.level}
+                                className={`p-4 rounded-2xl border transition-all ${
+                                  isCurrentLevel
+                                    ? 'bg-primary/5 border-primary/30 ring-2 ring-primary/20'
+                                    : isUnlocked
+                                    ? 'bg-accent/5 border-accent/20'
+                                    : 'bg-secondary/5 border-secondary/10 opacity-50'
+                                }`}
+                              >
+                                <div className="flex items-center gap-3 mb-2">
+                                  <span className="text-2xl">{lvl.icon}</span>
+                                  <div className="flex-1">
+                                    <div className="flex items-center justify-between">
+                                      <div>
+                                        <span className="font-black text-secondary text-sm">Level {lvl.level}</span>
+                                        <span className={`ml-2 text-xs font-bold ${lvl.color}`}>{lvl.title}</span>
+                                      </div>
+                                      {isCurrentLevel && (
+                                        <span className="text-[9px] font-black text-primary uppercase tracking-widest bg-primary/10 px-2 py-0.5 rounded-full">Current</span>
+                                      )}
+                                      {!isUnlocked && (
+                                        <div className="flex items-center gap-1 text-secondary/40">
+                                          <Lock size={12} />
+                                          <span className="text-[9px] font-bold">{lvl.xpRequired} XP</span>
+                                        </div>
+                                      )}
+                                    </div>
+                                    {isCurrentLevel && nextLvl && (
+                                      <>
+                                        <div className="w-full h-1.5 bg-secondary/10 rounded-full mt-2 overflow-hidden">
+                                          <motion.div
+                                            className="h-full bg-gradient-to-r from-primary to-accent rounded-full"
+                                            initial={{ width: 0 }}
+                                            animate={{ width: `${prog}%` }}
+                                            transition={{ duration: 0.8, ease: 'easeOut' }}
+                                          />
+                                        </div>
+                                        <p className="text-[9px] text-secondary/40 mt-1">{xpIn} / {xpNeed} XP to {nextLvl.title}</p>
+                                      </>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    })()}
+                  </motion.div>
+                </motion.div>
+              )}
               {/* Profile Modals */}
               <MyBookingsSheet
                 key="bookings"
