@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Users, MessageCircle, Calendar, ChevronRight, LogOut, Bell, BellOff } from 'lucide-react';
-import { FEED_POSTS } from '../data/mockData';
+import { X, Users, MessageCircle, Calendar, ChevronRight, LogOut, Bell, BellOff, Star, UserPlus, UserCheck, Shield, Heart } from 'lucide-react';
+import { FEED_POSTS, COMMUNITY_REVIEWS } from '../data/mockData';
 import FeedItem from './FeedItem';
 
 const TribeSheet = ({ tribe, isOpen, onClose, onLeave }) => {
     const [notificationsOn, setNotificationsOn] = useState(true);
+    const [isFollowing, setIsFollowing] = useState(true);
+    const [activeSection, setActiveSection] = useState('activity'); // 'activity' | 'reviews'
     const tribePosts = FEED_POSTS.filter(p => p.communityId === tribe?.id);
+    const reviews = tribe ? (COMMUNITY_REVIEWS[tribe.id] || []) : [];
 
     if (!tribe) return null;
 
@@ -56,64 +59,166 @@ const TribeSheet = ({ tribe, isOpen, onClose, onLeave }) => {
                                 </button>
                             </div>
 
+                            {/* Curated badge + rating */}
+                            <div className="flex items-center gap-3 mb-3">
+                                {tribe.isCurated && (
+                                    <span className="flex items-center gap-1.5 px-3 py-1.5 bg-accent/10 rounded-full border border-accent/20 text-[10px] font-black text-accent uppercase tracking-widest">
+                                        <Shield size={12} /> Curated Group
+                                    </span>
+                                )}
+                                {tribe.rating && (
+                                    <span className="flex items-center gap-1 px-3 py-1.5 bg-amber-500/10 rounded-full border border-amber-500/20 text-[10px] font-black text-amber-600">
+                                        <Star size={12} className="fill-current" /> {tribe.rating} ({tribe.reviewCount})
+                                    </span>
+                                )}
+                            </div>
+
                             <p className="text-sm text-secondary/80 mb-4">{tribe.description}</p>
 
-                            {/* Member avatars */}
-                            <div className="flex items-center gap-2 mb-4">
-                                <div className="flex -space-x-3">
-                                    {tribe.memberAvatars?.slice(0, 4).map((avatar, i) => (
-                                        <img
-                                            key={i}
-                                            src={avatar}
-                                            alt=""
-                                            className="w-8 h-8 rounded-full border-2 border-paper object-cover"
-                                        />
-                                    ))}
+                            {/* Member avatars + follower count */}
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-2">
+                                    <div className="flex -space-x-3">
+                                        {tribe.memberAvatars?.slice(0, 4).map((avatar, i) => (
+                                            <img
+                                                key={i}
+                                                src={avatar}
+                                                alt=""
+                                                className="w-8 h-8 rounded-full border-2 border-paper object-cover"
+                                            />
+                                        ))}
+                                    </div>
+                                    <span className="text-xs text-secondary/50">
+                                        +{(tribe.members - 4).toLocaleString()} others
+                                    </span>
                                 </div>
-                                <span className="text-xs text-secondary/50">
-                                    +{(tribe.members - 4).toLocaleString()} others
-                                </span>
+                                {tribe.followers && (
+                                    <div className="flex items-center gap-1.5 text-xs text-secondary/60 font-bold">
+                                        <Heart size={14} className="text-primary" />
+                                        {tribe.followers.toLocaleString()} followers
+                                    </div>
+                                )}
                             </div>
 
                             {/* Action buttons */}
                             <div className="flex gap-3">
                                 <button
+                                    onClick={() => setIsFollowing(!isFollowing)}
+                                    className={`flex-1 py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${isFollowing
+                                        ? 'bg-primary/10 text-primary border border-primary/20'
+                                        : 'bg-primary text-white'
+                                    }`}
+                                >
+                                    {isFollowing ? <UserCheck size={16} /> : <UserPlus size={16} />}
+                                    {isFollowing ? 'Following' : 'Follow'}
+                                </button>
+                                <button
                                     onClick={() => setNotificationsOn(!notificationsOn)}
-                                    className={`flex-1 py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${notificationsOn
+                                    className={`py-3 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${notificationsOn
                                         ? 'bg-secondary/10 text-secondary border border-secondary/20'
                                         : 'bg-white/5 text-secondary/50 border border-white/10'
                                         }`}
                                 >
                                     {notificationsOn ? <Bell size={16} /> : <BellOff size={16} />}
-                                    {notificationsOn ? 'Notifications On' : 'Notifications Off'}
                                 </button>
                                 <button
                                     onClick={() => onLeave(tribe.id)}
-                                    className="px-6 py-3 rounded-xl text-xs font-bold bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all flex items-center gap-2"
+                                    className="px-4 py-3 rounded-xl text-xs font-bold bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 transition-all flex items-center gap-2"
                                 >
                                     <LogOut size={16} />
-                                    Leave
                                 </button>
                             </div>
                         </div>
 
-                        {/* Tribe Feed */}
-                        <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 320px)' }}>
-                            <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-4">
-                                Recent Activity<span className="text-accent">.</span>
-                            </h3>
-                            {tribePosts.length > 0 ? (
-                                <div className="space-y-4">
-                                    {tribePosts.map(post => (
-                                        <FeedItem key={post.id} post={post} />
-                                    ))}
-                                </div>
+                        {/* Section tabs: Activity / Reviews */}
+                        <div className="flex border-b border-secondary/10">
+                            {['activity', 'reviews'].map(section => (
+                                <button
+                                    key={section}
+                                    onClick={() => setActiveSection(section)}
+                                    className={`flex-1 py-3.5 text-[11px] font-black uppercase tracking-[0.15em] transition-all border-b-2 -mb-px ${
+                                        activeSection === section
+                                            ? 'border-primary text-secondary'
+                                            : 'border-transparent text-secondary/40'
+                                    }`}
+                                >
+                                    {section === 'activity' ? 'Activity' : `Reviews (${reviews.length})`}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Content */}
+                        <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 400px)' }}>
+                            {activeSection === 'activity' ? (
+                                <>
+                                    <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-4">
+                                        Recent Activity<span className="text-accent">.</span>
+                                    </h3>
+                                    {tribePosts.length > 0 ? (
+                                        <div className="space-y-4">
+                                            {tribePosts.map(post => (
+                                                <FeedItem key={post.id} post={post} />
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="text-center py-12 text-secondary/40">
+                                            <MessageCircle size={32} className="mx-auto mb-3 opacity-50" />
+                                            <p className="text-sm font-medium">No recent posts</p>
+                                            <p className="text-xs mt-1">Be the first to share something!</p>
+                                        </div>
+                                    )}
+                                </>
                             ) : (
-                                <div className="text-center py-12 text-secondary/40">
-                                    <MessageCircle size={32} className="mx-auto mb-3 opacity-50" />
-                                    <p className="text-sm font-medium">No recent posts</p>
-                                    <p className="text-xs mt-1">Be the first to share something!</p>
-                                </div>
+                                <>
+                                    {/* Reviews Section */}
+                                    <div className="flex items-center justify-between mb-6">
+                                        <div>
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <span className="text-3xl font-black text-secondary">{tribe.rating}</span>
+                                                <div className="flex">
+                                                    {[1,2,3,4,5].map(i => (
+                                                        <Star key={i} size={16} className={i <= Math.round(tribe.rating) ? 'text-amber-500 fill-current' : 'text-secondary/20'} />
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            <p className="text-xs text-secondary/50 font-bold">{tribe.reviewCount} reviews</p>
+                                        </div>
+                                        <button className="px-4 py-2.5 rounded-2xl bg-primary text-white text-xs font-black uppercase tracking-widest">
+                                            Write Review
+                                        </button>
+                                    </div>
+                                    <div className="space-y-4">
+                                        {reviews.map(review => (
+                                            <div key={review.id} className="premium-card p-5">
+                                                <div className="flex items-center gap-3 mb-3">
+                                                    <img src={review.avatar} alt={review.user} className="w-10 h-10 rounded-full object-cover border border-secondary/10" />
+                                                    <div className="flex-1">
+                                                        <h4 className="font-bold text-sm text-secondary">{review.user}</h4>
+                                                        <p className="text-[10px] text-secondary/40">{review.time}</p>
+                                                    </div>
+                                                    <div className="flex">
+                                                        {[1,2,3,4,5].map(i => (
+                                                            <Star key={i} size={12} className={i <= review.rating ? 'text-amber-500 fill-current' : 'text-secondary/20'} />
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                                <p className="text-sm text-secondary/70 leading-relaxed">{review.text}</p>
+                                                <div className="flex items-center gap-2 mt-3">
+                                                    <button className="text-[10px] font-bold text-secondary/40 flex items-center gap-1 hover:text-primary transition-colors">
+                                                        <Heart size={12} /> Helpful ({review.helpful})
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                        {reviews.length === 0 && (
+                                            <div className="text-center py-12 text-secondary/40">
+                                                <Star size={32} className="mx-auto mb-3 opacity-50" />
+                                                <p className="text-sm font-medium">No reviews yet</p>
+                                                <p className="text-xs mt-1">Be the first to review this group!</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </>
                             )}
                         </div>
                     </motion.div>

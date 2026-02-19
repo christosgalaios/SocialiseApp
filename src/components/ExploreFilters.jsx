@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Calendar, Users, Star, ChevronDown, SlidersHorizontal, X, UsersRound } from 'lucide-react';
-import { CATEGORIES } from '../data/mockData';
+import { CATEGORIES, INCLUSIVITY_TAGS } from '../data/mockData';
 import DateRangeCalendar from './DateRangeCalendar';
 
 const ExploreFilters = ({
@@ -14,7 +14,9 @@ const ExploreFilters = ({
     dateRange,
     setDateRange,
     thisWeekActive,
-    setThisWeekActive
+    setThisWeekActive,
+    activeTags = [],
+    setActiveTags,
 }) => {
     const [showCalendar, setShowCalendar] = useState(false);
     const [filtersExpanded, setFiltersExpanded] = useState(false);
@@ -57,8 +59,17 @@ const ExploreFilters = ({
         return `${start} - ${end}`;
     };
 
+    const toggleTag = (tagId) => {
+        if (!setActiveTags) return;
+        if (activeTags.includes(tagId)) {
+            setActiveTags(activeTags.filter(t => t !== tagId));
+        } else {
+            setActiveTags([...activeTags, tagId]);
+        }
+    };
+
     // Check if any filters are active (to show indicator)
-    const hasActiveFilters = activeCategory !== 'All' || sizeFilter !== 'all' || dateRange.start || thisWeekActive;
+    const hasActiveFilters = activeCategory !== 'All' || sizeFilter !== 'all' || dateRange.start || thisWeekActive || activeTags.length > 0;
 
     // Reset all filters
     const resetAllFilters = () => {
@@ -67,6 +78,7 @@ const ExploreFilters = ({
         setSizeFilter('all');
         setDateRange({ start: null, end: null });
         setThisWeekActive(false);
+        if (setActiveTags) setActiveTags([]);
     };
 
     return (
@@ -191,6 +203,27 @@ const ExploreFilters = ({
                                         {size.label}
                                     </button>
                                 ))}
+                            </div>
+
+                            {/* Inclusivity Tags */}
+                            <div>
+                                <p className="text-[10px] font-black text-secondary/40 uppercase tracking-widest mb-2">Inclusivity</p>
+                                <div className="flex gap-2 flex-wrap">
+                                    {INCLUSIVITY_TAGS.map(tag => (
+                                        <button
+                                            key={tag.id}
+                                            onClick={() => toggleTag(tag.id)}
+                                            className={`px-3 py-2 rounded-full text-[11px] font-bold transition-all flex items-center gap-1.5 border ${
+                                                activeTags.includes(tag.id)
+                                                    ? tag.color + ' shadow-sm'
+                                                    : 'bg-secondary/5 border-secondary/15 text-secondary/60 hover:border-secondary/30'
+                                            }`}
+                                        >
+                                            <span>{tag.emoji}</span>
+                                            {tag.label}
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
 
                             {/* Reset All Filters */}

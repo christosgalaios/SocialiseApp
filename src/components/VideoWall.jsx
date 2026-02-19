@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Volume2, VolumeX, Heart, Wand2 } from 'lucide-react';
+import { Play, Volume2, VolumeX, Heart, Wand2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { ADVERTISED_EVENTS } from '../data/mockData';
 
 /**
@@ -200,11 +200,42 @@ const VideoWall = ({ onEventSelect, userName = "You" }) => {
         setTimeout(() => setIsInteracting(false), 5000);
     };
 
+    const scrollTo = (direction) => {
+        if (!scrollRef.current) return;
+        setIsInteracting(true);
+        const nextIndex = direction === 'left'
+            ? Math.max(0, activeIndex - 1)
+            : Math.min(totalItems - 1, activeIndex + 1);
+        setActiveIndex(nextIndex);
+        const cardWidth = 280;
+        const gap = 16;
+        scrollRef.current.scrollTo({
+            left: nextIndex * (cardWidth + gap),
+            behavior: 'smooth'
+        });
+        handleInteractionEnd();
+    };
+
     return (
         <div className="mb-10">
             <div className="flex items-center justify-between mb-4 px-1">
                 <h2 className="text-xl font-bold tracking-tight text-secondary">Trending Now</h2>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
+                    {/* Nav arrows */}
+                    <button
+                        onClick={() => scrollTo('left')}
+                        disabled={activeIndex === 0}
+                        className="w-8 h-8 rounded-full bg-secondary/10 border border-secondary/15 flex items-center justify-center text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all disabled:opacity-30 disabled:hover:bg-secondary/10 disabled:hover:text-secondary disabled:hover:border-secondary/15"
+                    >
+                        <ChevronLeft size={16} strokeWidth={2.5} />
+                    </button>
+                    <button
+                        onClick={() => scrollTo('right')}
+                        disabled={activeIndex === totalItems - 1}
+                        className="w-8 h-8 rounded-full bg-secondary/10 border border-secondary/15 flex items-center justify-center text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all disabled:opacity-30 disabled:hover:bg-secondary/10 disabled:hover:text-secondary disabled:hover:border-secondary/15"
+                    >
+                        <ChevronRight size={16} strokeWidth={2.5} />
+                    </button>
                     {/* Progress dots */}
                     {Array.from({ length: Math.min(totalItems, 5) }).map((_, i) => (
                         <div
