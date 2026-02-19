@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Send, ArrowLeft } from 'lucide-react';
+import { X, Send, ArrowLeft, Image, Smile, Mic, Users, Pin, Search, Phone, Video } from 'lucide-react';
 import { COMMUNITY_CHATS } from '../data/mockData';
 
 const STORAGE_PREFIX = 'socialise_community_chats_';
@@ -19,21 +19,94 @@ const setStoredMessages = (communityId, messages) => {
 };
 
 const DEMO_USER_NAME = 'You';
+const QUICK_REACTIONS = ['❤️', '😂', '🔥', '👏', '😮', '👍'];
+
+// Simulated typing responses
+const AUTO_REPLIES = [
+  { user: "Sarah K.", avatar: "https://i.pravatar.cc/150?u=sarah", delay: 3000, message: "That sounds great! Count me in 😊" },
+  { user: "Marcus V.", avatar: "https://i.pravatar.cc/150?u=marcus", delay: 6000, message: "Awesome, see you all there!" },
+];
+
+const MessageBubble = ({ msg, onReact }) => {
+  const [showReactions, setShowReactions] = useState(false);
+  const [reaction, setReaction] = useState(msg.reaction || null);
+
+  return (
+    <div className={`flex ${msg.isMe ? 'justify-end' : 'justify-start'} group`}>
+      <div className="max-w-[85%] relative">
+        {!msg.isMe && (
+          <div className="flex items-center gap-2 mb-1 ml-1">
+            <img src={msg.avatar} alt="" className="w-5 h-5 rounded-full object-cover" />
+            <span className="text-[10px] font-bold text-secondary/60">{msg.user}</span>
+          </div>
+        )}
+        <div
+          className={`rounded-2xl px-4 py-3 relative ${
+            msg.isMe
+              ? 'bg-primary text-white rounded-br-sm'
+              : 'bg-white border border-secondary/10 text-secondary rounded-bl-sm shadow-sm'
+          }`}
+          onDoubleClick={() => setShowReactions(!showReactions)}
+        >
+          {msg.isImage ? (
+            <img src={msg.message} alt="Shared" className="w-48 h-36 object-cover rounded-xl" />
+          ) : (
+            <p className="text-sm font-medium leading-relaxed">{msg.message}</p>
+          )}
+          <div className="flex items-center justify-between mt-1">
+            <p className={`text-[10px] ${msg.isMe ? 'text-white/60' : 'text-secondary/40'}`}>{msg.time}</p>
+            {msg.isMe && <span className="text-[10px] text-white/50 ml-2">✓✓</span>}
+          </div>
+          {reaction && (
+            <span className="absolute -bottom-2 right-2 text-sm bg-white rounded-full px-1 shadow-sm border border-secondary/10">{reaction}</span>
+          )}
+        </div>
+
+        {/* Quick reactions popup */}
+        <AnimatePresence>
+          {showReactions && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.8, y: 10 }}
+              className="absolute bottom-full mb-2 left-0 bg-white rounded-full shadow-xl border border-secondary/10 flex gap-1 px-2 py-1.5 z-10"
+            >
+              {QUICK_REACTIONS.map(emoji => (
+                <button
+                  key={emoji}
+                  onClick={() => { setReaction(emoji); setShowReactions(false); }}
+                  className="w-8 h-8 rounded-full hover:bg-secondary/10 flex items-center justify-center text-lg transition-all hover:scale-125"
+                >
+                  {emoji}
+                </button>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+};
 
 export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [] }) {
   const [selectedCommunity, setSelectedCommunity] = useState(null);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
+  const [isTyping, setIsTyping] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSearch, setShowSearch] = useState(false);
   const messagesEndRef = useRef(null);
+  const autoReplyIndex = useRef(0);
 
   useEffect(() => {
     if (!selectedCommunity) return;
     setMessages(getStoredMessages(selectedCommunity.id));
+    autoReplyIndex.current = 0;
   }, [selectedCommunity?.id]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  }, [messages, isTyping]);
 
   const openCommunity = (community) => {
     setSelectedCommunity(community);
@@ -43,6 +116,7 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
   const closeCommunity = () => {
     setSelectedCommunity(null);
     setInput('');
+    setIsTyping(null);
   };
 
   const handleSend = (e) => {
@@ -60,7 +134,33 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
     setMessages(next);
     setStoredMessages(selectedCommunity.id, next);
     setInput('');
+
+    // Simulate typing + auto reply
+    if (autoReplyIndex.current < AUTO_REPLIES.length) {
+      const reply = AUTO_REPLIES[autoReplyIndex.current];
+      autoReplyIndex.current++;
+      setTimeout(() => setIsTyping(reply.user), 1500);
+      setTimeout(() => {
+        setIsTyping(null);
+        const replyMsg = {
+          id: Date.now() + 1,
+          user: reply.user,
+          avatar: reply.avatar,
+          message: reply.message,
+          time: 'Just now',
+          isMe: false,
+        };
+        setMessages(prev => {
+          const updated = [...prev, replyMsg];
+          setStoredMessages(selectedCommunity.id, updated);
+          return updated;
+        });
+      }, reply.delay);
+    }
   };
+
+  // Online member count (simulated)
+  const onlineCount = selectedCommunity ? Math.min(Math.floor(selectedCommunity.members * 0.08), 99) : 0;
 
   if (!isOpen) return null;
 
@@ -78,7 +178,7 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
           animate={{ y: 0 }}
           exit={{ y: '100%' }}
           transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-          className="absolute inset-x-0 bottom-0 top-20 bg-paper rounded-t-[32px] overflow-hidden shadow-2xl flex flex-col"
+          className="absolute inset-x-0 bottom-0 top-12 bg-paper rounded-t-[32px] overflow-hidden shadow-2xl flex flex-col"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex justify-center pt-3 pb-2 shrink-0">
@@ -87,117 +187,196 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
 
           {selectedCommunity ? (
             <>
-              <div className="px-4 py-3 border-b border-secondary/10 flex items-center gap-3 shrink-0">
-                <button
-                  onClick={closeCommunity}
-                  className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
-                  aria-label="Back to communities"
-                >
-                  <ArrowLeft size={20} className="text-secondary" />
-                </button>
-                <div className="flex-1 min-w-0">
-                  <h2 className="font-black text-secondary truncate">{selectedCommunity.name}</h2>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-secondary/60 flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                    Community chat • {selectedCommunity.members} members
-                  </p>
+              {/* Chat header */}
+              <div className="px-4 py-3 border-b border-secondary/10 shrink-0">
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={closeCommunity}
+                    className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
+                    aria-label="Back to communities"
+                  >
+                    <ArrowLeft size={20} className="text-secondary" />
+                  </button>
+                  <div className="w-10 h-10 rounded-2xl bg-primary/20 flex items-center justify-center text-xl">
+                    {selectedCommunity.avatar || '💬'}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h2 className="font-black text-secondary truncate text-sm">{selectedCommunity.name}</h2>
+                    <p className="text-[10px] font-bold text-secondary/50 flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                      {onlineCount} online • {selectedCommunity.members} members
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <button className="w-9 h-9 rounded-full bg-secondary/10 flex items-center justify-center text-secondary/60 hover:bg-secondary/20 transition-colors">
+                      <Phone size={16} />
+                    </button>
+                    <button className="w-9 h-9 rounded-full bg-secondary/10 flex items-center justify-center text-secondary/60 hover:bg-secondary/20 transition-colors">
+                      <Video size={16} />
+                    </button>
+                    <button
+                      onClick={onClose}
+                      className="w-9 h-9 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
+                    >
+                      <X size={16} className="text-secondary" />
+                    </button>
+                  </div>
                 </div>
-                <button
-                  onClick={onClose}
-                  className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
-                >
-                  <X size={20} className="text-secondary" />
-                </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-secondary/5">
-                <div className="text-center text-[10px] font-bold uppercase tracking-wider text-secondary/50 py-2">
-                  Chats from this community
+              {/* Pinned message */}
+              <div className="px-4 py-2 bg-accent/5 border-b border-accent/10 flex items-center gap-2 shrink-0">
+                <Pin size={12} className="text-accent shrink-0" />
+                <p className="text-[11px] text-secondary/60 font-medium truncate">Welcome! Please read the group rules before posting.</p>
+              </div>
+
+              {/* Messages */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-secondary/[0.02]">
+                <div className="text-center text-[10px] font-bold uppercase tracking-wider text-secondary/40 py-2">
+                  Today
                 </div>
                 {messages.length === 0 && (
-                  <p className="text-center text-sm text-secondary/60 py-4">No messages yet. Say hi!</p>
+                  <div className="text-center py-8">
+                    <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-secondary/10 flex items-center justify-center">
+                      <Users size={24} className="text-secondary/40" />
+                    </div>
+                    <p className="text-sm font-bold text-secondary/50">Start a conversation</p>
+                    <p className="text-xs text-secondary/30 mt-1">Messages are shared with the group</p>
+                  </div>
                 )}
                 {messages.map((msg) => (
-                  <div
-                    key={msg.id}
-                    className={`flex ${msg.isMe ? 'justify-end' : 'justify-start'}`}
-                  >
-                    <div
-                      className={`max-w-[85%] rounded-2xl px-4 py-2.5 ${
-                        msg.isMe
-                          ? 'bg-primary text-white rounded-br-sm'
-                          : 'bg-white border border-secondary/10 text-secondary rounded-bl-sm'
-                      }`}
-                    >
-                      {!msg.isMe && (
-                        <p className="text-[10px] font-bold text-secondary/70 mb-0.5">{msg.user}</p>
-                      )}
-                      <p className="text-sm font-medium leading-relaxed">{msg.message}</p>
-                      <p className="text-[10px] opacity-80 mt-1">{msg.time}</p>
-                    </div>
-                  </div>
+                  <MessageBubble key={msg.id} msg={msg} />
                 ))}
+
+                {/* Typing indicator */}
+                {isTyping && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-center gap-2 text-secondary/50 text-xs font-medium"
+                  >
+                    <span className="italic">{isTyping} is typing</span>
+                    <div className="flex gap-0.5">
+                      <div className="w-1.5 h-1.5 bg-secondary/40 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <div className="w-1.5 h-1.5 bg-secondary/40 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <div className="w-1.5 h-1.5 bg-secondary/40 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                    </div>
+                  </motion.div>
+                )}
                 <div ref={messagesEndRef} />
               </div>
 
-              <form onSubmit={handleSend} className="p-4 border-t border-secondary/10 bg-paper shrink-0">
-                <p className="text-[9px] font-bold uppercase tracking-wider text-secondary/50 mb-2">Sends via WhatsApp</p>
+              {/* Input area */}
+              <form onSubmit={handleSend} className="p-3 border-t border-secondary/10 bg-paper shrink-0 pb-[max(12px,env(safe-area-inset-bottom))]">
                 <div className="flex items-center gap-2">
+                  <button type="button" className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary/50 hover:bg-secondary/20 transition-colors shrink-0">
+                    <Smile size={20} />
+                  </button>
                   <input
                     type="text"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    placeholder="Message..."
-                    className="flex-1 bg-secondary/10 border border-secondary/10 rounded-2xl px-4 py-3 text-secondary placeholder:text-secondary/50 focus:outline-none focus:ring-2 focus:ring-primary/40 font-medium"
+                    placeholder="Type a message..."
+                    className="flex-1 bg-secondary/5 border border-secondary/10 rounded-2xl px-4 py-3 text-[var(--text)] placeholder:text-secondary/40 focus:outline-none focus:ring-2 focus:ring-primary/30 font-medium text-sm"
                   />
-                  <button
-                    type="submit"
-                    disabled={!input.trim()}
-                    className="p-3 rounded-2xl bg-primary text-white disabled:opacity-50 transition-all hover:scale-105 active:scale-95"
-                  >
-                    <Send size={20} />
+                  <button type="button" className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary/50 hover:bg-secondary/20 transition-colors shrink-0">
+                    <Image size={20} />
                   </button>
+                  {input.trim() ? (
+                    <button
+                      type="submit"
+                      className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center shadow-lg active:scale-95 transition-transform shrink-0"
+                    >
+                      <Send size={18} />
+                    </button>
+                  ) : (
+                    <button type="button" className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                      <Mic size={20} />
+                    </button>
+                  )}
                 </div>
               </form>
             </>
           ) : (
             <>
-              <div className="px-6 pb-4 border-b border-secondary/10 flex items-center justify-between shrink-0">
-                <div>
-                  <h2 className="text-xl font-black tracking-tight text-primary">
-                    Group Chats<span className="text-accent">.</span>
-                  </h2>
-                  <p className="text-xs text-secondary/60 mt-0.5">Connected to your communities — pull all chats from each</p>
+              {/* Community list header */}
+              <div className="px-6 pb-4 border-b border-secondary/10 shrink-0">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <h2 className="text-xl font-black tracking-tight text-primary">
+                      Group Chats<span className="text-accent">.</span>
+                    </h2>
+                    <p className="text-xs text-secondary/50 mt-0.5">Your community conversations</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setShowSearch(!showSearch)}
+                      className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
+                    >
+                      <Search size={18} className="text-secondary" />
+                    </button>
+                    <button
+                      onClick={onClose}
+                      className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
+                    >
+                      <X size={18} className="text-secondary" />
+                    </button>
+                  </div>
                 </div>
-                <button
-                  onClick={onClose}
-                  className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
-                >
-                  <X size={20} className="text-secondary" />
-                </button>
+                {showSearch && (
+                  <motion.input
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    type="text"
+                    placeholder="Search chats..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full bg-secondary/10 border border-secondary/15 rounded-2xl px-4 py-3 text-sm text-[var(--text)] placeholder:text-secondary/40 focus:outline-none focus:ring-2 focus:ring-primary/30 font-medium"
+                  />
+                )}
               </div>
 
-              <div className="flex-1 overflow-y-auto p-6 space-y-2">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-secondary/50 mb-3">Your communities</p>
+              {/* Community list */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-1">
                 {joinedCommunities.length === 0 ? (
-                  <p className="text-sm text-secondary/60 py-4">Join communities from the Hub to see their group chats here.</p>
+                  <div className="text-center py-12 text-secondary/40">
+                    <Users size={32} className="mx-auto mb-3 opacity-50" />
+                    <p className="text-sm font-medium">No group chats yet</p>
+                    <p className="text-xs mt-1">Join communities from the Hub to chat</p>
+                  </div>
                 ) : (
-                  joinedCommunities.map((community) => (
-                    <motion.button
-                      key={community.id}
-                      onClick={() => openCommunity(community)}
-                      className="w-full flex items-center gap-4 p-4 rounded-2xl bg-secondary/5 border border-secondary/10 hover:bg-secondary/10 transition-colors text-left"
-                    >
-                      <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center shrink-0 text-2xl">
-                        {community.avatar || '💬'}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-bold text-secondary truncate">{community.name}</p>
-                        <p className="text-xs text-secondary/60 truncate">{community.lastMessage || 'No messages yet'}</p>
-                      </div>
-                      <span className="text-[10px] font-bold text-secondary/50 shrink-0">{community.members} members</span>
-                    </motion.button>
-                  ))
+                  joinedCommunities
+                    .filter(c => !searchQuery || c.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                    .map((community) => {
+                      const lastMsg = COMMUNITY_CHATS[community.id]?.slice(-1)[0];
+                      return (
+                        <motion.button
+                          key={community.id}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={() => openCommunity(community)}
+                          className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-secondary/5 transition-colors text-left"
+                        >
+                          <div className="relative shrink-0">
+                            <div className="w-14 h-14 rounded-2xl bg-secondary/10 flex items-center justify-center text-2xl border border-secondary/15">
+                              {community.avatar || '💬'}
+                            </div>
+                            <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-green-500 rounded-full border-2 border-paper" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between mb-0.5">
+                              <h3 className="font-bold text-secondary text-sm truncate">{community.name}</h3>
+                              <span className="text-[10px] text-secondary/40 font-medium shrink-0 ml-2">{lastMsg?.time || ''}</span>
+                            </div>
+                            <p className="text-xs text-secondary/50 truncate">
+                              {lastMsg ? `${lastMsg.user}: ${lastMsg.message}` : 'No messages yet'}
+                            </p>
+                          </div>
+                          {community.unread > 0 && (
+                            <span className="w-5 h-5 rounded-full bg-primary text-[10px] font-black text-white flex items-center justify-center shrink-0">{community.unread}</span>
+                          )}
+                        </motion.button>
+                      );
+                    })
                 )}
               </div>
             </>

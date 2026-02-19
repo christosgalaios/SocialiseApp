@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { Check, Clock, Users, Calendar, MapPin } from 'lucide-react';
+import { INCLUSIVITY_TAGS } from '../data/mockData';
 
 const EventCard = ({ event, onClick, compact = false, isJoined = false }) => (
   <motion.div
@@ -39,9 +40,14 @@ const EventCard = ({ event, onClick, compact = false, isJoined = false }) => (
         <div className="relative h-52 overflow-hidden">
           <img src={event.image} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt={event.title} />
           <div className="absolute inset-0 bg-gradient-to-t from-secondary/80 via-transparent to-transparent" />
-          <div className="absolute top-4 left-4 flex gap-2">
+          <div className="absolute top-4 left-4 right-4 flex flex-wrap gap-1.5">
             <span className="bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full text-[10px] font-black text-secondary uppercase tracking-widest shadow-lg">{event.category}</span>
             {isJoined && <span className="bg-primary px-3 py-1.5 rounded-full text-[10px] font-black text-white uppercase tracking-widest shadow-lg">GOING</span>}
+            {event.tags?.slice(0, 2).map(tagId => {
+              const tag = INCLUSIVITY_TAGS.find(t => t.id === tagId);
+              if (!tag) return null;
+              return <span key={tagId} className="bg-white/80 backdrop-blur-md px-2 py-1 rounded-full text-[9px] font-bold text-secondary/80 shadow-sm">{tag.emoji} {tag.label}</span>;
+            })}
           </div>
           <div className="absolute bottom-4 left-4 right-4 translate-y-1 group-hover:translate-y-0 transition-transform duration-500">
             <h3 className="text-3xl font-black mb-1 truncate text-white drop-shadow-lg tracking-tighter">{event.title}</h3>

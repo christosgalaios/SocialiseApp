@@ -1,54 +1,76 @@
 import { motion } from 'framer-motion';
-import { 
-  Calendar, Mic, Martini, Compass, Dice5, Utensils
+import {
+  Calendar, Mic, Martini, Compass, Dice5, Utensils, Heart, Users
 } from 'lucide-react';
 
 const AnimatedLogo = () => {
   const icons = [
-    { Icon: Calendar, angle: 0, delay: 0.2 },     // Top
-    { Icon: Mic, angle: 40, delay: 0.3 },         // Top-Right (moved up)
-    { Icon: Martini, angle: 140, delay: 0.4 },    // Bottom-Right (moved down)
-    { Icon: Compass, angle: 180, delay: 0.5 },    // Bottom
-    { Icon: Dice5, angle: 220, delay: 0.6 },      // Bottom-Left (moved down)
-    { Icon: Utensils, angle: 320, delay: 0.7 },   // Top-Left (moved up)
+    { Icon: Calendar, angle: 0, delay: 0.2, color: '#E2725B' },    // Top - terracotta
+    { Icon: Heart, angle: 45, delay: 0.3, color: '#F4B942' },       // Top-Right - gold
+    { Icon: Martini, angle: 135, delay: 0.4, color: '#E2725B' },    // Bottom-Right
+    { Icon: Compass, angle: 180, delay: 0.5, color: '#2D5F5D' },    // Bottom - teal
+    { Icon: Users, angle: 225, delay: 0.6, color: '#F4B942' },      // Bottom-Left
+    { Icon: Utensils, angle: 315, delay: 0.7, color: '#2D5F5D' },   // Top-Left
   ];
 
   return (
     <div className="relative w-80 h-80 flex items-center justify-center">
+      {/* Outer glow */}
+      <div className="absolute inset-0 bg-primary/10 rounded-full blur-3xl animate-pulse" />
+
       {/* Rotating Gradient Ring */}
-      <svg className="absolute inset-0 w-full h-full animate-[spin_10s_linear_infinite]">
+      <svg className="absolute inset-0 w-full h-full animate-[spin_12s_linear_infinite]">
         <defs>
-          <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="hsl(265, 85%, 65%)" />
-            <stop offset="100%" stopColor="hsl(190, 95%, 50%)" />
+          <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="var(--primary)" />
+            <stop offset="50%" stopColor="var(--accent)" />
+            <stop offset="100%" stopColor="var(--secondary)" />
           </linearGradient>
         </defs>
         <motion.circle
           cx="160" cy="160" r="156"
           fill="none"
           stroke="url(#ringGradient)"
-          strokeWidth="8"
+          strokeWidth="6"
           strokeLinecap="round"
+          strokeDasharray="12 8"
           initial={{ pathLength: 0, opacity: 0 }}
           animate={{ pathLength: 1, opacity: 1 }}
           transition={{ duration: 1.5, ease: "easeInOut" }}
         />
       </svg>
-      
+
+      {/* Second ring - counter-rotating */}
+      <svg className="absolute inset-2 w-[calc(100%-16px)] h-[calc(100%-16px)] animate-[spin_20s_linear_infinite_reverse]">
+        <motion.circle
+          cx="152" cy="152" r="148"
+          fill="none"
+          stroke="var(--primary)"
+          strokeWidth="1"
+          strokeLinecap="round"
+          strokeDasharray="4 20"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.3 }}
+          transition={{ duration: 2, delay: 0.5 }}
+        />
+      </svg>
+
       {/* Inner Circle Background */}
-      <motion.div 
+      <motion.div
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ duration: 0.8, ease: "backOut" }}
-        className="absolute inset-4 bg-dark rounded-full border-4 border-white/5 shadow-2xl flex items-center justify-center overflow-hidden"
+        className="absolute inset-5 bg-dark rounded-full border-2 border-white/5 shadow-2xl flex items-center justify-center overflow-hidden"
       >
-        <div className="absolute inset-0 bg-gradient-radial from-primary/10 to-transparent opacity-50" />
+        <div className="absolute inset-0 bg-gradient-radial from-primary/15 to-transparent opacity-60" />
+        {/* Subtle shimmer */}
+        <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-secondary/5 animate-pulse" />
       </motion.div>
 
-      {/* Radial Icons */}
-      {icons.map(({ Icon, angle, delay }, i) => {
-        const radius = 130; // Radius for icons
-        const rad = (angle - 90) * (Math.PI / 180); // -90 to start at top
+      {/* Radial Icons with glow */}
+      {icons.map(({ Icon, angle, delay, color }, i) => {
+        const radius = 128;
+        const rad = (angle - 90) * (Math.PI / 180);
         const x = 160 + radius * Math.cos(rad);
         const y = 160 + radius * Math.sin(rad);
 
@@ -56,61 +78,86 @@ const AnimatedLogo = () => {
           <motion.div
             key={i}
             initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
+            animate={{
+              scale: [0, 1.2, 1],
+              opacity: 1,
+            }}
             transition={{ delay, type: "spring", stiffness: 200, damping: 12 }}
-            style={{ left: x - 12, top: y - 12 }} // Centering icon (24x24)
-            className="absolute w-6 h-6 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+            style={{ left: x - 14, top: y - 14 }}
+            className="absolute"
           >
-            <Icon size={24} />
+            <div className="relative">
+              <div
+                className="absolute inset-0 rounded-full blur-md opacity-40"
+                style={{ backgroundColor: color }}
+              />
+              <div
+                className="relative w-7 h-7 rounded-xl flex items-center justify-center"
+                style={{ color }}
+              >
+                <Icon size={22} strokeWidth={2.5} />
+              </div>
+            </div>
           </motion.div>
         );
       })}
 
-      {/* Split Text Animation with Welcoming Dot */}
-      <div className="relative z-10 flex items-center justify-center font-black italic tracking-tighter text-5xl text-white">
+      {/* Brand Text */}
+      <div className="relative z-10 flex flex-col items-center justify-center">
         <motion.div
-            initial={{ x: 12 }} // Start slightly right so "SOCIALISE" looks centered
-            animate={{ x: 0 }}  // Nudge left to center the full "SOCIALISE."
-            transition={{ delay: 2.0, duration: 0.8, ease: "easeInOut" }}
-            className="flex items-center"
+          initial={{ x: 12 }}
+          animate={{ x: 0 }}
+          transition={{ delay: 2.0, duration: 0.8, ease: "easeInOut" }}
+          className="flex items-center font-black italic tracking-tighter text-5xl text-white"
         >
-            <motion.span
+          <motion.span
             initial={{ x: -50, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 1.0, duration: 0.8, type: "spring" }}
-            className="bg-gradient-to-br from-white to-gray-400 bg-clip-text text-transparent"
-            >
+            className="bg-gradient-to-br from-white to-white/70 bg-clip-text text-transparent"
+          >
             SOCI
-            </motion.span>
-            
-            <motion.span
-            initial={{ scale: 0, rotate: -180, opacity: 0 }}
-            animate={{ scale: 1.2, rotate: 0, opacity: 1 }}
-            transition={{ delay: 1.5, type: "spring", bounce: 0.6 }}
-            className="text-secondary glow-secondary-text mx-1"
-            >
-            A
-            </motion.span>
+          </motion.span>
 
-            <motion.span
+          <motion.span
+            initial={{ scale: 0, rotate: -180, opacity: 0 }}
+            animate={{ scale: 1.15, rotate: 0, opacity: 1 }}
+            transition={{ delay: 1.5, type: "spring", bounce: 0.6 }}
+            className="mx-0.5"
+            style={{ color: 'var(--accent)' }}
+          >
+            A
+          </motion.span>
+
+          <motion.span
             initial={{ x: 50, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 1.0, duration: 0.8, type: "spring" }}
-            className="bg-gradient-to-br from-white to-gray-400 bg-clip-text text-transparent"
-            >
+            className="bg-gradient-to-br from-white to-white/70 bg-clip-text text-transparent"
+          >
             LISE
-            </motion.span>
+          </motion.span>
 
-            {/* The Welcoming Dot - Now inside to move with the word */}
-            <motion.span
-                initial={{ y: -50, opacity: 0, scale: 0 }}
-                animate={{ y: 0, opacity: 1, scale: 1 }}
-                transition={{ delay: 2.2, type: "spring", bounce: 0.5 }}
-                className="bg-gradient-to-br from-white to-gray-400 bg-clip-text text-transparent"
-            >
-                .
-            </motion.span>
+          <motion.span
+            initial={{ y: -50, opacity: 0, scale: 0 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            transition={{ delay: 2.2, type: "spring", bounce: 0.5 }}
+            style={{ color: 'var(--primary)' }}
+          >
+            .
+          </motion.span>
         </motion.div>
+
+        {/* Tagline */}
+        <motion.p
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 2.5, duration: 0.8 }}
+          className="text-[10px] font-bold uppercase tracking-[0.3em] mt-2"
+          style={{ color: 'rgba(255,255,255,0.4)' }}
+        >
+          Connect. Discover. Belong.
+        </motion.p>
       </div>
     </div>
   );
