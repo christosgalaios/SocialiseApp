@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { version as APP_VERSION } from '../package.json';
 import {
-  BarChart3, Mail, ShieldCheck, Zap, Check, Heart, User, Crown, ChevronRight, LogOut, Camera, Users, Settings, MessageCircle
+  BarChart3, Mail, ShieldCheck, Zap, Check, Heart, User, Crown, ChevronRight, ChevronLeft, LogOut, Camera, Users, Settings, MessageCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from './api';
@@ -16,7 +16,10 @@ import {
   SUGGESTED_COMMUNITIES,
   INITIAL_MESSAGES,
   FEED_POSTS,
-  DEMO_USER
+  DEMO_USER,
+  XP_LEVELS,
+  UNLOCKABLE_TITLES,
+  PROFILE_STATS
 } from './data/mockData';
 
 // --- COMPONENTS ---
@@ -49,6 +52,8 @@ import HelpSheet from './components/HelpSheet';
 import UserProfileSheet from './components/UserProfileSheet';
 import GroupChatsSheet from './components/GroupChatsSheet';
 import OnboardingFlow from './components/OnboardingFlow';
+import EventReels from './components/EventReels';
+import LevelUpModal from './components/LevelUpModal';
 import {
   HomeSkeleton,
   HubSkeleton,
@@ -145,6 +150,12 @@ function App() {
   const [sizeFilter, setSizeFilter] = useState('all'); // 'all' | 'micro' | 'large'
   const [dateRange, setDateRange] = useState({ start: null, end: null });
   const [thisWeekActive, setThisWeekActive] = useState(false);
+  const [activeTags, setActiveTags] = useState([]);
+  const [showReels, setShowReels] = useState(false);
+  const [showLevelUp, setShowLevelUp] = useState(false);
+  const [levelUpData, setLevelUpData] = useState(null);
+  const [userXP, setUserXP] = useLocalStorage('socialise_xp', 750);
+  const [userUnlockedTitles, setUserUnlockedTitles] = useLocalStorage('socialise_unlocked_titles', ['first-event', 'social-butterfly', 'tribe-leader', 'conversation-starter', 'night-owl']);
 
   // Delight moments state
   const [showConfetti, setShowConfetti] = useState(false);
@@ -343,6 +354,19 @@ function App() {
       setJoinedEvents(prev => [...prev, id]);
       showToast('You\'re going! Added to your calendar.', 'success');
 
+      // Award XP
+      const xpGain = 50;
+      const newXP = userXP + xpGain;
+      const currentLevel = XP_LEVELS.filter(l => l.xpRequired <= userXP).pop();
+      const newLevel = XP_LEVELS.filter(l => l.xpRequired <= newXP).pop();
+      setUserXP(newXP);
+      if (newLevel && currentLevel && newLevel.level > currentLevel.level) {
+        setTimeout(() => {
+          setLevelUpData({ newLevel, unlockedTitle: null });
+          setShowLevelUp(true);
+        }, 1500);
+      }
+
       // Trigger delight moments!
       setShowConfetti(true);
       mango.celebrate("You're in! 🎉");
@@ -422,6 +446,11 @@ function App() {
         if (dateRange.start && eventDate < dateRange.start) return false;
         if (dateRange.end && eventDate > dateRange.end) return false;
       }
+    }
+
+    // Inclusivity tag filter
+    if (activeTags.length > 0) {
+      if (!e.tags || !activeTags.every(t => e.tags.includes(t))) return false;
     }
 
     return true;
@@ -554,16 +583,35 @@ function App() {
 
                         {/* Curated Micro-Meets */}
                         <div className="max-w-[100vw] -mx-5 px-5 md:mx-0 md:px-0">
-                          <motion.div variants={itemVariants} className="flex items-center gap-2 mb-6">
-                            <div className="w-8 h-8 rounded-xl bg-amber-500/20 flex items-center justify-center border border-amber-500/30"><Zap size={16} className="text-amber-500" /></div>
-                            <h2 className="text-xl font-bold tracking-tight text-primary">Curated Micro-Meets<span className="text-accent">.</span></h2>
+                          <motion.div variants={itemVariants} className="flex items-center justify-between mb-6">
+                            <div className="flex items-center gap-2">
+                              <div className="w-8 h-8 rounded-xl bg-amber-500/20 flex items-center justify-center border border-amber-500/30"><Zap size={16} className="text-amber-500" /></div>
+                              <h2 className="text-xl font-bold tracking-tight text-primary">Curated Micro-Meets<span className="text-accent">.</span></h2>
+                            </div>
+                            <div className="flex items-center gap-2 md:hidden">
+                              <button
+                                onClick={() => {
+                                  const el = document.getElementById('micro-meets-scroll');
+                                  if (el) el.scrollBy({ left: -316, behavior: 'smooth' });
+                                }}
+                                className="w-8 h-8 rounded-full bg-secondary/10 border border-secondary/15 flex items-center justify-center text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all"
+                              >
+                                <ChevronLeft size={16} strokeWidth={2.5} />
+                              </button>
+                              <button
+                                onClick={() => {
+                                  const el = document.getElementById('micro-meets-scroll');
+                                  if (el) el.scrollBy({ left: 316, behavior: 'smooth' });
+                                }}
+                                className="w-8 h-8 rounded-full bg-secondary/10 border border-secondary/15 flex items-center justify-center text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all"
+                              >
+                                <ChevronRight size={16} strokeWidth={2.5} />
+                              </button>
+                            </div>
                           </motion.div>
 
-                          {/* 
-                            DESKTOP: Grid Layout (grid-cols-2 or 3)
-                            MOBILE: Horizontal Scroll (flex + overflow-x-auto) 
-                        */}
                           <motion.div
+                            id="micro-meets-scroll"
                             className="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 overflow-x-auto md:overflow-visible pb-8 md:pb-0 snap-x md:snap-none no-scrollbar"
                             variants={containerVariants}
                           >
@@ -575,11 +623,25 @@ function App() {
                           </motion.div>
                         </div>
 
-                        {/* Your Events */}
+                        {/* Recommended Events - sorted by relevance to user preferences */}
                         <motion.section variants={itemVariants}>
-                          <h2 className="text-xl font-bold mb-6 tracking-tight text-primary">Your Next Events<span className="text-accent">.</span></h2>
+                          <div className="flex items-center gap-2 mb-6">
+                            <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20"><Heart size={16} className="text-primary" /></div>
+                            <h2 className="text-xl font-bold tracking-tight text-primary">Recommended for You<span className="text-accent">.</span></h2>
+                          </div>
                           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                            {filteredEvents.filter(e => !e.isMicroMeet).slice(0, 3).map(event => (
+                            {filteredEvents.filter(e => !e.isMicroMeet).sort((a, b) => {
+                              // Score events by how well they match user preferences
+                              const interests = userPreferences?.interests || user?.interests || [];
+                              const scoreEvent = (ev) => {
+                                let score = 0;
+                                if (interests.some(i => ev.category?.toLowerCase().includes(i.toLowerCase()) || i.toLowerCase().includes(ev.category?.toLowerCase()?.split(' ')[0]))) score += 3;
+                                if (joinedEvents.includes(ev.id)) score += 2;
+                                if (ev.attendees > 20) score += 1;
+                                return score;
+                              };
+                              return scoreEvent(b) - scoreEvent(a);
+                            }).slice(0, 3).map(event => (
                               <EventCard key={event.id} event={event} isJoined={joinedEvents.includes(event.id)} onClick={setSelectedEvent} />
                             ))}
                           </div>
@@ -654,7 +716,16 @@ function App() {
                         className="p-5 md:p-10 max-w-7xl mx-auto pb-32"
                       >
                         <header className="mb-8">
-                          <h1 className="text-4xl font-black tracking-tighter mb-6 text-primary">Explore<span className="text-accent">.</span></h1>
+                          <div className="flex items-center justify-between mb-6">
+                            <h1 className="text-4xl font-black tracking-tighter text-primary">Explore<span className="text-accent">.</span></h1>
+                            <button
+                              onClick={() => setShowReels(true)}
+                              className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-primary/10 border border-primary/20 text-primary font-bold text-xs hover:bg-primary/20 transition-all uppercase tracking-widest"
+                            >
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><line x1="10" y1="2" x2="10" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><path d="m2 2 8 10M22 2l-8 10"/></svg>
+                              Reels
+                            </button>
+                          </div>
 
                           {/* Filters */}
                           <div className="sticky top-0 z-40 bg-secondary/10 backdrop-blur-xl py-4 -mx-5 px-5 md:mx-0 md:px-0 md:relative md:bg-transparent md:backdrop-blur-none border-b border-secondary/10 md:border-none">
@@ -669,6 +740,8 @@ function App() {
                               setDateRange={setDateRange}
                               thisWeekActive={thisWeekActive}
                               setThisWeekActive={setThisWeekActive}
+                              activeTags={activeTags}
+                              setActiveTags={setActiveTags}
                             />
                           </div>
                         </header>
@@ -776,7 +849,21 @@ function App() {
                                 {proEnabled && <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 md:left-0 md:translate-x-0 z-20 bg-amber-500 text-[10px] font-black px-3 py-1 rounded-full text-white shadow-lg border border-white/20 whitespace-nowrap flex items-center gap-1"><Crown size={10} /> PRO</div>}
                               </div>
                               <h1 className="text-3xl font-black tracking-tighter mb-2 text-primary">{user?.name}<span className="text-accent">.</span></h1>
-                              <p className="text-sm text-gray-400 font-medium max-w-xs leading-relaxed">{user?.bio}</p>
+                              {user?.selectedTitle && (
+                                <span className="inline-block px-3 py-1 mb-2 bg-accent/10 rounded-full border border-accent/20 text-[10px] font-black text-accent uppercase tracking-widest">{user.selectedTitle}</span>
+                              )}
+                              <p className="text-sm text-gray-400 font-medium max-w-xs leading-relaxed mb-3">{user?.bio}</p>
+                              <div className="flex items-center gap-5">
+                                <div className="text-center">
+                                  <span className="text-lg font-black text-secondary">{user?.followers ?? 0}</span>
+                                  <p className="text-[9px] font-bold text-secondary/40 uppercase tracking-widest">Followers</p>
+                                </div>
+                                <div className="w-px h-6 bg-secondary/10" />
+                                <div className="text-center">
+                                  <span className="text-lg font-black text-secondary">{user?.following ?? 0}</span>
+                                  <p className="text-[9px] font-bold text-secondary/40 uppercase tracking-widest">Following</p>
+                                </div>
+                              </div>
                             </div>
 
                             {/* WarmthScore */}
@@ -785,7 +872,99 @@ function App() {
                             </div>
                           </motion.div>
 
-                          {/* Asymmetric Feature Cards - Hero card + 3 smaller */}
+                          {/* XP & Level Progress */}
+                          <motion.div variants={itemVariants} className="premium-card p-6 overflow-hidden relative">
+                            <div className="absolute -right-10 -top-10 w-40 h-40 bg-accent/5 rounded-full blur-3xl" />
+                            {(() => {
+                              const currentLevel = XP_LEVELS.filter(l => l.xpRequired <= userXP).pop() || XP_LEVELS[0];
+                              const nextLevel = XP_LEVELS.find(l => l.xpRequired > userXP) || XP_LEVELS[XP_LEVELS.length - 1];
+                              const xpInLevel = userXP - currentLevel.xpRequired;
+                              const xpNeeded = nextLevel.xpRequired - currentLevel.xpRequired;
+                              const progress = xpNeeded > 0 ? Math.min((xpInLevel / xpNeeded) * 100, 100) : 100;
+                              return (
+                                <>
+                                  <div className="flex items-center justify-between mb-4">
+                                    <div className="flex items-center gap-3">
+                                      <span className="text-3xl">{currentLevel.icon}</span>
+                                      <div>
+                                        <h3 className="font-black text-secondary text-lg">Level {currentLevel.level}</h3>
+                                        <p className={`text-xs font-bold ${currentLevel.color}`}>{currentLevel.title}</p>
+                                      </div>
+                                    </div>
+                                    <div className="text-right">
+                                      <span className="text-2xl font-black text-accent">{userXP}</span>
+                                      <p className="text-[9px] font-bold text-secondary/40 uppercase tracking-widest">Total XP</p>
+                                    </div>
+                                  </div>
+                                  <div className="w-full h-3 bg-secondary/10 rounded-full overflow-hidden mb-2">
+                                    <motion.div
+                                      className="h-full bg-gradient-to-r from-primary to-accent rounded-full"
+                                      initial={{ width: 0 }}
+                                      animate={{ width: `${progress}%` }}
+                                      transition={{ duration: 1, ease: 'easeOut', delay: 0.3 }}
+                                    />
+                                  </div>
+                                  <p className="text-[10px] text-secondary/40 font-bold">{xpInLevel} / {xpNeeded} XP to {nextLevel.title}</p>
+                                </>
+                              );
+                            })()}
+                          </motion.div>
+
+                          {/* Game-Like Stats */}
+                          <motion.div variants={itemVariants} className="premium-card p-6">
+                            <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-4">Your Stats<span className="text-accent">.</span></h3>
+                            <div className="space-y-3">
+                              {PROFILE_STATS.map(stat => {
+                                const value = user?.stats?.[stat.key] ?? Math.floor(Math.random() * 7 + 1);
+                                const percentage = (value / stat.maxLevel) * 100;
+                                return (
+                                  <div key={stat.key} className="flex items-center gap-3">
+                                    <span className="text-lg w-8 text-center">{stat.icon}</span>
+                                    <div className="flex-1">
+                                      <div className="flex items-center justify-between mb-1">
+                                        <span className="text-xs font-bold text-secondary">{stat.label}</span>
+                                        <span className="text-[10px] font-black text-secondary/40">{value}/{stat.maxLevel}</span>
+                                      </div>
+                                      <div className="w-full h-2 bg-secondary/10 rounded-full overflow-hidden">
+                                        <motion.div
+                                          className="h-full bg-gradient-to-r from-primary/80 to-primary rounded-full"
+                                          initial={{ width: 0 }}
+                                          animate={{ width: `${percentage}%` }}
+                                          transition={{ duration: 0.8, delay: 0.1 }}
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </motion.div>
+
+                          {/* Achievements / Unlockable Titles */}
+                          <motion.div variants={itemVariants} className="premium-card p-6">
+                            <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-4">Achievements<span className="text-accent">.</span></h3>
+                            <div className="grid grid-cols-2 gap-3">
+                              {UNLOCKABLE_TITLES.map(title => {
+                                const isUnlocked = userUnlockedTitles.includes(title.id);
+                                return (
+                                  <div
+                                    key={title.id}
+                                    className={`p-4 rounded-2xl border transition-all ${isUnlocked
+                                      ? 'bg-accent/5 border-accent/20'
+                                      : 'bg-secondary/5 border-secondary/10 opacity-50'
+                                    }`}
+                                  >
+                                    <span className="text-2xl">{title.icon}</span>
+                                    <h4 className={`text-xs font-bold mt-2 ${isUnlocked ? 'text-secondary' : 'text-secondary/40'}`}>{title.title}</h4>
+                                    <p className="text-[9px] text-secondary/40 mt-0.5">{title.description}</p>
+                                    {isUnlocked && <span className="inline-block mt-2 text-[8px] font-black text-accent uppercase tracking-widest">+{title.xpReward} XP</span>}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </motion.div>
+
+                          {/* Quick Stats Grid */}
                           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                             {/* Hero Card - My Connections (spans 2 cols) */}
                             <motion.div
@@ -999,6 +1178,22 @@ function App() {
                 onClose={() => setSelectedUserProfile(null)}
                 onMessage={(p) => showToast(`Opening chat with ${p.name}…`, 'info')}
               />
+              <LevelUpModal
+                isOpen={showLevelUp}
+                onClose={() => setShowLevelUp(false)}
+                newLevel={levelUpData?.newLevel}
+                unlockedTitle={levelUpData?.unlockedTitle}
+              />
+              {showReels && (
+                <EventReels
+                  events={filteredEvents}
+                  onClose={() => setShowReels(false)}
+                  onSelectEvent={(event) => {
+                    setShowReels(false);
+                    setSelectedEvent(event);
+                  }}
+                />
+              )}
             </AnimatePresence>
 
             {/* Onboarding Flow */}

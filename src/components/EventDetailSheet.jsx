@@ -3,8 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, Wand2, Calendar, Clock, MapPin,
   ChevronRight, Zap, ShieldCheck, Heart,
-  MessageCircle, Check, Send
+  MessageCircle, Check, Send, Mountain, Ruler, TrendingUp, Footprints
 } from 'lucide-react';
+import { INCLUSIVITY_TAGS, CATEGORY_ATTRIBUTES } from '../data/mockData';
 
 const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMessage, onOpenProfile }) => {
   const [activeTab, setActiveTab] = useState('info');
@@ -100,6 +101,47 @@ const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMe
                     }
                   </p>
                 </div>
+
+                {/* Category-Specific Attributes */}
+                {event.categoryAttrs && Object.keys(event.categoryAttrs).length > 0 && (
+                  <div className="mb-10 px-2">
+                    <h4 className="text-secondary/40 text-[10px] font-black uppercase tracking-widest mb-4 flex items-center gap-2.5">
+                      <Footprints size={16} className="text-primary" /> {event.category} Details
+                    </h4>
+                    <div className="grid grid-cols-2 gap-3">
+                      {Object.entries(event.categoryAttrs).map(([key, value]) => {
+                        const attrDef = CATEGORY_ATTRIBUTES[event.category]?.find(a => a.key === key);
+                        const displayValue = Array.isArray(value) ? value.join(', ') : attrDef?.unit ? `${value} ${attrDef.unit}` : value;
+                        return (
+                          <div key={key} className="premium-card p-4 flex flex-col gap-1">
+                            <span className="text-[9px] font-black text-secondary/40 uppercase tracking-widest">{attrDef?.label || key}</span>
+                            <span className="text-sm font-bold text-secondary">{displayValue}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Inclusivity Tags */}
+                {event.tags && event.tags.length > 0 && (
+                  <div className="mb-10 px-2">
+                    <h4 className="text-secondary/40 text-[10px] font-black uppercase tracking-widest mb-4 flex items-center gap-2.5">
+                      <Heart size={16} className="text-primary" /> Inclusivity
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {event.tags.map(tagId => {
+                        const tag = INCLUSIVITY_TAGS.find(t => t.id === tagId);
+                        if (!tag) return null;
+                        return (
+                          <span key={tagId} className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold border ${tag.color}`}>
+                            <span>{tag.emoji}</span> {tag.label}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
 
                 <div className="premium-card p-8 border-dashed border-secondary/20 bg-secondary/[0.02] mb-10">
                   <h4 className="text-[11px] font-black mb-6 flex items-center gap-2.5 uppercase tracking-[0.2em] text-primary">Trust & Safety</h4>
