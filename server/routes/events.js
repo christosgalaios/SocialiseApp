@@ -1,12 +1,13 @@
 const express = require('express');
 const supabase = require('../supabase');
-const { authenticateToken, loadUserProfile, extractUserId } = require('./auth');
+const { authenticateToken, loadUserProfile, extractUserId, readUsers } = require('./auth');
+const { enrichEventsWithMatches } = require('../matching');
 
 const router = express.Router();
 
 // --- Helpers ---
 
-// Attach attendee count + isJoined + isSaved to each event row
+// Attach attendee count + isJoined + isSaved + match scores to each event row
 async function enrichEvents(events, userId) {
     if (!events.length) return events;
 
@@ -34,7 +35,15 @@ async function enrichEvents(events, userId) {
     const joinedSet = new Set((userRsvps || []).map(r => r.event_id));
     const savedSet = new Set((userSaved || []).map(r => r.event_id));
 
-    return events.map(e => ({
+    // Get user profile for matching micro-meets
+    let userProfile = null;
+    if (userId) {
+        const users = readUsers();
+        userProfile = users.find(u => u.id === userId);
+    }
+
+    // Enrich events with matching scores if applicable
+    let enrichedEvents = events.map(e => ({
         ...e,
         attendees: countMap[e.id] || 0,
         spots: e.max_spots,
@@ -43,6 +52,12 @@ async function enrichEvents(events, userId) {
         isJoined: joinedSet.has(e.id),
         isSaved: savedSet.has(e.id),
     }));
+
+    if (userProfile) {
+        enrichedEvents = enrichEventsWithMatches(enrichedEvents, userProfile);
+    }
+
+    return enrichedEvents;
 }
 
 // --- GET /api/events ---
@@ -234,6 +249,36 @@ router.post('/:id/chat', authenticateToken, loadUserProfile, async (req, res) =>
 
     if (error) return res.status(500).json({ message: 'Failed to send message' });
     res.status(201).json(data);
+});
+
+// --- GET /api/events/recommendations ---
+// Returns micro-meets sorted by personal match score (authenticated only)
+router.get('/recommendations/for-you', authenticateToken, loadUserProfile, async (req, res) => {
+    const { limit = 10 } = req.query;
+
+    const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .eq('is_micro_meet', true)
+        .eq('status', 'active')
+        .order('created_at', { ascending: false })
+        .limit(Number(limit) * 3); // Fetch more, then filter by score
+
+    if (error) {
+        console.error('[events recommendations GET]', error);
+        return res.status(500).json({ message: 'Failed to fetch recommendations' });
+    }
+
+    // Enrich with match scores
+    const enriched = await enrichEvents(data || [], req.user.id);
+
+    // Filter and sort by match score, limit results
+    const recommendations = enriched
+        .filter(e => e.matchScore >= 40) // Only high-match recommendations
+        .sort((a, b) => b.matchScore - a.matchScore)
+        .slice(0, Number(limit));
+
+    res.json(recommendations);
 });
 
 module.exports = router;

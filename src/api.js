@@ -140,6 +140,11 @@ const api = {
         return fetchWithAuth(`/events/${id}/chat`, { method: 'POST', body: { message } });
     },
 
+    getRecommendations(params = {}) {
+        const qs = new URLSearchParams(params).toString();
+        return fetchWithAuth(`/events/recommendations/for-you${qs ? '?' + qs : ''}`);
+    },
+
     // ── Communities ─────────────────────────────────────────────────────────
 
     getCommunities(params = {}) {
