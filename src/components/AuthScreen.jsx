@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Crown, ChevronLeft, ChevronRight, Quote } from 'lucide-react';
+import { Crown, ChevronLeft, ChevronRight, Quote, Mail, Lock, User } from 'lucide-react';
 import Mango from './Mango';
 
-// Testimonials from community members
 const TESTIMONIALS = [
   {
     id: 1,
@@ -28,8 +27,12 @@ const TESTIMONIALS = [
 const AuthScreen = ({ onLogin }) => {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [mangoMessage, setMangoMessage] = useState("Ready to meet your tribe? 🐱");
+  const [isRegister, setIsRegister] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  // Auto-rotate testimonials
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveTestimonial((prev) => (prev + 1) % TESTIMONIALS.length);
@@ -37,7 +40,6 @@ const AuthScreen = ({ onLogin }) => {
     return () => clearInterval(interval);
   }, []);
 
-  // Update Mango's message based on testimonial
   useEffect(() => {
     const messages = [
       "Ready to meet your tribe? 🐱",
@@ -47,12 +49,22 @@ const AuthScreen = ({ onLogin }) => {
     setMangoMessage(messages[activeTestimonial]);
   }, [activeTestimonial]);
 
-  const nextTestimonial = () => {
-    setActiveTestimonial((prev) => (prev + 1) % TESTIMONIALS.length);
-  };
+  const nextTestimonial = () => setActiveTestimonial((prev) => (prev + 1) % TESTIMONIALS.length);
+  const prevTestimonial = () => setActiveTestimonial((prev) => (prev - 1 + TESTIMONIALS.length) % TESTIMONIALS.length);
 
-  const prevTestimonial = () => {
-    setActiveTestimonial((prev) => (prev - 1 + TESTIMONIALS.length) % TESTIMONIALS.length);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!email.trim() || !password.trim()) return;
+    if (isRegister && !name.trim()) return;
+    setLoading(true);
+    try {
+      await onLogin(
+        isRegister ? 'register' : 'login',
+        { email: email.trim(), password, name: name.trim() }
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -60,40 +72,24 @@ const AuthScreen = ({ onLogin }) => {
       initial={{ opacity: 1 }}
       animate={{ opacity: 1 }}
       key="auth-screen"
-      className="fixed inset-0 z-[500] bg-paper flex flex-col p-8 md:p-10 relative overflow-hidden text-dark"
+      className="fixed inset-0 z-[500] bg-paper flex flex-col p-8 md:p-10 relative overflow-hidden overflow-y-auto text-dark"
     >
       {/* Animated background blobs */}
       <motion.div
         className="absolute top-[-10%] right-[-10%] w-80 h-80 bg-primary/10 rounded-full blur-[120px]"
-        animate={{
-          scale: [1, 1.1, 1],
-          x: [0, 20, 0],
-          y: [0, -10, 0]
-        }}
+        animate={{ scale: [1, 1.1, 1], x: [0, 20, 0], y: [0, -10, 0] }}
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
       />
       <motion.div
         className="absolute bottom-[-5%] left-[-5%] w-60 h-60 bg-secondary/10 rounded-full blur-[100px]"
-        animate={{
-          scale: [1, 1.15, 1],
-          x: [0, -15, 0],
-          y: [0, 15, 0]
-        }}
+        animate={{ scale: [1, 1.15, 1], x: [0, -15, 0], y: [0, 15, 0] }}
         transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
       />
-      <motion.div
-        className="absolute top-[40%] left-[30%] w-40 h-40 bg-accent/5 rounded-full blur-[80px]"
-        animate={{
-          scale: [1, 1.2, 1],
-          opacity: [0.5, 0.8, 0.5]
-        }}
-        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-      />
 
-      {/* Header with logo */}
-      <header className="mb-8 pt-6 md:pt-10">
+      {/* Header */}
+      <header className="mb-6 pt-6 md:pt-10">
         <motion.div
-          className="flex items-center gap-3 mb-8"
+          className="flex items-center gap-3 mb-6"
           initial={{ x: -20, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ delay: 0.2 }}
@@ -105,7 +101,7 @@ const AuthScreen = ({ onLogin }) => {
         </motion.div>
 
         <motion.h2
-          className="text-4xl md:text-5xl font-heading font-black leading-[1.1] tracking-tighter mb-4 text-secondary"
+          className="text-3xl md:text-5xl font-heading font-black leading-[1.1] tracking-tighter mb-3 text-secondary"
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.3 }}
@@ -115,7 +111,7 @@ const AuthScreen = ({ onLogin }) => {
         </motion.h2>
 
         <motion.p
-          className="text-secondary/60 font-medium text-base md:text-lg leading-relaxed max-w-md"
+          className="text-secondary/60 font-medium text-sm md:text-base leading-relaxed max-w-md"
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.4 }}
@@ -124,104 +120,131 @@ const AuthScreen = ({ onLogin }) => {
         </motion.p>
       </header>
 
-      {/* Testimonial Carousel */}
+      {/* Testimonial Carousel — compact */}
       <motion.div
-        className="flex-1 flex flex-col justify-center -mt-8"
-        initial={{ opacity: 0, y: 30 }}
+        className="mb-6"
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
       >
-        <div className="relative">
-          {/* Carousel container */}
-          <div className="premium-card p-6 md:p-8 relative overflow-hidden">
-            {/* Quote icon */}
-            <div className="absolute top-4 right-4 text-primary/20">
-              <Quote size={40} />
-            </div>
-
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeTestimonial}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
-              >
-                <div className="flex items-center gap-3 mb-4">
-                  <img
-                    src={TESTIMONIALS[activeTestimonial].avatar}
-                    className="w-12 h-12 rounded-full object-cover border-2 border-primary/20 shadow-lg"
-                    alt={TESTIMONIALS[activeTestimonial].name}
-                  />
-                  <div>
-                    <p className="font-bold text-secondary">{TESTIMONIALS[activeTestimonial].name}</p>
-                    <p className="text-[10px] font-bold text-primary uppercase tracking-widest">Community Member</p>
-                  </div>
+        <div className="premium-card p-5 relative overflow-hidden">
+          <div className="absolute top-3 right-3 text-primary/20"><Quote size={28} /></div>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTestimonial}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <img src={TESTIMONIALS[activeTestimonial].avatar} className="w-10 h-10 rounded-full object-cover border-2 border-primary/20 shadow" alt={TESTIMONIALS[activeTestimonial].name} />
+                <div>
+                  <p className="font-bold text-secondary text-sm">{TESTIMONIALS[activeTestimonial].name}</p>
+                  <p className="text-[9px] font-bold text-primary uppercase tracking-widest">Community Member</p>
                 </div>
-                <p className="text-secondary/80 font-medium italic leading-relaxed text-sm md:text-base">
-                  "{TESTIMONIALS[activeTestimonial].text}"
-                </p>
-              </motion.div>
-            </AnimatePresence>
-
-            {/* Navigation dots */}
-            <div className="flex items-center justify-center gap-2 mt-6">
-              {TESTIMONIALS.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setActiveTestimonial(i)}
-                  className={`w-2 h-2 rounded-full transition-all ${i === activeTestimonial
-                    ? 'bg-primary w-6'
-                    : 'bg-secondary/20 hover:bg-secondary/40'
-                    }`}
-                />
-              ))}
-            </div>
-
-            {/* Arrow navigation (desktop) */}
-            <button
-              onClick={prevTestimonial}
-              className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white shadow-lg items-center justify-center text-secondary/60 hover:text-secondary transition-colors"
-            >
-              <ChevronLeft size={18} />
-            </button>
-            <button
-              onClick={nextTestimonial}
-              className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white shadow-lg items-center justify-center text-secondary/60 hover:text-secondary transition-colors"
-            >
-              <ChevronRight size={18} />
-            </button>
+              </div>
+              <p className="text-secondary/80 font-medium italic leading-relaxed text-xs">
+                "{TESTIMONIALS[activeTestimonial].text}"
+              </p>
+            </motion.div>
+          </AnimatePresence>
+          <div className="flex items-center justify-center gap-2 mt-4">
+            {TESTIMONIALS.map((_, i) => (
+              <button key={i} onClick={() => setActiveTestimonial(i)}
+                className={`w-1.5 h-1.5 rounded-full transition-all ${i === activeTestimonial ? 'bg-primary w-5' : 'bg-secondary/20'}`}
+              />
+            ))}
           </div>
+          <button onClick={prevTestimonial} className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white shadow items-center justify-center text-secondary/60 hover:text-secondary"><ChevronLeft size={16} /></button>
+          <button onClick={nextTestimonial} className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white shadow items-center justify-center text-secondary/60 hover:text-secondary"><ChevronRight size={16} /></button>
         </div>
       </motion.div>
 
-      {/* Mango waving in corner */}
+      {/* Mango */}
       <motion.div
-        className="absolute bottom-48 right-4 md:bottom-56 md:right-8"
+        className="absolute top-[35%] right-4 md:right-8 z-10"
         initial={{ opacity: 0, scale: 0, rotate: -45 }}
         animate={{ opacity: 1, scale: 1, rotate: 0 }}
         transition={{ delay: 0.8, type: "spring", stiffness: 200 }}
       >
-        <Mango
-          pose="wave"
-          size={80}
-          message={mangoMessage}
-        />
+        <Mango pose="wave" size={70} message={mangoMessage} />
       </motion.div>
 
-      {/* CTA Section */}
+      {/* Login / Register Form */}
       <motion.div
         className="mt-auto space-y-4"
         initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.6 }}
       >
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <AnimatePresence mode="wait">
+            {isRegister && (
+              <motion.div
+                key="name"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="relative">
+                  <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary/40" />
+                  <input
+                    type="text"
+                    placeholder="Your name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full py-4 pl-12 pr-4 rounded-2xl bg-white border border-secondary/10 text-[var(--text)] font-medium text-sm focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition-all"
+                  />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <div className="relative">
+            <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary/40" />
+            <input
+              type="email"
+              placeholder="Email address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full py-4 pl-12 pr-4 rounded-2xl bg-white border border-secondary/10 text-[var(--text)] font-medium text-sm focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition-all"
+              required
+            />
+          </div>
+
+          <div className="relative">
+            <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary/40" />
+            <input
+              type="password"
+              placeholder="Password (min 6 characters)"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full py-4 pl-12 pr-4 rounded-2xl bg-white border border-secondary/10 text-[var(--text)] font-medium text-sm focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition-all"
+              required
+              minLength={6}
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-5 bg-gradient-to-r from-primary to-accent rounded-full shadow-xl active:scale-95 transition-all text-sm font-black uppercase tracking-widest text-white hover:shadow-2xl disabled:opacity-60"
+          >
+            {loading ? (
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto" />
+            ) : (
+              isRegister ? 'Create Account' : 'Log In'
+            )}
+          </button>
+        </form>
+
         <button
-          onClick={() => onLogin('google')}
-          className="w-full py-5 bg-white border border-secondary/10 rounded-full flex items-center justify-center gap-4 shadow-xl active:scale-95 transition-all text-sm font-black uppercase tracking-widest text-secondary hover:shadow-2xl hover:border-primary/20"
+          onClick={() => { setIsRegister(!isRegister); setName(''); }}
+          className="w-full py-3 text-center text-xs font-bold text-secondary/60 hover:text-primary transition-colors"
         >
-          <img src="https://www.gstatic.com/images/branding/product/1x/googleg_48dp.png" className="w-6 h-6" alt="google" />
-          Continue with Google
+          {isRegister ? 'Already have an account? Log in' : "Don't have an account? Sign up"}
         </button>
 
         <p className="text-center text-[10px] text-secondary/40 font-bold px-10 leading-relaxed italic opacity-80">
