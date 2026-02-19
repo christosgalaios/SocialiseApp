@@ -1,14 +1,13 @@
 import { motion } from 'framer-motion';
-import { Home, Users, PlusCircle, Compass, User } from 'lucide-react';
+import { Home, Users, PlusCircle, Compass } from 'lucide-react';
 
 const BottomNav = ({ activeTab, setActiveTab, onCreateClick, hasEvents = true }) => {
-  // Reordered: Home, Hub, Create, Explore, Profile
+  // Reordered: Home, Hub, Create, Explore (Profile removed — accessed via avatar in header)
   const tabs = [
     { id: 'home', icon: Home, label: 'Home' },
     { id: 'hub', icon: Users, label: 'Hub' },
     { id: 'create', icon: PlusCircle, label: 'Create', isAction: true },
     { id: 'explore', icon: Compass, label: 'Explore' },
-    { id: 'profile', icon: User, label: 'Profile' },
   ];
 
   const getTabIndex = (id) => tabs.findIndex(t => t.id === id);
