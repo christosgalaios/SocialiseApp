@@ -54,6 +54,7 @@ import GroupChatsSheet from './components/GroupChatsSheet';
 import OnboardingFlow from './components/OnboardingFlow';
 import EventReels from './components/EventReels';
 import LevelUpModal from './components/LevelUpModal';
+import AvatarCropModal from './components/AvatarCropModal';
 import {
   HomeSkeleton,
   HubSkeleton,
@@ -181,6 +182,9 @@ function App() {
 
   // Other user profile (feed/comment/chat click)
   const [selectedUserProfile, setSelectedUserProfile] = useState(null);
+
+  // Avatar crop modal
+  const [avatarCropImage, setAvatarCropImage] = useState(null);
 
   // Profile sub-tab: Profile | Settings
   const [profileSubTab, setProfileSubTab] = useState('profile');
@@ -314,9 +318,21 @@ function App() {
     const file = event.target.files[0];
     if (file) {
       const imageUrl = URL.createObjectURL(file);
-      setUser(prev => ({ ...prev, avatar: imageUrl }));
-      showToast('Profile photo updated!', 'success');
+      setAvatarCropImage(imageUrl);
     }
+    // Reset so the same file can be re-selected
+    event.target.value = '';
+  };
+
+  const handleAvatarCropSave = (croppedDataUrl) => {
+    setUser(prev => ({ ...prev, avatar: croppedDataUrl }));
+    setAvatarCropImage(null);
+    showToast('Profile photo updated!', 'success');
+  };
+
+  const handleAvatarCropCancel = () => {
+    if (avatarCropImage) URL.revokeObjectURL(avatarCropImage);
+    setAvatarCropImage(null);
   };
 
   // Persistent Session Check - run once on mount so splash can finish without effect re-runs
@@ -1194,6 +1210,12 @@ function App() {
                   }}
                 />
               )}
+              <AvatarCropModal
+                imageUrl={avatarCropImage}
+                isOpen={!!avatarCropImage}
+                onSave={handleAvatarCropSave}
+                onCancel={handleAvatarCropCancel}
+              />
             </AnimatePresence>
 
             {/* Onboarding Flow */}
