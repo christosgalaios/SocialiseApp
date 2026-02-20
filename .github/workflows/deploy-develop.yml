@@ -4,7 +4,7 @@ on:
   push:
     branches: [development]
     # Ignore commits made by this workflow itself (version bumps).
-    paths-ignore: []  # handled by [skip ci] in commit message
+    paths-ignore: []
 
 permissions:
   contents: write
@@ -30,33 +30,6 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-
-      - name: Configure Git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-      # Increment the patch version (z in x.y.z) in package.json and
-      # push the bump back to develop so the repo always reflects the
-      # deployed version. [skip ci] prevents this push re-triggering
-      # the workflow.
-      - name: Bump patch version
-        id: version
-        run: |
-          node -e "
-            const fs = require('fs');
-            const p = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-            const [x, y, z] = p.version.split('.').map(Number);
-            p.version = [x, y, z + 1].join('.');
-            fs.writeFileSync('package.json', JSON.stringify(p, null, 2) + '\n');
-            fs.appendFileSync(process.env.GITHUB_OUTPUT, 'version=' + p.version + '\n');
-          "
-
-      - name: Commit and push version bump
-        run: |
-          git add package.json
-          git commit -m "chore: bump version to ${{ steps.version.outputs.version }} [skip ci]"
-          git push origin development
 
       - name: Install dependencies
         run: npm ci
