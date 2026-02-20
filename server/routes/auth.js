@@ -121,6 +121,7 @@ router.post('/register', async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const verificationCode = Math.random().toString().slice(2, 8); // 6-digit code
     const newUser = {
         id: Date.now().toString(),
         email: normalizedEmail,
@@ -132,6 +133,9 @@ router.post('/register', async (req, res) => {
         interests: [],
         tribe: 'Newcomers',
         isPro: false,
+        isEmailVerified: false,
+        verificationCode: verificationCode,
+        verificationCodeExpiry: Date.now() + (10 * 60 * 1000), // 10 minutes
     };
 
     try {
@@ -143,7 +147,54 @@ router.post('/register', async (req, res) => {
 
     const token = jwt.sign({ id: newUser.id, email: newUser.email }, SECRET_KEY, { expiresIn: '24h' });
     const { password: _, ...userWithoutPassword } = newUser;
-    res.json({ token, user: userWithoutPassword });
+
+    // In development, return verification code for testing
+    const response = { token, user: userWithoutPassword };
+    if (process.env.NODE_ENV !== 'production') {
+        response.verificationCode = verificationCode;
+    }
+    res.json(response);
+});
+
+// POST /api/auth/verify-email
+router.post('/verify-email', (req, res) => {
+    const { email, code } = req.body;
+
+    if (!isValidEmail(email) || !code) {
+        return res.status(400).json({ message: 'Email and verification code required' });
+    }
+
+    const users = readUsers();
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = users.find(u => u.email === normalizedEmail);
+
+    if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (user.isEmailVerified) {
+        return res.status(400).json({ message: 'Email is already verified' });
+    }
+
+    if (Date.now() > user.verificationCodeExpiry) {
+        return res.status(400).json({ message: 'Verification code expired. Please request a new one.' });
+    }
+
+    if (user.verificationCode !== code.toString()) {
+        return res.status(400).json({ message: 'Invalid verification code' });
+    }
+
+    // Mark email as verified
+    user.isEmailVerified = true;
+    user.verificationCode = null;
+    user.verificationCodeExpiry = null;
+
+    try {
+        writeUsers(users);
+        res.json({ message: 'Email verified successfully!' });
+    } catch {
+        return res.status(500).json({ message: 'Failed to verify email. Please try again.' });
+    }
 });
 
 // GET /api/auth/me
