@@ -11,21 +11,25 @@ if (!process.env.JWT_SECRET) {
     console.warn('[WARN] JWT_SECRET env var not set. Using insecure default. Set JWT_SECRET before deploying.');
 }
 
-// CORS — restrict to known origins in production via ALLOWED_ORIGINS env var
-const allowedOrigins = process.env.ALLOWED_ORIGINS
+// CORS — always allow GitHub Pages + dev origins; extend with ALLOWED_ORIGINS env var
+const defaultOrigins = [
+    'http://localhost:5173',
+    'http://localhost:4173',
+    'http://localhost:3000',
+    'https://christosgalaios.github.io',
+];
+
+const envOrigins = process.env.ALLOWED_ORIGINS
     ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
-    : [
-        'http://localhost:5173',
-        'http://localhost:4173',
-        'http://localhost:3000',
-        'https://christosgalaios.github.io',
-      ];
+    : [];
+
+const allowedOrigins = [...new Set([...defaultOrigins, ...envOrigins])];
 
 app.use(cors({
     origin: (origin, callback) => {
         if (!origin) return callback(null, true);
         if (allowedOrigins.includes(origin)) return callback(null, true);
-        callback(new Error(`CORS: origin '${origin}' not allowed`));
+        callback(null, false);
     },
     credentials: true,
 }));

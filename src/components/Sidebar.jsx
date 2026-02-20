@@ -11,6 +11,7 @@ const Sidebar = ({ activeCategory, onSelect, darkMode, onToggleDarkMode }) => (
             <div className="space-y-2">
                 {CATEGORIES.map(cat => {
                     const Icon = cat.icon;
+                    if (!Icon) return null;
                     const isActive = activeCategory === cat.id;
                     return (
                         <button
