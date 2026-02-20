@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Crown, ChevronLeft, ChevronRight, Quote, Mail, Lock, User } from 'lucide-react';
+import { Crown, ChevronLeft, ChevronRight, Quote, Mail, Lock, User, AlertCircle } from 'lucide-react';
 import Mango from './Mango';
 
 const TESTIMONIALS = [
@@ -32,6 +32,7 @@ const AuthScreen = ({ onLogin }) => {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -54,14 +55,27 @@ const AuthScreen = ({ onLogin }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email.trim() || !password.trim()) return;
-    if (isRegister && !name.trim()) return;
+    setError('');
+    if (isRegister && !name.trim()) {
+      setError('Please enter your name');
+      return;
+    }
+    if (!email.trim()) {
+      setError('Please enter your email address');
+      return;
+    }
+    if (!password.trim() || password.length < 6) {
+      setError('Password must be at least 6 characters');
+      return;
+    }
     setLoading(true);
     try {
       await onLogin(
         isRegister ? 'register' : 'login',
         { email: email.trim(), password, name: name.trim() }
       );
+    } catch (err) {
+      setError(err.message || 'Something went wrong');
     } finally {
       setLoading(false);
     }
@@ -194,7 +208,7 @@ const AuthScreen = ({ onLogin }) => {
                     type="text"
                     placeholder="Your name"
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={(e) => { setName(e.target.value); setError(''); }}
                     className="w-full py-4 pl-12 pr-4 rounded-2xl bg-white border border-secondary/10 text-[var(--text)] font-medium text-sm focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition-all"
                   />
                 </div>
@@ -208,7 +222,7 @@ const AuthScreen = ({ onLogin }) => {
               type="email"
               placeholder="Email address"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => { setEmail(e.target.value); setError(''); }}
               className="w-full py-4 pl-12 pr-4 rounded-2xl bg-white border border-secondary/10 text-[var(--text)] font-medium text-sm focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition-all"
               required
             />
@@ -220,12 +234,26 @@ const AuthScreen = ({ onLogin }) => {
               type="password"
               placeholder="Password (min 6 characters)"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => { setPassword(e.target.value); setError(''); }}
               className="w-full py-4 pl-12 pr-4 rounded-2xl bg-white border border-secondary/10 text-[var(--text)] font-medium text-sm focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition-all"
               required
               minLength={6}
             />
           </div>
+
+          <AnimatePresence>
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-2xl p-3"
+              >
+                <AlertCircle size={16} className="text-red-600 flex-shrink-0 mt-0.5" />
+                <p className="text-xs font-bold text-red-700">{error}</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <button
             type="submit"
@@ -241,7 +269,7 @@ const AuthScreen = ({ onLogin }) => {
         </form>
 
         <button
-          onClick={() => { setIsRegister(!isRegister); setName(''); }}
+          onClick={() => { setIsRegister(!isRegister); setName(''); setError(''); }}
           className="w-full py-3 text-center text-xs font-bold text-secondary/60 hover:text-primary transition-colors"
         >
           {isRegister ? 'Already have an account? Log in' : "Don't have an account? Sign up"}
