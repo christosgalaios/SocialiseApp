@@ -121,7 +121,7 @@ const OnboardingFlow = ({ onComplete, userName = 'there' }) => {
                                     >
                                         <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${isSelected ? 'bg-primary/20' : 'bg-secondary/10'
                                             }`}>
-                                            <Icon size={24} />
+                                            {Icon && <Icon size={24} />}
                                         </div>
                                         <span className="text-sm font-bold">{interest.label}</span>
                                         {isSelected && (
