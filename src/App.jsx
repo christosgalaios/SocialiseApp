@@ -276,40 +276,31 @@ function App() {
 
 
   const handleLogin = async (type, credentials) => {
-    try {
-      let response;
-      if (type === 'register') {
-        response = await api.register(credentials.email, credentials.password, credentials.name);
-        setUser(response.user);
-        localStorage.setItem('socialise_token', response.token);
-        dataFetchedForUser.current = null;
-        showToast(`Welcome, ${response.user.name?.split(' ')[0] || 'there'}! Check your email to verify.`, 'success');
-        // Show email verification modal
-        setPendingVerificationEmail(credentials.email);
-        setVerificationCode(response.verificationCode || '');
-        setShowEmailVerification(true);
-      } else {
-        response = await api.login(credentials.email, credentials.password);
-        setUser(response.user);
-        localStorage.setItem('socialise_token', response.token);
-        dataFetchedForUser.current = null;
-        showToast(`Welcome back, ${response.user.name?.split(' ')[0] || 'there'}!`, 'success');
-        setAppState('app');
-      }
-    } catch (err) {
-      showToast(err.message, 'error');
+    let response;
+    if (type === 'register') {
+      response = await api.register(credentials.email, credentials.password, credentials.name);
+      setUser(response.user);
+      localStorage.setItem('socialise_token', response.token);
+      dataFetchedForUser.current = null;
+      showToast(`Welcome, ${response.user.name?.split(' ')[0] || 'there'}! Check your email to verify.`, 'success');
+      // Show email verification modal, transition to app so data starts loading
+      setPendingVerificationEmail(credentials.email);
+      setVerificationCode(response.verificationCode || '');
+      setShowEmailVerification(true);
+      setAppState('app');
+    } else {
+      response = await api.login(credentials.email, credentials.password);
+      setUser(response.user);
+      localStorage.setItem('socialise_token', response.token);
+      dataFetchedForUser.current = null;
+      showToast(`Welcome back, ${response.user.name?.split(' ')[0] || 'there'}!`, 'success');
+      setAppState('app');
     }
   };
 
   const handleVerifyEmail = async (email, code) => {
-    try {
-      await api.verifyEmail(email, code);
-      showToast('Email verified successfully!', 'success');
-      setShowEmailVerification(false);
-      setAppState('app');
-    } catch (err) {
-      throw err;
-    }
+    await api.verifyEmail(email, code);
+    showToast('Email verified successfully!', 'success');
   };
 
   const handleLogout = useCallback(() => {
@@ -657,7 +648,6 @@ function App() {
             onVerify={handleVerifyEmail}
             onSkip={() => {
               setShowEmailVerification(false);
-              setAppState('app');
             }}
           />
         )}

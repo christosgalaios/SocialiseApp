@@ -31,8 +31,6 @@ const toPublicUser = (row) => {
         ...rest,
         isPro: is_pro,
         isEmailVerified: is_email_verified,
-        verificationCode: verification_code,
-        verificationCodeExpiry: verification_code_expiry,
     };
 };
 
