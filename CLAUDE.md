@@ -225,23 +225,41 @@ These bugs from the original issue list have been resolved in the codebase:
 
 ---
 
-## Development Notes
+## Development Workflow
 
-**Running locally:**
+### Branches
+
+| Branch | Environment | GitHub Pages | Backend | Purpose |
+|--------|---|---|---|---|
+| `development` (tracks `develop`) | Development/Preview | `/SocialiseApp/dev/` | `socialise-app-development.up.railway.app` | Testing & validation |
+| `production` (tracks `master`) | Production | `/SocialiseApp/` | `socialise-app-production.up.railway.app` | Public-facing |
+
+**Workflow:**
+1. Create feature branches from `development`
+2. Test locally with local backend
+3. Push to `development` → auto-deploys to `/dev/` preview for testing
+4. Merge `development` → `production` → auto-deploys to `/` production
+
+### Running Locally
+
+**Setup:**
 ```bash
 # Frontend
-npm run dev          # Vite dev server
+npm run dev          # Vite dev server @ localhost:5173
 
 # Backend (separate terminal)
 cd server
-node index.js        # Express on :3001
+npm install
+node index.js        # Express @ localhost:3001
 ```
 
 **Environment variables:**
-- Frontend: `VITE_GOOGLE_MAPS_API_KEY` in `.env` (see `.env.example`)
+- Frontend: `VITE_GOOGLE_MAPS_API_KEY` + `VITE_API_URL=http://localhost:3001/api` in `.env` (see `.env.example`)
 - Backend: `JWT_SECRET`, `PORT`, `ALLOWED_ORIGINS` in `server/.env` (see `server/.env.example`)
 
-**Deployment:** GitHub Actions auto-deploys frontend to GitHub Pages on push to main/master. Backend not deployed — it's local only for now.
+**Deployment:**
+- `development` branch → GitHub Actions auto-deploys to `/dev/` + uses `socialise-app-development` Railway project
+- `production` branch → GitHub Actions auto-deploys to `/` + uses `socialise-app-production` Railway project
 
 **ESLint:** `npm run lint` — React hooks rules enabled. Fix lint errors before pushing.
 
