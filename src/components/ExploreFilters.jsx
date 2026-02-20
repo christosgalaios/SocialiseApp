@@ -169,7 +169,9 @@ const ExploreFilters = ({
 
                             {/* Category Pills */}
                             <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2">
-                                {CATEGORIES.map(cat => (
+                                {CATEGORIES.map(cat => {
+                                    const Icon = cat.icon;
+                                    return (
                                     <button
                                         key={cat.id}
                                         onClick={() => setActiveCategory(cat.id)}
@@ -178,10 +180,11 @@ const ExploreFilters = ({
                                             : 'bg-secondary/10 border-secondary/20 text-secondary hover:text-primary hover:border-primary/30'
                                             }`}
                                     >
-                                        <cat.icon size={14} />
+                                        {Icon && <Icon size={14} />}
                                         {cat.label}
                                     </button>
-                                ))}
+                                    );
+                                })}
                             </div>
 
                             {/* Size Toggle */}
