@@ -95,4 +95,4 @@ jobs:
           clean: true
           # Preserve the /dev/ subfolder so a master deploy never wipes the
           # preview environment deployed by the develop workflow.
-          clean-exclude: '["dev"]'
+          clean-exclude: dev
