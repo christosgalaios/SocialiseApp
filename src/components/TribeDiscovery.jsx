@@ -1,16 +1,29 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Search, Users, Wand2, TrendingUp, MapPin, UserPlus, Check } from 'lucide-react';
-import { SUGGESTED_COMMUNITIES } from '../data/mockData';
+import api from '../api';
 
 const TribeDiscovery = ({ isOpen, onClose, onJoin, joinedTribes = [] }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [joiningId, setJoiningId] = useState(null);
+    const [allCommunities, setAllCommunities] = useState([]);
 
-    const filteredTribes = SUGGESTED_COMMUNITIES.filter(tribe =>
-        tribe.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        tribe.category.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    // Fetch communities when the modal opens
+    useEffect(() => {
+        if (!isOpen) return;
+        let cancelled = false;
+        api.getCommunities().then(data => {
+            if (!cancelled) setAllCommunities(data || []);
+        }).catch(() => {});
+        return () => { cancelled = true; };
+    }, [isOpen]);
+
+    const filteredTribes = allCommunities
+        .filter(tribe => !joinedTribes.includes(tribe.id))
+        .filter(tribe =>
+            tribe.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (tribe.category || '').toLowerCase().includes(searchQuery.toLowerCase())
+        );
 
     const handleJoin = (tribe) => {
         setJoiningId(tribe.id);
@@ -133,8 +146,8 @@ const TribeDiscovery = ({ isOpen, onClose, onJoin, joinedTribes = [] }) => {
                                                     <p className="text-xs text-secondary/60 mt-1 line-clamp-2">{tribe.description}</p>
                                                     <div className="flex items-center gap-2 mt-2">
                                                         <span className="text-[10px] text-accent font-bold flex items-center gap-1 bg-accent/10 px-2 py-0.5 rounded-full">
-                                                            {getReasonIcon(tribe.matchReason)}
-                                                            {tribe.matchReason}
+                                                            <Users size={12} />
+                                                            {tribe.category || 'Community'}
                                                         </span>
                                                     </div>
                                                 </div>

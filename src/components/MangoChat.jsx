@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, Wand2, MapPin, Calendar, Users, Sparkles, Heart, Zap } from 'lucide-react';
 import { useMango } from '../contexts/MangoContext';
-import { INITIAL_EVENTS, INITIAL_MICRO_MEETS, DEMO_USER, COMMUNITIES } from '../data/mockData';
 
 const QUICK_PROMPTS = [
     { label: "What's on this week?", icon: '📅' },
@@ -12,11 +11,15 @@ const QUICK_PROMPTS = [
     { label: "Recommend a group", icon: '👥' },
 ];
 
-const MangoChat = () => {
+const MangoChat = ({ user = {}, events = [] }) => {
     const { setIsChatOpen, setPose } = useMango();
     const [input, setInput] = useState('');
+    const userName = user?.name?.split(' ')[0] || 'there';
+    const userInterests = user?.interests || [];
+    const userLocation = user?.location || 'your area';
+    const microMeets = events.filter(e => e.is_micro_meet || e.isMicroMeet);
     const [messages, setMessages] = useState([
-        { id: 1, type: 'bot', text: `Hey ${DEMO_USER.name?.split(' ')[0] || 'there'}! 😸 I'm Mango, your personal social curator. I know your interests — **${DEMO_USER.interests?.join(', ')}** — and I've been scouting events for you. What are you in the mood for?` }
+        { id: 1, type: 'bot', text: `Hey ${userName}! 😸 I'm Mango, your personal social curator.${userInterests.length ? ` I know your interests — **${userInterests.join(', ')}** — and I've been scouting events for you.` : ''} What are you in the mood for?` }
     ]);
     const [isTyping, setIsTyping] = useState(false);
     const messagesEndRef = useRef(null);
@@ -36,10 +39,10 @@ const MangoChat = () => {
         // Hike / Outdoor / Walk
         if (lower.includes('hike') || lower.includes('walk') || lower.includes('outdoor') || lower.includes('nature')) {
             setPose('celebrate');
-            const hikeEvent = INITIAL_EVENTS.find(e => e.category === 'Outdoors');
-            const hikeMeet = INITIAL_MICRO_MEETS.find(m => m.type === 'hike');
+            const hikeEvent = events.find(e => e.category === 'Outdoors');
+            const hikeMeet = microMeets.find(m => m.category === 'Outdoors');
 
-            responses.push({ id: Date.now() + 1, type: 'bot', text: `I love that you're adventurous! 🥾 Based on your location in **${DEMO_USER.location}**, here's what I found:` });
+            responses.push({ id: Date.now() + 1, type: 'bot', text: `I love that you're adventurous! 🥾 Based on your location in **${userLocation}**, here's what I found:` });
             if (hikeEvent) {
                 responses.push({ id: Date.now() + 2, type: 'bot', text: `This one has **${hikeEvent.attendees} people** going and covers a 12km trail with moderate difficulty:`, card: hikeEvent });
             }
@@ -51,8 +54,8 @@ const MangoChat = () => {
         // Food / Dinner / Brunch / Drinks
         else if (lower.includes('food') || lower.includes('dinner') || lower.includes('brunch') || lower.includes('drink') || lower.includes('eat') || lower.includes('restaurant')) {
             setPose('celebrate');
-            const foodEvents = INITIAL_EVENTS.filter(e => e.category === 'Food & Drinks');
-            const dinnerMeet = INITIAL_MICRO_MEETS.find(m => m.type === 'dinner');
+            const foodEvents = events.filter(e => e.category === 'Food & Drinks');
+            const dinnerMeet = microMeets.find(m => m.category === 'Food & Drinks');
 
             responses.push({ id: Date.now() + 1, type: 'bot', text: `Ooh, a foodie! 🍽️ I found **${foodEvents.length} food events** and a curated dinner Micro-Meet for you.` });
             if (foodEvents[0]) {
@@ -68,7 +71,7 @@ const MangoChat = () => {
         // Games / Board games
         else if (lower.includes('game') || lower.includes('board') || lower.includes('play') || lower.includes('fun')) {
             setPose('playing');
-            const gameEvent = INITIAL_EVENTS.find(e => e.category === 'Games');
+            const gameEvent = events.find(e => e.category === 'Games');
             responses.push({ id: Date.now() + 1, type: 'bot', text: "Game night enthusiast! 🎲 I found the perfect match:" });
             if (gameEvent) {
                 responses.push({ id: Date.now() + 2, type: 'bot', text: `**${gameEvent.title}** — beginner friendly with games provided! Only £${gameEvent.price}:`, card: gameEvent });
@@ -78,7 +81,7 @@ const MangoChat = () => {
         // Music / Jazz / Party / Night
         else if (lower.includes('music') || lower.includes('jazz') || lower.includes('party') || lower.includes('night') || lower.includes('dance') || lower.includes('club')) {
             setPose('celebrate');
-            const nightEvents = INITIAL_EVENTS.filter(e => e.category === 'Nightlife' || e.category === 'Entertainment');
+            const nightEvents = events.filter(e => e.category === 'Nightlife' || e.category === 'Entertainment');
             responses.push({ id: Date.now() + 1, type: 'bot', text: "Let's get the party started! 🎵 Here's what's happening:" });
             nightEvents.forEach((event, i) => {
                 responses.push({ id: Date.now() + 2 + i, type: 'bot', text: i === 0 ? "This one's gonna be epic:" : "And if you prefer something more chill:", card: event });
@@ -88,7 +91,7 @@ const MangoChat = () => {
         // Coffee / Chat / Meet
         else if (lower.includes('coffee') || lower.includes('chat') || lower.includes('meet') || lower.includes('people') || lower.includes('friends')) {
             setPose('curious');
-            const coffeeMeet = INITIAL_MICRO_MEETS.find(m => m.type === 'coffee');
+            const coffeeMeet = microMeets[0];
             responses.push({ id: Date.now() + 1, type: 'bot', text: "Love that you want to connect! ☕ Micro-Meets are perfect for meaningful conversations." });
             if (coffeeMeet) {
                 responses.push({ id: Date.now() + 2, type: 'bot', text: `This **Startup Founders** coffee chat has a **${coffeeMeet.matchScore}% alignment** with your interests:`, card: coffeeMeet, isMicro: true });
@@ -98,12 +101,12 @@ const MangoChat = () => {
         // This week / Weekend / What's on
         else if (lower.includes('week') || lower.includes('weekend') || lower.includes("what's on") || lower.includes('upcoming') || lower.includes('soon')) {
             setPose('wave');
-            responses.push({ id: Date.now() + 1, type: 'bot', text: `Great question! Here's your week at a glance: 📅\n\n**This week you have ${INITIAL_EVENTS.length + INITIAL_MICRO_MEETS.length} events** available.` });
-            const nextEvent = INITIAL_EVENTS[0];
+            responses.push({ id: Date.now() + 1, type: 'bot', text: `Great question! Here's your week at a glance: 📅\n\n**You have ${events.length} events** available${microMeets.length ? ` including **${microMeets.length} Micro-Meets**` : ''}.` });
+            const nextEvent = events[0];
             if (nextEvent) {
                 responses.push({ id: Date.now() + 2, type: 'bot', text: `Coming up soonest — **${nextEvent.title}** on ${nextEvent.date}:`, card: nextEvent });
             }
-            responses.push({ id: Date.now() + 3, type: 'bot', text: `Plus **${INITIAL_MICRO_MEETS.length} Micro-Meets** curated just for you. Want me to show them? 😸` });
+            responses.push({ id: Date.now() + 3, type: 'bot', text: "Want me to show you what matches your interests? 😸" });
         }
         // Match / Score / Compatibility
         else if (lower.includes('match') || lower.includes('score') || lower.includes('compatib') || lower.includes('synergy')) {
@@ -111,7 +114,7 @@ const MangoChat = () => {
             responses.push({
                 id: Date.now() + 1,
                 type: 'bot',
-                text: `Your match analysis is looking great! ✨\n\n**Smart Match Score: 94%**\nBased on your interests in **${DEMO_USER.interests?.join(', ')}**, I've identified high-synergy events.\n\nYour strongest matches:\n• Dinner for 6 — **94%** (FinTech + Travel)\n• Coffee Chat — **91%** (Startup Founders)\n• Hike for 4 — **88%** (Nature Lovers)\n\nYour profile resonates most with **Tech** and **Food** communities. Keep going to events to improve your score! 📈`
+                text: `Your match analysis is looking great! ✨\n\n**Smart Match Score: 94%**\n${userInterests.length ? `Based on your interests in **${userInterests.join(', ')}**, I've identified high-synergy events.` : 'I\'ve identified high-synergy events for you.'}\n\nYour strongest matches:\n• Dinner for 6 — **94%** (FinTech + Travel)\n• Coffee Chat — **91%** (Startup Founders)\n• Hike for 4 — **88%** (Nature Lovers)\n\nYour profile resonates most with **Tech** and **Food** communities. Keep going to events to improve your score! 📈`
             });
         }
         // Groups / Communities / Tribes
@@ -143,7 +146,7 @@ const MangoChat = () => {
             responses.push({
                 id: Date.now() + 1,
                 type: 'bot',
-                text: `Hey there! 👋 Great to see you! How's your week going?\n\nI noticed you have **${INITIAL_EVENTS.length} events** to explore and **${INITIAL_MICRO_MEETS.length} AI-curated Micro-Meets** waiting. What sounds good — something active, social, or creative? 😸`
+                text: `Hey there! 👋 Great to see you! How's your week going?\n\n${events.length ? `I noticed you have **${events.length} events** to explore${microMeets.length ? ` and **${microMeets.length} AI-curated Micro-Meets**` : ''} waiting.` : ''} What sounds good — something active, social, or creative? 😸`
             });
         }
         // Thanks / Thank you

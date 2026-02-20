@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, ArrowLeft, Image, Smile, Mic, Users, Pin, Search, Phone, Video } from 'lucide-react';
-import { COMMUNITY_CHATS } from '../data/mockData';
+import api from '../api';
 
 const STORAGE_PREFIX = 'socialise_community_chats_';
 
@@ -10,8 +10,7 @@ const getStoredMessages = (communityId) => {
     const raw = localStorage.getItem(`${STORAGE_PREFIX}${communityId}`);
     if (raw) return JSON.parse(raw);
   } catch (_) {}
-  const seed = COMMUNITY_CHATS[communityId];
-  return Array.isArray(seed) ? seed.map((m) => ({ ...m, isMe: false })) : [];
+  return [];
 };
 
 const setStoredMessages = (communityId, messages) => {
@@ -100,8 +99,25 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
 
   useEffect(() => {
     if (!selectedCommunity) return;
-    setMessages(getStoredMessages(selectedCommunity.id));
     autoReplyIndex.current = 0;
+    // Load from localStorage first, then fetch from API
+    const stored = getStoredMessages(selectedCommunity.id);
+    if (stored.length) {
+      setMessages(stored);
+    } else {
+      api.getCommunityChat(selectedCommunity.id).then(data => {
+        const mapped = (data || []).map(m => ({
+          id: m.id,
+          user: m.user_name,
+          avatar: m.user_avatar || `https://i.pravatar.cc/150?u=${m.user_id}`,
+          message: m.message,
+          time: new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          isMe: false,
+        }));
+        setMessages(mapped);
+        if (mapped.length) setStoredMessages(selectedCommunity.id, mapped);
+      }).catch(() => setMessages([]));
+    }
   }, [selectedCommunity?.id]);
 
   useEffect(() => {
@@ -134,6 +150,9 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
     setMessages(next);
     setStoredMessages(selectedCommunity.id, next);
     setInput('');
+
+    // Post to API (fire-and-forget)
+    api.sendCommunityMessage(selectedCommunity.id, newMsg.message).catch(() => {});
 
     // Simulate typing + auto reply
     if (autoReplyIndex.current < AUTO_REPLIES.length) {
@@ -348,7 +367,8 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
                   joinedCommunities
                     .filter(c => !searchQuery || c.name.toLowerCase().includes(searchQuery.toLowerCase()))
                     .map((community) => {
-                      const lastMsg = COMMUNITY_CHATS[community.id]?.slice(-1)[0];
+                      const stored = getStoredMessages(community.id);
+                      const lastMsg = stored.length ? stored[stored.length - 1] : null;
                       return (
                         <motion.button
                           key={community.id}
