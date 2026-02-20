@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3001/api';
+const API_URL = 'https://socialiseapp-production.up.railway.app/api';
 
 async function parseJson(response) {
     const text = await response.text();
