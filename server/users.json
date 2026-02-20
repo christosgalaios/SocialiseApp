@@ -1,14 +1,1 @@
-[
-  {
-    "id": "1771581816714",
-    "email": "test@example.com",
-    "password": "$2b$10$folFmXKQMNc6QwJdNrre0O8ulVnlbQFMYdBeFK6q7V4LwLyDcTlRq",
-    "name": "Test User",
-    "location": "London",
-    "avatar": "https://i.pravatar.cc/150?u=test@example.com",
-    "bio": "",
-    "interests": [],
-    "tribe": "Newcomers",
-    "isPro": false
-  }
-]
+[]

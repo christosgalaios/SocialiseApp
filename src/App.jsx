@@ -48,6 +48,7 @@ import OnboardingFlow from './components/OnboardingFlow';
 import EventReels from './components/EventReels';
 import LevelUpModal from './components/LevelUpModal';
 import AvatarCropModal from './components/AvatarCropModal';
+import EmailVerificationModal from './components/EmailVerificationModal';
 import {
   HomeSkeleton,
   HubSkeleton,
@@ -181,6 +182,11 @@ function App() {
   // Avatar crop modal
   const [avatarCropImage, setAvatarCropImage] = useState(null);
 
+  // Email verification modal
+  const [showEmailVerification, setShowEmailVerification] = useState(false);
+  const [pendingVerificationEmail, setPendingVerificationEmail] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
+
   // Profile sub-tab: profile | settings
   const [profileSubTab, setProfileSubTab] = useState('profile');
   const [experimentalFeatures, setExperimentalFeatures] = useLocalStorage('socialise_experimental', false);
@@ -274,16 +280,35 @@ function App() {
       let response;
       if (type === 'register') {
         response = await api.register(credentials.email, credentials.password, credentials.name);
+        setUser(response.user);
+        localStorage.setItem('socialise_token', response.token);
+        dataFetchedForUser.current = null;
+        showToast(`Welcome, ${response.user.name?.split(' ')[0] || 'there'}! Check your email to verify.`, 'success');
+        // Show email verification modal
+        setPendingVerificationEmail(credentials.email);
+        setVerificationCode(response.verificationCode || '');
+        setShowEmailVerification(true);
       } else {
         response = await api.login(credentials.email, credentials.password);
+        setUser(response.user);
+        localStorage.setItem('socialise_token', response.token);
+        dataFetchedForUser.current = null;
+        showToast(`Welcome back, ${response.user.name?.split(' ')[0] || 'there'}!`, 'success');
+        setAppState('app');
       }
-      setUser(response.user);
-      localStorage.setItem('socialise_token', response.token);
-      dataFetchedForUser.current = null; // Ensure data is fetched for new session
-      showToast(`Welcome${type === 'register' ? '' : ' back'}, ${response.user.name?.split(' ')[0] || 'there'}!`, 'success');
-      setAppState('app');
     } catch (err) {
       showToast(err.message, 'error');
+    }
+  };
+
+  const handleVerifyEmail = async (email, code) => {
+    try {
+      await api.verifyEmail(email, code);
+      showToast('Email verified successfully!', 'success');
+      setShowEmailVerification(false);
+      setAppState('app');
+    } catch (err) {
+      throw err;
     }
   };
 
@@ -615,6 +640,29 @@ function App() {
 
   return (
     <div className="h-[100dvh] w-full flex flex-col bg-paper font-sans overflow-hidden">
+      {/* Global Toast Notifications — Always visible */}
+      <AnimatePresence>
+        {notifications.map(n => (
+          <Toast key={n.id} message={n.message} type={n.type} onClose={() => setNotifications(prev => prev.filter(x => x.id !== n.id))} />
+        ))}
+      </AnimatePresence>
+
+      {/* Email Verification Modal */}
+      <AnimatePresence>
+        {showEmailVerification && (
+          <EmailVerificationModal
+            key="email-verification"
+            email={pendingVerificationEmail}
+            verificationCode={verificationCode}
+            onVerify={handleVerifyEmail}
+            onSkip={() => {
+              setShowEmailVerification(false);
+              setAppState('app');
+            }}
+          />
+        )}
+      </AnimatePresence>
+
       <AnimatePresence>
         {appState === 'splash' && (
           <SplashScreen key="splash" onFinish={handleSplashFinish} />
@@ -631,12 +679,6 @@ function App() {
             animate={{ opacity: 1 }}
             className="flex-1 flex flex-col relative overflow-hidden pt-[env(safe-area-inset-top)]"
           >
-            {/* Global Toast Notifications */}
-            <AnimatePresence>
-              {notifications.map(n => (
-                <Toast key={n.id} message={n.message} type={n.type} onClose={() => setNotifications(prev => prev.filter(x => x.id !== n.id))} />
-              ))}
-            </AnimatePresence>
 
             <div className="flex h-full">
 
