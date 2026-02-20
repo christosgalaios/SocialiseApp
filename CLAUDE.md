@@ -260,6 +260,7 @@ These bugs from the original issue list have been resolved in the codebase:
 - `OnboardingFlow` receives `userName={user?.name ?? 'there'}` ✓
 - `api.js` uses `parseJson()` wrapper + checks `response.ok` before throwing ✓
 - `handleLogout` uses a stable `handleLogoutRef` to avoid dependency array issue ✓
+- `deploy-develop.yml` no longer bumps the patch version — fixes `package.json` merge conflicts when promoting `development` → `production` ✓
 
 ---
 
@@ -322,6 +323,10 @@ node index.js        # Express @ localhost:3001
 **Deployment:**
 - `development` branch → GitHub Actions auto-deploys to `/dev/` + uses `socialise-app-development` Railway project
 - `production` branch → GitHub Actions auto-deploys to `/` + uses `socialise-app-production` Railway project
+
+**Versioning:**
+- `production` deploy bumps the minor version (x.**y**.0) in `package.json` and syncs it back to `development`.
+- `development` deploy does **not** bump the version — this is intentional. Both branches must stay on the same version to avoid merge conflicts when promoting `development` → `production`.
 
 **ESLint:** `npm run lint` — React hooks rules enabled. Fix lint errors before pushing.
 
