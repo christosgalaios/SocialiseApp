@@ -1,8 +1,8 @@
-name: Deploy development → GitHub Pages preview (develop branch)
+name: Deploy development → GitHub Pages preview (development branch)
 
 on:
   push:
-    branches: [develop]
+    branches: [development]
     # Ignore commits made by this workflow itself (version bumps).
     paths-ignore: []  # handled by [skip ci] in commit message
 
@@ -22,7 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: develop
+          ref: development
           fetch-depth: 0
 
       - name: Setup Node
@@ -56,7 +56,7 @@ jobs:
         run: |
           git add package.json
           git commit -m "chore: bump version to ${{ steps.version.outputs.version }} [skip ci]"
-          git push origin develop
+          git push origin development
 
       - name: Install dependencies
         run: npm ci
@@ -67,7 +67,7 @@ jobs:
           NODE_ENV: production
           # Base URL for https://christosgalaios.github.io/SocialiseApp/dev/
           VITE_BASE_URL: /SocialiseApp/dev/
-          VITE_API_URL: https://socialise-app-development.up.railway.app/api
+          VITE_API_URL: https://socialise-app-production.up.railway.app/api
           VITE_GOOGLE_MAPS_API_KEY: ${{ secrets.VITE_GOOGLE_MAPS_API_KEY }}
 
       - name: Deploy to gh-pages (dev subfolder)
