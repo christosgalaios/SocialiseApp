@@ -1391,9 +1391,15 @@ function App() {
                 isOpen={showSaved}
                 onClose={() => setShowSaved(false)}
                 savedEvents={events.filter(e => savedEvents.includes(e.id))}
-                onRemove={(id) => {
-                  setSavedEvents(savedEvents.filter(eid => eid !== id));
+                onRemove={async (id) => {
+                  setSavedEvents(prev => prev.filter(eid => eid !== id));
                   showToast('Removed from saved', 'info');
+                  try {
+                    await api.unsaveEvent(id);
+                  } catch (err) {
+                    setSavedEvents(prev => [...prev, id]);
+                    showToast(err.message, 'error');
+                  }
                 }}
                 onSelect={(event) => {
                   setShowSaved(false);
