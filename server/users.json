@@ -2,7 +2,7 @@
   {
     "id": "ben-demo",
     "email": "ben@demo.com",
-    "password": "$2a$10$SomethingHashed",
+    "password": "$2b$10$4gPHoGxzQdLQXwfDAB6cWuL5fBX66G6cu7vq5KeStwE/goMTl3y1a",
     "name": "Ben",
     "location": "Bristol",
     "avatar": "/ben_avatar.png",
