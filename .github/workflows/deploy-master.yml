@@ -83,6 +83,7 @@ jobs:
           # Base URL for https://christosgalaios.github.io/SocialiseApp/
           VITE_BASE_URL: /SocialiseApp/
           VITE_GOOGLE_MAPS_API_KEY: ${{ secrets.VITE_GOOGLE_MAPS_API_KEY }}
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
 
       - name: Deploy to gh-pages (root)
         uses: JamesIves/github-pages-deploy-action@v4
