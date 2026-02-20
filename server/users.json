@@ -1,14 +1,14 @@
 [
   {
-    "id": "ben-demo",
-    "email": "ben@demo.com",
-    "password": "$2a$10$SomethingHashed",
-    "name": "Ben",
-    "location": "Bristol",
-    "avatar": "/ben_avatar.png",
-    "bio": "Lover of deep house, fine dining, and community building. Bristol local.",
-    "interests": ["Tech", "Music", "Food", "Networking"],
-    "tribe": "The Pioneers",
-    "isPro": true
+    "id": "1771581816714",
+    "email": "test@example.com",
+    "password": "$2b$10$folFmXKQMNc6QwJdNrre0O8ulVnlbQFMYdBeFK6q7V4LwLyDcTlRq",
+    "name": "Test User",
+    "location": "London",
+    "avatar": "https://i.pravatar.cc/150?u=test@example.com",
+    "bio": "",
+    "interests": [],
+    "tribe": "Newcomers",
+    "isPro": false
   }
 ]
