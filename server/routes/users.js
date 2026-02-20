@@ -1,15 +1,11 @@
 const express = require('express');
 const supabase = require('../supabase');
-const { authenticateToken, readUsers, writeUsers } = require('./auth');
+const { authenticateToken, toPublicUser } = require('./auth');
 
 const router = express.Router();
 
 // --- PUT /api/users/me --- (update own profile)
 router.put('/me', authenticateToken, async (req, res) => {
-    const users = readUsers();
-    const idx = users.findIndex(u => u.id === req.user.id);
-    if (idx === -1) return res.status(404).json({ message: 'User not found' });
-
     const allowed = ['name', 'bio', 'location', 'avatar', 'interests'];
     const updates = {};
     allowed.forEach(k => { if (req.body[k] !== undefined) updates[k] = req.body[k]; });
@@ -25,16 +21,17 @@ router.put('/me', authenticateToken, async (req, res) => {
         return res.status(400).json({ message: 'Interests must be an array' });
     }
 
-    Object.assign(users[idx], updates);
+    const { data: updated, error } = await supabase
+        .from('users')
+        .update(updates)
+        .eq('id', req.user.id)
+        .select()
+        .single();
 
-    try {
-        writeUsers(users);
-    } catch {
-        return res.status(500).json({ message: 'Failed to update profile' });
-    }
+    if (!updated) return res.status(404).json({ message: 'User not found' });
+    if (error) return res.status(500).json({ message: 'Failed to update profile' });
 
-    const { password: _, ...safe } = users[idx];
-    res.json(safe);
+    res.json(toPublicUser(updated));
 });
 
 // --- GET /api/users/me/events --- (hosted + attending)
