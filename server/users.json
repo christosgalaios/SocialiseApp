@@ -1,14 +1,1 @@
-[
-  {
-    "id": "ben-demo",
-    "email": "ben@demo.com",
-    "password": "$2a$10$SomethingHashed",
-    "name": "Ben",
-    "location": "Bristol",
-    "avatar": "/ben_avatar.png",
-    "bio": "Lover of deep house, fine dining, and community building. Bristol local.",
-    "interests": ["Tech", "Music", "Food", "Networking"],
-    "tribe": "The Pioneers",
-    "isPro": true
-  }
-]
+[]

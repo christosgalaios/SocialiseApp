@@ -8,7 +8,7 @@
 
 **Socialise** is a community-driven social event discovery and micro-meet matchmaking platform. The pitch: warm, local, human connection — not cold tech. Think Meetup meets Hinge, with AI-curated small dinners (4-6 people) called "Micro-Meets".
 
-**Current state:** Polished demo / functional prototype. Real auth, mock data everywhere else. Goal is to scale this into a full product.
+**Current state:** Active migration from mock data to real backend. Backend routes for events, communities, feed, and users are wired to Supabase. Auth still uses flat-file `users.json` — fixing this is the current priority. Frontend still reads from `mockData.js` and has not yet been wired to the real API endpoints.
 
 ---
 
@@ -19,13 +19,14 @@
 | Frontend | React 19, Vite 7, Tailwind CSS 4, Framer Motion 12 |
 | Icons | Lucide React |
 | Maps | @react-google-maps/api + use-places-autocomplete |
-| Backend | Node.js + Express 5 |
-| Auth | JWT (jsonwebtoken) + bcryptjs |
-| Persistence | localStorage (frontend), users.json file (backend) |
-| Deployment | GitHub Pages (frontend), manual (backend) |
+| Backend | Node.js + Express 5, deployed on Railway |
+| Database | Supabase (Postgres) — events, communities, feed, users tables |
+| Auth | JWT (jsonwebtoken) + bcryptjs — still backed by users.json (migration pending) |
+| Persistence | localStorage (frontend), users.json (auth only, legacy), Supabase (all other data) |
+| Deployment | GitHub Pages (frontend), Railway (backend) |
 | Fonts | Outfit (headings), Quicksand (body) |
 
-No Redux, no Zustand, no database. State lives in `App.jsx` + localStorage.
+No Redux, no Zustand. Frontend state lives in `App.jsx` + localStorage. Backend uses Supabase (Postgres) for persistence.
 
 ---
 
@@ -42,9 +43,19 @@ No Redux, no Zustand, no database. State lives in `App.jsx` + localStorage.
   /data
     mockData.js        # All mock events, communities, feed posts, demo user
 /server
-  index.js             # Express API (auth only)
-  users.json           # Flat-file user store
+  index.js             # Express entry — mounts all routers
+  supabase.js          # Supabase client (service role, server-side only)
+  matching.js          # Micro-Meet matching algorithm
+  migrate.js           # DB migration runner
+  seed.js              # Seed data for Supabase tables
+  users.json           # Legacy flat-file user store (auth only — being replaced)
   package.json         # Server-specific deps (CommonJS)
+  /routes
+    auth.js            # Login/register/me — still reads users.json (migration pending)
+    events.js          # CRUD + RSVP/save/chat — Supabase
+    communities.js     # CRUD + join/leave/feed — Supabase
+    feed.js            # Global feed + reactions — Supabase
+    users.js           # Profiles + recommendations — Supabase
 /public                # PWA icons, logos
 /docs                  # QA notes, dev task docs
 package.json           # Frontend deps (ESM)
@@ -150,23 +161,48 @@ ANTIGRAVITY_BRAIN.md   # Design philosophy doc (read before UI changes)
 
 ## Backend API
 
-Base: `http://localhost:3001/api`
+Base (local): `http://localhost:3001/api`
+Base (production): `https://socialise-app-production.up.railway.app/api`
 
 | Method | Endpoint | Auth | Purpose |
 |---|---|---|---|
 | POST | `/auth/login` | None | Email + password → `{ token, user }` |
 | POST | `/auth/register` | None | Email + password + name → `{ token, user }` |
 | GET | `/auth/me` | Bearer token | Returns current user |
-| GET | `/events` | None | Stub — returns placeholder message |
+| GET | `/events` | Optional | List events from Supabase (filterable) |
+| POST | `/events` | Required | Create event |
+| GET | `/events/:id` | Optional | Single event detail |
+| PUT | `/events/:id` | Required | Update event (host only) |
+| DELETE | `/events/:id` | Required | Cancel event (host only) |
+| POST | `/events/:id/rsvp` | Required | RSVP to event |
+| DELETE | `/events/:id/rsvp` | Required | Un-RSVP |
+| POST | `/events/:id/save` | Required | Save event |
+| DELETE | `/events/:id/save` | Required | Unsave event |
+| GET | `/events/:id/chat` | Optional | Get event chat messages |
+| POST | `/events/:id/chat` | Required | Post chat message |
+| GET | `/communities` | Optional | List communities from Supabase |
+| GET | `/communities/:id` | Optional | Single community detail |
+| POST | `/communities` | Required | Create community |
+| POST | `/communities/:id/join` | Required | Join community |
+| DELETE | `/communities/:id/join` | Required | Leave community |
+| GET | `/communities/:id/feed` | Optional | Community feed |
+| POST | `/communities/:id/feed` | Required | Post to community feed |
+| GET | `/feed` | Optional | Global feed from Supabase |
+| POST | `/feed` | Required | Create feed post |
+| GET | `/users/:id` | Optional | User profile |
+| PUT | `/users/:id` | Required | Update profile |
+| GET | `/users/:id/recommendations` | Optional | Micro-Meet recommendations |
 
 **Demo credentials:** `ben@demo.com` / `password`
 
-**User storage:** `server/users.json` — flat JSON array. Not a database.
+**User storage (auth only — legacy):** `server/users.json` — flat JSON array. Auth route reads/writes this directly. Migration to Supabase is the active work item.
 
 **Environment variables (see `server/.env.example`):**
 - `JWT_SECRET` — Secret for signing JWTs. Required in production.
 - `PORT` — Server port. Defaults to 3001.
 - `ALLOWED_ORIGINS` — Comma-separated CORS origins. Defaults to localhost dev origins.
+- `SUPABASE_URL` — Supabase project URL. Required.
+- `SUPABASE_SERVICE_ROLE_KEY` — Supabase service role key (server-side only, bypasses RLS). Required.
 
 ---
 
@@ -174,16 +210,41 @@ Base: `http://localhost:3001/api`
 
 | Thing | Status |
 |---|---|
-| Auth (login/register/JWT) | Real |
-| User data | Real (stored in users.json) |
-| Events | Mock — hardcoded in `mockData.js` |
-| Communities / Tribes | Mock |
-| Feed posts | Mock |
-| Micro-Meets | Mock |
+| Auth (login/register/JWT) | Real — but users stored in `users.json`, not Supabase yet (active bug) |
+| User data | Real (users.json) — Supabase migration pending |
+| Events API | Real (Supabase via `/api/events`) — frontend not yet wired |
+| Communities API | Real (Supabase via `/api/communities`) — frontend not yet wired |
+| Feed API | Real (Supabase via `/api/feed`) — frontend not yet wired |
+| Users API | Real (Supabase via `/api/users`) — frontend not yet wired |
+| Micro-Meet recommendations | Real — matching algorithm in `server/matching.js` |
+| Frontend events display | Still mock — reads from `mockData.js` |
+| Frontend communities display | Still mock — reads from `mockData.js` |
+| Frontend feed display | Still mock — reads from `mockData.js` |
 | Chat messages | Mock (initial) + localStorage for new messages |
 | Realtime pings | Simulated with setTimeout |
 | Pro subscription | UI only — no payment, no enforcement |
 | Google login | Simulated — just loads DEMO_USER |
+
+## Migration In Progress
+
+**Goal:** Replace all mock data with real Supabase-backed API calls.
+
+**Completed (backend):**
+- Supabase client configured in `server/supabase.js`
+- Events, Communities, Feed, Users routes all wired to Supabase
+- Micro-Meet matching algorithm (`server/matching.js`)
+- Seed data script (`server/seed.js`)
+- Migration runner (`server/migrate.js`)
+- Railway deployment configured for production + development environments
+- API URL now reads from `VITE_API_URL` env var (not hardcoded)
+
+**In progress:**
+- Auth route still reads/writes `users.json` — needs migrating to Supabase users table. This is causing authentication issues (users registered via the API aren't persisted correctly in production/Railway where the filesystem is ephemeral).
+
+**Not yet started (frontend):**
+- Wire `src/api.js` to call real `/api/events`, `/api/communities`, `/api/feed` endpoints instead of importing from `mockData.js`
+- Replace localStorage-based join/save/tribe state with API calls
+- Handle loading/error states for real async data throughout the app
 
 ---
 
@@ -199,6 +260,7 @@ These bugs from the original issue list have been resolved in the codebase:
 - `OnboardingFlow` receives `userName={user?.name ?? 'there'}` ✓
 - `api.js` uses `parseJson()` wrapper + checks `response.ok` before throwing ✓
 - `handleLogout` uses a stable `handleLogoutRef` to avoid dependency array issue ✓
+- `deploy-develop.yml` no longer bumps the patch version — fixes `package.json` merge conflicts when promoting `development` → `production` ✓
 
 ---
 
@@ -207,10 +269,11 @@ These bugs from the original issue list have been resolved in the codebase:
 ### Structural
 - `App.jsx` is 1026 lines with all state centralized. Needs breaking into feature slices or a proper store (Zustand recommended) when complexity grows further.
 - No test coverage. Zero tests. Needs Vitest + React Testing Library for unit tests, Playwright or Cypress for E2E.
-- All app data is mock. Real database (Postgres via Supabase, or Firebase) needed.
-- No real-time. WebSockets or Supabase Realtime needed for live feed/chat.
+- Frontend still uses `mockData.js` — needs wiring to real API (see Migration In Progress above).
+- No real-time. Supabase Realtime could replace the current `setTimeout` simulation for live feed/chat.
 
 ### Security
+- **Auth uses `users.json` on an ephemeral Railway filesystem** — registered users are lost on every redeploy. Migrating auth to Supabase is the active priority.
 - Server JWT_SECRET defaults to dev fallback — must set `JWT_SECRET` env var in production.
 - CORS defaults to dev origins — set `ALLOWED_ORIGINS` env var in production.
 - localStorage token storage is XSS-vulnerable. For production: HttpOnly cookies.
@@ -225,23 +288,45 @@ These bugs from the original issue list have been resolved in the codebase:
 
 ---
 
-## Development Notes
+## Development Workflow
 
-**Running locally:**
+### Branches
+
+| Branch | Environment | GitHub Pages | Backend | Purpose |
+|--------|---|---|---|---|
+| `development` (tracks `develop`) | Development/Preview | `/SocialiseApp/dev/` | `socialise-app-development.up.railway.app` | Testing & validation |
+| `production` (tracks `master`) | Production | `/SocialiseApp/` | `socialise-app-production.up.railway.app` | Public-facing |
+
+**Workflow:**
+1. Create feature branches from `development`
+2. Test locally with local backend
+3. Push to `development` → auto-deploys to `/dev/` preview for testing
+4. Merge `development` → `production` → auto-deploys to `/` production
+
+### Running Locally
+
+**Setup:**
 ```bash
 # Frontend
-npm run dev          # Vite dev server
+npm run dev          # Vite dev server @ localhost:5173
 
 # Backend (separate terminal)
 cd server
-node index.js        # Express on :3001
+npm install
+node index.js        # Express @ localhost:3001
 ```
 
 **Environment variables:**
-- Frontend: `VITE_GOOGLE_MAPS_API_KEY` in `.env` (see `.env.example`)
+- Frontend: `VITE_GOOGLE_MAPS_API_KEY` + `VITE_API_URL=http://localhost:3001/api` in `.env` (see `.env.example`)
 - Backend: `JWT_SECRET`, `PORT`, `ALLOWED_ORIGINS` in `server/.env` (see `server/.env.example`)
 
-**Deployment:** GitHub Actions auto-deploys frontend to GitHub Pages on push to main/master. Backend not deployed — it's local only for now.
+**Deployment:**
+- `development` branch → GitHub Actions auto-deploys to `/dev/` + uses `socialise-app-development` Railway project
+- `production` branch → GitHub Actions auto-deploys to `/` + uses `socialise-app-production` Railway project
+
+**Versioning:**
+- `production` deploy bumps the minor version (x.**y**.0) in `package.json` and syncs it back to `development`.
+- `development` deploy does **not** bump the version — this is intentional. Both branches must stay on the same version to avoid merge conflicts when promoting `development` → `production`.
 
 **ESLint:** `npm run lint` — React hooks rules enabled. Fix lint errors before pushing.
 
