@@ -1,34 +1,11 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const fs = require('fs');
-const path = require('path');
+const supabase = require('../supabase');
 
 const router = express.Router();
 
 const SECRET_KEY = process.env.JWT_SECRET || 'socialise_secret_key_123_change_in_production';
-const USERS_FILE = path.join(__dirname, '..', 'users.json');
-
-// --- File helpers ---
-
-const readUsers = () => {
-    if (!fs.existsSync(USERS_FILE)) return [];
-    try {
-        return JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
-    } catch (err) {
-        console.error('[ERROR] Failed to read users file:', err.message);
-        return [];
-    }
-};
-
-const writeUsers = (users) => {
-    try {
-        fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), 'utf8');
-    } catch (err) {
-        console.error('[ERROR] Failed to write users file:', err.message);
-        throw new Error('Failed to persist user data');
-    }
-};
 
 // --- Input validation ---
 
@@ -37,6 +14,27 @@ const isValidEmail = (email) =>
 const isValidPassword = (pw) => typeof pw === 'string' && pw.length >= 6;
 const isValidName = (name) =>
     typeof name === 'string' && name.trim().length >= 1 && name.trim().length <= 100;
+
+// --- Maps a Supabase users row → public user shape (camelCase, no password) ---
+
+const toPublicUser = (row) => {
+    if (!row) return null;
+    const {
+        password,
+        is_pro,
+        is_email_verified,
+        verification_code,
+        verification_code_expiry,
+        ...rest
+    } = row;
+    return {
+        ...rest,
+        isPro: is_pro,
+        isEmailVerified: is_email_verified,
+        verificationCode: verification_code,
+        verificationCodeExpiry: verification_code_expiry,
+    };
+};
 
 // --- Auth middleware (exported for use in other routes) ---
 
@@ -51,13 +49,15 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
-// Enriches req.user with full profile from users.json
-const loadUserProfile = (req, res, next) => {
-    const users = readUsers();
-    const profile = users.find(u => u.id === req.user.id);
+// Enriches req.user with full profile from Supabase
+const loadUserProfile = async (req, res, next) => {
+    const { data: profile } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', req.user.id)
+        .single();
     if (!profile) return res.sendStatus(404);
-    const { password: _, ...safe } = profile;
-    req.userProfile = safe;
+    req.userProfile = toPublicUser(profile);
     next();
 };
 
@@ -82,8 +82,11 @@ router.post('/login', async (req, res) => {
         return res.status(400).json({ message: 'Invalid email or password format' });
     }
 
-    const users = readUsers();
-    const user = users.find(u => u.email === email.trim().toLowerCase());
+    const { data: user } = await supabase
+        .from('users')
+        .select('*')
+        .eq('email', email.trim().toLowerCase())
+        .single();
 
     if (!user) {
         return res.status(400).json({ message: 'Invalid credentials' });
@@ -95,8 +98,7 @@ router.post('/login', async (req, res) => {
     }
 
     const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, { expiresIn: '24h' });
-    const { password: _, ...userWithoutPassword } = user;
-    res.json({ token, user: userWithoutPassword });
+    res.json({ token, user: toPublicUser(user) });
 });
 
 // POST /api/auth/register
@@ -113,43 +115,48 @@ router.post('/register', async (req, res) => {
         return res.status(400).json({ message: 'Name is required' });
     }
 
-    const users = readUsers();
     const normalizedEmail = email.trim().toLowerCase();
 
-    if (users.find(u => u.email === normalizedEmail)) {
+    const { data: existing } = await supabase
+        .from('users')
+        .select('id')
+        .eq('email', normalizedEmail)
+        .maybeSingle();
+
+    if (existing) {
         return res.status(400).json({ message: 'An account with that email already exists' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const verificationCode = Math.random().toString().slice(2, 8); // 6-digit code
-    const newUser = {
-        id: Date.now().toString(),
-        email: normalizedEmail,
-        password: hashedPassword,
-        name: name.trim(),
-        location: 'London',
-        avatar: `https://i.pravatar.cc/150?u=${normalizedEmail}`,
-        bio: '',
-        interests: [],
-        tribe: 'Newcomers',
-        isPro: false,
-        isEmailVerified: false,
-        verificationCode: verificationCode,
-        verificationCodeExpiry: Date.now() + (10 * 60 * 1000), // 10 minutes
-    };
+    const verificationCode = Math.random().toString().slice(2, 8);
 
-    try {
-        users.push(newUser);
-        writeUsers(users);
-    } catch {
+    const { data: newUser, error } = await supabase
+        .from('users')
+        .insert({
+            id: Date.now().toString(),
+            email: normalizedEmail,
+            password: hashedPassword,
+            name: name.trim(),
+            location: 'London',
+            avatar: `https://i.pravatar.cc/150?u=${normalizedEmail}`,
+            bio: '',
+            interests: [],
+            tribe: 'Newcomers',
+            is_pro: false,
+            is_email_verified: false,
+            verification_code: verificationCode,
+            verification_code_expiry: Date.now() + (10 * 60 * 1000),
+        })
+        .select()
+        .single();
+
+    if (error) {
+        console.error('[ERROR] Failed to create user:', error.message);
         return res.status(500).json({ message: 'Failed to create account. Please try again.' });
     }
 
     const token = jwt.sign({ id: newUser.id, email: newUser.email }, SECRET_KEY, { expiresIn: '24h' });
-    const { password: _, ...userWithoutPassword } = newUser;
-
-    // In development, return verification code for testing
-    const response = { token, user: userWithoutPassword };
+    const response = { token, user: toPublicUser(newUser) };
     if (process.env.NODE_ENV !== 'production') {
         response.verificationCode = verificationCode;
     }
@@ -157,53 +164,57 @@ router.post('/register', async (req, res) => {
 });
 
 // POST /api/auth/verify-email
-router.post('/verify-email', (req, res) => {
+router.post('/verify-email', async (req, res) => {
     const { email, code } = req.body;
 
     if (!isValidEmail(email) || !code) {
         return res.status(400).json({ message: 'Email and verification code required' });
     }
 
-    const users = readUsers();
-    const normalizedEmail = email.trim().toLowerCase();
-    const user = users.find(u => u.email === normalizedEmail);
+    const { data: user } = await supabase
+        .from('users')
+        .select('*')
+        .eq('email', email.trim().toLowerCase())
+        .single();
 
     if (!user) {
         return res.status(404).json({ message: 'User not found' });
     }
 
-    if (user.isEmailVerified) {
+    if (user.is_email_verified) {
         return res.status(400).json({ message: 'Email is already verified' });
     }
 
-    if (Date.now() > user.verificationCodeExpiry) {
+    if (Date.now() > user.verification_code_expiry) {
         return res.status(400).json({ message: 'Verification code expired. Please request a new one.' });
     }
 
-    if (user.verificationCode !== code.toString()) {
+    if (user.verification_code !== code.toString()) {
         return res.status(400).json({ message: 'Invalid verification code' });
     }
 
-    // Mark email as verified
-    user.isEmailVerified = true;
-    user.verificationCode = null;
-    user.verificationCodeExpiry = null;
+    const { error } = await supabase
+        .from('users')
+        .update({ is_email_verified: true, verification_code: null, verification_code_expiry: null })
+        .eq('id', user.id);
 
-    try {
-        writeUsers(users);
-        res.json({ message: 'Email verified successfully!' });
-    } catch {
+    if (error) {
         return res.status(500).json({ message: 'Failed to verify email. Please try again.' });
     }
+
+    res.json({ message: 'Email verified successfully!' });
 });
 
 // GET /api/auth/me
-router.get('/me', authenticateToken, (req, res) => {
-    const users = readUsers();
-    const user = users.find(u => u.id === req.user.id);
+router.get('/me', authenticateToken, async (req, res) => {
+    const { data: user } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', req.user.id)
+        .single();
+
     if (!user) return res.sendStatus(404);
-    const { password: _, ...userWithoutPassword } = user;
-    res.json(userWithoutPassword);
+    res.json(toPublicUser(user));
 });
 
-module.exports = { router, authenticateToken, loadUserProfile, extractUserId, readUsers, writeUsers };
+module.exports = { router, authenticateToken, loadUserProfile, extractUserId, toPublicUser };
