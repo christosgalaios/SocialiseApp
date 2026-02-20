@@ -25,14 +25,19 @@ const envOrigins = process.env.ALLOWED_ORIGINS
 
 const allowedOrigins = [...new Set([...defaultOrigins, ...envOrigins])];
 
-app.use(cors({
+const corsOptions = {
     origin: (origin, callback) => {
-        if (!origin) return callback(null, true);
-        if (allowedOrigins.includes(origin)) return callback(null, true);
-        callback(null, false);
+        if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+        callback(new Error(`CORS: origin '${origin}' not allowed`));
     },
     credentials: true,
-}));
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+// Handle preflight OPTIONS requests for all routes before auth/validation
+app.options('*', cors(corsOptions));
+app.use(cors(corsOptions));
 
 app.use(bodyParser.json());
 
