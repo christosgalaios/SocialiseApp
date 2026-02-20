@@ -1,4 +1,4 @@
-name: Deploy master → production
+name: Deploy production → GitHub Pages (master branch)
 
 on:
   push:
@@ -82,6 +82,7 @@ jobs:
           NODE_ENV: production
           # Base URL for https://christosgalaios.github.io/SocialiseApp/
           VITE_BASE_URL: /SocialiseApp/
+          VITE_API_URL: https://socialise-app-production.up.railway.app/api
           VITE_GOOGLE_MAPS_API_KEY: ${{ secrets.VITE_GOOGLE_MAPS_API_KEY }}
 
       - name: Deploy to gh-pages (root)

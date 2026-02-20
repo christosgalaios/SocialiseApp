@@ -1,4 +1,4 @@
-name: Deploy develop → preview
+name: Deploy development → GitHub Pages preview (develop branch)
 
 on:
   push:
@@ -67,6 +67,7 @@ jobs:
           NODE_ENV: production
           # Base URL for https://christosgalaios.github.io/SocialiseApp/dev/
           VITE_BASE_URL: /SocialiseApp/dev/
+          VITE_API_URL: https://socialise-app-development.up.railway.app/api
           VITE_GOOGLE_MAPS_API_KEY: ${{ secrets.VITE_GOOGLE_MAPS_API_KEY }}
 
       - name: Deploy to gh-pages (dev subfolder)
