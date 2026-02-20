@@ -42,6 +42,7 @@ jobs:
           VITE_BASE_URL: /SocialiseApp/dev/
           VITE_API_URL: https://socialise-app-production.up.railway.app/api
           VITE_GOOGLE_MAPS_API_KEY: ${{ secrets.VITE_GOOGLE_MAPS_API_KEY }}
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
 
       - name: Deploy to gh-pages (dev subfolder)
         uses: JamesIves/github-pages-deploy-action@v4
