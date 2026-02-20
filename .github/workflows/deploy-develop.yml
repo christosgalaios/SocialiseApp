@@ -19,6 +19,8 @@ jobs:
     # Skip if this is an automated version-bump commit to avoid infinite loops.
     if: "!contains(github.event.head_commit.message, '[skip ci]')"
     runs-on: ubuntu-latest
+    env:
+      VITE_API_URL: ${{ secrets.VITE_API_URL }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -68,7 +70,6 @@ jobs:
           # Base URL for https://christosgalaios.github.io/SocialiseApp/dev/
           VITE_BASE_URL: /SocialiseApp/dev/
           VITE_GOOGLE_MAPS_API_KEY: ${{ secrets.VITE_GOOGLE_MAPS_API_KEY }}
-          VITE_API_URL: ${{ secrets.VITE_API_URL }}
 
       - name: Deploy to gh-pages (dev subfolder)
         uses: JamesIves/github-pages-deploy-action@v4
