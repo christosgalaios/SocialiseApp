@@ -1,4 +1,4 @@
-const API_URL = 'https://socialiseapp-production.up.railway.app/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 async function parseJson(response) {
     const text = await response.text();
