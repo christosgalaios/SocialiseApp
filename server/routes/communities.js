@@ -1,15 +1,13 @@
 const express = require('express');
 const supabase = require('../supabase');
-const { authenticateToken, loadUserProfile } = require('./auth');
+const { authenticateToken, loadUserProfile, extractUserId } = require('./auth');
 
 const router = express.Router();
 
 // --- GET /api/communities ---
 router.get('/', async (req, res) => {
     const { category, search, limit = 30, offset = 0 } = req.query;
-    const userId = req.headers['authorization']
-        ? (() => { try { const jwt = require('jsonwebtoken'); const t = req.headers['authorization'].split(' ')[1]; return jwt.verify(t, process.env.JWT_SECRET || 'socialise_secret_key_123_change_in_production').id; } catch { return null; } })()
-        : null;
+    const userId = extractUserId(req.headers['authorization']);
 
     let query = supabase
         .from('communities')

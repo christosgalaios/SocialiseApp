@@ -5,7 +5,10 @@ const supabase = require('../supabase');
 
 const router = express.Router();
 
-const SECRET_KEY = process.env.JWT_SECRET || 'socialise_secret_key_123_change_in_production';
+if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET env var is required in production. Set it before deploying.');
+}
+const SECRET_KEY = process.env.JWT_SECRET || 'socialise_dev_secret_key';
 
 // --- Input validation ---
 
