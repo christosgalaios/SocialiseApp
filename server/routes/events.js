@@ -1,6 +1,6 @@
 const express = require('express');
 const supabase = require('../supabase');
-const { authenticateToken, loadUserProfile, extractUserId, readUsers } = require('./auth');
+const { authenticateToken, loadUserProfile, extractUserId } = require('./auth');
 const { enrichEventsWithMatches } = require('../matching');
 
 const router = express.Router();
@@ -38,8 +38,12 @@ async function enrichEvents(events, userId) {
     // Get user profile for matching micro-meets
     let userProfile = null;
     if (userId) {
-        const users = readUsers();
-        userProfile = users.find(u => u.id === userId);
+        const { data: profile } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', userId)
+            .single();
+        userProfile = profile;
     }
 
     // Enrich events with matching scores if applicable
