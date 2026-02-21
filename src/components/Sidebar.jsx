@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { ChevronRight, Compass, Moon, Sun, Zap } from 'lucide-react';
-import { CATEGORIES } from '../data/mockData';
+import { CATEGORIES } from '../data/constants';
 
 const Sidebar = ({ activeCategory, onSelect, darkMode, onToggleDarkMode }) => (
     <div className="hidden md:flex flex-col w-64 h-full bg-paper border-r border-secondary/10 p-6 pt-24 shrink-0 transition-colors">

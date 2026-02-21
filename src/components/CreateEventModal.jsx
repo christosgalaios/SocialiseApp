@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Image, AlertCircle, Check } from 'lucide-react';
-import { CATEGORIES } from '../data/mockData';
+import { CATEGORIES } from '../data/constants';
 import LocationPicker from './LocationPicker';
 
 const CreateEventModal = ({ onClose, onSubmit }) => {

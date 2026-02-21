@@ -5,7 +5,7 @@ import {
   ChevronRight, Zap, ShieldCheck, Heart,
   MessageCircle, Check, Send, Mountain, Ruler, TrendingUp, Footprints
 } from 'lucide-react';
-import { INCLUSIVITY_TAGS, CATEGORY_ATTRIBUTES } from '../data/mockData';
+import { INCLUSIVITY_TAGS, CATEGORY_ATTRIBUTES } from '../data/constants';
 
 const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMessage, onOpenProfile }) => {
   const [activeTab, setActiveTab] = useState('info');

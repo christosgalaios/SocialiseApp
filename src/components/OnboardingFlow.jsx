@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronLeft, Check, MapPin, Heart, Users, Zap } from 'lucide-react';
-import { CATEGORIES } from '../data/mockData';
+import { CATEGORIES } from '../data/constants';
 
 const OnboardingFlow = ({ onComplete, userName = 'there' }) => {
     const [step, setStep] = useState(0);

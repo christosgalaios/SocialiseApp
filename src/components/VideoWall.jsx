@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Volume2, VolumeX, Heart, Wand2, ChevronLeft, ChevronRight } from 'lucide-react';
-import { ADVERTISED_EVENTS } from '../data/mockData';
+import { ADVERTISED_EVENTS } from '../data/constants';
 
 /**
  * CuratedIntroCard - First card in the wall, personalized message
