@@ -19,7 +19,7 @@
 | Frontend | React 19, Vite 7, Tailwind CSS 4, Framer Motion 12 |
 | Icons | Lucide React |
 | Maps | @react-google-maps/api + use-places-autocomplete |
-| Backend | Node.js + Express 5, deployed on Railway |
+| Backend | Node.js + Express 4, deployed on Railway |
 | Database | Supabase (Postgres) — events, communities, feed, users tables |
 | Auth | JWT (jsonwebtoken) + bcryptjs — users stored in Supabase |
 | Persistence | localStorage (frontend), Supabase (all backend data) |
@@ -38,7 +38,7 @@ No Redux, no Zustand. Frontend state lives in `App.jsx` + localStorage. Backend 
   api.js               # API client — all endpoints (auth, events, communities, feed, users)
   main.jsx             # Entry point + MangoContext provider
   index.css            # Design tokens, global styles, Tailwind overrides
-  /components          # 32+ UI components
+  /components          # 38 UI components
   /contexts            # MangoContext (kitten assistant global state)
   /data
     constants.js       # UI constants: categories, tags, XP levels, advertised events
@@ -98,9 +98,9 @@ ANTIGRAVITY_BRAIN.md   # Design philosophy doc (read before UI changes)
 | `--primary` | `#E2725B` | Terracotta — actions, CTAs |
 | `--secondary` | `#2D5F5D` | Teal — nav, text, calm sections |
 | `--accent` | `#F4B942` | Gold — highlights, delight |
-| `--paper` | `#F9F7F2` | Background (never pure white) |
+| `--bg-paper` | `#F9F7F2` | Background (never pure white) |
 | `--text` | `#1A1C1C` | Main text |
-| `--muted` | `#5C6363` | Secondary text |
+| `--text-muted` | `#5C6363` | Secondary text |
 
 **Critical rules:**
 - Light mode only. Dark mode CSS vars exist but are unused.
@@ -116,7 +116,7 @@ ANTIGRAVITY_BRAIN.md   # Design philosophy doc (read before UI changes)
 
 | Component | File | Notes |
 |---|---|---|
-| App | `src/App.jsx` | All state, all handlers. 1026 lines. |
+| App | `src/App.jsx` | All state, all handlers. ~1500 lines. |
 | Mango | `src/components/Mango.jsx` | Interactive kitten SVG, 44kb. Physics, poses, drag. |
 | MangoSVG | `src/components/MangoSVG.jsx` | 74kb SVG definition. Don't touch unless working on Mango. |
 | MangoContext | `src/contexts/MangoContext.jsx` | Global state: pose, visibility, chat, notifications. |
@@ -146,7 +146,7 @@ ANTIGRAVITY_BRAIN.md   # Design philosophy doc (read before UI changes)
 
 **Community/Tribe:**
 ```js
-{ id, name, members, lastMessage, unread, avatar, description, memberAvatars, category, isJoined }
+{ id, name, members, avatar, description, memberAvatars, category, isJoined }
 ```
 
 **Chat Message:**
@@ -159,14 +159,13 @@ ANTIGRAVITY_BRAIN.md   # Design philosophy doc (read before UI changes)
 |---|---|---|
 | `socialise_user` | Object | Authenticated user |
 | `socialise_token` | String | JWT (set manually, not via useLocalStorage) |
-| `socialise_joined` | Array | Joined event IDs |
-| `socialise_chats` | Object | `{ [eventId]: Message[] }` |
 | `socialise_pro` | Boolean | Pro subscription |
-| `socialise_tribes` | Array | Joined tribe IDs |
-| `socialise_saved` | Array | Saved event IDs |
+| `socialise_tribes` | Array | Joined tribe IDs (synced from API) |
 | `socialise_onboarding_shown` | Boolean | Onboarding complete |
 | `socialise_preferences` | Object | User onboarding prefs |
 | `socialise_experimental` | Boolean | Experimental features toggle |
+| `socialise_xp` | Number | User XP points (gamification) |
+| `socialise_unlocked_titles` | Array | Unlocked achievement title IDs |
 
 ---
 
