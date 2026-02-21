@@ -64,7 +64,7 @@ async function runMigrations() {
                 .filter(s => s.length > 0 && !s.startsWith('--'));
 
             for (const statement of statements) {
-                const { error, data } = await supabase.rpc('exec', { request: statement });
+                const { error } = await supabase.rpc('exec', { request: statement });
 
                 if (error && error.message.includes('function exec')) {
                     // If exec RPC doesn't exist, fall back to using .from().select()

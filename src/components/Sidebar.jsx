@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import { ChevronRight, Compass, Moon, Sun, Zap } from 'lucide-react';
 import { CATEGORIES } from '../data/constants';
 

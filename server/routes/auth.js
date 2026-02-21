@@ -1,9 +1,19 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const rateLimit = require('express-rate-limit');
 const supabase = require('../supabase');
 
 const router = express.Router();
+
+// Rate limiting for auth endpoints — prevents brute-force attacks
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 15, // 15 attempts per window per IP
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { message: 'Too many attempts. Please try again in 15 minutes.' },
+});
 
 if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
     throw new Error('JWT_SECRET env var is required in production. Set it before deploying.');
@@ -22,7 +32,7 @@ const isValidName = (name) =>
 
 const toPublicUser = (row) => {
     if (!row) return null;
-    const { password, is_pro, is_email_verified, verification_code, verification_code_expiry, ...rest } = row;
+    const { password: _password, is_pro, is_email_verified: _verified, verification_code: _code, verification_code_expiry: _expiry, ...rest } = row;
     return { ...rest, isPro: is_pro };
 };
 
@@ -65,7 +75,7 @@ const extractUserId = (authHeader) => {
 };
 
 // POST /api/auth/login
-router.post('/login', async (req, res) => {
+router.post('/login', authLimiter, async (req, res) => {
     const { email, password } = req.body;
 
     if (!isValidEmail(email) || !isValidPassword(password)) {
@@ -92,7 +102,7 @@ router.post('/login', async (req, res) => {
 });
 
 // POST /api/auth/register
-router.post('/register', async (req, res) => {
+router.post('/register', authLimiter, async (req, res) => {
     const { email, password, name } = req.body;
 
     if (!isValidEmail(email)) {
