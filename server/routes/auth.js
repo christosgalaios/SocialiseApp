@@ -103,7 +103,7 @@ router.post('/login', authLimiter, async (req, res) => {
 
 // POST /api/auth/register
 router.post('/register', authLimiter, async (req, res) => {
-    const { email, password, name } = req.body;
+    const { email, password, firstName, lastName } = req.body;
 
     if (!isValidEmail(email)) {
         return res.status(400).json({ message: 'Invalid email address' });
@@ -111,11 +111,15 @@ router.post('/register', authLimiter, async (req, res) => {
     if (!isValidPassword(password)) {
         return res.status(400).json({ message: 'Password must be at least 6 characters' });
     }
-    if (!isValidName(name)) {
-        return res.status(400).json({ message: 'Name is required' });
+    if (!isValidName(firstName)) {
+        return res.status(400).json({ message: 'First name is required' });
+    }
+    if (!isValidName(lastName)) {
+        return res.status(400).json({ message: 'Last name is required' });
     }
 
     const normalizedEmail = email.trim().toLowerCase();
+    const fullName = `${firstName.trim()} ${lastName.trim()}`;
 
     const { data: existing } = await supabase
         .from('users')
@@ -135,7 +139,7 @@ router.post('/register', authLimiter, async (req, res) => {
             id: Date.now().toString(),
             email: normalizedEmail,
             password: hashedPassword,
-            name: name.trim(),
+            name: fullName,
             location: 'London',
             avatar: `https://i.pravatar.cc/150?u=${normalizedEmail}`,
             bio: '',

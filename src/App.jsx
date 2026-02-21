@@ -273,7 +273,7 @@ function App() {
   const handleLogin = async (type, credentials) => {
     let response;
     if (type === 'register') {
-      response = await api.register(credentials.email, credentials.password, credentials.name);
+      response = await api.register(credentials.email, credentials.password, credentials.firstName, credentials.lastName);
       setUser(response.user);
       localStorage.setItem('socialise_token', response.token);
       dataFetchedForUser.current = null;
