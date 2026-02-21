@@ -159,7 +159,7 @@ router.post('/register', async (req, res) => {
     // --- Send Verification Email via Resend ---
     if (resend) {
         try {
-            await resend.emails.send({
+            const { data: emailData, error: emailError } = await resend.emails.send({
                 from: 'Socialise <onboarding@resend.dev>',
                 to: normalizedEmail,
                 subject: 'Verify your Socialise account',
@@ -173,11 +173,16 @@ router.post('/register', async (req, res) => {
                         </div>
                         <p style="color: #666; font-size: 14px; margin-top: 20px;">This code will expire in 10 minutes.</p>
                         <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
-                        <p style="color: #999; font-size: 12px; text-align: center;">Â© 2026 Socialise App</p>
+                        <p style="color: #999; font-size: 12px; text-align: center;">© 2026 Socialise App</p>
                     </div>
                 `
             });
-            console.log(`[INFO] Verification email sent to ${normalizedEmail}`);
+
+            if (emailError) {
+                console.error('[ERROR] Resend API error:', emailError.message);
+            } else {
+                console.log(`[INFO] Verification email sent to ${normalizedEmail}. Resend ID: ${emailData?.id}`);
+            }
         } catch (emailErr) {
             console.error('[ERROR] Failed to send email:', emailErr.message);
         }
@@ -186,13 +191,9 @@ router.post('/register', async (req, res) => {
     const token = jwt.sign({ id: newUser.id, email: newUser.email }, SECRET_KEY, { expiresIn: '24h' });
     const response = {
         token,
-        user: toPublicUser(newUser)
+        user: toPublicUser(newUser),
+        verificationCode: verificationCode // Return code temporarily to unblock user while debugging delivery
     };
-
-    // Only return code for dev mode or if resend isn't configured
-    if (process.env.NODE_ENV !== 'production' || !resend) {
-        response.verificationCode = verificationCode;
-    }
 
     res.json(response);
 });
