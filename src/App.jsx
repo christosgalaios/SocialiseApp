@@ -7,6 +7,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import api from './api';
 import './index.css';
 
+// --- CUSTOM HOOKS ---
+import { useAuthState } from './hooks/useAuthState';
+import { useEventsState } from './hooks/useEventsState';
+import { useCommunitiesState } from './hooks/useCommunitiesState';
+import { useFeedState } from './hooks/useFeedState';
+import { useUIState } from './hooks/useUIState';
+
 // --- DATA & CONSTANTS (UI config only — no mock data) ---
 import {
   CATEGORIES,
@@ -73,168 +80,53 @@ const itemVariants = {
   show: { opacity: 1, y: 0, transition: { type: 'spring', damping: 25, stiffness: 400 } }
 };
 
-// --- STORAGE HELPER ---
-const useLocalStorage = (key, initialValue) => {
-  const [value, setValue] = useState(() => {
-    const jsonValue = localStorage.getItem(key);
-    if (jsonValue != null) {
-      try {
-        return JSON.parse(jsonValue);
-      } catch {
-        // Corrupt storage — discard and fall through to initial value
-        localStorage.removeItem(key);
-      }
-    }
-    if (typeof initialValue === 'function') {
-      return initialValue();
-    }
-    return initialValue;
-  });
-
-  useEffect(() => {
-    localStorage.setItem(key, JSON.stringify(value));
-  }, [key, value]);
-
-  return [value, setValue];
-};
-
 // --- MAIN APP COMPONENT ---
 function App() {
-  const [appState, setAppState] = useState('splash');
-  const [activeTab, setActiveTabState] = useState('home');
-  // eslint-disable-next-line no-unused-vars
-  const [slideDir, setSlideDir] = useState(0);
-  const mainContentRef = useRef(null);
-  const lastHomeExitRef = useRef(0);
-
-    const setActiveTab = (id, direction = 0) => {
-    if (activeTab === 'home' && id !== 'home') {
-      lastHomeExitRef.current = Date.now();
-    } else if (activeTab !== 'home' && id === 'home') {
-      const timeAway = Date.now() - lastHomeExitRef.current;
-      if (timeAway > 10000) {
-        mango.setMessage('Welcome back!');
-        mango.setCoords({ x: 0, y: 0 });
-        mango.setPose('playing');
-        setTimeout(() => mango.setMessage(null), 2500);
-        setTimeout(() => mango.setPose('wave'), 4000);
-      }
-    }
-    setSlideDir(direction);
-    setActiveTabState(id);
-    // Scroll to top when tab changes or is re-clicked
-    if (mainContentRef.current) {
-      mainContentRef.current.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
-
-  const [events, setEvents] = useState([]);
-  const [joinedEvents, setJoinedEvents] = useState([]);
-  const [selectedEvent, setSelectedEvent] = useState(null);
-  const [showCreate, setShowCreate] = useState(false);
-  const [chatMessages, setChatMessages] = useState({});
-  const [proEnabled, setProEnabled] = useLocalStorage('socialise_pro', false);
-
-  const [notifications, setNotifications] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeCategory, setActiveCategory] = useState('All');
-  const [showMatchModal, setShowMatchModal] = useState(null);
-
-  // Explore Filter State
-  const [sizeFilter, setSizeFilter] = useState('all'); // 'all' | 'micro' | 'large'
-  const [dateRange, setDateRange] = useState({ start: null, end: null });
-  const [thisWeekActive, setThisWeekActive] = useState(false);
-  const [activeTags, setActiveTags] = useState([]);
-  const [showReels, setShowReels] = useState(false);
-  const [showLevelUp, setShowLevelUp] = useState(false);
-  const [levelUpData, setLevelUpData] = useState(null);
-  const [userXP, setUserXP] = useLocalStorage('socialise_xp', 750);
-  const [userUnlockedTitles, setUserUnlockedTitles] = useLocalStorage('socialise_unlocked_titles', ['first-event', 'social-butterfly', 'tribe-leader', 'conversation-starter', 'night-owl']);
-
-  // Delight moments state
-  const [showConfetti, setShowConfetti] = useState(false);
-  const [realtimePing, setRealtimePing] = useState({ isVisible: false, name: '', avatar: '', action: '' });
+  // Custom hooks for state management
+  const auth = useAuthState();
+  const events = useEventsState();
+  const communities = useCommunitiesState();
+  const feed = useFeedState();
+  const ui = useUIState();
   const mango = useMango();
-
-  // Hub State
-  const [selectedTribe, setSelectedTribe] = useState(null);
-  const [showTribeDiscovery, setShowTribeDiscovery] = useState(false);
-  const [communities, setCommunities] = useState([]);
-  const [feedPosts, setFeedPosts] = useState([]);
-  const [userTribes, setUserTribes] = useLocalStorage('socialise_tribes', []);
-
-  // Profile Modals State
-  const [showBookings, setShowBookings] = useState(false);
-  const [showSaved, setShowSaved] = useState(false);
-  const [showGroupChats, setShowGroupChats] = useState(false);
-  const [showProModal, setShowProModal] = useState(false);
-  const [showHelp, setShowHelp] = useState(false);
-  const [savedEvents, setSavedEvents] = useState([]);
-
-  // Onboarding State
-  const [showOnboarding, setShowOnboarding] = useLocalStorage('socialise_onboarding_shown', false);
-  const [userPreferences, setUserPreferences] = useLocalStorage('socialise_preferences', null);
-
-  // Other user profile (feed/comment/chat click)
-  const [selectedUserProfile, setSelectedUserProfile] = useState(null);
-
-  // Avatar crop modal
-  const [avatarCropImage, setAvatarCropImage] = useState(null);
-
-
-  // Profile sub-tab: profile | settings
-  const [profileSubTab, setProfileSubTab] = useState('profile');
-  const [experimentalFeatures, setExperimentalFeatures] = useLocalStorage('socialise_experimental', false);
-
-  // Home recommended pagination
-  const [recommendedLimit, setRecommendedLimit] = useState(3);
-  // Explore pagination
-  const [exploreLimit, setExploreLimit] = useState(6);
-  // Level detail modal
-  const [showLevelDetail, setShowLevelDetail] = useState(false);
 
   // Reset explore limit when filters change
   useEffect(() => {
-    setExploreLimit(6);
-  }, [searchQuery, activeCategory, sizeFilter, dateRange, activeTags, thisWeekActive]);
+    ui.setExploreLimit(6);
+  }, [ui.searchQuery, ui.activeCategory, ui.sizeFilter, ui.dateRange, ui.activeTags, ui.thisWeekActive]);
 
   // Scroll-to-bottom → load more (home recommended & explore)
   useEffect(() => {
-    const el = mainContentRef.current;
+    const el = ui.mainContentRef.current;
     if (!el) return;
     let cooldown = false;
     const handleScroll = () => {
       const { scrollTop, scrollHeight, clientHeight } = el;
       if (scrollTop + clientHeight >= scrollHeight - 120 && !cooldown) {
         cooldown = true;
-        if (activeTab === 'home') {
-          setRecommendedLimit(prev => prev + 3);
-        } else if (activeTab === 'explore') {
-          setExploreLimit(prev => prev + 6);
+        if (ui.activeTab === 'home') {
+          ui.setRecommendedLimit(prev => prev + 3);
+        } else if (ui.activeTab === 'explore') {
+          ui.setExploreLimit(prev => prev + 6);
         }
         setTimeout(() => { cooldown = false; }, 800);
       }
     };
     el.addEventListener('scroll', handleScroll, { passive: true });
     return () => el.removeEventListener('scroll', handleScroll);
-  }, [activeTab]);
+  }, [ui.activeTab, ui.setRecommendedLimit, ui.setExploreLimit, ui.mainContentRef]);
 
-  // Content loading: show skeletons then reveal (big-platform style)
-  const [contentReady, setContentReady] = useState(false);
+  // Content loading: show skeletons then reveal
   useEffect(() => {
-    if (appState !== 'app') {
-      setContentReady(false);
+    if (auth.appState !== 'app') {
+      ui.setContentReady(false);
       return;
     }
-    const t = setTimeout(() => setContentReady(true), 600);
+    const t = setTimeout(() => ui.setContentReady(true), 600);
     return () => clearTimeout(t);
-  }, [appState]);
-
-  // Authenticated User State
-  const [user, setUser] = useLocalStorage('socialise_user', null);
+  }, [auth.appState, ui.setContentReady]);
 
   // Fetch all data from API when app is ready
-  const dataFetchedForUser = useRef(null);
   const fetchAllData = useCallback(async () => {
     try {
       const [eventsData, communitiesData, feedData] = await Promise.all([
@@ -242,150 +134,98 @@ function App() {
         api.getCommunities(),
         api.getFeed(),
       ]);
-      setEvents(eventsData || []);
-      setJoinedEvents((eventsData || []).filter(e => e.isJoined).map(e => e.id));
-      setSavedEvents((eventsData || []).filter(e => e.isSaved).map(e => e.id));
-      setCommunities(communitiesData || []);
-      setUserTribes((communitiesData || []).filter(c => c.isJoined).map(c => c.id));
-      setFeedPosts(feedData || []);
+      events.setEvents(eventsData || []);
+      events.setJoinedEvents((eventsData || []).filter(e => e.isJoined).map(e => e.id));
+      events.setSavedEvents((eventsData || []).filter(e => e.isSaved).map(e => e.id));
+      communities.setCommunities(communitiesData || []);
+      feed.setFeedPosts(feedData || []);
     } catch (err) {
       console.error('Failed to load data:', err);
     }
-  }, []);
+  }, [events, communities, feed]);
 
   useEffect(() => {
-    if (appState !== 'app' || !user) return;
-    if (dataFetchedForUser.current === user.id) return;
-    dataFetchedForUser.current = user.id;
+    if (auth.appState !== 'app' || !auth.user) return;
+    if (auth.dataFetchedForUser.current === auth.user.id) return;
+    auth.dataFetchedForUser.current = auth.user.id;
     fetchAllData();
-  }, [appState, user, fetchAllData]);
+  }, [auth.appState, auth.user, auth.dataFetchedForUser, fetchAllData]);
 
-  const showToast = (message, type = 'info') => {
-    const id = Date.now();
-    setNotifications(prev => [...prev, { id, message, type }]);
-    setTimeout(() => {
-      setNotifications(prev => prev.filter(n => n.id !== id));
-    }, 3000);
-  };
-
-
-
-  const handleLogin = async (type, credentials) => {
-    let response;
-    if (type === 'register') {
-      response = await api.register(credentials.email, credentials.password, credentials.firstName, credentials.lastName);
-      setUser(response.user);
-      localStorage.setItem('socialise_token', response.token);
-      dataFetchedForUser.current = null;
-      showToast(`Welcome, ${response.user.name?.split(' ')[0] || 'there'}!`, 'success');
-      setAppState('app');
-    } else {
-      response = await api.login(credentials.email, credentials.password);
-      setUser(response.user);
-      localStorage.setItem('socialise_token', response.token);
-      dataFetchedForUser.current = null;
-      showToast(`Welcome back, ${response.user.name?.split(' ')[0] || 'there'}!`, 'success');
-      setAppState('app');
+  // Handle auth transitions with proper callbacks
+  const handleLogin = useCallback(async (type, credentials) => {
+    try {
+      await auth.handleLogin(type, credentials, {
+        onSuccess: (user) => {
+          ui.showToast(`Welcome${type === 'register' ? '' : ' back'}, ${user.name?.split(' ')[0] || 'there'}!`, 'success');
+          auth.dataFetchedForUser.current = null;
+        }
+      });
+    } catch (err) {
+      ui.showToast(err.message || 'Authentication failed', 'error');
     }
-  };
-
+  }, [auth, ui]);
 
   const handleLogout = useCallback(() => {
-    setUser(null);
-    localStorage.removeItem('socialise_token');
-    dataFetchedForUser.current = null;
-    setEvents([]);
-    setCommunities([]);
-    setFeedPosts([]);
-    setJoinedEvents([]);
-    setSavedEvents([]);
-    setAppState('auth');
-    showToast('Signed out successfully', 'info');
-  }, []);
-
-  // Tribe handlers
-  const handleJoinTribe = async (tribe) => {
-    if (userTribes.includes(tribe.id)) return;
-    setUserTribes(prev => [...prev, tribe.id]);
-    showToast(`Joined ${tribe.name}!`, 'success');
-    try {
-      await api.joinCommunity(tribe.id);
-      setCommunities(prev => prev.map(c => c.id === tribe.id ? { ...c, isJoined: true } : c));
-    } catch (err) {
-      setUserTribes(prev => prev.filter(id => id !== tribe.id));
-      showToast(err.message, 'error');
-    }
-  };
-
-  const handleLeaveTribe = async (tribeId) => {
-    const tribe = communities.find(c => c.id === tribeId);
-    setUserTribes(prev => prev.filter(id => id !== tribeId));
-    setSelectedTribe(null);
-    showToast(`Left ${tribe?.name || 'tribe'}`, 'info');
-    try {
-      await api.leaveCommunity(tribeId);
-      setCommunities(prev => prev.map(c => c.id === tribeId ? { ...c, isJoined: false } : c));
-    } catch (err) {
-      setUserTribes(prev => [...prev, tribeId]);
-      showToast(err.message, 'error');
-    }
-  };
-
-  const [pullY, setPullY] = useState(0);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const touchStartY = useRef(0);
-  const hasVibratedRef = useRef(false);
+    events.setEvents([]);
+    events.setJoinedEvents([]);
+    events.setSavedEvents([]);
+    communities.setCommunities([]);
+    feed.setFeedPosts([]);
+    auth.handleLogout(() => {
+      ui.showToast('Signed out successfully', 'info');
+    });
+  }, [auth, events, communities, feed, ui]);
 
   const handleTouchStart = (e) => {
-    if (activeTab === 'home' && mainContentRef.current?.scrollTop === 0) {
-      touchStartY.current = e.touches[0].clientY;
-      hasVibratedRef.current = false;
+    if (ui.activeTab === 'home' && ui.mainContentRef.current?.scrollTop === 0) {
+      ui.touchStartY.current = e.touches[0].clientY;
+      ui.hasVibratedRef.current = false;
     }
   };
 
   const handleTouchMove = (e) => {
     const touchY = e.touches[0].clientY;
     // Only pull-to-refresh on home tab when at the top
-    if (activeTab === 'home' && mainContentRef.current?.scrollTop === 0 && touchStartY.current > 0) {
-      const deltaY = touchY - touchStartY.current;
-      if (deltaY > 0 && !isRefreshing) {
+    if (ui.activeTab === 'home' && ui.mainContentRef.current?.scrollTop === 0 && ui.touchStartY.current > 0) {
+      const deltaY = touchY - ui.touchStartY.current;
+      if (deltaY > 0 && !ui.isRefreshing) {
         const newPullY = Math.min(deltaY * 0.4, 150);
-        setPullY(newPullY);
+        ui.setPullY(newPullY);
 
         // Haptic feedback when crossing threshold
-        if (newPullY > 60 && !hasVibratedRef.current) {
+        if (newPullY > 60 && !ui.hasVibratedRef.current) {
           try {
             if (window.navigator?.vibrate) window.navigator.vibrate(20);
-            hasVibratedRef.current = true;
+            ui.hasVibratedRef.current = true;
           } catch (e) { /* ignore */ }
-        } else if (newPullY < 50 && hasVibratedRef.current) {
+        } else if (newPullY < 50 && ui.hasVibratedRef.current) {
           // Reset if user pulls back up significantly
-          hasVibratedRef.current = false;
+          ui.hasVibratedRef.current = false;
         }
       }
     }
   };
 
   const handleTouchEnd = () => {
-    touchStartY.current = 0; // Reset start
-    if (pullY > 60) {
-      setIsRefreshing(true);
-      setPullY(80); // Snap 
+    ui.touchStartY.current = 0; // Reset start
+    if (ui.pullY > 60) {
+      ui.setIsRefreshing(true);
+      ui.setPullY(80); // Snap
       try {
         if (window.navigator?.vibrate) window.navigator.vibrate(50);
       } catch (e) { /* ignore */ }
 
       fetchAllData().then(() => {
-        setIsRefreshing(false);
-        setPullY(0);
-        setRecommendedLimit(3);
-        showToast('Feed refreshed', 'success');
+        ui.setIsRefreshing(false);
+        ui.setPullY(0);
+        ui.setRecommendedLimit(3);
+        ui.showToast('Feed refreshed', 'success');
       }).catch(() => {
-        setIsRefreshing(false);
-        setPullY(0);
+        ui.setIsRefreshing(false);
+        ui.setPullY(0);
       });
     } else {
-      setPullY(0);
+      ui.setPullY(0);
     }
   };
 
@@ -397,37 +237,42 @@ function App() {
     const file = event.target.files[0];
     if (file) {
       const imageUrl = URL.createObjectURL(file);
-      setAvatarCropImage(imageUrl);
+      ui.setAvatarCropImage(imageUrl);
     }
     // Reset so the same file can be re-selected
     event.target.value = '';
   };
 
   const handleAvatarCropSave = (croppedDataUrl) => {
-    setUser(prev => ({ ...prev, avatar: croppedDataUrl }));
-    setAvatarCropImage(null);
-    showToast('Profile photo updated!', 'success');
+    auth.setUser({ ...auth.user, avatar: croppedDataUrl });
+    ui.setAvatarCropImage(null);
+    ui.showToast('Profile photo updated!', 'success');
   };
 
   const handleAvatarCropCancel = () => {
-    if (avatarCropImage) URL.revokeObjectURL(avatarCropImage);
-    setAvatarCropImage(null);
+    if (ui.avatarCropImage) URL.revokeObjectURL(ui.avatarCropImage);
+    ui.setAvatarCropImage(null);
   };
 
-  // Persistent Session Check - run once on mount so splash can finish without effect re-runs
-  const handleLogoutRef = useRef(handleLogout);
-  handleLogoutRef.current = handleLogout;
+  // Persistent Session Check - run once on mount
   useEffect(() => {
     let cancelled = false;
     const checkSession = async () => {
       const token = localStorage.getItem('socialise_token');
-      if (!token) return;
+      if (!token) {
+        auth.setAppState('auth');
+        return;
+      }
       try {
         const userData = await api.getMe(token);
-        if (!cancelled) setUser(userData);
+        if (!cancelled) {
+          auth.setUser(userData);
+          auth.setAppState('app');
+          auth.dataFetchedForUser.current = null;
+        }
       } catch (err) {
         console.error('Session invalid', err);
-        if (!cancelled) handleLogoutRef.current();
+        if (!cancelled) handleLogout();
       }
     };
     const t = setTimeout(checkSession, 100);
@@ -435,25 +280,25 @@ function App() {
       cancelled = true;
       clearTimeout(t);
     };
-  }, []);
+  }, [handleLogout, auth]);
 
   // Fetch chat messages when event detail opens
   useEffect(() => {
-    if (!selectedEvent) return;
+    if (!events.selectedEvent) return;
     let cancelled = false;
     const fetchChat = async () => {
       try {
-        const messages = await api.getEventChat(selectedEvent.id);
+        const messages = await api.getEventChat(events.selectedEvent.id);
         if (cancelled) return;
-        setChatMessages(prev => ({
+        events.setChatMessages(prev => ({
           ...prev,
-          [selectedEvent.id]: (messages || []).map(m => ({
+          [events.selectedEvent.id]: (messages || []).map(m => ({
             id: m.id,
             user: m.user_name,
             avatar: m.user_avatar,
             message: m.message,
             time: m.created_at ? new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
-            isMe: m.user_id === user?.id,
+            isMe: m.user_id === auth.user?.id,
             isHost: m.is_host,
             isSystem: m.is_system,
           }))
@@ -464,66 +309,66 @@ function App() {
     };
     fetchChat();
     return () => { cancelled = true; };
-  }, [selectedEvent?.id, user?.id]);
+  }, [events.selectedEvent?.id, auth.user?.id, events]);
 
-  // Event join / leave
-  const handleJoin = async (id) => {
-    if (joinedEvents.includes(id)) {
-      // Optimistic leave
-      setJoinedEvents(prev => prev.filter(e => e !== id));
-      showToast('You left the event.', 'info');
+  // Event join/leave with XP and delight moments
+  const handleJoin = useCallback(async (id) => {
+    if (events.joinedEvents.includes(id)) {
+      // Leave
+      events.setJoinedEvents(prev => prev.filter(e => e !== id));
+      ui.showToast('You left the event.', 'info');
       try {
         await api.leaveEvent(id);
       } catch (err) {
-        setJoinedEvents(prev => [...prev, id]);
-        showToast(err.message, 'error');
+        events.setJoinedEvents(prev => [...prev, id]);
+        ui.showToast(err.message, 'error');
       }
     } else {
-      // Optimistic join
-      setJoinedEvents(prev => [...prev, id]);
-      showToast('You\'re going! Added to your calendar.', 'success');
+      // Join
+      events.setJoinedEvents(prev => [...prev, id]);
+      ui.showToast('You\'re going! Added to your calendar.', 'success');
 
       // Award XP
       const xpGain = 50;
-      const newXP = userXP + xpGain;
-      const currentLevel = XP_LEVELS.filter(l => l.xpRequired <= userXP).pop();
+      const newXP = ui.userXP + xpGain;
+      const currentLevel = XP_LEVELS.filter(l => l.xpRequired <= ui.userXP).pop();
       const newLevel = XP_LEVELS.filter(l => l.xpRequired <= newXP).pop();
-      setUserXP(newXP);
+      ui.setUserXP(newXP);
       if (newLevel && currentLevel && newLevel.level > currentLevel.level) {
         setTimeout(() => {
-          setLevelUpData({ newLevel, unlockedTitle: null });
-          setShowLevelUp(true);
+          ui.setLevelUpData({ newLevel, unlockedTitle: null });
+          ui.setShowLevelUp(true);
         }, 1500);
       }
 
       // Trigger delight moments
-      setShowConfetti(true);
+      ui.setShowConfetti(true);
       mango.celebrate("You're in! 🎉");
 
       try {
         await api.joinEvent(id);
       } catch (err) {
-        setJoinedEvents(prev => prev.filter(e => e !== id));
-        showToast(err.message, 'error');
+        events.setJoinedEvents(prev => prev.filter(e => e !== id));
+        ui.showToast(err.message, 'error');
       }
     }
-  };
+  }, [events, ui, mango]);
 
-  const sendMessage = async (eventId, text) => {
+  const sendMessage = useCallback(async (eventId, text) => {
     if (!text.trim()) return;
-    const name = user?.name ?? 'Guest';
+    const name = auth.user?.name ?? 'Guest';
     const parts = name.split(' ');
     const optimisticId = 'temp-' + Date.now();
     const optimisticMsg = {
       id: optimisticId,
       user: `${parts[0] ?? ''} ${parts[1]?.[0] ?? ''}.`.trim() || 'Guest',
-      avatar: user?.avatar ?? '',
+      avatar: auth.user?.avatar ?? '',
       message: text,
       time: 'Just now',
       isMe: true
     };
 
-    setChatMessages(prev => ({
+    events.setChatMessages(prev => ({
       ...prev,
       [eventId]: [...(prev[eventId] || []), optimisticMsg]
     }));
@@ -531,56 +376,56 @@ function App() {
     try {
       await api.sendEventMessage(eventId, text);
     } catch (err) {
-      showToast('Failed to send message', 'error');
+      ui.showToast('Failed to send message', 'error');
     }
-  };
+  }, [auth.user, events, ui]);
 
-  const createNewEvent = async (data) => {
+  const createNewEvent = useCallback(async (data) => {
     try {
       const newEvent = await api.createEvent(data);
-      setEvents(prev => [newEvent, ...prev]);
-      setShowCreate(false);
-      showToast('Experience published successfully!', 'success');
+      events.setEvents(prev => [newEvent, ...prev]);
+      events.setShowCreate(false);
+      ui.showToast('Experience published successfully!', 'success');
     } catch (err) {
-      showToast(err.message || 'Failed to create event', 'error');
+      ui.showToast(err.message || 'Failed to create event', 'error');
     }
-  };
+  }, [events, ui]);
 
   // Parse date string like "Feb 7" to a Date object
-  const parseEventDate = (dateStr) => {
+  const parseEventDate = useCallback((dateStr) => {
     if (!dateStr) return null;
     const currentYear = new Date().getFullYear();
     const parsed = new Date(`${dateStr} ${currentYear}`);
     return isNaN(parsed.getTime()) ? null : parsed;
-  };
+  }, []);
 
-  const filteredEvents = events.filter(e => {
+  const filteredEvents = events.events.filter(e => {
     // Search filter
-    const matchesSearch = e.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      e.location?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = e.title.toLowerCase().includes(ui.searchQuery.toLowerCase()) ||
+      e.location?.toLowerCase().includes(ui.searchQuery.toLowerCase());
     if (!matchesSearch) return false;
 
     // Category filter
-    const matchesCategory = activeCategory === 'All' || e.category === activeCategory;
+    const matchesCategory = ui.activeCategory === 'All' || e.category === ui.activeCategory;
     if (!matchesCategory) return false;
 
     // Size filter
-    if (sizeFilter === 'micro' && !e.isMicroMeet) return false;
-    if (sizeFilter === 'large' && e.isMicroMeet) return false;
+    if (ui.sizeFilter === 'micro' && !e.isMicroMeet) return false;
+    if (ui.sizeFilter === 'large' && e.isMicroMeet) return false;
 
     // Date range filter
-    if (dateRange.start || dateRange.end) {
+    if (ui.dateRange.start || ui.dateRange.end) {
       const eventDate = parseEventDate(e.date);
       if (eventDate) {
-        if (dateRange.start && eventDate < dateRange.start) return false;
-        if (dateRange.end && eventDate > dateRange.end) return false;
+        if (ui.dateRange.start && eventDate < ui.dateRange.start) return false;
+        if (ui.dateRange.end && eventDate > ui.dateRange.end) return false;
       }
     }
 
     // Inclusivity tag filter
-    if (activeTags.length > 0) {
+    if (ui.activeTags.length > 0) {
       const eventTags = e.tags || e.inclusivity_tags || [];
-      if (!activeTags.every(t => eventTags.includes(t))) return false;
+      if (!ui.activeTags.every(t => eventTags.includes(t))) return false;
     }
 
     return true;
@@ -610,32 +455,49 @@ function App() {
     </div>
   );
 
-  const userRef = useRef(user);
-  userRef.current = user;
+  // Enhanced setActiveTab with mango effects
+  const setActiveTab = useCallback((id, direction = 0) => {
+    if (ui.activeTab === 'home' && id !== 'home') {
+      // Exiting home tab
+    } else if (ui.activeTab !== 'home' && id === 'home') {
+      // Returning to home tab - trigger welcome back
+      const timeAway = Date.now() - ui.mainContentRef.current?.dataset.lastHomeExitTime || 0;
+      if (timeAway > 10000) {
+        mango.setMessage('Welcome back!');
+        mango.setCoords({ x: 0, y: 0 });
+        mango.setPose('playing');
+        setTimeout(() => mango.setMessage(null), 2500);
+        setTimeout(() => mango.setPose('wave'), 4000);
+      }
+    }
+    ui.setActiveTab(id, direction);
+  }, [ui, mango]);
+
+  const userRef = useRef(auth.user);
+  userRef.current = auth.user;
   const handleSplashFinish = useCallback(() => {
-    setAppState(userRef.current ? 'app' : 'auth');
-  }, []);
+    auth.setAppState(userRef.current ? 'app' : 'auth');
+  }, [auth]);
 
   return (
     <div className="h-[100dvh] w-full flex flex-col bg-paper font-sans overflow-hidden">
       {/* Global Toast Notifications — Always visible */}
       <AnimatePresence>
-        {notifications.map(n => (
-          <Toast key={n.id} message={n.message} type={n.type} onClose={() => setNotifications(prev => prev.filter(x => x.id !== n.id))} />
+        {ui.notifications.map(n => (
+          <Toast key={n.id} message={n.message} type={n.type} onClose={() => ui.removeNotification(n.id)} />
         ))}
       </AnimatePresence>
 
-
       <AnimatePresence>
-        {appState === 'splash' && (
+        {auth.appState === 'splash' && (
           <SplashScreen key="splash" onFinish={handleSplashFinish} />
         )}
 
-        {appState === 'auth' && (
+        {auth.appState === 'auth' && (
           <AuthScreen key="auth" onLogin={handleLogin} />
         )}
 
-        {appState === 'app' && (
+        {auth.appState === 'app' && (
           <motion.div
             key="app"
             initial={{ opacity: 1 }}
@@ -647,14 +509,14 @@ function App() {
 
               {/* Desktop Sidebar (Left) */}
               <Sidebar
-                activeCategory={activeCategory}
-                onSelect={setActiveCategory}
-                experimentalFeatures={experimentalFeatures}
+                activeCategory={ui.activeCategory}
+                onSelect={ui.setActiveCategory}
+                experimentalFeatures={ui.experimentalFeatures}
               />
 
               {/* Main Content Area */}
               <main
-                ref={mainContentRef}
+                ref={ui.mainContentRef}
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
@@ -663,20 +525,20 @@ function App() {
                 {/* Pull Refresh Indicator */}
                 <motion.div
                   className="w-full flex justify-center bg-transparent absolute top-0 left-0 z-30 pointer-events-none overflow-hidden"
-                  style={{ height: pullY }}
+                  style={{ height: ui.pullY }}
                 >
                   <div className="flex items-end h-full pb-4">
-                    {isRefreshing ? <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" /> :
+                    {ui.isRefreshing ? <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" /> :
                       <span className="text-primary font-black text-xs tracking-widest opacity-80">
-                        {pullY > 60 ? 'RELEASE TO REFRESH' : 'PULL DOWN'}
+                        {ui.pullY > 60 ? 'RELEASE TO REFRESH' : 'PULL DOWN'}
                       </span>}
                   </div>
                 </motion.div>
 
-                <motion.div style={{ translateY: pullY }} className="min-h-full">
+                <motion.div style={{ translateY: ui.pullY }} className="min-h-full">
                   <AnimatePresence mode="wait">
-                    {activeTab === 'home' && (
-                      contentReady ? (
+                    {ui.activeTab === 'home' && (
+                      ui.contentReady ? (
                       <motion.div
                         key="home"
                         variants={containerVariants}
@@ -690,7 +552,7 @@ function App() {
                             <p className="text-[10px] font-black text-secondary/60 uppercase tracking-widest mb-1">Wednesday, 4 Feb</p>
                             <h1 className="text-3xl md:text-5xl font-black tracking-tighter leading-tight text-primary">
                               Good Afternoon<span className="text-accent">,</span><br />
-                              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary drop-shadow-sm filter animate-text-gradient">{user?.name?.split(' ')[0]}</span><span className="text-accent">.</span>
+                              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary drop-shadow-sm filter animate-text-gradient">{auth.user?.name?.split(' ')[0]}</span><span className="text-accent">.</span>
                             </h1>
                           </div>
                           <motion.button
@@ -699,17 +561,17 @@ function App() {
                             onClick={() => setActiveTab('profile')}
                           >
                             <div className="absolute inset-0 bg-primary rounded-full blur-md opacity-20 group-hover:opacity-40 transition-opacity" />
-                            <img src={user?.avatar} className="w-14 h-14 rounded-2xl object-cover border-2 border-white/10 shadow-2xl relative z-10" alt="Profile" />
-                            {experimentalFeatures && proEnabled && <div className="absolute -bottom-1 -right-1 z-20 bg-amber-500 text-[8px] font-black px-1.5 py-0.5 rounded-md text-white shadow-lg border border-white/20">PRO</div>}
+                            <img src={auth.user?.avatar} className="w-14 h-14 rounded-2xl object-cover border-2 border-white/10 shadow-2xl relative z-10" alt="Profile" />
+                            {ui.experimentalFeatures && ui.proEnabled && <div className="absolute -bottom-1 -right-1 z-20 bg-amber-500 text-[8px] font-black px-1.5 py-0.5 rounded-md text-white shadow-lg border border-white/20">PRO</div>}
                           </motion.button>
                         </motion.header>
 
                         {/* Video Wall */}
                         <VideoWall
-                          userName={user?.name?.split(' ')[0] || 'You'}
+                          userName={auth.user?.name?.split(' ')[0] || 'You'}
                           onEventSelect={(id) => {
-                            const event = events.find(e => e.id === id);
-                            if (event) setSelectedEvent(event);
+                            const event = events.events.find(e => e.id === id);
+                            if (event) events.setSelectedEvent(event);
                           }} />
 
                         {/* Curated Micro-Meets */}
@@ -746,12 +608,12 @@ function App() {
                             className="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 overflow-x-auto md:overflow-visible pb-8 md:pb-0 snap-x md:snap-none no-scrollbar"
                             variants={containerVariants}
                           >
-                            {events.filter(e => e.isMicroMeet || e.is_micro_meet).sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0)).map(meet => (
+                            {events.events.filter(e => e.isMicroMeet || e.is_micro_meet).sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0)).map(meet => (
                               <div key={meet.id} className="snap-center shrink-0">
-                                <MicroMeetCard meet={meet} onClick={setSelectedEvent} />
+                                <MicroMeetCard meet={meet} onClick={events.setSelectedEvent} />
                               </div>
                             ))}
-                            {events.filter(e => e.isMicroMeet || e.is_micro_meet).length === 0 && (
+                            {events.events.filter(e => e.isMicroMeet || e.is_micro_meet).length === 0 && (
                               <div className="text-center text-secondary/40 text-sm font-medium py-8 w-full">No micro-meets available yet</div>
                             )}
                           </motion.div>
@@ -766,8 +628,8 @@ function App() {
                             </div>
                             <button
                               onClick={() => {
-                                setRecommendedLimit(3);
-                                fetchAllData().then(() => showToast('Recommendations refreshed', 'success'));
+                                ui.setRecommendedLimit(3);
+                                fetchAllData().then(() => ui.showToast('Recommendations refreshed', 'success'));
                               }}
                               className="w-8 h-8 rounded-full bg-secondary/10 border border-secondary/15 flex items-center justify-center text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all"
                               title="Refresh recommendations"
@@ -777,23 +639,23 @@ function App() {
                           </div>
                           {(() => {
                             const recommended = filteredEvents.filter(e => !e.isMicroMeet).sort((a, b) => {
-                              const interests = userPreferences?.interests || user?.interests || [];
+                              const interests = ui.userPreferences?.interests || auth.user?.interests || [];
                               const scoreEvent = (ev) => {
                                 let score = 0;
                                 if (interests.some(i => ev.category?.toLowerCase().includes(i.toLowerCase()) || i.toLowerCase().includes(ev.category?.toLowerCase()?.split(' ')[0]))) score += 3;
-                                if (joinedEvents.includes(ev.id)) score += 2;
+                                if (events.joinedEvents.includes(ev.id)) score += 2;
                                 if (ev.attendees > 20) score += 1;
                                 return score;
                               };
                               return scoreEvent(b) - scoreEvent(a);
                             });
-                            const visible = recommended.slice(0, recommendedLimit);
-                            const hasMore = recommendedLimit < recommended.length;
+                            const visible = recommended.slice(0, ui.recommendedLimit);
+                            const hasMore = ui.recommendedLimit < recommended.length;
                             return (
                               <>
                                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                                   {visible.map(event => (
-                                    <EventCard key={event.id} event={event} isJoined={joinedEvents.includes(event.id)} onClick={setSelectedEvent} />
+                                    <EventCard key={event.id} event={event} isJoined={events.joinedEvents.includes(event.id)} onClick={events.setSelectedEvent} />
                                   ))}
                                 </div>
                                 {hasMore && (
@@ -812,8 +674,8 @@ function App() {
                       ) : ( <HomeSkeleton /> )
                     )}
 
-                    {activeTab === 'hub' && (
-                      contentReady ? (
+                    {ui.activeTab === 'hub' && (
+                      ui.contentReady ? (
                       <motion.div
                         key="hub"
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -828,7 +690,7 @@ function App() {
                           {/* Live Feed - Span 2 cols on Desktop */}
                           <div className="md:col-span-2 space-y-4">
                             <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-4">Live Pulse<span className="text-accent">.</span></h3>
-                            {feedPosts.length > 0 ? feedPosts.map(post => (
+                            {feed.feedPosts.length > 0 ? feed.feedPosts.map(post => (
                               <FeedItem key={post.id} post={{
                                 ...post,
                                 user: post.user_name || post.user,
@@ -853,7 +715,7 @@ function App() {
                                   whileHover={{ scale: 1.02 }}
                                   whileTap={{ scale: 0.98 }}
                                   key={comm.id}
-                                  onClick={() => setSelectedTribe(comm)}
+                                  onClick={() => ui.setSelectedTribe(comm)}
                                   className="premium-card p-4 flex items-center gap-4 group cursor-pointer"
                                 >
                                   <div className="w-12 h-12 rounded-[18px] bg-secondary/10 flex items-center justify-center text-2xl border border-secondary/20 shadow-inner group-hover:bg-secondary/20 transition-colors">
@@ -868,7 +730,7 @@ function App() {
                                 </motion.div>
                               ))}
                               <button
-                                onClick={() => setShowTribeDiscovery(true)}
+                                onClick={() => ui.setShowTribeDiscovery(true)}
                                 className="w-full py-4 border border-dashed border-primary/30 rounded-[20px] text-xs font-bold text-primary hover:bg-primary/5 hover:border-primary/50 transition-all uppercase tracking-widest"
                               >
                                 + Find New Tribe
@@ -880,8 +742,8 @@ function App() {
                       ) : ( <HubSkeleton /> )
                     )}
 
-                    {activeTab === 'explore' && (
-                      contentReady ? (
+                    {ui.activeTab === 'explore' && (
+                      ui.contentReady ? (
                       <motion.div
                         key="explore"
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -936,21 +798,21 @@ function App() {
                       ) : ( <ExploreSkeleton /> )
                     )}
 
-                    {activeTab === 'profile' && (
-                      contentReady ? (
+                    {ui.activeTab === 'profile' && (
+                      ui.contentReady ? (
                       <motion.div
                         key="profile"
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                         className="p-5 md:p-10 max-w-4xl mx-auto pb-32 relative"
                       >
-                        {profileSubTab === 'settings' ? (
+                        {ui.profileSubTab === 'settings' ? (
                           <motion.div
                             initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                             className="space-y-6"
                           >
                             {/* Back button */}
                             <button
-                              onClick={() => setProfileSubTab('profile')}
+                              onClick={() => ui.setProfileSubTab('profile')}
                               className="flex items-center gap-2 text-secondary/60 hover:text-secondary font-bold text-sm mb-2 transition-colors"
                             >
                               <ArrowLeft size={18} />
@@ -1176,7 +1038,7 @@ function App() {
                             <motion.div variants={itemVariants} className="mt-8 pt-8 border-t border-secondary/10 text-center">
                               <p className="text-xs text-secondary/60 mb-6 px-4 font-medium leading-relaxed italic">Unlock advanced matchmaking and event analytics for £12.99/mo</p>
                               <button
-                                onClick={() => setShowProModal(true)}
+                                onClick={() => ui.setShowProModal(true)}
                                 className="w-full bg-gradient-to-r from-primary to-accent py-4 rounded-2xl text-[12px] font-black uppercase tracking-widest shadow-2xl glow-primary transition-all active:scale-95 text-white"
                               >
                                 Go Pro
@@ -1187,11 +1049,11 @@ function App() {
 
                         <motion.div variants={itemVariants} className="premium-card overflow-hidden mt-6 rounded-[32px] bg-secondary/5 border border-secondary/10">
                           {[
-                            { label: 'My Bookings', icon: Check, action: () => setShowBookings(true), badge: joinedEvents.length },
-                            { label: 'Saved Experiences', icon: Heart, action: () => setShowSaved(true), badge: savedEvents.length },
-                            ...(experimentalFeatures ? [{ label: 'Socialise Pass', icon: Zap, action: () => setShowProModal(true) }] : []),
-                            { label: 'Settings', icon: Settings, action: () => setProfileSubTab('settings') },
-                            { label: 'Help & Privacy', icon: ShieldCheck, action: () => setShowHelp(true) }
+                            { label: 'My Bookings', icon: Check, action: () => ui.setShowBookings(true), badge: joinedEvents.length },
+                            { label: 'Saved Experiences', icon: Heart, action: () => ui.setShowSaved(true), badge: savedEvents.length },
+                            ...(experimentalFeatures ? [{ label: 'Socialise Pass', icon: Zap, action: () => ui.setShowProModal(true) }] : []),
+                            { label: 'Settings', icon: Settings, action: () => ui.setProfileSubTab('settings') },
+                            { label: 'Help & Privacy', icon: ShieldCheck, action: () => ui.setShowHelp(true) }
                           ].map((item) => (
                             <button
                               key={item.label}
@@ -1244,39 +1106,39 @@ function App() {
 
             {/* Floating Navigation - Mobile Only */}
             <div className="md:hidden">
-              <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} onCreateClick={() => setShowCreate(true)} />
+              <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} onCreateClick={() => events.setShowCreate(true)} />
             </div>
 
             {/* Modals & Sheets */}
             <AnimatePresence>
-              {selectedEvent && (
+              {events.selectedEvent && (
                 <EventDetailSheet
                   key="event-detail"
-                  event={selectedEvent}
-                  isJoined={joinedEvents.includes(selectedEvent.id)}
+                  event={events.selectedEvent}
+                  isJoined={events.joinedEvents.includes(events.selectedEvent.id)}
                   onJoin={() => {
-                    if (selectedEvent.isMicroMeet && !joinedEvents.includes(selectedEvent.id)) {
-                      setShowMatchModal(selectedEvent);
+                    if (events.selectedEvent.isMicroMeet && !events.joinedEvents.includes(events.selectedEvent.id)) {
+                      ui.setShowMatchModal(events.selectedEvent);
                     } else {
-                      handleJoin(selectedEvent.id);
+                      handleJoin(events.selectedEvent.id);
                     }
                   }}
-                  onClose={() => setSelectedEvent(null)}
-                  messages={chatMessages[selectedEvent.id] || []}
-                  onSendMessage={(text) => sendMessage(selectedEvent.id, text)}
-                  onOpenProfile={setSelectedUserProfile}
+                  onClose={() => events.setSelectedEvent(null)}
+                  messages={events.chatMessages[events.selectedEvent.id] || []}
+                  onSendMessage={(text) => sendMessage(events.selectedEvent.id, text)}
+                  onOpenProfile={feed.setSelectedUserProfile}
                 />
               )}
-              {showCreate && <CreateEventModal key="create-event" onClose={() => setShowCreate(false)} onSubmit={createNewEvent} />}
-              {showMatchModal && (
+              {showCreate && <CreateEventModal key="create-event" onClose={() => events.setShowCreate(false)} onSubmit={createNewEvent} />}
+              {ui.showMatchModal && (
                 <MatchAnalysisModal
                   key="match-modal"
-                  event={showMatchModal}
+                  event={ui.showMatchModal}
                   onConfirm={() => {
-                    handleJoin(showMatchModal.id);
-                    setShowMatchModal(null);
+                    handleJoin(ui.showMatchModal.id);
+                    ui.setShowMatchModal(null);
                   }}
-                  onCancel={() => setShowMatchModal(null)}
+                  onCancel={() => ui.setShowMatchModal(null)}
                 />
               )}
               {/* Tribe Modals */}
@@ -1284,13 +1146,13 @@ function App() {
                 key="tribe-sheet"
                 tribe={selectedTribe}
                 isOpen={!!selectedTribe}
-                onClose={() => setSelectedTribe(null)}
+                onClose={() => ui.setSelectedTribe(null)}
                 onLeave={handleLeaveTribe}
               />
               <TribeDiscovery
                 key="tribe-discovery"
-                isOpen={showTribeDiscovery}
-                onClose={() => setShowTribeDiscovery(false)}
+                isOpen={ui.showTribeDiscovery}
+                onClose={() => ui.setShowTribeDiscovery(false)}
                 onJoin={handleJoinTribe}
                 joinedTribes={userTribes}
               />
@@ -1384,7 +1246,7 @@ function App() {
               <MyBookingsSheet
                 key="bookings"
                 isOpen={showBookings}
-                onClose={() => setShowBookings(false)}
+                onClose={() => ui.setShowBookings(false)}
                 bookings={events.filter(e => joinedEvents.includes(e.id))}
                 onCancel={(id) => {
                   setJoinedEvents(joinedEvents.filter(eid => eid !== id));
@@ -1394,7 +1256,7 @@ function App() {
               <SavedEventsSheet
                 key="saved"
                 isOpen={showSaved}
-                onClose={() => setShowSaved(false)}
+                onClose={() => ui.setShowSaved(false)}
                 savedEvents={events.filter(e => savedEvents.includes(e.id))}
                 onRemove={async (id) => {
                   setSavedEvents(prev => prev.filter(eid => eid !== id));
@@ -1407,14 +1269,14 @@ function App() {
                   }
                 }}
                 onSelect={(event) => {
-                  setShowSaved(false);
+                  ui.setShowSaved(false);
                   setSelectedEvent(event);
                 }}
               />
               <ProUpgradeModal
                 key="pro"
                 isOpen={showProModal}
-                onClose={() => setShowProModal(false)}
+                onClose={() => ui.setShowProModal(false)}
                 onUpgrade={() => {
                   setProEnabled(true);
                   setShowConfetti(true);
@@ -1424,10 +1286,10 @@ function App() {
               <HelpSheet
                 key="help"
                 isOpen={showHelp}
-                onClose={() => setShowHelp(false)}
+                onClose={() => ui.setShowHelp(false)}
                 onDeleteAccount={async () => {
                   await api.deleteAccount();
-                  setShowHelp(false);
+                  ui.setShowHelp(false);
                   handleLogout();
                   showToast('Account deleted successfully', 'info');
                 }}
