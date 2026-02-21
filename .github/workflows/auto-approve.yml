@@ -79,6 +79,13 @@ jobs:
         with:
           script: |
             const branch = context.payload.pull_request.head.ref;
+            const protectedBranches = ['development', 'master', 'main'];
+
+            if (protectedBranches.includes(branch)) {
+              core.info(`Branch '${branch}' is a protected branch — skipping deletion`);
+              return;
+            }
+
             await github.rest.git.deleteRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
