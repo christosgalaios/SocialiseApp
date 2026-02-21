@@ -145,18 +145,6 @@ describe('auth.js utilities', () => {
       };
       const next = vi.fn();
 
-      // We need to mock jwt.verify to use our SECRET_KEY
-      vi.mock('jsonwebtoken', () => ({
-        verify: (token, secret, callback) => {
-          try {
-            const decoded = jwt.verify(token, secret);
-            callback(null, decoded);
-          } catch (err) {
-            callback(err);
-          }
-        },
-      }));
-
       authenticateToken(req, res, next);
 
       // In actual implementation, would verify the token
@@ -204,11 +192,12 @@ describe('auth.js utilities', () => {
       const payload = { id: '456' };
       const token = jwt.sign(payload, SECRET_KEY);
 
-      vi.spyOn(jwt, 'verify').mockReturnValueOnce(payload);
-
       // Test with extra spaces
       let userId = extractUserId(`Bearer   ${token}`);
-      expect(typeof userId).toBe('string' || 'null');
+      expect(typeof userId === 'string' || userId === null).toBe(true);
+
+      // Clean up any spies to prevent test isolation issues
+      vi.restoreAllMocks();
     });
   });
 

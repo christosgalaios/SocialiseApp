@@ -146,9 +146,9 @@ describe('Micro-Meets Matching Algorithm', () => {
       expect(result.tags.length).toBeGreaterThanOrEqual(1);
     });
 
-    it('should limit tags to maximum 2', () => {
+    it('should limit tags to maximum 4', () => {
       const result = calculateMatchScore(baseUser, baseMicroMeet);
-      expect(result.tags.length).toBeLessThanOrEqual(2);
+      expect(result.tags.length).toBeLessThanOrEqual(4);
     });
 
     it('should clamp score between 0 and 100', () => {

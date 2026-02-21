@@ -87,15 +87,21 @@ function calculateMatchScore(user, event) {
 
     // 4. PRICE COMPATIBILITY (weight: 15 points max)
     // Free/cheap events boost score for all users
+    // Add price tags early (before slicing) so they don't get cut off
+    let priceTag = null;
     if (event.price === 0) {
         score += 10;
-        tags.push('Free event');
+        priceTag = 'Free event';
     } else if (event.price <= 20) {
         score += 8;
-        tags.push('Great value');
+        priceTag = 'Great value';
     } else if (user.isPro) {
         // Pro users more likely to engage with premium micro-meets
         score += 12;
+    }
+
+    if (priceTag) {
+        tags.unshift(priceTag); // Add to beginning so it's included in top 2
     }
 
     // 5. TIMING BOOST (weight: up to 5 points)
@@ -121,7 +127,7 @@ function calculateMatchScore(user, event) {
 
     return {
         score: Math.round(score),
-        tags: tags.slice(0, 2) // Limit to top 2 tags for UI
+        tags: tags.slice(0, 4) // Limit to top 4 tags for UI
     };
 }
 
