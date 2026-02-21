@@ -303,23 +303,96 @@ These bugs from the original issue list have been resolved in the codebase:
 
 ---
 
-## Known Gaps (to be addressed when scaling to production)
+## Roadmap — Prioritized Next Steps
 
-### Structural
-- `App.jsx` is large with all state centralized. Needs breaking into feature slices or a proper store (Zustand recommended) when complexity grows further.
-- No test coverage. Zero tests. Needs Vitest + React Testing Library for unit tests, Playwright or Cypress for E2E. (Use `/gen-test` skill to start.)
-- No real-time. Supabase Realtime could replace the current `setTimeout` simulation for live feed/chat.
+> Ordered by impact and dependency. Complete each phase before moving to the next.
 
-### Security
-- CORS defaults to dev origins — set `ALLOWED_ORIGINS` env var in production. Server logs active origins on startup for verification.
-- localStorage token storage is XSS-vulnerable. For production: HttpOnly cookies.
-- No email verification on registration.
-- RLS policies are permissive (allow all via service role) — consider tightening if frontend ever talks to Supabase directly.
+### Phase 0: CI Safety Net (Quick Win)
 
-### UX
-- Pro features (Socialise Pass, Go Pro, PRO badges, Sidebar Go Premium) are behind the experimental features toggle. Not enforced on backend (isPro not checked in logic).
-- No offline support / service worker.
-- No accessibility audit — limited ARIA, no keyboard nav testing.
+**Why first:** The `auto-approve.yml` workflow merges PRs based on mergeability alone — no lint, no build check. A broken build can land on `development` automatically. This is a one-step fix with the highest safety-to-effort ratio.
+
+- [ ] Add `npm run lint` and `npm run build` steps to `auto-approve.yml` before the approve/merge step
+- [ ] Add `npm run lint` step to `deploy-develop.yml` and `deploy-master.yml` before the build step
+- [ ] (After Phase 1) Add `npm test` to all three workflows as a required gate
+
+### Phase 1: Test Infrastructure
+
+**Why next:** Zero tests across 38 components, 1500-line `App.jsx`, and 5 backend route files. Any refactor or feature addition risks silent regressions. Tests are the foundation that makes everything else safe.
+
+- [ ] Install Vitest + React Testing Library + jsdom (frontend), supertest (backend)
+- [ ] Add `npm test` script to both `package.json` files
+- [ ] Write backend route tests: `auth.js` (login/register/me), `events.js` (CRUD + RSVP), `communities.js` (CRUD + join/leave), `feed.js` (CRUD + reactions)
+- [ ] Write frontend component tests: `AuthScreen`, `CreateEventModal`, `EventDetailSheet`, `FeedItem`, `OnboardingFlow`
+- [ ] Write `api.js` unit tests (mock fetch, test error handling and parseJson)
+- [ ] Add test step to CI workflows (`deploy-develop.yml`, `deploy-master.yml`) — fail deploys on test failure
+- [ ] Use `/gen-test` skill to scaffold initial test files
+
+### Phase 2: State Management Refactor
+
+**Why second:** `App.jsx` is 1509 lines with all state, handlers, and effects centralized. This blocks testability, code splitting, and team scalability. Tests from Phase 1 catch regressions during the refactor.
+
+- [ ] Install Zustand
+- [ ] Extract auth state into `src/stores/authStore.js` (user, token, login, logout, session check)
+- [ ] Extract events state into `src/stores/eventStore.js` (events, RSVP, save, create, chat)
+- [ ] Extract communities state into `src/stores/communityStore.js` (communities, join/leave, chat)
+- [ ] Extract feed state into `src/stores/feedStore.js` (posts, reactions, create/delete)
+- [ ] Extract UI state into `src/stores/uiStore.js` (activeTab, modals, toasts, onboarding)
+- [ ] Slim `App.jsx` to layout + store hydration + routing
+- [ ] Update component imports to use store hooks instead of props
+- [ ] Verify all existing tests still pass after refactor
+
+### Phase 3: Wire Remaining Mock Data + Real-Time
+
+**Why third:** `GroupChatsSheet` still uses `localStorage` for community chat messages and `setTimeout` for fake auto-replies (`Sarah K.`, `Marcus V.`) — despite real API endpoints existing (`GET/POST /communities/:id/chat`). `RealtimePing` state is initialized but never triggered. With clean state management (Phase 2), these become straightforward to fix.
+
+- [ ] Wire `GroupChatsSheet` to real API: fetch messages via `api.getCommunityChat()`, send via `api.sendCommunityMessage()` — remove localStorage fallback and fake `AUTO_REPLIES`
+- [ ] Subscribe to `chat_messages` table changes for live event chat (Supabase Realtime)
+- [ ] Subscribe to `community_messages` for live community chat
+- [ ] Subscribe to `feed_posts` and `post_reactions` for live feed updates
+- [ ] Remove `setTimeout` simulations in `App.jsx` (lines ~119, ~215, ~266, ~493)
+- [ ] Wire `RealtimePing` to actual subscription events (currently initialized to `{ isVisible: false }` and never triggered)
+- [ ] Replace hardcoded online member count in `GroupChatsSheet` (`Math.floor(members * 0.08)`) with Realtime presence
+- [ ] Add connection status indicator (connected/reconnecting)
+- [ ] Handle Realtime subscription cleanup on unmount
+
+### Phase 4: Accessibility
+
+**Why fourth:** Only 10 ARIA attributes across 6 of 38 components. Most interactive elements (modals, tabs, bottom sheets, nav) lack keyboard support and screen reader labels. Required for inclusive UX and potential legal compliance.
+
+- [ ] Add ARIA roles and labels to all modals/sheets (`EventDetailSheet`, `CreateEventModal`, `MatchAnalysisModal`, etc.)
+- [ ] Add keyboard navigation to `BottomNav` and `Sidebar` (tab order, Enter/Space activation)
+- [ ] Add focus trapping to modal/sheet components
+- [ ] Add `aria-live` regions for toast notifications and dynamic content
+- [ ] Add skip-to-content link
+- [ ] Test with screen reader (VoiceOver/NVDA) and keyboard-only navigation
+- [ ] Add `prefers-reduced-motion` media query to disable Framer Motion animations
+
+### Phase 5: Security Hardening (Pre-Launch)
+
+**Why fifth:** Current security is adequate for development but not production launch. These items become critical before real users arrive.
+
+- [ ] Move JWT from `localStorage` to HttpOnly cookies (requires backend cookie middleware + frontend fetch credential changes)
+- [ ] Add email verification on registration (Supabase Auth or custom SMTP)
+- [ ] Set `ALLOWED_ORIGINS` env var in production Railway to exact production domains only
+- [ ] Tighten RLS policies — restrict beyond service role if frontend ever talks to Supabase directly
+- [ ] Add CSRF protection if moving to cookie-based auth
+- [ ] Add rate limiting to all mutation endpoints (currently only on `/auth/*`)
+
+### Phase 6: Bug Fixes + Production Polish
+
+**Why last:** These improve the experience but don't block core functionality.
+
+**Documented P1 bugs** (see `docs/MANGO_DEV_TASKS.md` — verify against `docs/MANGO_QA_SIGNOFF.md` for current state):
+- [ ] BUG-1: Mango position not persisted when wall crawl is interrupted by tap — `onPositionChange` never called in that branch
+- [ ] BUG-2: Mango pose stays `wall_grab` when dragging back off wall — no pose reset to `carried` when leaving wall zone mid-drag
+
+**Production polish:**
+- [ ] Enforce Pro features on backend (`isPro` check on premium endpoints)
+- [ ] Add service worker for offline support / PWA install prompt
+- [ ] Implement Google OAuth (currently simulated with DEMO_USER)
+- [ ] Add error boundary components for graceful crash recovery
+- [ ] Performance audit: bundle splitting, lazy-load routes, optimize Mango SVG (74kb)
+- [ ] Extract `useLocalStorage` hook from `App.jsx` (lines 77–98) into `src/hooks/useLocalStorage.js`
 
 ### ESLint
 
