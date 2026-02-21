@@ -5,6 +5,7 @@ on:
     types: [opened, synchronize, reopened]
 
 permissions:
+  contents: write
   pull-requests: write
 
 jobs:
@@ -58,6 +59,19 @@ jobs:
               body: 'Auto-approved: no merge conflicts detected.',
             });
             core.info('PR approved successfully');
+
+      - name: Merge PR
+        if: steps.check-mergeable.outputs.mergeable == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.pulls.merge({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              merge_method: 'squash',
+            });
+            core.info('PR merged successfully');
 
       - name: Post conflict notice
         if: steps.check-mergeable.outputs.mergeable == 'false'
