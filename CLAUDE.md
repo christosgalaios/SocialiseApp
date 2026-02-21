@@ -359,6 +359,7 @@ Configuration lives in `.claude/`. Full docs: `.claude/AUTOMATION_SETUP.md` and 
 | Skill | `/create-migration` | Create Supabase migration files |
 | Subagent | `code-reviewer` | Security, quality, design system compliance review |
 | Subagent | `test-coverage-analyzer` | Identify untested code and coverage gaps |
+| Workflow | `auto-approve` | Auto-approves, squash-merges, and deletes branch for conflict-free PRs |
 
 ---
 
@@ -376,6 +377,8 @@ Configuration lives in `.claude/`. Full docs: `.claude/AUTOMATION_SETUP.md` and 
 2. Test locally with local backend
 3. Push to `development` → auto-deploys to `/dev/` preview for testing
 4. Merge `development` → `production` → auto-deploys to `/prod/` production
+
+**Auto-approve PRs:** The `auto-approve.yml` workflow runs on all PRs. If a PR has no merge conflicts, it automatically approves, squash-merges, and deletes the source branch. PRs with conflicts get a comment and are skipped.
 
 ### Running Locally
 
