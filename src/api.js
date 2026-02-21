@@ -56,13 +56,13 @@ const api = {
         return data;
     },
 
-    async register(email, password, name) {
+    async register(email, password, firstName, lastName) {
         let response;
         try {
             response = await fetch(`${API_URL}/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password, name }),
+                body: JSON.stringify({ email, password, firstName, lastName }),
             });
         } catch (e) {
             throw new Error(e.message || 'Network error');
