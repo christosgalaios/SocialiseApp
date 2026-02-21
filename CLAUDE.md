@@ -8,7 +8,7 @@
 
 **Socialise** is a community-driven social event discovery and micro-meet matchmaking platform. The pitch: warm, local, human connection — not cold tech. Think Meetup meets Hinge, with AI-curated small dinners (4-6 people) called "Micro-Meets".
 
-**Current state:** Active migration from mock data to real backend. Backend routes for events, communities, feed, and users are wired to Supabase. Auth still uses flat-file `users.json` — fixing this is the current priority. Frontend still reads from `mockData.js` and has not yet been wired to the real API endpoints.
+**Current state:** Backend fully wired to Supabase — all routes (events, communities, feed, users, auth) use Supabase Postgres. Row Level Security (RLS) enabled on all tables. Auth migrated from flat-file `users.json` to Supabase `users` table. Frontend still reads from `mockData.js` and has not yet been wired to the real API endpoints — this is the current priority.
 
 ---
 
@@ -21,12 +21,12 @@
 | Maps | @react-google-maps/api + use-places-autocomplete |
 | Backend | Node.js + Express 5, deployed on Railway |
 | Database | Supabase (Postgres) — events, communities, feed, users tables |
-| Auth | JWT (jsonwebtoken) + bcryptjs — still backed by users.json (migration pending) |
-| Persistence | localStorage (frontend), users.json (auth only, legacy), Supabase (all other data) |
+| Auth | JWT (jsonwebtoken) + bcryptjs — users stored in Supabase |
+| Persistence | localStorage (frontend), Supabase (all backend data) |
 | Deployment | GitHub Pages (frontend), Railway (backend) |
 | Fonts | Outfit (headings), Quicksand (body) |
 
-No Redux, no Zustand. Frontend state lives in `App.jsx` + localStorage. Backend uses Supabase (Postgres) for persistence.
+No Redux, no Zustand. Frontend state lives in `App.jsx` + localStorage. Backend uses Supabase (Postgres) for all persistence including auth.
 
 ---
 
@@ -34,7 +34,7 @@ No Redux, no Zustand. Frontend state lives in `App.jsx` + localStorage. Backend 
 
 ```
 /src
-  App.jsx              # Main app — 1026 lines, all state lives here
+  App.jsx              # Main app — all state lives here
   api.js               # API client (login, register, getMe)
   main.jsx             # Entry point + MangoContext provider
   index.css            # Design tokens, global styles, Tailwind overrides
@@ -46,19 +46,31 @@ No Redux, no Zustand. Frontend state lives in `App.jsx` + localStorage. Backend 
   index.js             # Express entry — mounts all routers
   supabase.js          # Supabase client (service role, server-side only)
   matching.js          # Micro-Meet matching algorithm
-  migrate.js           # DB migration runner
+  migrate.js           # DB migration runner (runs /migrations/*.sql)
   seed.js              # Seed data for Supabase tables
-  users.json           # Legacy flat-file user store (auth only — being replaced)
+  users.json           # Legacy flat-file (now empty — auth migrated to Supabase)
   package.json         # Server-specific deps (CommonJS)
+  /migrations
+    001_initial_schema.sql    # Tables, indexes, triggers
+    002_seed_data.sql         # Demo communities and events
+    003_users_table.sql       # Users table migration from JSON
+    004_enable_rls.sql        # RLS policies on all tables
+    005_fix_function_search_path.sql  # Security hardening
   /routes
-    auth.js            # Login/register/me — still reads users.json (migration pending)
+    auth.js            # Login/register/me — Supabase
     events.js          # CRUD + RSVP/save/chat — Supabase
     communities.js     # CRUD + join/leave/feed — Supabase
     feed.js            # Global feed + reactions — Supabase
     users.js           # Profiles + recommendations — Supabase
+/.claude
+  settings.json        # MCP servers, hooks, skills config
+  AUTOMATION_SETUP.md  # Full automation reference guide
+  QUICKSTART.md        # 5-minute onboarding guide
+  /agents              # Subagent definitions (code-reviewer, test-coverage-analyzer)
+  /skills              # Skill definitions (gen-test, create-migration)
 /public                # PWA icons, logos
 /docs                  # QA notes, dev task docs
-package.json           # Frontend deps (ESM)
+package.json           # Frontend deps (ESM) — v0.35.0
 ANTIGRAVITY_BRAIN.md   # Design philosophy doc (read before UI changes)
 ```
 
@@ -195,7 +207,7 @@ Base (production): `https://socialise-app-production.up.railway.app/api`
 
 **Demo credentials:** `ben@demo.com` / `password`
 
-**User storage (auth only — legacy):** `server/users.json` — flat JSON array. Auth route reads/writes this directly. Migration to Supabase is the active work item.
+**User storage:** Supabase `users` table. `server/users.json` is a legacy artifact (now empty). Auth routes read/write Supabase directly via service role client.
 
 **Environment variables (see `server/.env.example`):**
 - `JWT_SECRET` — Secret for signing JWTs. Required in production.
@@ -210,13 +222,14 @@ Base (production): `https://socialise-app-production.up.railway.app/api`
 
 | Thing | Status |
 |---|---|
-| Auth (login/register/JWT) | Real — but users stored in `users.json`, not Supabase yet (active bug) |
-| User data | Real (users.json) — Supabase migration pending |
+| Auth (login/register/JWT) | Real — users stored in Supabase `users` table |
+| User data | Real (Supabase) |
 | Events API | Real (Supabase via `/api/events`) — frontend not yet wired |
 | Communities API | Real (Supabase via `/api/communities`) — frontend not yet wired |
 | Feed API | Real (Supabase via `/api/feed`) — frontend not yet wired |
 | Users API | Real (Supabase via `/api/users`) — frontend not yet wired |
 | Micro-Meet recommendations | Real — matching algorithm in `server/matching.js` |
+| Row Level Security | Real — RLS enabled and enforced on all tables |
 | Frontend events display | Still mock — reads from `mockData.js` |
 | Frontend communities display | Still mock — reads from `mockData.js` |
 | Frontend feed display | Still mock — reads from `mockData.js` |
@@ -225,23 +238,25 @@ Base (production): `https://socialise-app-production.up.railway.app/api`
 | Pro subscription | UI only — no payment, no enforcement |
 | Google login | Simulated — just loads DEMO_USER |
 
-## Migration In Progress
+## Migration Status
 
 **Goal:** Replace all mock data with real Supabase-backed API calls.
 
 **Completed (backend):**
 - Supabase client configured in `server/supabase.js`
 - Events, Communities, Feed, Users routes all wired to Supabase
+- Auth migrated from `users.json` to Supabase `users` table — registration and login now persist correctly on Railway
+- Row Level Security (RLS) enabled and enforced on all tables (migration 004)
+- Sensitive columns (password, verification codes) revoked from anon/authenticated Supabase roles
+- `update_updated_at` trigger function secured with `search_path = ''` (migration 005)
 - Micro-Meet matching algorithm (`server/matching.js`)
 - Seed data script (`server/seed.js`)
-- Migration runner (`server/migrate.js`)
+- Migration runner (`server/migrate.js`) + 5 migration files in `server/migrations/`
 - Railway deployment configured for production + development environments
 - API URL now reads from `VITE_API_URL` env var (not hardcoded)
+- GitHub Pages deploys to `/dev/` and `/prod/` subfolders via separate workflows
 
-**In progress:**
-- Auth route still reads/writes `users.json` — needs migrating to Supabase users table. This is causing authentication issues (users registered via the API aren't persisted correctly in production/Railway where the filesystem is ephemeral).
-
-**Not yet started (frontend):**
+**Not yet started (frontend — current priority):**
 - Wire `src/api.js` to call real `/api/events`, `/api/communities`, `/api/feed` endpoints instead of importing from `mockData.js`
 - Replace localStorage-based join/save/tribe state with API calls
 - Handle loading/error states for real async data throughout the app
@@ -261,24 +276,30 @@ These bugs from the original issue list have been resolved in the codebase:
 - `api.js` uses `parseJson()` wrapper + checks `response.ok` before throwing ✓
 - `handleLogout` uses a stable `handleLogoutRef` to avoid dependency array issue ✓
 - `deploy-develop.yml` no longer bumps the patch version — fixes `package.json` merge conflicts when promoting `development` → `production` ✓
+- Auth migrated from `users.json` to Supabase `users` table — fixes ephemeral filesystem issue on Railway ✓
+- Row Level Security (RLS) enabled on all Supabase tables with appropriate policies ✓
+- `update_updated_at` function secured with immutable `search_path` ✓
+- Email verification added then intentionally removed (Resend dependency remains unused in `server/package.json`) ✓
+- GitHub Pages deploys to `/dev/` and `/prod/` subfolders — no more root-level conflicts ✓
 
 ---
 
 ## Known Gaps (to be addressed when scaling to production)
 
 ### Structural
-- `App.jsx` is 1026 lines with all state centralized. Needs breaking into feature slices or a proper store (Zustand recommended) when complexity grows further.
-- No test coverage. Zero tests. Needs Vitest + React Testing Library for unit tests, Playwright or Cypress for E2E.
-- Frontend still uses `mockData.js` — needs wiring to real API (see Migration In Progress above).
+- `App.jsx` is large with all state centralized. Needs breaking into feature slices or a proper store (Zustand recommended) when complexity grows further.
+- No test coverage. Zero tests. Needs Vitest + React Testing Library for unit tests, Playwright or Cypress for E2E. (Use `/gen-test` skill to start.)
+- Frontend still uses `mockData.js` — needs wiring to real API (see Migration Status above). **This is the current priority.**
 - No real-time. Supabase Realtime could replace the current `setTimeout` simulation for live feed/chat.
+- Unused `resend` dependency in `server/package.json` — can be removed.
 
 ### Security
-- **Auth uses `users.json` on an ephemeral Railway filesystem** — registered users are lost on every redeploy. Migrating auth to Supabase is the active priority.
 - Server JWT_SECRET defaults to dev fallback — must set `JWT_SECRET` env var in production.
 - CORS defaults to dev origins — set `ALLOWED_ORIGINS` env var in production.
 - localStorage token storage is XSS-vulnerable. For production: HttpOnly cookies.
 - No rate limiting on auth endpoints. Add express-rate-limit before public launch.
 - No email verification on registration.
+- RLS policies are permissive (allow all via service role) — consider tightening if frontend ever talks to Supabase directly.
 
 ### UX
 - Pro feature gates exist in UI but are not enforced (isPro not checked in logic).
@@ -288,14 +309,47 @@ These bugs from the original issue list have been resolved in the codebase:
 
 ---
 
+## Database & Row Level Security
+
+**Security model:** Frontend never talks to Supabase directly. All requests go through Express, which uses the Supabase service role key (`bypassrls=true`). RLS protects against direct database access.
+
+**Tables with RLS enabled and forced:**
+`users`, `events`, `event_rsvps`, `saved_events`, `chat_messages`, `communities`, `community_members`, `community_messages`, `feed_posts`, `post_reactions`
+
+**Key restrictions:**
+- Sensitive columns (`password`, `verification_code`, `verification_code_expiry`) revoked from `anon` and `authenticated` roles
+- No direct INSERT/UPDATE/DELETE on `users` table from frontend roles
+- All data mutation goes through Express API → service role client
+
+**Migrations:** Run via `node server/migrate.js`. Files in `server/migrations/` are executed in order (001–005). See Directory Layout above for details.
+
+---
+
+## Claude Code Automations
+
+Configuration lives in `.claude/`. Full docs: `.claude/AUTOMATION_SETUP.md` and `.claude/QUICKSTART.md`.
+
+| Type | Name | Purpose |
+|---|---|---|
+| MCP Server | GitHub | PR, issue, workflow management |
+| MCP Server | Supabase | Direct database queries and schema inspection |
+| Hook | `auto-lint` | Runs `npm run lint -- --fix` on `.jsx`/`.js` edits |
+| Hook | `block-env` | Prevents editing `.env` files |
+| Skill | `/gen-test` | Generate unit tests (Vitest + React Testing Library) |
+| Skill | `/create-migration` | Create Supabase migration files |
+| Subagent | `code-reviewer` | Security, quality, design system compliance review |
+| Subagent | `test-coverage-analyzer` | Identify untested code and coverage gaps |
+
+---
+
 ## Development Workflow
 
 ### Branches
 
-| Branch | Environment | GitHub Pages | Backend | Purpose |
+| Branch | Environment | GitHub Pages | Backend | Workflow |
 |--------|---|---|---|---|
-| `development` (tracks `develop`) | Development/Preview | `/SocialiseApp/dev/` | `socialise-app-development.up.railway.app` | Testing & validation |
-| `production` (tracks `master`) | Production | `/SocialiseApp/prod/` | `socialise-app-production.up.railway.app` | Public-facing |
+| `development` | Development/Preview | `/SocialiseApp/dev/` | `socialise-app-development.up.railway.app` | `deploy-develop.yml` |
+| `master` | Production | `/SocialiseApp/prod/` | `socialise-app-production.up.railway.app` | `deploy-master.yml` |
 
 **Workflow:**
 1. Create feature branches from `development`
