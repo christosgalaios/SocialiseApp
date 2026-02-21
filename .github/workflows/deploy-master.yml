@@ -82,17 +82,16 @@ jobs:
         run: npm run build
         env:
           NODE_ENV: production
-          # Base URL for https://christosgalaios.github.io/SocialiseApp/
-          VITE_BASE_URL: /SocialiseApp/
+          # Base URL for https://christosgalaios.github.io/SocialiseApp/prod/
+          VITE_BASE_URL: /SocialiseApp/prod/
           VITE_API_URL: https://socialise-app-production.up.railway.app/api
           VITE_GOOGLE_MAPS_API_KEY: ${{ secrets.VITE_GOOGLE_MAPS_API_KEY }}
 
-      - name: Deploy to gh-pages (root)
+      - name: Deploy to gh-pages (prod subfolder)
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: dist
           branch: gh-pages
+          # Deploys into /prod/ without touching the /dev/ preview build.
+          target-folder: prod
           clean: true
-          # Preserve the /dev/ subfolder so a master deploy never wipes the
-          # preview environment deployed by the develop workflow.
-          clean-exclude: dev
