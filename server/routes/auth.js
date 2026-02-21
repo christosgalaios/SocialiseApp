@@ -154,10 +154,11 @@ router.post('/register', async (req, res) => {
     }
 
     const token = jwt.sign({ id: newUser.id, email: newUser.email }, SECRET_KEY, { expiresIn: '24h' });
-    const response = { token, user: toPublicUser(newUser) };
-    if (process.env.NODE_ENV !== 'production') {
-        response.verificationCode = verificationCode;
-    }
+    const response = {
+        token,
+        user: toPublicUser(newUser),
+        verificationCode: verificationCode // Always return for now so user can proceed
+    };
     res.json(response);
 });
 
