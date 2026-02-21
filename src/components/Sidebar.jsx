@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { ChevronRight, Compass, Moon, Sun, Zap } from 'lucide-react';
 import { CATEGORIES } from '../data/constants';
 
-const Sidebar = ({ activeCategory, onSelect, darkMode, onToggleDarkMode }) => (
+const Sidebar = ({ activeCategory, onSelect, darkMode, onToggleDarkMode, experimentalFeatures }) => (
     <div className="hidden md:flex flex-col w-64 h-full bg-paper border-r border-secondary/10 p-6 pt-24 shrink-0 transition-colors">
 
 
@@ -35,12 +35,14 @@ const Sidebar = ({ activeCategory, onSelect, darkMode, onToggleDarkMode }) => (
             {/* Dark Mode toggle removed */}
         </div>
 
+        {experimentalFeatures && (
         <div className="mt-auto p-5 rounded-2xl bg-gradient-to-br from-secondary/5 to-primary/5 border border-secondary/10 text-center">
             <Compass size={24} className="mx-auto mb-2 text-primary" />
             <h4 className="font-heading font-black text-sm mb-1 text-secondary">Go Premium</h4>
             <p className="text-[10px] text-secondary/60 mb-3">Unlock exclusive curated events.</p>
             <button className="text-[10px] font-black bg-primary text-white px-4 py-2 rounded-full uppercase tracking-widest hover:scale-105 transition-transform shadow-md">Upgrade</button>
         </div>
+        )}
     </div>
 );
 
