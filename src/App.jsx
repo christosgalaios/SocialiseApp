@@ -649,7 +649,7 @@ function App() {
               <Sidebar
                 activeCategory={activeCategory}
                 onSelect={setActiveCategory}
-
+                experimentalFeatures={experimentalFeatures}
               />
 
               {/* Main Content Area */}
@@ -700,7 +700,7 @@ function App() {
                           >
                             <div className="absolute inset-0 bg-primary rounded-full blur-md opacity-20 group-hover:opacity-40 transition-opacity" />
                             <img src={user?.avatar} className="w-14 h-14 rounded-2xl object-cover border-2 border-white/10 shadow-2xl relative z-10" alt="Profile" />
-                            {proEnabled && <div className="absolute -bottom-1 -right-1 z-20 bg-amber-500 text-[8px] font-black px-1.5 py-0.5 rounded-md text-white shadow-lg border border-white/20">PRO</div>}
+                            {experimentalFeatures && proEnabled && <div className="absolute -bottom-1 -right-1 z-20 bg-amber-500 text-[8px] font-black px-1.5 py-0.5 rounded-md text-white shadow-lg border border-white/20">PRO</div>}
                           </motion.button>
                         </motion.header>
 
@@ -1032,7 +1032,7 @@ function App() {
                                   onChange={handleAvatarUpload}
                                 />
                                 <div className="absolute inset-0 bg-primary/20 blur-3xl -z-10 transform scale-150" />
-                                {proEnabled && <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 md:left-0 md:translate-x-0 z-20 bg-amber-500 text-[10px] font-black px-3 py-1 rounded-full text-white shadow-lg border border-white/20 whitespace-nowrap flex items-center gap-1"><Crown size={10} /> PRO</div>}
+                                {experimentalFeatures && proEnabled && <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 md:left-0 md:translate-x-0 z-20 bg-amber-500 text-[10px] font-black px-3 py-1 rounded-full text-white shadow-lg border border-white/20 whitespace-nowrap flex items-center gap-1"><Crown size={10} /> PRO</div>}
                               </div>
                               <h1 className="text-3xl font-black tracking-tighter mb-2 text-primary">{user?.name}<span className="text-accent">.</span></h1>
                               {user?.selectedTitle && (
@@ -1172,7 +1172,7 @@ function App() {
 
 
 
-                          {!proEnabled && (
+                          {experimentalFeatures && !proEnabled && (
                             <motion.div variants={itemVariants} className="mt-8 pt-8 border-t border-secondary/10 text-center">
                               <p className="text-xs text-secondary/60 mb-6 px-4 font-medium leading-relaxed italic">Unlock advanced matchmaking and event analytics for £12.99/mo</p>
                               <button
@@ -1189,7 +1189,7 @@ function App() {
                           {[
                             { label: 'My Bookings', icon: Check, action: () => setShowBookings(true), badge: joinedEvents.length },
                             { label: 'Saved Experiences', icon: Heart, action: () => setShowSaved(true), badge: savedEvents.length },
-                            { label: 'Socialise Pass', icon: Zap, action: () => setShowProModal(true) },
+                            ...(experimentalFeatures ? [{ label: 'Socialise Pass', icon: Zap, action: () => setShowProModal(true) }] : []),
                             { label: 'Settings', icon: Settings, action: () => setProfileSubTab('settings') },
                             { label: 'Help & Privacy', icon: ShieldCheck, action: () => setShowHelp(true) }
                           ].map((item) => (
@@ -1425,6 +1425,12 @@ function App() {
                 key="help"
                 isOpen={showHelp}
                 onClose={() => setShowHelp(false)}
+                onDeleteAccount={async () => {
+                  await api.deleteAccount();
+                  setShowHelp(false);
+                  handleLogout();
+                  showToast('Account deleted successfully', 'info');
+                }}
               />
               <GroupChatsSheet
                 isOpen={showGroupChats}

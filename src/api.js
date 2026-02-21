@@ -213,6 +213,10 @@ const api = {
     getMyCommunities() {
         return fetchWithAuth('/users/me/communities');
     },
+
+    deleteAccount() {
+        return fetchWithAuth('/users/me', { method: 'DELETE' });
+    },
 };
 
 export default api;

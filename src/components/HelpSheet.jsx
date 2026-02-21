@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, HelpCircle, ChevronDown, Mail, Shield, FileText, MessageCircle } from 'lucide-react';
+import { X, HelpCircle, ChevronDown, Mail, Shield, FileText, MessageCircle, Trash2, AlertTriangle } from 'lucide-react';
 
-const HelpSheet = ({ isOpen, onClose }) => {
+const HelpSheet = ({ isOpen, onClose, onDeleteAccount }) => {
     const [openFaq, setOpenFaq] = useState(null);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [deleting, setDeleting] = useState(false);
 
     const faqs = [
         { q: 'How do I join an event?', a: 'Browse events in the Explore tab and tap "Join" on any event that interests you. You\'ll receive confirmation and can view details in My Bookings.' },
@@ -17,7 +19,18 @@ const HelpSheet = ({ isOpen, onClose }) => {
         { icon: Mail, label: 'Contact Support', desc: 'Get help from our team' },
         { icon: Shield, label: 'Privacy Policy', desc: 'How we protect your data' },
         { icon: FileText, label: 'Terms of Service', desc: 'Our usage agreement' },
+        { icon: Trash2, label: 'Delete Account', desc: 'Permanently delete all your data', destructive: true },
     ];
+
+    const handleDeleteAccount = async () => {
+        setDeleting(true);
+        try {
+            await onDeleteAccount();
+        } finally {
+            setDeleting(false);
+            setShowDeleteConfirm(false);
+        }
+    };
 
     return (
         <AnimatePresence>
@@ -106,14 +119,21 @@ const HelpSheet = ({ isOpen, onClose }) => {
                                     {links.map((link, i) => (
                                         <button
                                             key={i}
-                                            className="w-full bg-secondary/5 rounded-2xl p-4 border border-secondary/10 flex items-center gap-4 hover:border-primary/30 transition-all text-left"
+                                            onClick={link.destructive ? () => setShowDeleteConfirm(true) : undefined}
+                                            className={`w-full rounded-2xl p-4 border flex items-center gap-4 transition-all text-left ${
+                                                link.destructive
+                                                    ? 'bg-red-500/5 border-red-500/20 hover:border-red-500/40'
+                                                    : 'bg-secondary/5 border-secondary/10 hover:border-primary/30'
+                                            }`}
                                         >
-                                            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                                                <link.icon size={20} className="text-primary" />
+                                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                                                link.destructive ? 'bg-red-500/10' : 'bg-primary/10'
+                                            }`}>
+                                                <link.icon size={20} className={link.destructive ? 'text-red-500' : 'text-primary'} />
                                             </div>
                                             <div>
-                                                <p className="font-bold text-sm text-secondary">{link.label}</p>
-                                                <p className="text-xs text-secondary/60">{link.desc}</p>
+                                                <p className={`font-bold text-sm ${link.destructive ? 'text-red-500' : 'text-secondary'}`}>{link.label}</p>
+                                                <p className={`text-xs ${link.destructive ? 'text-red-500/60' : 'text-secondary/60'}`}>{link.desc}</p>
                                             </div>
                                         </button>
                                     ))}
@@ -121,6 +141,68 @@ const HelpSheet = ({ isOpen, onClose }) => {
                             </div>
                         </div>
                     </motion.div>
+
+                    {/* Delete Account Confirmation Modal */}
+                    <AnimatePresence>
+                        {showDeleteConfirm && (
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-md flex items-center justify-center p-6"
+                                onClick={() => !deleting && setShowDeleteConfirm(false)}
+                            >
+                                <motion.div
+                                    initial={{ scale: 0.9, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    exit={{ scale: 0.9, opacity: 0 }}
+                                    transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                                    className="bg-paper rounded-[32px] p-8 max-w-sm w-full shadow-2xl border border-secondary/10"
+                                    onClick={(e) => e.stopPropagation()}
+                                >
+                                    <div className="flex justify-center mb-4">
+                                        <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center">
+                                            <AlertTriangle size={32} className="text-red-500" />
+                                        </div>
+                                    </div>
+                                    <h3 className="text-xl font-black text-secondary text-center mb-2">Delete Account?</h3>
+                                    <p className="text-sm text-secondary/60 text-center mb-8 leading-relaxed">
+                                        This will permanently delete your account and all your data including events, bookings, community memberships, and posts. This action cannot be undone.
+                                    </p>
+                                    <div className="space-y-3">
+                                        <button
+                                            onClick={handleDeleteAccount}
+                                            disabled={deleting}
+                                            className="w-full py-4 rounded-2xl bg-red-500 text-white text-[12px] font-black uppercase tracking-widest shadow-lg transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+                                        >
+                                            {deleting ? (
+                                                <>
+                                                    <motion.div
+                                                        animate={{ rotate: 360 }}
+                                                        transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                                                        className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
+                                                    />
+                                                    Deleting...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Trash2 size={16} />
+                                                    Delete Everything
+                                                </>
+                                            )}
+                                        </button>
+                                        <button
+                                            onClick={() => setShowDeleteConfirm(false)}
+                                            disabled={deleting}
+                                            className="w-full py-4 rounded-2xl bg-secondary/10 text-secondary text-[12px] font-black uppercase tracking-widest transition-all active:scale-95 disabled:opacity-50"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </motion.div>
             )}
         </AnimatePresence>

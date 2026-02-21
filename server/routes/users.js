@@ -110,4 +110,44 @@ router.get('/me/communities', authenticateToken, async (req, res) => {
     res.json((communities || []).map(c => ({ ...c, isJoined: true, members: c.member_count })));
 });
 
+// --- DELETE /api/users/me --- (delete own account and all associated data)
+router.delete('/me', authenticateToken, async (req, res) => {
+    const userId = req.user.id;
+
+    // Delete all user data from related tables first, then the user record
+    const tables = [
+        { table: 'post_reactions', column: 'user_id' },
+        { table: 'feed_posts', column: 'user_id' },
+        { table: 'community_messages', column: 'user_id' },
+        { table: 'community_members', column: 'user_id' },
+        { table: 'chat_messages', column: 'user_id' },
+        { table: 'saved_events', column: 'user_id' },
+        { table: 'event_rsvps', column: 'user_id' },
+    ];
+
+    for (const { table, column } of tables) {
+        const { error } = await supabase.from(table).delete().eq(column, userId);
+        if (error) {
+            console.error(`[ERROR] Failed to delete from ${table}:`, error.message);
+            return res.status(500).json({ message: 'Failed to delete account. Please try again.' });
+        }
+    }
+
+    // Delete events hosted by this user
+    const { error: eventsError } = await supabase.from('events').delete().eq('host_id', userId);
+    if (eventsError) {
+        console.error('[ERROR] Failed to delete hosted events:', eventsError.message);
+        return res.status(500).json({ message: 'Failed to delete account. Please try again.' });
+    }
+
+    // Finally delete the user record
+    const { error: userError } = await supabase.from('users').delete().eq('id', userId);
+    if (userError) {
+        console.error('[ERROR] Failed to delete user:', userError.message);
+        return res.status(500).json({ message: 'Failed to delete account. Please try again.' });
+    }
+
+    res.json({ message: 'Account deleted successfully' });
+});
+
 module.exports = router;

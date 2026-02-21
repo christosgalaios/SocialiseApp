@@ -313,10 +313,24 @@ These bugs from the original issue list have been resolved in the codebase:
 - RLS policies are permissive (allow all via service role) — consider tightening if frontend ever talks to Supabase directly.
 
 ### UX
-- Pro feature gates exist in UI but are not enforced (isPro not checked in logic).
+- Pro features (Socialise Pass, Go Pro, PRO badges, Sidebar Go Premium) are behind the experimental features toggle. Not enforced on backend (isPro not checked in logic).
 - No offline support / service worker.
 - No accessibility audit — limited ARIA, no keyboard nav testing.
 - No lazy loading on images.
+
+### Pre-existing ESLint Errors (~138 errors, 8 warnings across 46 files)
+
+ESLint is configured but the codebase has accumulated lint debt. These are **pre-existing** — do not treat as regressions. Categories:
+
+| Rule | Count | Scope | Notes |
+|------|-------|-------|-------|
+| `no-unused-vars` | ~69 | Frontend + Server | Most are unused `motion` imports (24 components import `motion` but use `<motion.div>` via JSX transform). Also unused destructured vars in `auth.js` (`password`, `verification_code`, etc. stripped intentionally). |
+| `no-undef` | ~59 | Server only | All `require`, `module`, `process`, `__dirname` — CJS globals not recognized by ESLint's ESM config. Server uses CommonJS but ESLint is configured for ESM. Fix: add `env: { node: true }` to server ESLint config or use a separate `.eslintrc` for `server/`. |
+| `react-hooks/purity` | ~30 | `Mango.jsx`, `App.jsx`, `Confetti.jsx` | `Math.random()` and `Date.now()` calls during render flagged as impure. Used for animation randomness and timing — not causing bugs but technically impure. |
+| `react-hooks/exhaustive-deps` | ~7 | Various components | Missing dependencies in `useEffect`/`useCallback` arrays. Intentional in most cases to avoid infinite re-render loops. |
+| `react-hooks/set-state-in-effect` | ~3 | `Confetti.jsx`, `Mango.jsx` | `setState` called synchronously in effects for animation initialization. |
+| `react-refresh/only-export-components` | 2 | `MangoContext.jsx`, `vite.config.js` | Non-component exports alongside components. |
+| `no-empty` | 1 | `GroupChatsSheet.jsx` | Empty catch block. |
 
 ---
 
