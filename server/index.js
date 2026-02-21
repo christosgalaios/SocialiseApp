@@ -41,6 +41,9 @@ app.use(cors(corsOptions));
 
 app.use(bodyParser.json());
 
+// Healthcheck — used by Railway; must return 200 with no auth
+app.get('/api/health', (_req, res) => res.sendStatus(200));
+
 // --- Routes ---
 
 const { router: authRouter } = require('./routes/auth');
