@@ -295,6 +295,10 @@ These bugs from the original issue list have been resolved in the codebase:
 - Legacy `server/users.json` deleted (was already empty) ✓
 - JWT_SECRET hardcoded fallback removed — now throws in production if env var not set ✓
 - Duplicate inline JWT verification in `communities.js` replaced with shared `extractUserId` helper ✓
+- Rate limiting added to `/auth/login` and `/auth/register` via `express-rate-limit` (15 requests per 15 min per IP) ✓
+- ESLint config split into frontend (`src/`) and server (`server/`) blocks — 0 errors, 0 warnings ✓
+- Unused `motion` import removed from `Sidebar.jsx`; remaining `motion` imports whitelisted (JSX member expression false positives) ✓
+- CORS origin list logged on server startup for production verification ✓
 
 ---
 
@@ -306,9 +310,8 @@ These bugs from the original issue list have been resolved in the codebase:
 - No real-time. Supabase Realtime could replace the current `setTimeout` simulation for live feed/chat.
 
 ### Security
-- CORS defaults to dev origins — set `ALLOWED_ORIGINS` env var in production.
+- CORS defaults to dev origins — set `ALLOWED_ORIGINS` env var in production. Server logs active origins on startup for verification.
 - localStorage token storage is XSS-vulnerable. For production: HttpOnly cookies.
-- No rate limiting on auth endpoints. Add express-rate-limit before public launch.
 - No email verification on registration.
 - RLS policies are permissive (allow all via service role) — consider tightening if frontend ever talks to Supabase directly.
 
@@ -318,19 +321,11 @@ These bugs from the original issue list have been resolved in the codebase:
 - No accessibility audit — limited ARIA, no keyboard nav testing.
 - No lazy loading on images.
 
-### Pre-existing ESLint Errors (~138 errors, 8 warnings across 46 files)
+### ESLint
 
-ESLint is configured but the codebase has accumulated lint debt. These are **pre-existing** — do not treat as regressions. Categories:
-
-| Rule | Count | Scope | Notes |
-|------|-------|-------|-------|
-| `no-unused-vars` | ~69 | Frontend + Server | Most are unused `motion` imports (24 components import `motion` but use `<motion.div>` via JSX transform). Also unused destructured vars in `auth.js` (`password`, `verification_code`, etc. stripped intentionally). |
-| `no-undef` | ~59 | Server only | All `require`, `module`, `process`, `__dirname` — CJS globals not recognized by ESLint's ESM config. Server uses CommonJS but ESLint is configured for ESM. Fix: add `env: { node: true }` to server ESLint config or use a separate `.eslintrc` for `server/`. |
-| `react-hooks/purity` | ~30 | `Mango.jsx`, `App.jsx`, `Confetti.jsx` | `Math.random()` and `Date.now()` calls during render flagged as impure. Used for animation randomness and timing — not causing bugs but technically impure. |
-| `react-hooks/exhaustive-deps` | ~7 | Various components | Missing dependencies in `useEffect`/`useCallback` arrays. Intentional in most cases to avoid infinite re-render loops. |
-| `react-hooks/set-state-in-effect` | ~3 | `Confetti.jsx`, `Mango.jsx` | `setState` called synchronously in effects for animation initialization. |
-| `react-refresh/only-export-components` | 2 | `MangoContext.jsx`, `vite.config.js` | Non-component exports alongside components. |
-| `no-empty` | 1 | `GroupChatsSheet.jsx` | Empty catch block. |
+ESLint passes clean (0 errors, 0 warnings). The config (`eslint.config.js`) has two blocks:
+- **`src/**`** — Browser globals, React hooks plugin, Vite refresh plugin. `motion` is whitelisted in `varsIgnorePattern` because `<motion.div>` JSX member expressions aren't recognized as usage by `no-unused-vars`.
+- **`server/**`** — Node.js globals, CommonJS `sourceType`. Underscore-prefixed args (`_password`, `_code`) are ignored.
 
 ---
 
