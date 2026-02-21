@@ -285,7 +285,7 @@ const MangoChat = ({ user = {}, events = [] }) => {
                                 className="mt-3 w-full max-w-sm premium-card overflow-hidden"
                             >
                                 <div className="h-32 relative">
-                                    <img src={msg.card.image} alt={msg.card.title} className="w-full h-full object-cover" />
+                                    <img src={msg.card.image} alt={msg.card.title} className="w-full h-full object-cover" loading="lazy" />
                                     <div className="absolute inset-0 bg-gradient-to-t from-secondary/60 to-transparent" />
                                     <div className="absolute top-3 right-3 flex gap-1.5">
                                         <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest text-white ${msg.isMicro ? 'bg-accent/90' : 'bg-white/20 backdrop-blur-md'}`}>

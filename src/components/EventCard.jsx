@@ -12,7 +12,7 @@ const EventCard = ({ event, onClick, compact = false, isJoined = false }) => (
     {compact ? (
       <>
         <div className="relative w-24 h-24 shrink-0 overflow-hidden rounded-2xl shadow-inner border border-paper/10">
-          <img src={event.image} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={event.title} />
+          <img src={event.image} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={event.title} loading="lazy" />
           {isJoined && (
             <div className="absolute inset-0 bg-primary/40 backdrop-blur-sm flex items-center justify-center">
               <Check className="text-white" size={24} strokeWidth={3} />
@@ -38,7 +38,7 @@ const EventCard = ({ event, onClick, compact = false, isJoined = false }) => (
     ) : (
       <>
         <div className="relative h-52 overflow-hidden">
-          <img src={event.image} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt={event.title} />
+          <img src={event.image} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt={event.title} loading="lazy" />
           <div className="absolute inset-0 bg-gradient-to-t from-secondary/80 via-transparent to-transparent" />
           <div className="absolute top-4 left-4 right-4 flex flex-wrap gap-1.5">
             <span className="bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full text-[10px] font-black text-secondary uppercase tracking-widest shadow-lg">{event.category}</span>

@@ -35,7 +35,7 @@ const MessageBubble = ({ msg, onReact }) => {
       <div className="max-w-[85%] relative">
         {!msg.isMe && (
           <div className="flex items-center gap-2 mb-1 ml-1">
-            <img src={msg.avatar} alt="" className="w-5 h-5 rounded-full object-cover" />
+            <img src={msg.avatar} alt="" className="w-5 h-5 rounded-full object-cover" loading="lazy" />
             <span className="text-[10px] font-bold text-secondary/60">{msg.user}</span>
           </div>
         )}
@@ -48,7 +48,7 @@ const MessageBubble = ({ msg, onReact }) => {
           onDoubleClick={() => setShowReactions(!showReactions)}
         >
           {msg.isImage ? (
-            <img src={msg.message} alt="Shared" className="w-48 h-36 object-cover rounded-xl" />
+            <img src={msg.message} alt="Shared" className="w-48 h-36 object-cover rounded-xl" loading="lazy" />
           ) : (
             <p className="text-sm font-medium leading-relaxed">{msg.message}</p>
           )}

@@ -299,6 +299,7 @@ These bugs from the original issue list have been resolved in the codebase:
 - ESLint config split into frontend (`src/`) and server (`server/`) blocks — 0 errors, 0 warnings ✓
 - Unused `motion` import removed from `Sidebar.jsx`; remaining `motion` imports whitelisted (JSX member expression false positives) ✓
 - CORS origin list logged on server startup for production verification ✓
+- Native `loading="lazy"` added to all `<img>` tags in list/feed/modal components for deferred off-screen image loading ✓
 
 ---
 
@@ -319,7 +320,6 @@ These bugs from the original issue list have been resolved in the codebase:
 - Pro features (Socialise Pass, Go Pro, PRO badges, Sidebar Go Premium) are behind the experimental features toggle. Not enforced on backend (isPro not checked in logic).
 - No offline support / service worker.
 - No accessibility audit — limited ARIA, no keyboard nav testing.
-- No lazy loading on images.
 
 ### ESLint
 
