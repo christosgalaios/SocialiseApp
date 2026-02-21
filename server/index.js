@@ -36,7 +36,7 @@ const corsOptions = {
 };
 
 // Handle preflight OPTIONS requests for all routes before auth/validation
-app.options('*', cors(corsOptions));
+app.options('(.*)', cors(corsOptions));
 app.use(cors(corsOptions));
 
 app.use(bodyParser.json());
