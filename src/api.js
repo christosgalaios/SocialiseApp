@@ -92,22 +92,6 @@ const api = {
         return data;
     },
 
-    async verifyEmail(email, code) {
-        let response;
-        try {
-            response = await fetch(`${API_URL}/auth/verify-email`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, code }),
-            });
-        } catch (e) {
-            throw new Error(e.message || 'Network error');
-        }
-        const data = await parseJson(response);
-        if (!response.ok) throw new Error(data?.message || 'Email verification failed');
-        return data;
-    },
-
     // ── Events ──────────────────────────────────────────────────────────────
 
     getEvents(params = {}) {
