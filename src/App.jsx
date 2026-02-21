@@ -674,8 +674,8 @@ function App() {
                       ) : ( <HomeSkeleton /> )
                     )}
 
-                    {activeTab === 'hub' && (
-                      contentReady ? (
+                    {ui.activeTab === 'hub' && (
+                      ui.contentReady ? (
                       <motion.div
                         key="hub"
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -690,7 +690,7 @@ function App() {
                           {/* Live Feed - Span 2 cols on Desktop */}
                           <div className="md:col-span-2 space-y-4">
                             <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-4">Live Pulse<span className="text-accent">.</span></h3>
-                            {feedPosts.length > 0 ? feedPosts.map(post => (
+                            {feed.feedPosts.length > 0 ? feed.feedPosts.map(post => (
                               <FeedItem key={post.id} post={{
                                 ...post,
                                 user: post.user_name || post.user,
@@ -715,7 +715,7 @@ function App() {
                                   whileHover={{ scale: 1.02 }}
                                   whileTap={{ scale: 0.98 }}
                                   key={comm.id}
-                                  onClick={() => setSelectedTribe(comm)}
+                                  onClick={() => ui.setSelectedTribe(comm)}
                                   className="premium-card p-4 flex items-center gap-4 group cursor-pointer"
                                 >
                                   <div className="w-12 h-12 rounded-[18px] bg-secondary/10 flex items-center justify-center text-2xl border border-secondary/20 shadow-inner group-hover:bg-secondary/20 transition-colors">
@@ -730,7 +730,7 @@ function App() {
                                 </motion.div>
                               ))}
                               <button
-                                onClick={() => setShowTribeDiscovery(true)}
+                                onClick={() => ui.setShowTribeDiscovery(true)}
                                 className="w-full py-4 border border-dashed border-primary/30 rounded-[20px] text-xs font-bold text-primary hover:bg-primary/5 hover:border-primary/50 transition-all uppercase tracking-widest"
                               >
                                 + Find New Tribe
@@ -742,8 +742,8 @@ function App() {
                       ) : ( <HubSkeleton /> )
                     )}
 
-                    {activeTab === 'explore' && (
-                      contentReady ? (
+                    {ui.activeTab === 'explore' && (
+                      ui.contentReady ? (
                       <motion.div
                         key="explore"
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -798,21 +798,21 @@ function App() {
                       ) : ( <ExploreSkeleton /> )
                     )}
 
-                    {activeTab === 'profile' && (
-                      contentReady ? (
+                    {ui.activeTab === 'profile' && (
+                      ui.contentReady ? (
                       <motion.div
                         key="profile"
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                         className="p-5 md:p-10 max-w-4xl mx-auto pb-32 relative"
                       >
-                        {profileSubTab === 'settings' ? (
+                        {ui.profileSubTab === 'settings' ? (
                           <motion.div
                             initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                             className="space-y-6"
                           >
                             {/* Back button */}
                             <button
-                              onClick={() => setProfileSubTab('profile')}
+                              onClick={() => ui.setProfileSubTab('profile')}
                               className="flex items-center gap-2 text-secondary/60 hover:text-secondary font-bold text-sm mb-2 transition-colors"
                             >
                               <ArrowLeft size={18} />
@@ -1038,7 +1038,7 @@ function App() {
                             <motion.div variants={itemVariants} className="mt-8 pt-8 border-t border-secondary/10 text-center">
                               <p className="text-xs text-secondary/60 mb-6 px-4 font-medium leading-relaxed italic">Unlock advanced matchmaking and event analytics for £12.99/mo</p>
                               <button
-                                onClick={() => setShowProModal(true)}
+                                onClick={() => ui.setShowProModal(true)}
                                 className="w-full bg-gradient-to-r from-primary to-accent py-4 rounded-2xl text-[12px] font-black uppercase tracking-widest shadow-2xl glow-primary transition-all active:scale-95 text-white"
                               >
                                 Go Pro
@@ -1049,11 +1049,11 @@ function App() {
 
                         <motion.div variants={itemVariants} className="premium-card overflow-hidden mt-6 rounded-[32px] bg-secondary/5 border border-secondary/10">
                           {[
-                            { label: 'My Bookings', icon: Check, action: () => setShowBookings(true), badge: joinedEvents.length },
-                            { label: 'Saved Experiences', icon: Heart, action: () => setShowSaved(true), badge: savedEvents.length },
-                            ...(experimentalFeatures ? [{ label: 'Socialise Pass', icon: Zap, action: () => setShowProModal(true) }] : []),
-                            { label: 'Settings', icon: Settings, action: () => setProfileSubTab('settings') },
-                            { label: 'Help & Privacy', icon: ShieldCheck, action: () => setShowHelp(true) }
+                            { label: 'My Bookings', icon: Check, action: () => ui.setShowBookings(true), badge: joinedEvents.length },
+                            { label: 'Saved Experiences', icon: Heart, action: () => ui.setShowSaved(true), badge: savedEvents.length },
+                            ...(experimentalFeatures ? [{ label: 'Socialise Pass', icon: Zap, action: () => ui.setShowProModal(true) }] : []),
+                            { label: 'Settings', icon: Settings, action: () => ui.setProfileSubTab('settings') },
+                            { label: 'Help & Privacy', icon: ShieldCheck, action: () => ui.setShowHelp(true) }
                           ].map((item) => (
                             <button
                               key={item.label}
@@ -1106,39 +1106,39 @@ function App() {
 
             {/* Floating Navigation - Mobile Only */}
             <div className="md:hidden">
-              <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} onCreateClick={() => setShowCreate(true)} />
+              <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} onCreateClick={() => events.setShowCreate(true)} />
             </div>
 
             {/* Modals & Sheets */}
             <AnimatePresence>
-              {selectedEvent && (
+              {events.selectedEvent && (
                 <EventDetailSheet
                   key="event-detail"
-                  event={selectedEvent}
-                  isJoined={joinedEvents.includes(selectedEvent.id)}
+                  event={events.selectedEvent}
+                  isJoined={events.joinedEvents.includes(events.selectedEvent.id)}
                   onJoin={() => {
-                    if (selectedEvent.isMicroMeet && !joinedEvents.includes(selectedEvent.id)) {
-                      setShowMatchModal(selectedEvent);
+                    if (events.selectedEvent.isMicroMeet && !events.joinedEvents.includes(events.selectedEvent.id)) {
+                      ui.setShowMatchModal(events.selectedEvent);
                     } else {
-                      handleJoin(selectedEvent.id);
+                      handleJoin(events.selectedEvent.id);
                     }
                   }}
-                  onClose={() => setSelectedEvent(null)}
-                  messages={chatMessages[selectedEvent.id] || []}
-                  onSendMessage={(text) => sendMessage(selectedEvent.id, text)}
-                  onOpenProfile={setSelectedUserProfile}
+                  onClose={() => events.setSelectedEvent(null)}
+                  messages={events.chatMessages[events.selectedEvent.id] || []}
+                  onSendMessage={(text) => sendMessage(events.selectedEvent.id, text)}
+                  onOpenProfile={feed.setSelectedUserProfile}
                 />
               )}
-              {showCreate && <CreateEventModal key="create-event" onClose={() => setShowCreate(false)} onSubmit={createNewEvent} />}
-              {showMatchModal && (
+              {showCreate && <CreateEventModal key="create-event" onClose={() => events.setShowCreate(false)} onSubmit={createNewEvent} />}
+              {ui.showMatchModal && (
                 <MatchAnalysisModal
                   key="match-modal"
-                  event={showMatchModal}
+                  event={ui.showMatchModal}
                   onConfirm={() => {
-                    handleJoin(showMatchModal.id);
-                    setShowMatchModal(null);
+                    handleJoin(ui.showMatchModal.id);
+                    ui.setShowMatchModal(null);
                   }}
-                  onCancel={() => setShowMatchModal(null)}
+                  onCancel={() => ui.setShowMatchModal(null)}
                 />
               )}
               {/* Tribe Modals */}
@@ -1146,13 +1146,13 @@ function App() {
                 key="tribe-sheet"
                 tribe={selectedTribe}
                 isOpen={!!selectedTribe}
-                onClose={() => setSelectedTribe(null)}
+                onClose={() => ui.setSelectedTribe(null)}
                 onLeave={handleLeaveTribe}
               />
               <TribeDiscovery
                 key="tribe-discovery"
-                isOpen={showTribeDiscovery}
-                onClose={() => setShowTribeDiscovery(false)}
+                isOpen={ui.showTribeDiscovery}
+                onClose={() => ui.setShowTribeDiscovery(false)}
                 onJoin={handleJoinTribe}
                 joinedTribes={userTribes}
               />
@@ -1246,7 +1246,7 @@ function App() {
               <MyBookingsSheet
                 key="bookings"
                 isOpen={showBookings}
-                onClose={() => setShowBookings(false)}
+                onClose={() => ui.setShowBookings(false)}
                 bookings={events.filter(e => joinedEvents.includes(e.id))}
                 onCancel={(id) => {
                   setJoinedEvents(joinedEvents.filter(eid => eid !== id));
@@ -1256,7 +1256,7 @@ function App() {
               <SavedEventsSheet
                 key="saved"
                 isOpen={showSaved}
-                onClose={() => setShowSaved(false)}
+                onClose={() => ui.setShowSaved(false)}
                 savedEvents={events.filter(e => savedEvents.includes(e.id))}
                 onRemove={async (id) => {
                   setSavedEvents(prev => prev.filter(eid => eid !== id));
@@ -1269,14 +1269,14 @@ function App() {
                   }
                 }}
                 onSelect={(event) => {
-                  setShowSaved(false);
+                  ui.setShowSaved(false);
                   setSelectedEvent(event);
                 }}
               />
               <ProUpgradeModal
                 key="pro"
                 isOpen={showProModal}
-                onClose={() => setShowProModal(false)}
+                onClose={() => ui.setShowProModal(false)}
                 onUpgrade={() => {
                   setProEnabled(true);
                   setShowConfetti(true);
@@ -1286,10 +1286,10 @@ function App() {
               <HelpSheet
                 key="help"
                 isOpen={showHelp}
-                onClose={() => setShowHelp(false)}
+                onClose={() => ui.setShowHelp(false)}
                 onDeleteAccount={async () => {
                   await api.deleteAccount();
-                  setShowHelp(false);
+                  ui.setShowHelp(false);
                   handleLogout();
                   showToast('Account deleted successfully', 'info');
                 }}
