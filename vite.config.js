@@ -5,8 +5,8 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   // VITE_BASE_URL is set per workflow:
-  //   master  → /SocialiseApp/
-  //   develop → /SocialiseApp/dev/
+  //   production  → /SocialiseApp/prod/
+  //   development → /SocialiseApp/dev/
   // Falls back to '/' for local dev.
   base: process.env.VITE_BASE_URL || '/',
 })
