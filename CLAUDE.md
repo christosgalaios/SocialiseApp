@@ -295,13 +295,13 @@ These bugs from the original issue list have been resolved in the codebase:
 | Branch | Environment | GitHub Pages | Backend | Purpose |
 |--------|---|---|---|---|
 | `development` (tracks `develop`) | Development/Preview | `/SocialiseApp/dev/` | `socialise-app-development.up.railway.app` | Testing & validation |
-| `production` (tracks `master`) | Production | `/SocialiseApp/` | `socialise-app-production.up.railway.app` | Public-facing |
+| `production` (tracks `master`) | Production | `/SocialiseApp/prod/` | `socialise-app-production.up.railway.app` | Public-facing |
 
 **Workflow:**
 1. Create feature branches from `development`
 2. Test locally with local backend
 3. Push to `development` → auto-deploys to `/dev/` preview for testing
-4. Merge `development` → `production` → auto-deploys to `/` production
+4. Merge `development` → `production` → auto-deploys to `/prod/` production
 
 ### Running Locally
 
@@ -322,7 +322,7 @@ node index.js        # Express @ localhost:3001
 
 **Deployment:**
 - `development` branch → GitHub Actions auto-deploys to `/dev/` + uses `socialise-app-development` Railway project
-- `production` branch → GitHub Actions auto-deploys to `/` + uses `socialise-app-production` Railway project
+- `production` branch → GitHub Actions auto-deploys to `/prod/` + uses `socialise-app-production` Railway project
 
 **Versioning:**
 - `production` deploy bumps the minor version (x.**y**.0) in `package.json` and syncs it back to `development`.
