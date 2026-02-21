@@ -3,9 +3,12 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const supabase = require('../supabase');
 
+const { Resend } = require('resend');
+
 const router = express.Router();
 
 const SECRET_KEY = process.env.JWT_SECRET || 'socialise_secret_key_123_change_in_production';
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 // --- Input validation ---
 
@@ -153,12 +156,44 @@ router.post('/register', async (req, res) => {
         return res.status(500).json({ message: 'Failed to create account. Please try again.' });
     }
 
+    // --- Send Verification Email via Resend ---
+    if (resend) {
+        try {
+            await resend.emails.send({
+                from: 'Socialise <onboarding@resend.dev>',
+                to: normalizedEmail,
+                subject: 'Verify your Socialise account',
+                html: `
+                    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+                        <h2 style="color: #FF2D55; text-align: center;">Welcome to Socialise!</h2>
+                        <p>Hi ${newUser.name},</p>
+                        <p>Your verification code is:</p>
+                        <div style="background: #f4f4f4; padding: 20px; text-align: center; border-radius: 8px;">
+                            <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #333;">${verificationCode}</span>
+                        </div>
+                        <p style="color: #666; font-size: 14px; margin-top: 20px;">This code will expire in 10 minutes.</p>
+                        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+                        <p style="color: #999; font-size: 12px; text-align: center;">Â© 2026 Socialise App</p>
+                    </div>
+                `
+            });
+            console.log(`[INFO] Verification email sent to ${normalizedEmail}`);
+        } catch (emailErr) {
+            console.error('[ERROR] Failed to send email:', emailErr.message);
+        }
+    }
+
     const token = jwt.sign({ id: newUser.id, email: newUser.email }, SECRET_KEY, { expiresIn: '24h' });
     const response = {
         token,
-        user: toPublicUser(newUser),
-        verificationCode: verificationCode // Always return for now so user can proceed
+        user: toPublicUser(newUser)
     };
+
+    // Only return code for dev mode or if resend isn't configured
+    if (process.env.NODE_ENV !== 'production' || !resend) {
+        response.verificationCode = verificationCode;
+    }
+
     res.json(response);
 });
 
