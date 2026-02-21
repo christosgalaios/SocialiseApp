@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Crown, ChevronLeft, ChevronRight, Quote, Mail, Lock, User, AlertCircle } from 'lucide-react';
-import Mango from './Mango';
 
 const TESTIMONIALS = [
   {
@@ -26,7 +25,6 @@ const TESTIMONIALS = [
 
 const AuthScreen = ({ onLogin }) => {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
-  const [mangoMessage, setMangoMessage] = useState("Ready to meet your tribe? 🐱");
   const [isRegister, setIsRegister] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -40,15 +38,6 @@ const AuthScreen = ({ onLogin }) => {
     }, 5000);
     return () => clearInterval(interval);
   }, []);
-
-  useEffect(() => {
-    const messages = [
-      "Ready to meet your tribe? 🐱",
-      "Everyone's welcome here!",
-      "I'll help you find friends!"
-    ];
-    setMangoMessage(messages[activeTestimonial]);
-  }, [activeTestimonial]);
 
   const nextTestimonial = () => setActiveTestimonial((prev) => (prev + 1) % TESTIMONIALS.length);
   const prevTestimonial = () => setActiveTestimonial((prev) => (prev - 1 + TESTIMONIALS.length) % TESTIMONIALS.length);
@@ -173,16 +162,6 @@ const AuthScreen = ({ onLogin }) => {
           <button onClick={prevTestimonial} className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white shadow items-center justify-center text-secondary/60 hover:text-secondary"><ChevronLeft size={16} /></button>
           <button onClick={nextTestimonial} className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white shadow items-center justify-center text-secondary/60 hover:text-secondary"><ChevronRight size={16} /></button>
         </div>
-      </motion.div>
-
-      {/* Mango */}
-      <motion.div
-        className="absolute top-[35%] right-4 md:right-8 z-10"
-        initial={{ opacity: 0, scale: 0, rotate: -45 }}
-        animate={{ opacity: 1, scale: 1, rotate: 0 }}
-        transition={{ delay: 0.8, type: "spring", stiffness: 200 }}
-      >
-        <Mango pose="wave" size={70} message={mangoMessage} />
       </motion.div>
 
       {/* Login / Register Form */}
