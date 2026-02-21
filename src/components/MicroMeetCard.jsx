@@ -23,7 +23,7 @@ const MicroMeetCard = ({ meet, onClick }) => (
       {meet.avatars && (
         <div className="flex -space-x-2.5">
           {meet.avatars.slice(0, 3).map((av, i) => (
-            <img key={i} src={av} className="w-10 h-10 rounded-full border-2 border-paper shadow-lg" alt="attendee" />
+            <img key={i} src={av} className="w-10 h-10 rounded-full border-2 border-paper shadow-lg" alt="attendee" loading="lazy" />
           ))}
           {meet.spotsLeft && <div className="w-10 h-10 rounded-full bg-secondary/10 border-2 border-paper flex items-center justify-center text-[10px] font-black text-secondary">+{meet.spotsLeft}</div>}
         </div>

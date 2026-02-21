@@ -1,0 +1,114 @@
+name: Auto Approve PRs
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-approve:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for mergeability check
+        uses: actions/github-script@v7
+        id: check-mergeable
+        with:
+          script: |
+            // GitHub needs a moment to compute mergeability after PR events
+            let mergeable = null;
+            let attempts = 0;
+            const maxAttempts = 10;
+
+            while (mergeable === null && attempts < maxAttempts) {
+              const { data: pr } = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.payload.pull_request.number,
+              });
+
+              mergeable = pr.mergeable;
+
+              if (mergeable === null) {
+                attempts++;
+                core.info(`Mergeability not yet computed, retrying (${attempts}/${maxAttempts})...`);
+                await new Promise(r => setTimeout(r, 3000));
+              }
+            }
+
+            if (mergeable === null) {
+              core.setFailed('Could not determine mergeability after maximum retries');
+              return;
+            }
+
+            core.setOutput('mergeable', mergeable.toString());
+            core.info(`PR is mergeable: ${mergeable}`);
+
+      - name: Approve PR
+        if: steps.check-mergeable.outputs.mergeable == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.pulls.createReview({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              event: 'APPROVE',
+              body: 'Auto-approved: no merge conflicts detected.',
+            });
+            core.info('PR approved successfully');
+
+      - name: Merge PR
+        if: steps.check-mergeable.outputs.mergeable == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.pulls.merge({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              merge_method: 'squash',
+            });
+            core.info('PR merged successfully');
+
+      - name: Delete branch
+        if: steps.check-mergeable.outputs.mergeable == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const branch = context.payload.pull_request.head.ref;
+            await github.rest.git.deleteRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `heads/${branch}`,
+            });
+            core.info(`Branch '${branch}' deleted successfully`);
+
+      - name: Post conflict notice
+        if: steps.check-mergeable.outputs.mergeable == 'false'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Check if a conflict comment already exists to avoid duplicates
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+            });
+
+            const conflictComment = comments.find(c =>
+              c.user.login === 'github-actions[bot]' &&
+              c.body.includes('merge conflicts detected')
+            );
+
+            if (!conflictComment) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                body: '⚠️ **Auto-approve skipped:** merge conflicts detected. Please resolve conflicts and push again.',
+              });
+            }
+            core.info('PR has merge conflicts — skipping approval');

@@ -7,10 +7,6 @@ const bodyParser = require('body-parser');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-if (!process.env.JWT_SECRET) {
-    console.warn('[WARN] JWT_SECRET env var not set. Using insecure default. Set JWT_SECRET before deploying.');
-}
-
 // CORS — always allow GitHub Pages + dev origins; extend with ALLOWED_ORIGINS env var
 const defaultOrigins = [
     'http://localhost:5173',
@@ -20,7 +16,7 @@ const defaultOrigins = [
 ];
 
 const envOrigins = process.env.ALLOWED_ORIGINS
-    ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
+    ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim()).filter(Boolean)
     : [];
 
 const allowedOrigins = [...new Set([...defaultOrigins, ...envOrigins])];
@@ -61,4 +57,5 @@ app.use('/api/users', usersRouter);
 
 app.listen(PORT, () => {
     console.log(`Socialise backend running on http://localhost:${PORT}`);
+    console.log(`CORS allowed origins: ${allowedOrigins.join(', ')}`);
 });

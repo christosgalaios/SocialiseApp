@@ -200,7 +200,7 @@ const TribeSheet = ({ tribe, isOpen, onClose, onLeave }) => {
                                         {reviews.map(review => (
                                             <div key={review.id} className="premium-card p-5">
                                                 <div className="flex items-center gap-3 mb-3">
-                                                    <img src={review.avatar} alt={review.user} className="w-10 h-10 rounded-full object-cover border border-secondary/10" />
+                                                    <img src={review.avatar} alt={review.user} className="w-10 h-10 rounded-full object-cover border border-secondary/10" loading="lazy" />
                                                     <div className="flex-1">
                                                         <h4 className="font-bold text-sm text-secondary">{review.user}</h4>
                                                         <p className="text-[10px] text-secondary/40">{review.time}</p>

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Crown, ChevronLeft, ChevronRight, Quote, Mail, Lock, User, AlertCircle } from 'lucide-react';
-import Mango from './Mango';
 
 const TESTIMONIALS = [
   {
@@ -26,11 +25,11 @@ const TESTIMONIALS = [
 
 const AuthScreen = ({ onLogin }) => {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
-  const [mangoMessage, setMangoMessage] = useState("Ready to meet your tribe? 🐱");
   const [isRegister, setIsRegister] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -41,23 +40,18 @@ const AuthScreen = ({ onLogin }) => {
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    const messages = [
-      "Ready to meet your tribe? 🐱",
-      "Everyone's welcome here!",
-      "I'll help you find friends!"
-    ];
-    setMangoMessage(messages[activeTestimonial]);
-  }, [activeTestimonial]);
-
   const nextTestimonial = () => setActiveTestimonial((prev) => (prev + 1) % TESTIMONIALS.length);
   const prevTestimonial = () => setActiveTestimonial((prev) => (prev - 1 + TESTIMONIALS.length) % TESTIMONIALS.length);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    if (isRegister && !name.trim()) {
-      setError('Please enter your name');
+    if (isRegister && !firstName.trim()) {
+      setError('Please enter your first name');
+      return;
+    }
+    if (isRegister && !lastName.trim()) {
+      setError('Please enter your last name');
       return;
     }
     if (!email.trim()) {
@@ -72,7 +66,7 @@ const AuthScreen = ({ onLogin }) => {
     try {
       await onLogin(
         isRegister ? 'register' : 'login',
-        { email: email.trim(), password, name: name.trim() }
+        { email: email.trim(), password, firstName: firstName.trim(), lastName: lastName.trim() }
       );
     } catch (err) {
       setError(err.message || 'Something went wrong');
@@ -175,16 +169,6 @@ const AuthScreen = ({ onLogin }) => {
         </div>
       </motion.div>
 
-      {/* Mango */}
-      <motion.div
-        className="absolute top-[35%] right-4 md:right-8 z-10"
-        initial={{ opacity: 0, scale: 0, rotate: -45 }}
-        animate={{ opacity: 1, scale: 1, rotate: 0 }}
-        transition={{ delay: 0.8, type: "spring", stiffness: 200 }}
-      >
-        <Mango pose="wave" size={70} message={mangoMessage} />
-      </motion.div>
-
       {/* Login / Register Form */}
       <motion.div
         className="mt-auto space-y-4"
@@ -196,21 +180,33 @@ const AuthScreen = ({ onLogin }) => {
           <AnimatePresence mode="wait">
             {isRegister && (
               <motion.div
-                key="name"
+                key="name-fields"
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: 'auto', opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
                 className="overflow-hidden"
               >
-                <div className="relative">
-                  <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary/40" />
-                  <input
-                    type="text"
-                    placeholder="Your name"
-                    value={name}
-                    onChange={(e) => { setName(e.target.value); setError(''); }}
-                    className="w-full py-4 pl-12 pr-4 rounded-2xl bg-white border border-secondary/10 text-[var(--text)] font-medium text-sm focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition-all"
-                  />
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary/40" />
+                    <input
+                      type="text"
+                      placeholder="First name"
+                      value={firstName}
+                      onChange={(e) => { setFirstName(e.target.value); setError(''); }}
+                      className="w-full py-4 pl-12 pr-4 rounded-2xl bg-white border border-secondary/10 text-[var(--text)] font-medium text-sm focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition-all"
+                    />
+                  </div>
+                  <div className="relative flex-1">
+                    <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary/40" />
+                    <input
+                      type="text"
+                      placeholder="Last name"
+                      value={lastName}
+                      onChange={(e) => { setLastName(e.target.value); setError(''); }}
+                      className="w-full py-4 pl-12 pr-4 rounded-2xl bg-white border border-secondary/10 text-[var(--text)] font-medium text-sm focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition-all"
+                    />
+                  </div>
                 </div>
               </motion.div>
             )}
@@ -269,7 +265,7 @@ const AuthScreen = ({ onLogin }) => {
         </form>
 
         <button
-          onClick={() => { setIsRegister(!isRegister); setName(''); setError(''); }}
+          onClick={() => { setIsRegister(!isRegister); setFirstName(''); setLastName(''); setError(''); }}
           className="w-full py-3 text-center text-xs font-bold text-secondary/60 hover:text-primary transition-colors"
         >
           {isRegister ? 'Already have an account? Log in' : "Don't have an account? Sign up"}

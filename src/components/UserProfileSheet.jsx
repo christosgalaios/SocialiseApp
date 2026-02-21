@@ -58,7 +58,7 @@ const UserProfileSheet = ({ profile, isOpen, onClose, onMessage }) => {
                             </div>
                             <div className="flex flex-col items-center text-center">
                                 <div className="w-24 h-24 rounded-[28px] overflow-hidden border-2 border-secondary/10 shadow-xl mb-4">
-                                    <img src={avatar} alt={name} className="w-full h-full object-cover" />
+                                    <img src={avatar} alt={name} className="w-full h-full object-cover" loading="lazy" />
                                 </div>
                                 <h2 className="text-2xl font-black tracking-tight text-secondary mb-1">
                                     {name}<span className="text-accent">.</span>
