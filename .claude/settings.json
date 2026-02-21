@@ -1,0 +1,45 @@
+{
+  "mcpServers": [
+    {
+      "name": "github",
+      "description": "GitHub PR, issue, and workflow management",
+      "enabled": true
+    },
+    {
+      "name": "supabase",
+      "description": "Direct database queries and schema inspection",
+      "enabled": true
+    }
+  ],
+  "hooks": {
+    "PostToolUse": [
+      {
+        "name": "auto-lint",
+        "description": "Auto-format and lint on React component edits",
+        "trigger": ["Edit", "Write"],
+        "files": ["src/**/*.jsx", "server/**/*.js"],
+        "command": "npm run lint -- --fix",
+        "enabled": true
+      }
+    ],
+    "PreToolUse": [
+      {
+        "name": "block-env",
+        "description": "Prevent accidental .env edits",
+        "trigger": ["Edit", "Write"],
+        "files": [".env", ".env.*.local", "server/.env*"],
+        "action": "block",
+        "message": "⚠️ Do not edit .env files directly. Credentials must be set in production environment only.",
+        "enabled": true
+      }
+    ]
+  },
+  "skills": {
+    "enabled": true,
+    "directory": ".claude/skills"
+  },
+  "agents": {
+    "enabled": true,
+    "directory": ".claude/agents"
+  }
+}
