@@ -307,9 +307,17 @@ These bugs from the original issue list have been resolved in the codebase:
 
 > Ordered by impact and dependency. Complete each phase before moving to the next.
 
-### Phase 1: Test Infrastructure (Do This First)
+### Phase 0: CI Safety Net (Quick Win)
 
-**Why first:** Zero tests across 38 components, 1500-line `App.jsx`, and 5 backend route files. Any refactor or feature addition risks silent regressions. Tests are the foundation that makes everything else safe.
+**Why first:** The `auto-approve.yml` workflow merges PRs based on mergeability alone — no lint, no build check. A broken build can land on `development` automatically. This is a one-step fix with the highest safety-to-effort ratio.
+
+- [ ] Add `npm run lint` and `npm run build` steps to `auto-approve.yml` before the approve/merge step
+- [ ] Add `npm run lint` step to `deploy-develop.yml` and `deploy-master.yml` before the build step
+- [ ] (After Phase 1) Add `npm test` to all three workflows as a required gate
+
+### Phase 1: Test Infrastructure
+
+**Why next:** Zero tests across 38 components, 1500-line `App.jsx`, and 5 backend route files. Any refactor or feature addition risks silent regressions. Tests are the foundation that makes everything else safe.
 
 - [ ] Install Vitest + React Testing Library + jsdom (frontend), supertest (backend)
 - [ ] Add `npm test` script to both `package.json` files
@@ -333,14 +341,17 @@ These bugs from the original issue list have been resolved in the codebase:
 - [ ] Update component imports to use store hooks instead of props
 - [ ] Verify all existing tests still pass after refactor
 
-### Phase 3: Real-Time with Supabase Realtime
+### Phase 3: Wire Remaining Mock Data + Real-Time
 
-**Why third:** Chat and feed use `setTimeout` simulations. With state management clean (Phase 2), adding Realtime subscriptions is straightforward. Supabase Realtime is already available — no new infra needed.
+**Why third:** `GroupChatsSheet` still uses `localStorage` for community chat messages and `setTimeout` for fake auto-replies (`Sarah K.`, `Marcus V.`) — despite real API endpoints existing (`GET/POST /communities/:id/chat`). `RealtimePing` state is initialized but never triggered. With clean state management (Phase 2), these become straightforward to fix.
 
-- [ ] Subscribe to `chat_messages` table changes for live event chat
+- [ ] Wire `GroupChatsSheet` to real API: fetch messages via `api.getCommunityChat()`, send via `api.sendCommunityMessage()` — remove localStorage fallback and fake `AUTO_REPLIES`
+- [ ] Subscribe to `chat_messages` table changes for live event chat (Supabase Realtime)
 - [ ] Subscribe to `community_messages` for live community chat
 - [ ] Subscribe to `feed_posts` and `post_reactions` for live feed updates
 - [ ] Remove `setTimeout` simulations in `App.jsx` (lines ~119, ~215, ~266, ~493)
+- [ ] Wire `RealtimePing` to actual subscription events (currently initialized to `{ isVisible: false }` and never triggered)
+- [ ] Replace hardcoded online member count in `GroupChatsSheet` (`Math.floor(members * 0.08)`) with Realtime presence
 - [ ] Add connection status indicator (connected/reconnecting)
 - [ ] Handle Realtime subscription cleanup on unmount
 
@@ -367,15 +378,21 @@ These bugs from the original issue list have been resolved in the codebase:
 - [ ] Add CSRF protection if moving to cookie-based auth
 - [ ] Add rate limiting to all mutation endpoints (currently only on `/auth/*`)
 
-### Phase 6: Production Polish
+### Phase 6: Bug Fixes + Production Polish
 
 **Why last:** These improve the experience but don't block core functionality.
 
+**Documented P1 bugs** (see `docs/MANGO_DEV_TASKS.md` — verify against `docs/MANGO_QA_SIGNOFF.md` for current state):
+- [ ] BUG-1: Mango position not persisted when wall crawl is interrupted by tap — `onPositionChange` never called in that branch
+- [ ] BUG-2: Mango pose stays `wall_grab` when dragging back off wall — no pose reset to `carried` when leaving wall zone mid-drag
+
+**Production polish:**
 - [ ] Enforce Pro features on backend (`isPro` check on premium endpoints)
 - [ ] Add service worker for offline support / PWA install prompt
 - [ ] Implement Google OAuth (currently simulated with DEMO_USER)
 - [ ] Add error boundary components for graceful crash recovery
 - [ ] Performance audit: bundle splitting, lazy-load routes, optimize Mango SVG (74kb)
+- [ ] Extract `useLocalStorage` hook from `App.jsx` (lines 77–98) into `src/hooks/useLocalStorage.js`
 
 ### ESLint
 
