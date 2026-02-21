@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { version as APP_VERSION } from '../package.json';
 import {
   Mail, ShieldCheck, Zap, Check, Heart, Crown, ChevronRight, ChevronLeft, LogOut, Camera, Users, Settings, MessageCircle, RefreshCw, ArrowLeft, Lock
@@ -700,7 +700,7 @@ function App() {
                                 time: post.created_at ? new Date(post.created_at).toLocaleDateString() : post.time,
                                 likes: Object.values(post.reactions || {}).reduce((a, b) => a + b, 0),
                                 comments: 0,
-                              }} currentUser={{ name: user?.name ?? 'Guest', avatar: user?.avatar ?? '' }} onOpenProfile={setSelectedUserProfile} />
+                              }} currentUser={{ name: auth.user?.name ?? 'Guest', avatar: auth.user?.avatar ?? '' }} onOpenProfile={feed.setSelectedUserProfile} />
                             )) : (
                               <div className="text-center text-secondary/40 text-sm font-medium py-8">No posts yet. Be the first!</div>
                             )}
@@ -710,12 +710,12 @@ function App() {
                           <div>
                             <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-4">Your Tribes<span className="text-accent">.</span></h3>
                             <div className="space-y-4">
-                              {communities.filter(c => userTribes.includes(c.id)).map(comm => (
+                              {communities.communities.filter(c => communities.userTribes.includes(c.id)).map(comm => (
                                 <motion.div
                                   whileHover={{ scale: 1.02 }}
                                   whileTap={{ scale: 0.98 }}
                                   key={comm.id}
-                                  onClick={() => ui.setSelectedTribe(comm)}
+                                  onClick={() => communities.setSelectedTribe(comm)}
                                   className="premium-card p-4 flex items-center gap-4 group cursor-pointer"
                                 >
                                   <div className="w-12 h-12 rounded-[18px] bg-secondary/10 flex items-center justify-center text-2xl border border-secondary/20 shadow-inner group-hover:bg-secondary/20 transition-colors">
@@ -730,7 +730,7 @@ function App() {
                                 </motion.div>
                               ))}
                               <button
-                                onClick={() => ui.setShowTribeDiscovery(true)}
+                                onClick={() => communities.setShowTribeDiscovery(true)}
                                 className="w-full py-4 border border-dashed border-primary/30 rounded-[20px] text-xs font-bold text-primary hover:bg-primary/5 hover:border-primary/50 transition-all uppercase tracking-widest"
                               >
                                 + Find New Tribe
@@ -753,7 +753,7 @@ function App() {
                           <div className="flex items-center justify-between mb-6">
                             <h1 className="text-4xl font-black tracking-tighter text-primary">Explore<span className="text-accent">.</span></h1>
                             <button
-                              onClick={() => setShowReels(true)}
+                              onClick={() => ui.setShowReels(true)}
                               className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-primary/10 border border-primary/20 text-primary font-bold text-xs hover:bg-primary/20 transition-all uppercase tracking-widest"
                             >
                               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><line x1="10" y1="2" x2="10" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><path d="m2 2 8 10M22 2l-8 10"/></svg>
@@ -764,29 +764,29 @@ function App() {
                           {/* Filters */}
                           <div className="sticky top-0 z-40 bg-secondary/10 backdrop-blur-xl py-4 -mx-5 px-5 md:mx-0 md:px-0 md:relative md:bg-transparent md:backdrop-blur-none border-b border-secondary/10 md:border-none">
                             <ExploreFilters
-                              searchQuery={searchQuery}
-                              setSearchQuery={setSearchQuery}
-                              activeCategory={activeCategory}
-                              setActiveCategory={setActiveCategory}
-                              sizeFilter={sizeFilter}
-                              setSizeFilter={setSizeFilter}
-                              dateRange={dateRange}
-                              setDateRange={setDateRange}
-                              thisWeekActive={thisWeekActive}
-                              setThisWeekActive={setThisWeekActive}
-                              activeTags={activeTags}
-                              setActiveTags={setActiveTags}
+                              searchQuery={ui.searchQuery}
+                              setSearchQuery={ui.setSearchQuery}
+                              activeCategory={ui.activeCategory}
+                              setActiveCategory={ui.setActiveCategory}
+                              sizeFilter={ui.sizeFilter}
+                              setSizeFilter={ui.setSizeFilter}
+                              dateRange={ui.dateRange}
+                              setDateRange={ui.setDateRange}
+                              thisWeekActive={ui.thisWeekActive}
+                              setThisWeekActive={ui.setThisWeekActive}
+                              activeTags={ui.activeTags}
+                              setActiveTags={ui.setActiveTags}
                             />
                           </div>
                         </header>
 
                         {/* Events Grid */}
                         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                          {filteredEvents.slice(0, exploreLimit).map(event => (
-                            <EventCard key={event.id} event={event} isJoined={joinedEvents.includes(event.id)} onClick={setSelectedEvent} />
+                          {filteredEvents.slice(0, ui.exploreLimit).map(event => (
+                            <EventCard key={event.id} event={event} isJoined={events.joinedEvents.includes(event.id)} onClick={events.setSelectedEvent} />
                           ))}
                         </div>
-                        {exploreLimit < filteredEvents.length && (
+                        {ui.exploreLimit < filteredEvents.length && (
                           <div className="flex justify-center mt-6">
                             <div className="flex items-center gap-2 text-secondary/40 text-xs font-bold animate-pulse">
                               <div className="w-4 h-4 border-2 border-secondary/30 border-t-primary rounded-full animate-spin" />
@@ -827,23 +827,23 @@ function App() {
                                 <span className="font-bold text-secondary">Enable experimental features</span>
                                 <button
                                   role="switch"
-                                  aria-checked={experimentalFeatures}
-                                  onClick={() => setExperimentalFeatures(!experimentalFeatures)}
-                                  className={`relative w-12 h-7 rounded-full transition-colors ${experimentalFeatures ? 'bg-primary' : 'bg-secondary/20'}`}
+                                  aria-checked={ui.experimentalFeatures}
+                                  onClick={() => ui.setExperimentalFeatures(!ui.experimentalFeatures)}
+                                  className={`relative w-12 h-7 rounded-full transition-colors ${ui.experimentalFeatures ? 'bg-primary' : 'bg-secondary/20'}`}
                                 >
                                   <motion.div
                                     className="absolute top-1 w-5 h-5 rounded-full bg-white shadow"
-                                    animate={{ x: experimentalFeatures ? 24 : 0 }}
+                                    animate={{ x: ui.experimentalFeatures ? 24 : 0 }}
                                     transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                                     style={{ left: 4 }}
                                   />
                                 </button>
                               </div>
-                              {experimentalFeatures && (
+                              {ui.experimentalFeatures && (
                                 <div className="border-t border-secondary/10 p-4 space-y-2">
                                   <button
                                     type="button"
-                                    onClick={() => setShowGroupChats(true)}
+                                    onClick={() => ui.setShowGroupChats(true)}
                                     className="w-full flex items-center gap-3 p-3 rounded-2xl bg-secondary/5 hover:bg-secondary/10 transition-colors text-left"
                                   >
                                     <MessageCircle className="text-secondary" size={20} />
@@ -878,7 +878,7 @@ function App() {
                             <div className="text-center md:text-left">
                               <div className="relative inline-block group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
                                 <div className="w-32 h-32 rounded-[32px] overflow-hidden border-4 border-white/10 shadow-2xl mx-auto md:mx-0 mb-4 relative z-10 transition-transform group-hover:scale-105">
-                                  <img src={user?.avatar} className="w-full h-full object-cover" alt="Profile" />
+                                  <img src={auth.user?.avatar} className="w-full h-full object-cover" alt="Profile" />
                                   <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                     <Camera className="text-white drop-shadow-md" size={32} />
                                   </div>
@@ -894,21 +894,21 @@ function App() {
                                   onChange={handleAvatarUpload}
                                 />
                                 <div className="absolute inset-0 bg-primary/20 blur-3xl -z-10 transform scale-150" />
-                                {experimentalFeatures && proEnabled && <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 md:left-0 md:translate-x-0 z-20 bg-amber-500 text-[10px] font-black px-3 py-1 rounded-full text-white shadow-lg border border-white/20 whitespace-nowrap flex items-center gap-1"><Crown size={10} /> PRO</div>}
+                                {ui.experimentalFeatures && ui.proEnabled && <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 md:left-0 md:translate-x-0 z-20 bg-amber-500 text-[10px] font-black px-3 py-1 rounded-full text-white shadow-lg border border-white/20 whitespace-nowrap flex items-center gap-1"><Crown size={10} /> PRO</div>}
                               </div>
-                              <h1 className="text-3xl font-black tracking-tighter mb-2 text-primary">{user?.name}<span className="text-accent">.</span></h1>
-                              {user?.selectedTitle && (
-                                <span className="inline-block px-3 py-1 mb-2 bg-accent/10 rounded-full border border-accent/20 text-[10px] font-black text-accent uppercase tracking-widest">{user.selectedTitle}</span>
+                              <h1 className="text-3xl font-black tracking-tighter mb-2 text-primary">{auth.user?.name}<span className="text-accent">.</span></h1>
+                              {auth.user?.selectedTitle && (
+                                <span className="inline-block px-3 py-1 mb-2 bg-accent/10 rounded-full border border-accent/20 text-[10px] font-black text-accent uppercase tracking-widest">{auth.user.selectedTitle}</span>
                               )}
-                              <p className="text-sm text-gray-400 font-medium max-w-xs leading-relaxed mb-3">{user?.bio}</p>
+                              <p className="text-sm text-gray-400 font-medium max-w-xs leading-relaxed mb-3">{auth.user?.bio}</p>
                               <div className="flex items-center justify-center md:justify-start gap-5">
                                 <div className="text-center">
-                                  <span className="text-lg font-black text-secondary">{user?.followers ?? 0}</span>
+                                  <span className="text-lg font-black text-secondary">{auth.user?.followers ?? 0}</span>
                                   <p className="text-[9px] font-bold text-secondary/40 uppercase tracking-widest">Followers</p>
                                 </div>
                                 <div className="w-px h-6 bg-secondary/10" />
                                 <div className="text-center">
-                                  <span className="text-lg font-black text-secondary">{user?.following ?? 0}</span>
+                                  <span className="text-lg font-black text-secondary">{auth.user?.following ?? 0}</span>
                                   <p className="text-[9px] font-bold text-secondary/40 uppercase tracking-widest">Following</p>
                                 </div>
                               </div>
@@ -917,9 +917,9 @@ function App() {
                             {/* Level Circle */}
                             <div className="flex-1 flex justify-center md:justify-end">
                               {(() => {
-                                const cl = XP_LEVELS.filter(l => l.xpRequired <= userXP).pop() || XP_LEVELS[0];
-                                const nl = XP_LEVELS.find(l => l.xpRequired > userXP) || XP_LEVELS[XP_LEVELS.length - 1];
-                                const xpIn = userXP - cl.xpRequired;
+                                const cl = XP_LEVELS.filter(l => l.xpRequired <= ui.userXP).pop() || XP_LEVELS[0];
+                                const nl = XP_LEVELS.find(l => l.xpRequired > ui.userXP) || XP_LEVELS[XP_LEVELS.length - 1];
+                                const xpIn = ui.userXP - cl.xpRequired;
                                 const xpNeed = nl.xpRequired - cl.xpRequired;
                                 const prog = xpNeed > 0 ? Math.min((xpIn / xpNeed) * 100, 100) : 100;
                                 return <WarmthScore level={cl.level} levelProgress={prog} levelIcon={cl.icon} streak={5} />;
@@ -931,13 +931,13 @@ function App() {
                           <motion.div
                             variants={itemVariants}
                             className="premium-card p-6 overflow-hidden relative cursor-pointer active:scale-[0.98] transition-transform"
-                            onClick={() => setShowLevelDetail(true)}
+                            onClick={() => ui.setShowLevelDetail(true)}
                           >
                             <div className="absolute -right-10 -top-10 w-40 h-40 bg-accent/5 rounded-full blur-3xl" />
                             {(() => {
-                              const currentLevel = XP_LEVELS.filter(l => l.xpRequired <= userXP).pop() || XP_LEVELS[0];
-                              const nextLevel = XP_LEVELS.find(l => l.xpRequired > userXP) || XP_LEVELS[XP_LEVELS.length - 1];
-                              const xpInLevel = userXP - currentLevel.xpRequired;
+                              const currentLevel = XP_LEVELS.filter(l => l.xpRequired <= ui.userXP).pop() || XP_LEVELS[0];
+                              const nextLevel = XP_LEVELS.find(l => l.xpRequired > ui.userXP) || XP_LEVELS[XP_LEVELS.length - 1];
+                              const xpInLevel = ui.userXP - currentLevel.xpRequired;
                               const xpNeeded = nextLevel.xpRequired - currentLevel.xpRequired;
                               const progress = xpNeeded > 0 ? Math.min((xpInLevel / xpNeeded) * 100, 100) : 100;
                               return (
@@ -951,7 +951,7 @@ function App() {
                                       </div>
                                     </div>
                                     <div className="text-right">
-                                      <span className="text-2xl font-black text-accent">{userXP}</span>
+                                      <span className="text-2xl font-black text-accent">{ui.userXP}</span>
                                       <p className="text-[9px] font-bold text-secondary/40 uppercase tracking-widest">Total XP</p>
                                       <p className="text-[8px] font-bold text-primary/50 uppercase tracking-widest mt-0.5">Tap for roadmap</p>
                                     </div>
@@ -975,7 +975,7 @@ function App() {
                             <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-4">Your Stats<span className="text-accent">.</span></h3>
                             <div className="space-y-3">
                               {PROFILE_STATS.map(stat => {
-                                const value = user?.stats?.[stat.key] ?? Math.floor(Math.random() * 7 + 1);
+                                const value = auth.user?.stats?.[stat.key] ?? Math.floor(Math.random() * 7 + 1);
                                 const percentage = (value / stat.maxLevel) * 100;
                                 return (
                                   <div key={stat.key} className="flex items-center gap-3">
@@ -1001,11 +1001,11 @@ function App() {
                           </motion.div>
 
                           {/* Achievements — only show unlocked ones */}
-                          {userUnlockedTitles.length > 0 && (
+                          {ui.userUnlockedTitles.length > 0 && (
                             <motion.div variants={itemVariants} className="premium-card p-6">
                               <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-4">Achievements<span className="text-accent">.</span></h3>
                               <div className="grid grid-cols-2 gap-3">
-                                {UNLOCKABLE_TITLES.filter(t => userUnlockedTitles.includes(t.id)).map(title => (
+                                {UNLOCKABLE_TITLES.filter(t => ui.userUnlockedTitles.includes(t.id)).map(title => (
                                   <div key={title.id} className="p-4 rounded-2xl border bg-accent/5 border-accent/20">
                                     <span className="text-2xl">{title.icon}</span>
                                     <h4 className="text-xs font-bold mt-2 text-secondary">{title.title}</h4>
@@ -1027,14 +1027,14 @@ function App() {
                               <Users className="text-primary" size={28} />
                             </div>
                             <div>
-                              <span className="text-3xl font-black text-secondary">{joinedEvents.length}</span>
+                              <span className="text-3xl font-black text-secondary">{events.joinedEvents.length}</span>
                               <p className="text-[10px] font-black uppercase tracking-widest text-secondary/60 mt-1">Connections</p>
                             </div>
                           </motion.div>
 
 
 
-                          {experimentalFeatures && !proEnabled && (
+                          {ui.experimentalFeatures && !ui.proEnabled && (
                             <motion.div variants={itemVariants} className="mt-8 pt-8 border-t border-secondary/10 text-center">
                               <p className="text-xs text-secondary/60 mb-6 px-4 font-medium leading-relaxed italic">Unlock advanced matchmaking and event analytics for £12.99/mo</p>
                               <button
@@ -1049,9 +1049,9 @@ function App() {
 
                         <motion.div variants={itemVariants} className="premium-card overflow-hidden mt-6 rounded-[32px] bg-secondary/5 border border-secondary/10">
                           {[
-                            { label: 'My Bookings', icon: Check, action: () => ui.setShowBookings(true), badge: joinedEvents.length },
-                            { label: 'Saved Experiences', icon: Heart, action: () => ui.setShowSaved(true), badge: savedEvents.length },
-                            ...(experimentalFeatures ? [{ label: 'Socialise Pass', icon: Zap, action: () => ui.setShowProModal(true) }] : []),
+                            { label: 'My Bookings', icon: Check, action: () => ui.setShowBookings(true), badge: events.joinedEvents.length },
+                            { label: 'Saved Experiences', icon: Heart, action: () => ui.setShowSaved(true), badge: events.savedEvents.length },
+                            ...(ui.experimentalFeatures ? [{ label: 'Socialise Pass', icon: Zap, action: () => ui.setShowProModal(true) }] : []),
                             { label: 'Settings', icon: Settings, action: () => ui.setProfileSubTab('settings') },
                             { label: 'Help & Privacy', icon: ShieldCheck, action: () => ui.setShowHelp(true) }
                           ].map((item) => (
@@ -1106,7 +1106,7 @@ function App() {
 
             {/* Floating Navigation - Mobile Only */}
             <div className="md:hidden">
-              <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} onCreateClick={() => events.setShowCreate(true)} />
+              <BottomNav activeTab={ui.activeTab} setActiveTab={ui.setActiveTab} onCreateClick={() => events.setShowCreate(true)} />
             </div>
 
             {/* Modals & Sheets */}
@@ -1118,7 +1118,7 @@ function App() {
                   isJoined={events.joinedEvents.includes(events.selectedEvent.id)}
                   onJoin={() => {
                     if (events.selectedEvent.isMicroMeet && !events.joinedEvents.includes(events.selectedEvent.id)) {
-                      ui.setShowMatchModal(events.selectedEvent);
+                      events.setShowMatchModal(events.selectedEvent);
                     } else {
                       handleJoin(events.selectedEvent.id);
                     }
@@ -1129,42 +1129,42 @@ function App() {
                   onOpenProfile={feed.setSelectedUserProfile}
                 />
               )}
-              {showCreate && <CreateEventModal key="create-event" onClose={() => events.setShowCreate(false)} onSubmit={createNewEvent} />}
-              {ui.showMatchModal && (
+              {events.showCreate && <CreateEventModal key="create-event" onClose={() => events.setShowCreate(false)} onSubmit={createNewEvent} />}
+              {events.showMatchModal && (
                 <MatchAnalysisModal
                   key="match-modal"
-                  event={ui.showMatchModal}
+                  event={events.showMatchModal}
                   onConfirm={() => {
-                    handleJoin(ui.showMatchModal.id);
-                    ui.setShowMatchModal(null);
+                    handleJoin(events.showMatchModal.id);
+                    events.setShowMatchModal(null);
                   }}
-                  onCancel={() => ui.setShowMatchModal(null)}
+                  onCancel={() => events.setShowMatchModal(null)}
                 />
               )}
               {/* Tribe Modals */}
               <TribeSheet
                 key="tribe-sheet"
-                tribe={selectedTribe}
-                isOpen={!!selectedTribe}
-                onClose={() => ui.setSelectedTribe(null)}
-                onLeave={handleLeaveTribe}
+                tribe={communities.selectedTribe}
+                isOpen={!!communities.selectedTribe}
+                onClose={() => communities.setSelectedTribe(null)}
+                onLeave={communities.handleLeaveTribe}
               />
               <TribeDiscovery
                 key="tribe-discovery"
-                isOpen={ui.showTribeDiscovery}
-                onClose={() => ui.setShowTribeDiscovery(false)}
-                onJoin={handleJoinTribe}
-                joinedTribes={userTribes}
+                isOpen={communities.showTribeDiscovery}
+                onClose={() => communities.setShowTribeDiscovery(false)}
+                onJoin={communities.handleJoinTribe}
+                joinedTribes={communities.userTribes}
               />
               {/* Level Detail Modal */}
-              {showLevelDetail && (
+              {ui.showLevelDetail && (
                 <motion.div
                   key="level-detail"
                   className="fixed inset-0 z-[200] flex items-end justify-center bg-secondary/60 backdrop-blur-xl"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  onClick={() => setShowLevelDetail(false)}
+                  onClick={() => ui.setShowLevelDetail(false)}
                 >
                   <motion.div
                     className="w-full max-w-lg bg-paper rounded-t-[40px] p-6 pb-12 max-h-[85vh] overflow-y-auto no-scrollbar border-t border-secondary/10"
@@ -1179,14 +1179,14 @@ function App() {
                     <p className="text-xs text-secondary/50 mb-6 font-medium">Your progress and upcoming unlocks</p>
 
                     {(() => {
-                      const currentLevel = XP_LEVELS.filter(l => l.xpRequired <= userXP).pop() || XP_LEVELS[0];
+                      const currentLevel = XP_LEVELS.filter(l => l.xpRequired <= ui.userXP).pop() || XP_LEVELS[0];
                       return (
                         <div className="space-y-3">
                           {XP_LEVELS.map((lvl, i) => {
                             const isCurrentLevel = lvl.level === currentLevel.level;
-                            const isUnlocked = userXP >= lvl.xpRequired;
+                            const isUnlocked = ui.userXP >= lvl.xpRequired;
                             const nextLvl = XP_LEVELS[i + 1];
-                            const xpIn = isCurrentLevel ? userXP - lvl.xpRequired : 0;
+                            const xpIn = isCurrentLevel ? ui.userXP - lvl.xpRequired : 0;
                             const xpNeed = nextLvl ? nextLvl.xpRequired - lvl.xpRequired : 0;
                             const prog = isCurrentLevel && xpNeed > 0 ? Math.min((xpIn / xpNeed) * 100, 100) : 0;
                             return (
@@ -1245,86 +1245,105 @@ function App() {
               {/* Profile Modals */}
               <MyBookingsSheet
                 key="bookings"
-                isOpen={showBookings}
+                isOpen={ui.showBookings}
                 onClose={() => ui.setShowBookings(false)}
-                bookings={events.filter(e => joinedEvents.includes(e.id))}
+                bookings={events.events.filter(e => events.joinedEvents.includes(e.id))}
                 onCancel={(id) => {
-                  setJoinedEvents(joinedEvents.filter(eid => eid !== id));
-                  showToast('Booking cancelled', 'info');
+                  events.setJoinedEvents(events.joinedEvents.filter(eid => eid !== id));
+                  ui.showToast('Booking cancelled', 'info');
                 }}
               />
               <SavedEventsSheet
                 key="saved"
-                isOpen={showSaved}
+                isOpen={ui.showSaved}
                 onClose={() => ui.setShowSaved(false)}
-                savedEvents={events.filter(e => savedEvents.includes(e.id))}
+                savedEvents={events.events.filter(e => events.savedEvents.includes(e.id))}
                 onRemove={async (id) => {
-                  setSavedEvents(prev => prev.filter(eid => eid !== id));
-                  showToast('Removed from saved', 'info');
+                  events.setSavedEvents(prev => prev.filter(eid => eid !== id));
+                  ui.showToast('Removed from saved', 'info');
                   try {
                     await api.unsaveEvent(id);
                   } catch (err) {
-                    setSavedEvents(prev => [...prev, id]);
-                    showToast(err.message, 'error');
+                    events.setSavedEvents(prev => [...prev, id]);
+                    ui.showToast(err.message, 'error');
                   }
                 }}
                 onSelect={(event) => {
                   ui.setShowSaved(false);
-                  setSelectedEvent(event);
+                  events.setSelectedEvent(event);
                 }}
               />
               <ProUpgradeModal
                 key="pro"
-                isOpen={showProModal}
+                isOpen={ui.showProModal}
                 onClose={() => ui.setShowProModal(false)}
                 onUpgrade={() => {
-                  setProEnabled(true);
-                  setShowConfetti(true);
-                  showToast('Welcome to Socialise Pro! 🎉', 'success');
+                  ui.setProEnabled(true);
+                  ui.setShowConfetti(true);
+                  ui.showToast('Welcome to Socialise Pro! 🎉', 'success');
                 }}
               />
               <HelpSheet
                 key="help"
-                isOpen={showHelp}
+                isOpen={ui.showHelp}
                 onClose={() => ui.setShowHelp(false)}
                 onDeleteAccount={async () => {
-                  await api.deleteAccount();
-                  ui.setShowHelp(false);
-                  handleLogout();
-                  showToast('Account deleted successfully', 'info');
+                  try {
+                    await api.deleteAccount();
+                    ui.setShowHelp(false);
+                    // Clear all app state
+                    events.setEvents([]);
+                    events.setJoinedEvents([]);
+                    events.setSavedEvents([]);
+                    communities.setCommunities([]);
+                    feed.setFeedPosts([]);
+                    // Clear all localStorage data
+                    localStorage.removeItem('socialise_pro');
+                    localStorage.removeItem('socialise_tribes');
+                    localStorage.removeItem('socialise_onboarding_shown');
+                    localStorage.removeItem('socialise_preferences');
+                    localStorage.removeItem('socialise_experimental');
+                    localStorage.removeItem('socialise_xp');
+                    localStorage.removeItem('socialise_unlocked_titles');
+                    // Log out (clears user + token from localStorage)
+                    auth.handleLogout();
+                    ui.showToast('Account deleted successfully', 'info');
+                  } catch (err) {
+                    ui.showToast(err.message || 'Failed to delete account', 'error');
+                  }
                 }}
               />
               <GroupChatsSheet
-                isOpen={showGroupChats}
-                onClose={() => setShowGroupChats(false)}
-                joinedCommunities={communities.filter((c) => userTribes.includes(c.id))}
+                isOpen={ui.showGroupChats}
+                onClose={() => ui.setShowGroupChats(false)}
+                joinedCommunities={communities.communities.filter((c) => communities.userTribes.includes(c.id))}
               />
               <UserProfileSheet
                 key="user-profile"
-                profile={selectedUserProfile}
-                isOpen={!!selectedUserProfile}
-                onClose={() => setSelectedUserProfile(null)}
-                onMessage={(p) => showToast(`Opening chat with ${p.name}…`, 'info')}
+                profile={feed.selectedUserProfile}
+                isOpen={!!feed.selectedUserProfile}
+                onClose={() => feed.setSelectedUserProfile(null)}
+                onMessage={(p) => ui.showToast(`Opening chat with ${p.name}…`, 'info')}
               />
               <LevelUpModal
-                isOpen={showLevelUp}
-                onClose={() => setShowLevelUp(false)}
-                newLevel={levelUpData?.newLevel}
-                unlockedTitle={levelUpData?.unlockedTitle}
+                isOpen={ui.showLevelUp}
+                onClose={() => ui.setShowLevelUp(false)}
+                newLevel={ui.levelUpData?.newLevel}
+                unlockedTitle={ui.levelUpData?.unlockedTitle}
               />
-              {showReels && (
+              {ui.showReels && (
                 <EventReels
                   events={filteredEvents}
-                  onClose={() => setShowReels(false)}
+                  onClose={() => ui.setShowReels(false)}
                   onSelectEvent={(event) => {
-                    setShowReels(false);
-                    setSelectedEvent(event);
+                    ui.setShowReels(false);
+                    events.setSelectedEvent(event);
                   }}
                 />
               )}
               <AvatarCropModal
-                imageUrl={avatarCropImage}
-                isOpen={!!avatarCropImage}
+                imageUrl={ui.avatarCropImage}
+                isOpen={!!ui.avatarCropImage}
                 onSave={handleAvatarCropSave}
                 onCancel={handleAvatarCropCancel}
               />
@@ -1332,37 +1351,37 @@ function App() {
 
             {/* Onboarding Flow */}
             <AnimatePresence>
-              {user && !showOnboarding && !userPreferences && (
+              {auth.user && !ui.showOnboarding && !ui.userPreferences && (
                 <OnboardingFlow
-                  userName={user?.name ?? 'there'}
+                  userName={auth.user?.name ?? 'there'}
                   onComplete={(prefs) => {
-                    setUserPreferences(prefs);
-                    setShowOnboarding(true);
-                    showToast(`Welcome, ${user?.name?.split(' ')[0] ?? 'there'}! Let's find your tribe.`, 'success');
+                    ui.setUserPreferences(prefs);
+                    ui.setShowOnboarding(true);
+                    ui.showToast(`Welcome, ${auth.user?.name?.split(' ')[0] ?? 'there'}! Let's find your tribe.`, 'success');
                   }}
                 />
               )}
             </AnimatePresence>
 
             {/* Delight Moments */}
-            <Confetti active={showConfetti} onComplete={() => setShowConfetti(false)} />
+            <Confetti active={ui.showConfetti} onComplete={() => ui.setShowConfetti(false)} />
             <RealtimePing
-              isVisible={realtimePing.isVisible}
-              name={realtimePing.name}
-              avatar={realtimePing.avatar}
-              action={realtimePing.action}
-              onClose={() => setRealtimePing(prev => ({ ...prev, isVisible: false }))}
+              isVisible={ui.realtimePing.isVisible}
+              name={ui.realtimePing.name}
+              avatar={ui.realtimePing.avatar}
+              action={ui.realtimePing.action}
+              onClose={() => ui.setRealtimePing(prev => ({ ...prev, isVisible: false }))}
             />
 
             {/* Mango Assistant - Global Persistent Cat */}
-            {activeTab === 'home' && <MangoAssistant />}
+            {ui.activeTab === 'home' && <MangoAssistant />}
 
             <IOSInstallPrompt />
           </motion.div>
         )}
       </AnimatePresence>
       <AnimatePresence>
-        {mango.isChatOpen && <MangoChat user={user} events={events} />}
+        {mango.isChatOpen && <MangoChat user={auth.user} events={events.events} />}
       </AnimatePresence>
     </div>
   );
