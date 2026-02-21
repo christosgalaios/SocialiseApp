@@ -48,7 +48,6 @@ import OnboardingFlow from './components/OnboardingFlow';
 import EventReels from './components/EventReels';
 import LevelUpModal from './components/LevelUpModal';
 import AvatarCropModal from './components/AvatarCropModal';
-import EmailVerificationModal from './components/EmailVerificationModal';
 import {
   HomeSkeleton,
   HubSkeleton,
@@ -182,10 +181,6 @@ function App() {
   // Avatar crop modal
   const [avatarCropImage, setAvatarCropImage] = useState(null);
 
-  // Email verification modal
-  const [showEmailVerification, setShowEmailVerification] = useState(false);
-  const [pendingVerificationEmail, setPendingVerificationEmail] = useState('');
-  const [verificationCode, setVerificationCode] = useState('');
 
   // Profile sub-tab: profile | settings
   const [profileSubTab, setProfileSubTab] = useState('profile');
@@ -282,11 +277,7 @@ function App() {
       setUser(response.user);
       localStorage.setItem('socialise_token', response.token);
       dataFetchedForUser.current = null;
-      showToast(`Welcome, ${response.user.name?.split(' ')[0] || 'there'}! Check your email to verify.`, 'success');
-      // Show email verification modal, transition to app so data starts loading
-      setPendingVerificationEmail(credentials.email);
-      setVerificationCode(response.verificationCode || '');
-      setShowEmailVerification(true);
+      showToast(`Welcome, ${response.user.name?.split(' ')[0] || 'there'}!`, 'success');
       setAppState('app');
     } else {
       response = await api.login(credentials.email, credentials.password);
@@ -298,10 +289,6 @@ function App() {
     }
   };
 
-  const handleVerifyEmail = async (email, code) => {
-    await api.verifyEmail(email, code);
-    showToast('Email verified successfully!', 'success');
-  };
 
   const handleLogout = useCallback(() => {
     setUser(null);
@@ -638,20 +625,6 @@ function App() {
         ))}
       </AnimatePresence>
 
-      {/* Email Verification Modal */}
-      <AnimatePresence>
-        {showEmailVerification && (
-          <EmailVerificationModal
-            key="email-verification"
-            email={pendingVerificationEmail}
-            verificationCode={verificationCode}
-            onVerify={handleVerifyEmail}
-            onSkip={() => {
-              setShowEmailVerification(false);
-            }}
-          />
-        )}
-      </AnimatePresence>
 
       <AnimatePresence>
         {appState === 'splash' && (
