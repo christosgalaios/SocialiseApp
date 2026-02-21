@@ -79,7 +79,7 @@ jobs:
         with:
           script: |
             const branch = context.payload.pull_request.head.ref;
-            const protectedBranches = ['development', 'master', 'main'];
+            const protectedBranches = ['development', 'production'];
 
             if (protectedBranches.includes(branch)) {
               core.info(`Branch '${branch}' is a protected branch — skipping deletion`);
