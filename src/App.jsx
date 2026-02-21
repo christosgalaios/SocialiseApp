@@ -13,7 +13,7 @@ import {
   XP_LEVELS,
   UNLOCKABLE_TITLES,
   PROFILE_STATS
-} from './data/mockData';
+} from './data/constants';
 
 // --- COMPONENTS ---
 import AnimatedLogo from './components/AnimatedLogo';

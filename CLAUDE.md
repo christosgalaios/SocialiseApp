@@ -8,7 +8,7 @@
 
 **Socialise** is a community-driven social event discovery and micro-meet matchmaking platform. The pitch: warm, local, human connection — not cold tech. Think Meetup meets Hinge, with AI-curated small dinners (4-6 people) called "Micro-Meets".
 
-**Current state:** Backend fully wired to Supabase — all routes (events, communities, feed, users, auth) use Supabase Postgres. Row Level Security (RLS) enabled on all tables. Auth migrated from flat-file `users.json` to Supabase `users` table. Frontend still reads from `mockData.js` and has not yet been wired to the real API endpoints — this is the current priority.
+**Current state:** Fully wired end-to-end. Backend uses Supabase Postgres for all routes (events, communities, feed, users, auth). Frontend calls real API endpoints via `src/api.js` — no mock data for events, communities, or feed. Row Level Security (RLS) enabled on all tables. UI constants (categories, XP levels, tags) live in `src/data/constants.js`.
 
 ---
 
@@ -19,7 +19,7 @@
 | Frontend | React 19, Vite 7, Tailwind CSS 4, Framer Motion 12 |
 | Icons | Lucide React |
 | Maps | @react-google-maps/api + use-places-autocomplete |
-| Backend | Node.js + Express 5, deployed on Railway |
+| Backend | Node.js + Express 4, deployed on Railway |
 | Database | Supabase (Postgres) — events, communities, feed, users tables |
 | Auth | JWT (jsonwebtoken) + bcryptjs — users stored in Supabase |
 | Persistence | localStorage (frontend), Supabase (all backend data) |
@@ -35,20 +35,19 @@ No Redux, no Zustand. Frontend state lives in `App.jsx` + localStorage. Backend 
 ```
 /src
   App.jsx              # Main app — all state lives here
-  api.js               # API client (login, register, getMe)
+  api.js               # API client — all endpoints (auth, events, communities, feed, users)
   main.jsx             # Entry point + MangoContext provider
   index.css            # Design tokens, global styles, Tailwind overrides
-  /components          # 32+ UI components
+  /components          # 38 UI components
   /contexts            # MangoContext (kitten assistant global state)
   /data
-    mockData.js        # All mock events, communities, feed posts, demo user
+    constants.js       # UI constants: categories, tags, XP levels, advertised events
 /server
   index.js             # Express entry — mounts all routers
   supabase.js          # Supabase client (service role, server-side only)
   matching.js          # Micro-Meet matching algorithm
   migrate.js           # DB migration runner (runs /migrations/*.sql)
   seed.js              # Seed data for Supabase tables
-  users.json           # Legacy flat-file (now empty — auth migrated to Supabase)
   package.json         # Server-specific deps (CommonJS)
   /migrations
     001_initial_schema.sql    # Tables, indexes, triggers
@@ -99,9 +98,9 @@ ANTIGRAVITY_BRAIN.md   # Design philosophy doc (read before UI changes)
 | `--primary` | `#E2725B` | Terracotta — actions, CTAs |
 | `--secondary` | `#2D5F5D` | Teal — nav, text, calm sections |
 | `--accent` | `#F4B942` | Gold — highlights, delight |
-| `--paper` | `#F9F7F2` | Background (never pure white) |
+| `--bg-paper` | `#F9F7F2` | Background (never pure white) |
 | `--text` | `#1A1C1C` | Main text |
-| `--muted` | `#5C6363` | Secondary text |
+| `--text-muted` | `#5C6363` | Secondary text |
 
 **Critical rules:**
 - Light mode only. Dark mode CSS vars exist but are unused.
@@ -117,7 +116,7 @@ ANTIGRAVITY_BRAIN.md   # Design philosophy doc (read before UI changes)
 
 | Component | File | Notes |
 |---|---|---|
-| App | `src/App.jsx` | All state, all handlers. 1026 lines. |
+| App | `src/App.jsx` | All state, all handlers. ~1500 lines. |
 | Mango | `src/components/Mango.jsx` | Interactive kitten SVG, 44kb. Physics, poses, drag. |
 | MangoSVG | `src/components/MangoSVG.jsx` | 74kb SVG definition. Don't touch unless working on Mango. |
 | MangoContext | `src/contexts/MangoContext.jsx` | Global state: pose, visibility, chat, notifications. |
@@ -147,7 +146,7 @@ ANTIGRAVITY_BRAIN.md   # Design philosophy doc (read before UI changes)
 
 **Community/Tribe:**
 ```js
-{ id, name, members, lastMessage, unread, avatar, description, memberAvatars, category, isJoined }
+{ id, name, members, avatar, description, memberAvatars, category, isJoined }
 ```
 
 **Chat Message:**
@@ -160,14 +159,13 @@ ANTIGRAVITY_BRAIN.md   # Design philosophy doc (read before UI changes)
 |---|---|---|
 | `socialise_user` | Object | Authenticated user |
 | `socialise_token` | String | JWT (set manually, not via useLocalStorage) |
-| `socialise_joined` | Array | Joined event IDs |
-| `socialise_chats` | Object | `{ [eventId]: Message[] }` |
 | `socialise_pro` | Boolean | Pro subscription |
-| `socialise_tribes` | Array | Joined tribe IDs |
-| `socialise_saved` | Array | Saved event IDs |
+| `socialise_tribes` | Array | Joined tribe IDs (synced from API) |
 | `socialise_onboarding_shown` | Boolean | Onboarding complete |
 | `socialise_preferences` | Object | User onboarding prefs |
 | `socialise_experimental` | Boolean | Experimental features toggle |
+| `socialise_xp` | Number | User XP points (gamification) |
+| `socialise_unlocked_titles` | Array | Unlocked achievement title IDs |
 
 ---
 
@@ -186,28 +184,33 @@ Base (production): `https://socialise-app-production.up.railway.app/api`
 | GET | `/events/:id` | Optional | Single event detail |
 | PUT | `/events/:id` | Required | Update event (host only) |
 | DELETE | `/events/:id` | Required | Cancel event (host only) |
-| POST | `/events/:id/rsvp` | Required | RSVP to event |
-| DELETE | `/events/:id/rsvp` | Required | Un-RSVP |
+| POST | `/events/:id/join` | Required | Join event (RSVP) |
+| POST | `/events/:id/leave` | Required | Leave event (Un-RSVP) |
 | POST | `/events/:id/save` | Required | Save event |
-| DELETE | `/events/:id/save` | Required | Unsave event |
+| POST | `/events/:id/unsave` | Required | Unsave event |
 | GET | `/events/:id/chat` | Optional | Get event chat messages |
 | POST | `/events/:id/chat` | Required | Post chat message |
 | GET | `/communities` | Optional | List communities from Supabase |
 | GET | `/communities/:id` | Optional | Single community detail |
 | POST | `/communities` | Required | Create community |
 | POST | `/communities/:id/join` | Required | Join community |
-| DELETE | `/communities/:id/join` | Required | Leave community |
-| GET | `/communities/:id/feed` | Optional | Community feed |
-| POST | `/communities/:id/feed` | Required | Post to community feed |
+| POST | `/communities/:id/leave` | Required | Leave community |
+| GET | `/communities/:id/members` | Optional | Community members |
+| GET | `/communities/:id/chat` | Optional | Community chat messages |
+| POST | `/communities/:id/chat` | Required | Post to community chat |
 | GET | `/feed` | Optional | Global feed from Supabase |
 | POST | `/feed` | Required | Create feed post |
-| GET | `/users/:id` | Optional | User profile |
-| PUT | `/users/:id` | Required | Update profile |
-| GET | `/users/:id/recommendations` | Optional | Micro-Meet recommendations |
+| DELETE | `/feed/:id` | Required | Delete own post |
+| POST | `/feed/:id/react` | Required | Toggle emoji reaction |
+| PUT | `/users/me` | Required | Update own profile |
+| GET | `/users/me/events` | Required | My hosted + attending events |
+| GET | `/users/me/saved` | Required | My saved events |
+| GET | `/users/me/communities` | Required | My communities |
+| GET | `/events/recommendations/for-you` | Required | Micro-Meet recommendations (by match score) |
 
 **Demo credentials:** `ben@demo.com` / `password`
 
-**User storage:** Supabase `users` table. `server/users.json` is a legacy artifact (now empty). Auth routes read/write Supabase directly via service role client.
+**User storage:** Supabase `users` table. Auth routes read/write Supabase directly via service role client.
 
 **Environment variables (see `server/.env.example`):**
 - `JWT_SECRET` — Secret for signing JWTs. Required in production.
@@ -224,31 +227,34 @@ Base (production): `https://socialise-app-production.up.railway.app/api`
 |---|---|
 | Auth (login/register/JWT) | Real — users stored in Supabase `users` table |
 | User data | Real (Supabase) |
-| Events API | Real (Supabase via `/api/events`) — frontend not yet wired |
-| Communities API | Real (Supabase via `/api/communities`) — frontend not yet wired |
-| Feed API | Real (Supabase via `/api/feed`) — frontend not yet wired |
-| Users API | Real (Supabase via `/api/users`) — frontend not yet wired |
+| Events (backend + frontend) | Real — API + frontend wired via `api.getEvents()` |
+| Communities (backend + frontend) | Real — API + frontend wired via `api.getCommunities()` |
+| Feed (backend + frontend) | Real — API + frontend wired via `api.getFeed()` |
+| Users API | Real (Supabase via `/api/users`) |
+| Event join/leave | Real — optimistic UI + API calls |
+| Event save/unsave | Real — optimistic UI + API calls |
+| Community join/leave | Real — optimistic UI + API calls |
+| Event chat messages | Real — fetched from API, sent via API |
 | Micro-Meet recommendations | Real — matching algorithm in `server/matching.js` |
 | Row Level Security | Real — RLS enabled and enforced on all tables |
-| Frontend events display | Still mock — reads from `mockData.js` |
-| Frontend communities display | Still mock — reads from `mockData.js` |
-| Frontend feed display | Still mock — reads from `mockData.js` |
-| Chat messages | Mock (initial) + localStorage for new messages |
+| UI constants (categories, XP, tags) | Frontend-only — defined in `src/data/constants.js` |
 | Realtime pings | Simulated with setTimeout |
 | Pro subscription | UI only — no payment, no enforcement |
 | Google login | Simulated — just loads DEMO_USER |
 
 ## Migration Status
 
-**Goal:** Replace all mock data with real Supabase-backed API calls.
+**Goal:** Replace all mock data with real Supabase-backed API calls. **Status: Complete.**
 
 **Completed (backend):**
 - Supabase client configured in `server/supabase.js`
 - Events, Communities, Feed, Users routes all wired to Supabase
-- Auth migrated from `users.json` to Supabase `users` table — registration and login now persist correctly on Railway
+- Auth migrated to Supabase `users` table — registration and login persist correctly on Railway
 - Row Level Security (RLS) enabled and enforced on all tables (migration 004)
 - Sensitive columns (password, verification codes) revoked from anon/authenticated Supabase roles
 - `update_updated_at` trigger function secured with `search_path = ''` (migration 005)
+- JWT_SECRET now throws in production if not set (no more insecure fallback)
+- Duplicate JWT verification in communities.js replaced with shared `extractUserId` helper
 - Micro-Meet matching algorithm (`server/matching.js`)
 - Seed data script (`server/seed.js`)
 - Migration runner (`server/migrate.js`) + 5 migration files in `server/migrations/`
@@ -256,10 +262,14 @@ Base (production): `https://socialise-app-production.up.railway.app/api`
 - API URL now reads from `VITE_API_URL` env var (not hardcoded)
 - GitHub Pages deploys to `/dev/` and `/prod/` subfolders via separate workflows
 
-**Not yet started (frontend — current priority):**
-- Wire `src/api.js` to call real `/api/events`, `/api/communities`, `/api/feed` endpoints instead of importing from `mockData.js`
-- Replace localStorage-based join/save/tribe state with API calls
-- Handle loading/error states for real async data throughout the app
+**Completed (frontend):**
+- `src/api.js` has full API client: auth, events (CRUD + join/leave/save/unsave/chat), communities (CRUD + join/leave/chat), feed (CRUD + reactions), users (profile + my events/saved/communities)
+- `App.jsx` calls real API via `fetchAllData()` on login — populates events, communities, feed from Supabase
+- All mutations (join/leave/save/unsave/create/chat) use optimistic UI + API calls with error rollback
+- Pull-to-refresh on home tab re-fetches all data from API
+- `mockData.js` renamed to `constants.js` — only contains UI config (categories, XP levels, tags), not mock data
+- Legacy `server/users.json` deleted
+- Unused `resend` dependency removed from `server/package.json`
 
 ---
 
@@ -279,8 +289,12 @@ These bugs from the original issue list have been resolved in the codebase:
 - Auth migrated from `users.json` to Supabase `users` table — fixes ephemeral filesystem issue on Railway ✓
 - Row Level Security (RLS) enabled on all Supabase tables with appropriate policies ✓
 - `update_updated_at` function secured with immutable `search_path` ✓
-- Email verification added then intentionally removed (Resend dependency remains unused in `server/package.json`) ✓
+- Email verification added then intentionally removed; unused `resend` dependency removed from `server/package.json` ✓
 - GitHub Pages deploys to `/dev/` and `/prod/` subfolders — no more root-level conflicts ✓
+- Frontend wired to real API — `mockData.js` renamed to `constants.js` (UI config only, no mock data) ✓
+- Legacy `server/users.json` deleted (was already empty) ✓
+- JWT_SECRET hardcoded fallback removed — now throws in production if env var not set ✓
+- Duplicate inline JWT verification in `communities.js` replaced with shared `extractUserId` helper ✓
 
 ---
 
@@ -289,12 +303,9 @@ These bugs from the original issue list have been resolved in the codebase:
 ### Structural
 - `App.jsx` is large with all state centralized. Needs breaking into feature slices or a proper store (Zustand recommended) when complexity grows further.
 - No test coverage. Zero tests. Needs Vitest + React Testing Library for unit tests, Playwright or Cypress for E2E. (Use `/gen-test` skill to start.)
-- Frontend still uses `mockData.js` — needs wiring to real API (see Migration Status above). **This is the current priority.**
 - No real-time. Supabase Realtime could replace the current `setTimeout` simulation for live feed/chat.
-- Unused `resend` dependency in `server/package.json` — can be removed.
 
 ### Security
-- Server JWT_SECRET defaults to dev fallback — must set `JWT_SECRET` env var in production.
 - CORS defaults to dev origins — set `ALLOWED_ORIGINS` env var in production.
 - localStorage token storage is XSS-vulnerable. For production: HttpOnly cookies.
 - No rate limiting on auth endpoints. Add express-rate-limit before public launch.

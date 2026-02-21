@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Heart, MessageCircle, Share2, ChevronUp, ChevronDown, MapPin, Calendar, Users, Play, Pause, Upload, Image } from 'lucide-react';
-import { INCLUSIVITY_TAGS } from '../data/mockData';
+import { INCLUSIVITY_TAGS } from '../data/constants';
 
 /**
  * EventReels - Full-screen vertical reels experience for browsing events.

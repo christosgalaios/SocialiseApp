@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Calendar, Users, Star, ChevronDown, SlidersHorizontal, X, UsersRound } from 'lucide-react';
-import { CATEGORIES, INCLUSIVITY_TAGS } from '../data/mockData';
+import { CATEGORIES, INCLUSIVITY_TAGS } from '../data/constants';
 import DateRangeCalendar from './DateRangeCalendar';
 
 const ExploreFilters = ({

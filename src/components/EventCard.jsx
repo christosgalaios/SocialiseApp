@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Check, Clock, Users, Calendar, MapPin } from 'lucide-react';
-import { INCLUSIVITY_TAGS } from '../data/mockData';
+import { INCLUSIVITY_TAGS } from '../data/constants';
 
 const EventCard = ({ event, onClick, compact = false, isJoined = false }) => (
   <motion.div
