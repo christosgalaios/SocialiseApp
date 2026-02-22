@@ -34,8 +34,8 @@ const isValidName = (name) =>
 
 const toPublicUser = (row) => {
     if (!row) return null;
-    const { password: _password, is_pro, is_email_verified: _verified, verification_code: _code, verification_code_expiry: _expiry, login_streak, last_login_date, ...rest } = row;
-    return { ...rest, isPro: is_pro, loginStreak: login_streak ?? 0, lastLoginDate: last_login_date ?? null };
+    const { password: _password, is_pro, is_email_verified: _verified, verification_code: _code, verification_code_expiry: _expiry, login_streak, last_login_date, unlocked_titles, ...rest } = row;
+    return { ...rest, isPro: is_pro, loginStreak: login_streak ?? 0, lastLoginDate: last_login_date ?? null, xp: rest.xp ?? 0, unlockedTitles: unlocked_titles ?? [] };
 };
 
 // --- Login streak calculation ---
@@ -199,6 +199,8 @@ router.post('/register', authLimiter, async (req, res) => {
             is_pro: false,
             login_streak: 1,
             last_login_date: today,
+            xp: 0,
+            unlocked_titles: [],
         })
         .select()
         .single();

@@ -57,10 +57,13 @@ const useAuthStore = create((set, get) => ({
     set({ _dataFetchedForUser: null });
     setAppState('app');
 
-    // Sync login streak from server to UI store
-    if (response.user?.loginStreak != null) {
+    // Sync login streak, XP, and unlocked titles from server to UI store
+    if (response.user) {
       const { default: useUIStore } = await import('./uiStore');
-      useUIStore.getState().setLoginStreak(response.user.loginStreak);
+      const uiState = useUIStore.getState();
+      if (response.user.loginStreak != null) uiState.setLoginStreak(response.user.loginStreak);
+      if (response.user.xp != null) uiState.setUserXP(response.user.xp);
+      if (response.user.unlockedTitles != null) uiState.setUserUnlockedTitles(response.user.unlockedTitles);
     }
 
     if (onSuccess) {
@@ -94,10 +97,13 @@ const useAuthStore = create((set, get) => ({
       setUser(userData);
       set({ appState: 'app', _dataFetchedForUser: null });
 
-      // Sync login streak from server to UI store
-      if (userData?.loginStreak != null) {
+      // Sync login streak, XP, and unlocked titles from server to UI store
+      if (userData) {
         const { default: useUIStore } = await import('./uiStore');
-        useUIStore.getState().setLoginStreak(userData.loginStreak);
+        const uiState = useUIStore.getState();
+        if (userData.loginStreak != null) uiState.setLoginStreak(userData.loginStreak);
+        if (userData.xp != null) uiState.setUserXP(userData.xp);
+        if (userData.unlockedTitles != null) uiState.setUserUnlockedTitles(userData.unlockedTitles);
       }
 
       return userData;
