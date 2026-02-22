@@ -333,6 +333,11 @@ These bugs from the original issue list have been resolved in the codebase:
 - ErrorBoundary improved: `role="alert"`, design system styling, Try Again + Reload buttons ✓
 - Missing `loading="lazy"` added to img tags in MyBookingsSheet, SavedEventsSheet, TribeSheet ✓
 - HomeTab `refreshRecommendations` now handles errors with error toast (was showing success on failure) ✓
+- `FeedItem` `handleReply` and `submitComment` use `currentUser?.name ?? 'Guest'` instead of `currentUser.name` (null safety) ✓
+- Blob URL memory leak in ProfileTab `handleAvatarUpload` fixed — revokes previous URL before creating new one ✓
+- `EventReels` slideshow images have `onError` fallback (skip to next image on load failure) ✓
+- `loading="lazy"` added to all remaining img tags: HomeTab, ProfileTab, AuthScreen, IOSInstallPrompt, RealtimePing ✓
+- Component test coverage expanded: 409 frontend tests across 18 test files (useAccessibility 16, BottomNav 16, Toast 10, Sidebar 16, ErrorBoundary 11) ✓
 
 ---
 
@@ -350,13 +355,14 @@ These bugs from the original issue list have been resolved in the codebase:
 
 ### Phase 1: Test Infrastructure ✅
 
-**Status:** Complete. 512 tests across 18 test files (340 frontend + 172 server). All passing.
+**Status:** Complete. 581 tests across 18 test files (409 frontend + 172 server). All passing.
 
 - [x] Install Vitest + React Testing Library + jsdom (frontend)
 - [x] Add `npm test` script to both `package.json` files
 - [x] Write backend route tests: `auth.js` (30), `events.js` (37), `communities.js` (33), `feed.js` (30), `matching.js` (42)
-- [x] Write frontend component tests: `AuthScreen` (22), `CreateEventModal` (23), `EventDetailSheet` (31), `FeedItem` (23), `OnboardingFlow` (27), `EventCard` (22)
+- [x] Write frontend component tests: `AuthScreen` (22), `CreateEventModal` (23), `EventDetailSheet` (31), `FeedItem` (23), `OnboardingFlow` (27), `EventCard` (22), `BottomNav` (16), `Toast` (10), `Sidebar` (16), `ErrorBoundary` (11)
 - [x] Write `api.js` unit tests (39 tests — mock fetch, error handling, parseJson)
+- [x] Write `useAccessibility` hook tests (16 tests — useEscapeKey + useFocusTrap)
 
 ### Phase 2: State Management Refactor ✅
 
