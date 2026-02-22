@@ -72,7 +72,7 @@
   /skills              # Skill definitions (gen-test, create-migration)
 /public                # PWA icons, logos
 /docs                  # QA notes, dev task docs
-package.json           # Frontend deps (ESM) — v0.38.0
+package.json           # Frontend deps (ESM) — v0.1.0
 ANTIGRAVITY_BRAIN.md   # Design philosophy doc (read before UI changes)
 ```
 
@@ -135,7 +135,7 @@ ANTIGRAVITY_BRAIN.md   # Design philosophy doc (read before UI changes)
 | OnboardingFlow | `src/components/OnboardingFlow.jsx` | 3-step: interests → location → group size. |
 | CreateEventModal | `src/components/CreateEventModal.jsx` | Event creation form. |
 | VideoWall | `src/components/VideoWall.jsx` | Auto-playing video showcase. |
-| AuthScreen | `src/components/AuthScreen.jsx` | Login/register form. Demo: ben@demo.com / password. |
+| AuthScreen | `src/components/AuthScreen.jsx` | Login/register form. Demo: ben@demo.com / password (blocked in prod). |
 | Skeleton | `src/components/Skeleton.jsx` | Loading skeletons for each tab. |
 
 ---
