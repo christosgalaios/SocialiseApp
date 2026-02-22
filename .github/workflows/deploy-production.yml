@@ -81,6 +81,7 @@ jobs:
       # Sync the new baseline version to development so both branches
       # stay on the same version. Uses diff check to skip commit if
       # the version already matches (e.g. from a previous partial run).
+      # Retries with exponential backoff on push failure.
       - name: Sync version to development
         run: |
           git fetch origin development
@@ -92,9 +93,23 @@ jobs:
             fs.writeFileSync('package.json', JSON.stringify(p, null, 2) + '\n');
           "
           git add package.json
-          git diff --cached --quiet && echo "Version already in sync" || \
+          if git diff --cached --quiet; then
+            echo "Version already in sync"
+          else
             git commit -m "chore: sync version ${{ steps.version.outputs.version }} from production [skip ci]"
-          git push origin development || echo "::warning::Failed to sync version to development — may need manual sync"
+            # Retry push with exponential backoff
+            for i in 1 2 3 4; do
+              git push origin development && break
+              if [ $i -eq 4 ]; then
+                echo "::error::Failed to sync version to development after 4 attempts"
+                exit 1
+              fi
+              echo "Push failed, retrying in $((2 ** i))s..."
+              sleep $((2 ** i))
+              git fetch origin development
+              git rebase origin/development
+            done
+          fi
           git checkout production
 
       # ── Deploy (only reached if everything above succeeded) ──
