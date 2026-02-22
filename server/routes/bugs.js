@@ -26,6 +26,10 @@ router.post('/', authenticateToken, async (req, res) => {
     const bugId = `BUG-${Date.now()}`;
     const timestamp = new Date().toISOString();
 
+    // Detect environment from request origin
+    const origin = req.headers.origin || req.headers.referer || '';
+    const env = origin.includes('/prod') ? 'production' : origin.includes('/dev') ? 'development' : 'local';
+
     // Build markdown entry — priority will be inferred by /fix-bugs agent
     const entry = [
         `## ${bugId}`,
@@ -34,6 +38,7 @@ router.post('/', authenticateToken, async (req, res) => {
         `- **Priority:** auto`,
         `- **Reported:** ${timestamp}`,
         `- **Reporter:** user-${req.user.id}`,
+        `- **Environment:** ${env}`,
         '',
         `### Description`,
         '',

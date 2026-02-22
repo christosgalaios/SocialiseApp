@@ -19,12 +19,19 @@ Reads `BUGS.md`, processes each `open` bug report, validates it against the code
 ## How It Works
 
 1. **Read** `BUGS.md` and parse all entries with `Status: open`
-2. **Prioritize** each bug automatically based on its description and codebase context:
+2. **Deduplicate** — group reports that describe the same underlying bug:
+   - Compare descriptions semantically (not just string matching)
+   - Reports from different environments (prod/dev/local) about the same issue are duplicates
+   - Multiple users reporting the same symptom are duplicates
+   - When duplicates are found: keep the earliest report as primary, mark others as `duplicate of {BUG-ID}`
+   - More reports of the same bug = higher priority signal
+3. **Prioritize** each unique bug automatically based on its description and codebase context:
    - **P1 (Critical):** Data loss, auth broken, app crashes, API errors affecting core flows
    - **P2 (Major):** Feature broken, wrong data displayed, state management bugs, broken interactions
    - **P3 (Minor):** Visual glitches, typos, edge cases, styling inconsistencies
-3. **Process** bugs in priority order: P1 → P2 → P3
-4. **For each bug:**
+   - **Boost:** Bugs reported by multiple users or from production get priority bumped
+4. **Process** bugs in priority order: P1 → P2 → P3
+5. **For each unique bug:**
    a. Read the bug-fixer agent definition at `.claude/agents/bug-fixer.md` for full rules
    b. Analyze the description to identify the affected area and component
    c. Validate: is this a real bug in existing behavior, or a feature request / invalid report?
@@ -33,7 +40,7 @@ Reads `BUGS.md`, processes each `open` bug report, validates it against the code
    f. Run `npm run lint` and `npm test -- --run` to verify
    g. If fix works: update bug status to `fixed` and priority to the inferred value, commit
    h. If fix fails or is out of scope: update status to `needs-triage` with reason
-5. **Push** all fix commits to `development` branch
+6. **Push** all fix commits to `development` branch
 
 ## Auto-Prioritization
 
@@ -69,6 +76,7 @@ Each bug entry looks like:
 - **Priority:** auto
 - **Reported:** 2025-01-15T10:30:00Z
 - **Reporter:** user-abc123
+- **Environment:** production
 
 ### Description
 
@@ -86,10 +94,29 @@ After processing, the entry is updated:
 - **Priority:** P2 - Major
 - **Reported:** 2025-01-15T10:30:00Z
 - **Reporter:** user-abc123
+- **Environment:** production
 
 ### Description
 
 Chat messages disappear after sending in the event detail page. I type a message, hit send, and it briefly shows then vanishes.
+
+---
+```
+
+Duplicate entries are marked:
+
+```markdown
+## BUG-1234567891
+
+- **Status:** duplicate of BUG-1234567890
+- **Priority:** auto
+- **Reported:** 2025-01-16T08:00:00Z
+- **Reporter:** user-xyz789
+- **Environment:** development
+
+### Description
+
+Sending a chat message in event detail doesn't work, message vanishes.
 
 ---
 ```
@@ -102,6 +129,7 @@ Chat messages disappear after sending in the event detail page. I type a message
 | `fixed` | Bug validated and fix committed |
 | `rejected` | Not a bug (feature request, invalid, or cannot reproduce) |
 | `needs-triage` | Valid bug but out of scope for automated fixing (auth, migrations, etc.) |
+| `duplicate of {ID}` | Same bug as another report — the primary report will be fixed |
 
 ## Commit Format
 
