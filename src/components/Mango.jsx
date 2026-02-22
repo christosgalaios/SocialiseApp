@@ -9,7 +9,6 @@ import { motion, useMotionValue, useTransform, AnimatePresence, useVelocity, use
 const MangoSVG = ({ pose = 'wave', size = 80, isDragging = false }) => {
     // Brand colors
     const orange = '#E2725B';           // Primary terracotta
-    const orangeLight = '#EFA090';      // Lighter shade  
     const orangeDark = '#C75B47';       // Darker stripes
     const white = '#FFFFFF';            // Chest, paws
     const cream = '#FFF8F0';            // Muzzle
@@ -680,6 +679,7 @@ const MangoSVG = ({ pose = 'wave', size = 80, isDragging = false }) => {
  */
 const Mango = ({
     pose: initialPose = 'wave',
+    // eslint-disable-next-line no-unused-vars
     message = null,
     position = 'bottom-right',
     size = 80,
@@ -688,7 +688,7 @@ const Mango = ({
     onPositionChange = () => { },
     onPoseChange = () => { } // Notify parent on internal pose change
 }) => {
-    const { toggleChat, hasNotification } = useMango();
+    const { toggleChat } = useMango();
     const [currentPose, setCurrentPose] = useState(initialPose);
     const [isDragging, setIsDragging] = useState(false);
     const [isHolding, setIsHolding] = useState(false);
@@ -700,7 +700,7 @@ const Mango = ({
     const tapStartTimeRef = useRef(0);
     const hasDraggedRef = useRef(false);
     const containerRef = useRef(null);
-    const dragControls = useDragControls();
+    useDragControls();
 
     // For dragging position - initialize from persisted coords
     const x = useMotionValue(initialCoords.x);
@@ -760,7 +760,7 @@ const Mango = ({
     }, [resetIdleTimer, currentPose]);
 
     // Handle tap start (pointer down)
-    const handlePointerDown = useCallback((event) => {
+    const handlePointerDown = useCallback(() => {
         if (!interactive) return;
 
         resetIdleTimer();
@@ -822,7 +822,8 @@ const Mango = ({
     }, [interactive]);
 
     // Handle drag end - drop with gravity + save position
-    const handleDragEnd = useCallback((event, info) => {
+    // eslint-disable-next-line no-unused-vars
+    const handleDragEnd = useCallback((_event, _info) => {
         setIsDragging(false);
         resetIdleTimer();
 

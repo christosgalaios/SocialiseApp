@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import api from './api';
 
-// Mock fetch globally
-global.fetch = vi.fn();
+// Mock fetch globally (use globalThis — works in both browser and Node/Vitest)
+globalThis.fetch = vi.fn();
 
 describe('api.js', () => {
   beforeEach(() => {
@@ -51,14 +51,14 @@ describe('api.js', () => {
           user: { id: '1', email: 'test@example.com', name: 'Test User' },
         };
 
-        global.fetch.mockResolvedValueOnce({
+        globalThis.fetch.mockResolvedValueOnce({
           ok: true,
           text: async () => JSON.stringify(mockData),
         });
 
         const result = await api.login('test@example.com', 'password123');
         expect(result).toEqual(mockData);
-        expect(global.fetch).toHaveBeenCalledWith(
+        expect(globalThis.fetch).toHaveBeenCalledWith(
           expect.stringContaining('/auth/login'),
           expect.objectContaining({
             method: 'POST',
@@ -68,7 +68,7 @@ describe('api.js', () => {
       });
 
       it('should handle login failure', async () => {
-        global.fetch.mockResolvedValueOnce({
+        globalThis.fetch.mockResolvedValueOnce({
           ok: false,
           text: async () => JSON.stringify({ message: 'Invalid credentials' }),
         });
@@ -79,7 +79,7 @@ describe('api.js', () => {
       });
 
       it('should handle network error', async () => {
-        global.fetch.mockRejectedValueOnce(new Error('Network error'));
+        globalThis.fetch.mockRejectedValueOnce(new Error('Network error'));
 
         await expect(api.login('test@example.com', 'password')).rejects.toThrow(
           'Network error'
@@ -98,7 +98,7 @@ describe('api.js', () => {
           },
         };
 
-        global.fetch.mockResolvedValueOnce({
+        globalThis.fetch.mockResolvedValueOnce({
           ok: true,
           text: async () => JSON.stringify(mockData),
         });
@@ -113,7 +113,7 @@ describe('api.js', () => {
       });
 
       it('should fail if email already exists', async () => {
-        global.fetch.mockResolvedValueOnce({
+        globalThis.fetch.mockResolvedValueOnce({
           ok: false,
           text: async () =>
             JSON.stringify({
@@ -127,7 +127,7 @@ describe('api.js', () => {
       });
 
       it('should fail with short password', async () => {
-        global.fetch.mockResolvedValueOnce({
+        globalThis.fetch.mockResolvedValueOnce({
           ok: false,
           text: async () =>
             JSON.stringify({
@@ -145,14 +145,14 @@ describe('api.js', () => {
       it('should fetch current user with valid token', async () => {
         const mockData = { id: '1', email: 'test@example.com', name: 'Test User' };
 
-        global.fetch.mockResolvedValueOnce({
+        globalThis.fetch.mockResolvedValueOnce({
           ok: true,
           text: async () => JSON.stringify(mockData),
         });
 
         const result = await api.getMe('valid_token');
         expect(result).toEqual(mockData);
-        expect(global.fetch).toHaveBeenCalledWith(
+        expect(globalThis.fetch).toHaveBeenCalledWith(
           expect.stringContaining('/auth/me'),
           expect.objectContaining({
             headers: { Authorization: 'Bearer valid_token' },
@@ -161,7 +161,7 @@ describe('api.js', () => {
       });
 
       it('should handle session expired', async () => {
-        global.fetch.mockResolvedValueOnce({
+        globalThis.fetch.mockResolvedValueOnce({
           ok: false,
           text: async () => JSON.stringify({}),
         });
@@ -172,7 +172,7 @@ describe('api.js', () => {
       });
 
       it('should handle network timeout', async () => {
-        global.fetch.mockImplementationOnce(
+        globalThis.fetch.mockImplementationOnce(
           () => new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 100))
         );
 
@@ -193,7 +193,7 @@ describe('api.js', () => {
           { id: '2', title: 'Tech Talk', category: 'Tech' },
         ];
 
-        global.fetch.mockResolvedValueOnce({
+        globalThis.fetch.mockResolvedValueOnce({
           ok: true,
           text: async () => JSON.stringify(mockEvents),
         });
@@ -204,40 +204,40 @@ describe('api.js', () => {
       });
 
       it('should support category filter', async () => {
-        global.fetch.mockResolvedValueOnce({
+        globalThis.fetch.mockResolvedValueOnce({
           ok: true,
           text: async () => JSON.stringify([]),
         });
 
         await api.getEvents({ category: 'Food & Drinks' });
-        expect(global.fetch).toHaveBeenCalledWith(
+        expect(globalThis.fetch).toHaveBeenCalledWith(
           expect.stringContaining('category=Food'),
           expect.any(Object)
         );
       });
 
       it('should support search filter', async () => {
-        global.fetch.mockResolvedValueOnce({
+        globalThis.fetch.mockResolvedValueOnce({
           ok: true,
           text: async () => JSON.stringify([]),
         });
 
         await api.getEvents({ search: 'coffee' });
-        expect(global.fetch).toHaveBeenCalledWith(
+        expect(globalThis.fetch).toHaveBeenCalledWith(
           expect.stringContaining('search=coffee'),
           expect.any(Object)
         );
       });
 
       it('should attach Bearer token to request', async () => {
-        global.fetch.mockResolvedValueOnce({
+        globalThis.fetch.mockResolvedValueOnce({
           ok: true,
           text: async () => JSON.stringify([]),
         });
 
         const result = await api.getEvents();
         // Verify that fetch was called at all (with or without token in this test)
-        expect(global.fetch).toHaveBeenCalled();
+        expect(globalThis.fetch).toHaveBeenCalled();
         // Verify the result is returned correctly
         expect(Array.isArray(result)).toBe(true);
       });
@@ -256,7 +256,7 @@ describe('api.js', () => {
 
         const mockResponse = { id: '123', ...eventData };
 
-        global.fetch.mockResolvedValueOnce({
+        globalThis.fetch.mockResolvedValueOnce({
           ok: true,
           text: async () => JSON.stringify(mockResponse),
         });
@@ -269,13 +269,13 @@ describe('api.js', () => {
       it('should require authentication', async () => {
         localStorage.removeItem('socialise_token');
 
-        global.fetch.mockResolvedValueOnce({
+        globalThis.fetch.mockResolvedValueOnce({
           ok: true,
           text: async () => JSON.stringify({}),
         });
 
         await api.createEvent({ title: 'Test' });
-        expect(global.fetch).toHaveBeenCalledWith(
+        expect(globalThis.fetch).toHaveBeenCalledWith(
           expect.any(String),
           expect.objectContaining({
             headers: expect.not.objectContaining({
@@ -288,7 +288,7 @@ describe('api.js', () => {
 
     describe('joinEvent', () => {
       it('should join event successfully', async () => {
-        global.fetch.mockResolvedValueOnce({
+        globalThis.fetch.mockResolvedValueOnce({
           ok: true,
           text: async () => JSON.stringify({ success: true }),
         });
@@ -298,7 +298,7 @@ describe('api.js', () => {
       });
 
       it('should handle join failure', async () => {
-        global.fetch.mockResolvedValueOnce({
+        globalThis.fetch.mockResolvedValueOnce({
           ok: false,
           text: async () => JSON.stringify({ message: 'Event full' }),
         });
@@ -309,7 +309,7 @@ describe('api.js', () => {
 
     describe('saveEvent', () => {
       it('should save event successfully', async () => {
-        global.fetch.mockResolvedValueOnce({
+        globalThis.fetch.mockResolvedValueOnce({
           ok: true,
           text: async () => JSON.stringify({ saved: true }),
         });
@@ -321,7 +321,7 @@ describe('api.js', () => {
 
     describe('unsaveEvent', () => {
       it('should unsave event successfully', async () => {
-        global.fetch.mockResolvedValueOnce({
+        globalThis.fetch.mockResolvedValueOnce({
           ok: true,
           text: async () => JSON.stringify({ saved: false }),
         });
@@ -343,7 +343,7 @@ describe('api.js', () => {
           },
         ];
 
-        global.fetch.mockResolvedValueOnce({
+        globalThis.fetch.mockResolvedValueOnce({
           ok: true,
           text: async () => JSON.stringify(mockMessages),
         });
@@ -354,7 +354,7 @@ describe('api.js', () => {
       });
 
       it('should send event chat message', async () => {
-        global.fetch.mockResolvedValueOnce({
+        globalThis.fetch.mockResolvedValueOnce({
           ok: true,
           text: async () => JSON.stringify({ id: 'msg_1', message: 'Hi there!' }),
         });
@@ -375,7 +375,7 @@ describe('api.js', () => {
           },
         ];
 
-        global.fetch.mockResolvedValueOnce({
+        globalThis.fetch.mockResolvedValueOnce({
           ok: true,
           text: async () => JSON.stringify(mockRecommendations),
         });
@@ -398,7 +398,7 @@ describe('api.js', () => {
           { id: '2', name: 'Foodie Friends', members: 85 },
         ];
 
-        global.fetch.mockResolvedValueOnce({
+        globalThis.fetch.mockResolvedValueOnce({
           ok: true,
           text: async () => JSON.stringify(mockCommunities),
         });
@@ -411,7 +411,7 @@ describe('api.js', () => {
 
     describe('joinCommunity', () => {
       it('should join community successfully', async () => {
-        global.fetch.mockResolvedValueOnce({
+        globalThis.fetch.mockResolvedValueOnce({
           ok: true,
           text: async () => JSON.stringify({ joined: true }),
         });
@@ -423,7 +423,7 @@ describe('api.js', () => {
 
     describe('leaveCommunity', () => {
       it('should leave community successfully', async () => {
-        global.fetch.mockResolvedValueOnce({
+        globalThis.fetch.mockResolvedValueOnce({
           ok: true,
           text: async () => JSON.stringify({ joined: false }),
         });
@@ -444,7 +444,7 @@ describe('api.js', () => {
           },
         ];
 
-        global.fetch.mockResolvedValueOnce({
+        globalThis.fetch.mockResolvedValueOnce({
           ok: true,
           text: async () => JSON.stringify(mockMessages),
         });
@@ -455,7 +455,7 @@ describe('api.js', () => {
       });
 
       it('should send community chat message', async () => {
-        global.fetch.mockResolvedValueOnce({
+        globalThis.fetch.mockResolvedValueOnce({
           ok: true,
           text: async () => JSON.stringify({ id: 'msg_1', message: 'Thanks!' }),
         });
@@ -481,7 +481,7 @@ describe('api.js', () => {
           { id: '2', user: 'Bob', content: 'Love this community!' },
         ];
 
-        global.fetch.mockResolvedValueOnce({
+        globalThis.fetch.mockResolvedValueOnce({
           ok: true,
           text: async () => JSON.stringify(mockPosts),
         });
@@ -496,7 +496,7 @@ describe('api.js', () => {
       it('should create feed post', async () => {
         const postData = { content: 'Great event today!' };
 
-        global.fetch.mockResolvedValueOnce({
+        globalThis.fetch.mockResolvedValueOnce({
           ok: true,
           text: async () => JSON.stringify({ id: '1', ...postData }),
         });
@@ -508,7 +508,7 @@ describe('api.js', () => {
 
     describe('deletePost', () => {
       it('should delete own post', async () => {
-        global.fetch.mockResolvedValueOnce({
+        globalThis.fetch.mockResolvedValueOnce({
           ok: true,
           text: async () => JSON.stringify({ deleted: true }),
         });
@@ -520,7 +520,7 @@ describe('api.js', () => {
 
     describe('reactToPost', () => {
       it('should add emoji reaction to post', async () => {
-        global.fetch.mockResolvedValueOnce({
+        globalThis.fetch.mockResolvedValueOnce({
           ok: true,
           text: async () => JSON.stringify({ reactions: { '👍': 1 } }),
         });
@@ -540,7 +540,7 @@ describe('api.js', () => {
       it('should update user profile', async () => {
         const profileData = { name: 'Updated Name', bio: 'New bio' };
 
-        global.fetch.mockResolvedValueOnce({
+        globalThis.fetch.mockResolvedValueOnce({
           ok: true,
           text: async () => JSON.stringify({ id: '1', ...profileData }),
         });
@@ -558,7 +558,7 @@ describe('api.js', () => {
           { id: '2', title: 'Attending Event', isHost: false },
         ];
 
-        global.fetch.mockResolvedValueOnce({
+        globalThis.fetch.mockResolvedValueOnce({
           ok: true,
           text: async () => JSON.stringify(mockEvents),
         });
@@ -575,7 +575,7 @@ describe('api.js', () => {
           { id: '2', title: 'Saved Event 2' },
         ];
 
-        global.fetch.mockResolvedValueOnce({
+        globalThis.fetch.mockResolvedValueOnce({
           ok: true,
           text: async () => JSON.stringify(mockSaved),
         });
@@ -592,7 +592,7 @@ describe('api.js', () => {
           { id: '2', name: 'Community 2' },
         ];
 
-        global.fetch.mockResolvedValueOnce({
+        globalThis.fetch.mockResolvedValueOnce({
           ok: true,
           text: async () => JSON.stringify(mockCommunities),
         });
@@ -604,7 +604,7 @@ describe('api.js', () => {
 
     describe('deleteAccount', () => {
       it('should delete user account', async () => {
-        global.fetch.mockResolvedValueOnce({
+        globalThis.fetch.mockResolvedValueOnce({
           ok: true,
           text: async () => JSON.stringify({ success: true }),
         });
