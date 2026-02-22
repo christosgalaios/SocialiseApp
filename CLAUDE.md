@@ -480,7 +480,9 @@ Configuration lives in `.claude/`. Full docs: `.claude/AUTOMATION_SETUP.md` and 
 | Skill | `/create-migration` | Create Supabase migration files |
 | Subagent | `code-reviewer` | Security, quality, design system compliance review |
 | Subagent | `test-coverage-analyzer` | Identify untested code and coverage gaps |
+| Subagent | `bug-fixer` | Validates bug reports and creates minimal fix PRs (bug-only, no features) |
 | Workflow | `auto-approve` | Blocks feature→production PRs, validates (lint + test + build), then auto-approves, squash-merges, and deletes branch for conflict-free PRs |
+| Workflow | `bug-fixer` | Triggered by `bug` label on issues — validates, fixes, and creates PR via Claude Code |
 
 ---
 

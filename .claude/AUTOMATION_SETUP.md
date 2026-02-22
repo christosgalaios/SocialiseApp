@@ -14,6 +14,7 @@ This document explains all the automations configured for Socialise development.
 | **create-migration skill** | Skill | ✅ Ready | `/create-migration "description"` |
 | **code-reviewer** | Subagent | ✅ Ready | Use before merging to production |
 | **test-coverage-analyzer** | Subagent | ✅ Ready | Use after test infrastructure setup |
+| **bug-fixer** | Subagent + Workflow | ✅ Ready | Auto-triggered on `bug`-labeled issues |
 
 ---
 
@@ -252,6 +253,40 @@ Recommendations:
 3. Then App.jsx handlers
 ```
 
+### bug-fixer — Automated Bug Validation and Repair
+
+**Purpose:** Validates bug reports and produces minimal, focused fixes automatically
+
+**How it works:**
+
+1. A user files a bug report using the structured issue template (GitHub Issues)
+2. The `bug` label triggers the `bug-fixer.yml` GitHub Actions workflow
+3. The workflow validates the issue structure and rejects feature requests
+4. Claude Code analyzes the codebase, validates the bug, and produces a fix
+5. A PR is created targeting `development` — it flows through `auto-approve.yml`
+6. If the agent can't fix it, the issue is labeled `needs-triage` for human attention
+
+**Safety guardrails:**
+- **Bug-only scope:** Agent cannot add new features, endpoints, or components. It can only fix existing broken behavior.
+- **File restrictions:** Cannot touch workflows, `.env`, migrations, `package.json`, or config files.
+- **Size limits:** Max 5 files changed, max 100 lines modified (excluding tests).
+- **Auth escalation:** Any bug touching auth or security code is auto-escalated to human.
+- **Feature request detection:** Issues that describe new behavior (not broken existing behavior) are rejected with `not-a-bug` label.
+- **Validation pipeline:** Fix PRs go through the same lint + test + build pipeline as all other PRs.
+- **Forbidden file enforcement:** The workflow double-checks changed files against a blocklist before creating the PR.
+
+**Triggering:**
+- Automatic: Add the `bug` label to any issue filed with the bug report template
+- The agent runs once per issue. Re-labeling an issue that was already processed won't re-trigger (the `bug` label is removed on failure).
+
+**Labels used:**
+| Label | Meaning |
+|-------|---------|
+| `bug` | Triggers the agent (removed after processing) |
+| `automated-fix` | Applied to PRs created by the agent |
+| `needs-triage` | Agent couldn't fix — needs human attention |
+| `not-a-bug` | Issue was a feature request, not a bug |
+
 ---
 
 ## 🚀 Workflows
@@ -274,6 +309,13 @@ Recommendations:
 
 ### Bug Fix Workflow
 
+**Automated (via bug-fixer agent):**
+1. File a bug report using the issue template → add `bug` label
+2. Agent validates, fixes, adds regression test, creates PR
+3. PR goes through auto-approve (lint + test + build)
+4. Issue auto-closes on merge via `Fixes #N`
+
+**Manual (for complex bugs or agent escalations):**
 1. Create feature branch from development
 2. Fix the bug
 3. Edit files → auto-lint keeps code clean
