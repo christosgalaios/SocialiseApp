@@ -38,7 +38,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
       # Increment the minor version (y in x.y.z) and reset patch to 0.
-      # The new version is committed back to master and synced to develop
+      # The new version is committed back to production and synced to develop
       # so the next develop push increments from the correct baseline.
       - name: Bump minor version
         id: version
