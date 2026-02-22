@@ -90,41 +90,47 @@ function App() {
   const ui = useUIState();
   const mango = useMango();
 
+  // Destructure ui properties used in effects to satisfy exhaustive-deps
+  const {
+    setExploreLimit, searchQuery, activeCategory, sizeFilter, dateRange, activeTags, thisWeekActive,
+    activeTab, setRecommendedLimit, mainContentRef, setContentReady,
+  } = ui;
+
   // Reset explore limit when filters change
   useEffect(() => {
-    ui.setExploreLimit(6);
-  }, [ui.searchQuery, ui.activeCategory, ui.sizeFilter, ui.dateRange, ui.activeTags, ui.thisWeekActive]);
+    setExploreLimit(6);
+  }, [searchQuery, activeCategory, sizeFilter, dateRange, activeTags, thisWeekActive, setExploreLimit]);
 
   // Scroll-to-bottom → load more (home recommended & explore)
   useEffect(() => {
-    const el = ui.mainContentRef.current;
+    const el = mainContentRef.current;
     if (!el) return;
     let cooldown = false;
     const handleScroll = () => {
       const { scrollTop, scrollHeight, clientHeight } = el;
       if (scrollTop + clientHeight >= scrollHeight - 120 && !cooldown) {
         cooldown = true;
-        if (ui.activeTab === 'home') {
-          ui.setRecommendedLimit(prev => prev + 3);
-        } else if (ui.activeTab === 'explore') {
-          ui.setExploreLimit(prev => prev + 6);
+        if (activeTab === 'home') {
+          setRecommendedLimit(prev => prev + 3);
+        } else if (activeTab === 'explore') {
+          setExploreLimit(prev => prev + 6);
         }
         setTimeout(() => { cooldown = false; }, 800);
       }
     };
     el.addEventListener('scroll', handleScroll, { passive: true });
     return () => el.removeEventListener('scroll', handleScroll);
-  }, [ui.activeTab, ui.setRecommendedLimit, ui.setExploreLimit, ui.mainContentRef]);
+  }, [activeTab, setRecommendedLimit, setExploreLimit, mainContentRef]);
 
   // Content loading: show skeletons then reveal
   useEffect(() => {
     if (auth.appState !== 'app') {
-      ui.setContentReady(false);
+      setContentReady(false);
       return;
     }
-    const t = setTimeout(() => ui.setContentReady(true), 600);
+    const t = setTimeout(() => setContentReady(true), 600);
     return () => clearTimeout(t);
-  }, [auth.appState, ui.setContentReady]);
+  }, [auth.appState, setContentReady]);
 
   // Fetch all data from API when app is ready
   const fetchAllData = useCallback(async () => {
