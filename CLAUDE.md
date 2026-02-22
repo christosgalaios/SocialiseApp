@@ -567,3 +567,9 @@ The old `deploy-production.yml` checked out `development`, modified `package.jso
 When auto-approve squash-merged PRs from development → production, and the old workflow then pushed version commits to both branches, the squashed history made it impossible to cleanly track which file changes survived. Regular merge commits preserve the full history and make conflicts explicit.
 
 **Rule:** For branch promotion (development → production), prefer regular merge over squash merge to preserve change history and make conflicts visible.
+
+### 5. `GITHUB_TOKEN` merges don't trigger other workflows
+
+GitHub Actions prevents workflow cascading by default. When `auto-approve.yml` merges a PR using the built-in `GITHUB_TOKEN`, the resulting push to the target branch does **not** trigger `on: push` workflows (like `deploy-development.yml` or `deploy-production.yml`). This is a GitHub security feature to prevent infinite loops. The old deploy workflows happened to work because version sync commits were pushed using git credentials, not `GITHUB_TOKEN`.
+
+**Rule:** If a workflow merges PRs via the GitHub API (using `GITHUB_TOKEN`), it must explicitly trigger downstream workflows using `workflow_dispatch`. Add `workflow_dispatch` as a trigger on deploy workflows, and have auto-approve call `actions.createWorkflowDispatch()` after merging. The auto-approve workflow needs `actions: write` permission for this.
