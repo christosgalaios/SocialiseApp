@@ -541,3 +541,29 @@ node index.js        # Express @ localhost:3001
 - Optional chaining everywhere user/event data is accessed: `user?.name ?? 'fallback'`.
 - Framer Motion used for all transitions. `AnimatePresence` wraps conditionally rendered elements.
 - Never hardcode `#ffffff` or `black` — always use design token CSS vars or Tailwind utilities mapped to those vars.
+
+---
+
+## Lessons Learned (Do NOT Repeat These Mistakes)
+
+### 1. Deploy workflows need `contents: write` for GitHub Pages
+
+The `JamesIves/github-pages-deploy-action` pushes built files to the `gh-pages` branch. This requires `permissions: contents: write`. Do NOT downgrade to `contents: read` — the deploy step will fail with a 403 error. The write permission is safe as long as the workflow itself doesn't make commits to source branches (which it no longer does).
+
+### 2. Workflow changes must land on the TARGET branch to take effect
+
+GitHub Actions runs the version of the workflow file that exists **on the branch being pushed to** — not the version in the PR or the source branch. When we merged our new `deploy-production.yml` to development and then to production, the push to production triggered the **old** `deploy-production.yml` (still on production at that moment). The old workflow ran its version bump + sync steps, pushing commits that overwrote our changes on both branches. Our fix was effectively erased before it could take effect.
+
+**Rule:** When changing a workflow that runs on `push: [production]`, the old workflow will run one final time during the merge that brings the new version. Account for this — ensure the old workflow's side effects won't undo your changes.
+
+### 3. Workflows that push commits to branches can silently overwrite unrelated changes
+
+The old `deploy-production.yml` checked out `development`, modified `package.json`, and force-pushed. This "version sync" step only touched `package.json`, but the act of pushing to development from within a workflow creates commits that can cause merge conflicts and branch divergence. Any workflow that pushes commits to source branches is inherently dangerous — it creates a feedback loop that's hard to reason about.
+
+**Rule:** Deploy workflows should be read-build-deploy only. Never push commits back to source branches from a deploy workflow. Derive dynamic values (like version numbers) at build time from external sources (PR numbers, git tags, timestamps) instead of committing them.
+
+### 4. Squash merges can lose file changes when combined with automated commits
+
+When auto-approve squash-merged PRs from development → production, and the old workflow then pushed version commits to both branches, the squashed history made it impossible to cleanly track which file changes survived. Regular merge commits preserve the full history and make conflicts explicit.
+
+**Rule:** For branch promotion (development → production), prefer regular merge over squash merge to preserve change history and make conflicts visible.
