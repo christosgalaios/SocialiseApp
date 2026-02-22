@@ -32,8 +32,45 @@ const isValidName = (name) =>
 
 const toPublicUser = (row) => {
     if (!row) return null;
-    const { password: _password, is_pro, is_email_verified: _verified, verification_code: _code, verification_code_expiry: _expiry, ...rest } = row;
-    return { ...rest, isPro: is_pro };
+    const { password: _password, is_pro, is_email_verified: _verified, verification_code: _code, verification_code_expiry: _expiry, login_streak, last_login_date, ...rest } = row;
+    return { ...rest, isPro: is_pro, loginStreak: login_streak ?? 0, lastLoginDate: last_login_date ?? null };
+};
+
+// --- Login streak calculation ---
+
+/**
+ * Updates the user's login streak in the database.
+ * - Same day as last login → no change
+ * - Consecutive day → increment streak
+ * - Gap of >1 day (or first login) → reset streak to 1
+ * Returns the updated user row.
+ */
+const updateLoginStreak = async (userId, currentRow) => {
+    const today = new Date().toISOString().split('T')[0]; // 'YYYY-MM-DD' in UTC
+    const lastLogin = currentRow.last_login_date;
+
+    // Already logged in today — no update needed
+    if (lastLogin === today) return currentRow;
+
+    let newStreak;
+    if (lastLogin) {
+        const lastDate = new Date(lastLogin + 'T00:00:00Z');
+        const todayDate = new Date(today + 'T00:00:00Z');
+        const diffDays = Math.round((todayDate - lastDate) / (1000 * 60 * 60 * 24));
+        newStreak = diffDays === 1 ? (currentRow.login_streak ?? 0) + 1 : 1;
+    } else {
+        // First login ever
+        newStreak = 1;
+    }
+
+    const { data: updated } = await supabase
+        .from('users')
+        .update({ login_streak: newStreak, last_login_date: today })
+        .eq('id', userId)
+        .select()
+        .single();
+
+    return updated || { ...currentRow, login_streak: newStreak, last_login_date: today };
 };
 
 // --- Auth middleware (exported for use in other routes) ---
@@ -97,8 +134,10 @@ router.post('/login', authLimiter, async (req, res) => {
         return res.status(400).json({ message: 'Invalid credentials' });
     }
 
+    const updatedUser = await updateLoginStreak(user.id, user);
+
     const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, { expiresIn: '24h' });
-    res.json({ token, user: toPublicUser(user) });
+    res.json({ token, user: toPublicUser(updatedUser) });
 });
 
 // POST /api/auth/register
@@ -133,6 +172,8 @@ router.post('/register', authLimiter, async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    const today = new Date().toISOString().split('T')[0];
+
     const { data: newUser, error } = await supabase
         .from('users')
         .insert({
@@ -146,6 +187,8 @@ router.post('/register', authLimiter, async (req, res) => {
             interests: [],
             tribe: 'Newcomers',
             is_pro: false,
+            login_streak: 1,
+            last_login_date: today,
         })
         .select()
         .single();
@@ -168,7 +211,9 @@ router.get('/me', authenticateToken, async (req, res) => {
         .single();
 
     if (!user) return res.sendStatus(404);
-    res.json(toPublicUser(user));
+
+    const updatedUser = await updateLoginStreak(user.id, user);
+    res.json(toPublicUser(updatedUser));
 });
 
 module.exports = { router, authenticateToken, loadUserProfile, extractUserId, toPublicUser };
