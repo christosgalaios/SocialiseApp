@@ -321,7 +321,10 @@ These bugs from the original issue list have been resolved in the codebase:
 - MyBookingsSheet cancel now calls `api.leaveEvent()` with rollback on failure (was optimistic-only with stale closure) ✓
 - Bundle optimized from 736kb → 389kb main chunk via code splitting: `manualChunks` for vendor libs + `React.lazy()` for heavy conditional components ✓
 - Google Maps chunk (158kb) lazy-loaded — only fetched when CreateEventModal opens ✓
-- `MangoSVG.jsx` (74kb) confirmed orphaned — component defined inline in `Mango.jsx` ✓
+- `MangoSVG.jsx` (74kb) deleted — orphaned, component defined inline in `Mango.jsx` ✓
+- Orphaned hooks directory (`src/hooks/`) deleted — replaced by Zustand stores in Phase 2 ✓
+- Orphaned `EmailVerificationModal.jsx` deleted — email verification intentionally removed ✓
+- `GroupChatsSheet` wired to real API — removed localStorage fallback, fake `AUTO_REPLIES`, and simulated online count ✓
 
 ---
 
@@ -367,13 +370,13 @@ These bugs from the original issue list have been resolved in the codebase:
 
 **Why third:** `GroupChatsSheet` still uses `localStorage` for community chat messages and `setTimeout` for fake auto-replies (`Sarah K.`, `Marcus V.`) — despite real API endpoints existing (`GET/POST /communities/:id/chat`). `RealtimePing` state is initialized but never triggered. With clean state management (Phase 2), these become straightforward to fix.
 
-- [ ] Wire `GroupChatsSheet` to real API: fetch messages via `api.getCommunityChat()`, send via `api.sendCommunityMessage()` — remove localStorage fallback and fake `AUTO_REPLIES`
+- [x] Wire `GroupChatsSheet` to real API: fetch messages via `api.getCommunityChat()`, send via `api.sendCommunityMessage()` — removed localStorage fallback, fake `AUTO_REPLIES`, and simulated online count
 - [ ] Subscribe to `chat_messages` table changes for live event chat (Supabase Realtime)
 - [ ] Subscribe to `community_messages` for live community chat
 - [ ] Subscribe to `feed_posts` and `post_reactions` for live feed updates
-- [ ] Remove `setTimeout` simulations in `App.jsx` (lines ~119, ~215, ~266, ~493)
+- [x] Remove `setTimeout` simulations — fake auto-replies removed from GroupChatsSheet; remaining setTimeouts in App.jsx are legitimate UX timing (debounce, skeleton, celebration)
 - [ ] Wire `RealtimePing` to actual subscription events (currently initialized to `{ isVisible: false }` and never triggered)
-- [ ] Replace hardcoded online member count in `GroupChatsSheet` (`Math.floor(members * 0.08)`) with Realtime presence
+- [x] Replace hardcoded online member count in `GroupChatsSheet` (`Math.floor(members * 0.08)`) — removed fake count, shows member count only
 - [ ] Add connection status indicator (connected/reconnecting)
 - [ ] Handle Realtime subscription cleanup on unmount
 
@@ -414,8 +417,9 @@ These bugs from the original issue list have been resolved in the codebase:
 - [ ] Implement Google OAuth (currently simulated with DEMO_USER)
 - [ ] Add error boundary components for graceful crash recovery
 - [x] Performance audit: bundle splitting (736kb → 389kb main chunk), lazy-load heavy components (MangoChat, MangoAssistant, OnboardingFlow, CreateEventModal, EventReels), vendor chunks for framer-motion and Google Maps
-- [ ] Delete orphaned `MangoSVG.jsx` (74kb, not imported anywhere — SVG defined inline in `Mango.jsx`)
-- [ ] Extract `useLocalStorage` hook from `App.jsx` (lines 77–98) into `src/hooks/useLocalStorage.js`
+- [x] Delete orphaned `MangoSVG.jsx` (74kb, not imported — SVG defined inline in `Mango.jsx`)
+- [x] Delete orphaned hooks (`src/hooks/` — replaced by Zustand stores)
+- [x] Delete orphaned `EmailVerificationModal.jsx` (email verification intentionally removed)
 
 ### ESLint
 
