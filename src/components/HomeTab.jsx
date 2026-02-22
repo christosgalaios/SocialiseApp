@@ -8,6 +8,18 @@ import VideoWall from './VideoWall';
 import MicroMeetCard from './MicroMeetCard';
 import EventCard from './EventCard';
 
+const getGreeting = () => {
+  const hour = new Date().getHours();
+  if (hour < 12) return 'Good Morning';
+  if (hour < 17) return 'Good Afternoon';
+  return 'Good Evening';
+};
+
+const getFormattedDate = () => {
+  const now = new Date();
+  return now.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' });
+};
+
 const containerVariants = {
   hidden: { opacity: 0 },
   show: {
@@ -66,9 +78,9 @@ export default function HomeTab({ onProfileClick, filteredEvents, fetchAllData }
     >
       <motion.header variants={itemVariants} className="flex justify-between items-center mb-8">
         <div>
-          <p className="text-[10px] font-black text-secondary/60 uppercase tracking-widest mb-1">Wednesday, 4 Feb</p>
+          <p className="text-[10px] font-black text-secondary/60 uppercase tracking-widest mb-1">{getFormattedDate()}</p>
           <h1 className="text-3xl md:text-5xl font-black tracking-tighter leading-tight text-primary">
-            Good Afternoon<span className="text-accent">,</span><br />
+            {getGreeting()}<span className="text-accent">,</span><br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary drop-shadow-sm filter animate-text-gradient">{user?.name?.split(' ')[0]}</span><span className="text-accent">.</span>
           </h1>
         </div>
