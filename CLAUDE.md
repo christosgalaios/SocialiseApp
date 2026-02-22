@@ -294,7 +294,7 @@ These bugs from the original issue list have been resolved in the codebase:
 - `OnboardingFlow` receives `userName={user?.name ?? 'there'}` ✓
 - `api.js` uses `parseJson()` wrapper + checks `response.ok` before throwing ✓
 - `handleLogout` uses a stable `handleLogoutRef` to avoid dependency array issue ✓
-- `deploy-develop.yml` no longer bumps the patch version — fixes `package.json` merge conflicts when promoting `development` → `production` ✓
+- `deploy-development.yml` no longer bumps the patch version — fixes `package.json` merge conflicts when promoting `development` → `production` ✓
 - Auth migrated from `users.json` to Supabase `users` table — fixes ephemeral filesystem issue on Railway ✓
 - Row Level Security (RLS) enabled on all Supabase tables with appropriate policies ✓
 - `update_updated_at` function secured with immutable `search_path` ✓
@@ -489,8 +489,8 @@ Configuration lives in `.claude/`. Full docs: `.claude/AUTOMATION_SETUP.md` and 
 
 | Branch | Environment | GitHub Pages | Backend | Workflow |
 |--------|---|---|---|---|
-| `development` | Development/Preview | `/SocialiseApp/dev/` | `socialise-app-development.up.railway.app` | `deploy-develop.yml` |
-| `master` | Production | `/SocialiseApp/prod/` | `socialise-app-production.up.railway.app` | `deploy-master.yml` |
+| `development` | Development/Preview | `/SocialiseApp/dev/` | `socialise-app-development.up.railway.app` | `deploy-development.yml` |
+| `production` | Production | `/SocialiseApp/prod/` | `socialise-app-production.up.railway.app` | `deploy-production.yml` |
 
 **Workflow:**
 1. Create feature branches from `development`
