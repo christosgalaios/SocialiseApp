@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { Zap, Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import useAuthStore from '../stores/authStore';
@@ -8,7 +9,6 @@ import useUIStore from '../stores/uiStore';
 import api from '../api';
 import { XP_LEVELS } from '../data/constants';
 import EventDetailSheet from './EventDetailSheet';
-import CreateEventModal from './CreateEventModal';
 import TribeSheet from './TribeSheet';
 import TribeDiscovery from './TribeDiscovery';
 import MyBookingsSheet from './MyBookingsSheet';
@@ -19,7 +19,10 @@ import GroupChatsSheet from './GroupChatsSheet';
 import UserProfileSheet from './UserProfileSheet';
 import LevelUpModal from './LevelUpModal';
 import AvatarCropModal from './AvatarCropModal';
-import EventReels from './EventReels';
+
+// Lazy-loaded: CreateEventModal pulls in LocationPicker → Google Maps (~50kb)
+const CreateEventModal = lazy(() => import('./CreateEventModal'));
+const EventReels = lazy(() => import('./EventReels'));
 
 // Match Analysis Modal (inline component)
 const MatchAnalysisModal = ({ event, onConfirm, onCancel }) => (
@@ -132,7 +135,11 @@ export default function AppModals({ handleJoin, sendMessage, createNewEvent, fil
           onOpenProfile={setSelectedUserProfile}
         />
       )}
-      {showCreate && <CreateEventModal key="create-event" onClose={() => setShowCreate(false)} onSubmit={createNewEvent} />}
+      {showCreate && (
+        <Suspense fallback={null}>
+          <CreateEventModal key="create-event" onClose={() => setShowCreate(false)} onSubmit={createNewEvent} />
+        </Suspense>
+      )}
       {showMatchModal && (
         <MatchAnalysisModal
           key="match-modal"
@@ -251,9 +258,15 @@ export default function AppModals({ handleJoin, sendMessage, createNewEvent, fil
         isOpen={showBookings}
         onClose={() => setShowBookings(false)}
         bookings={events.filter(e => joinedEvents.includes(e.id))}
-        onCancel={(id) => {
-          setJoinedEvents(joinedEvents.filter(eid => eid !== id));
+        onCancel={async (id) => {
+          setJoinedEvents(prev => prev.filter(eid => eid !== id));
           showToast('Booking cancelled', 'info');
+          try {
+            await api.leaveEvent(id);
+          } catch (err) {
+            setJoinedEvents(prev => [...prev, id]);
+            showToast(err.message, 'error');
+          }
         }}
       />
       <SavedEventsSheet
@@ -332,14 +345,16 @@ export default function AppModals({ handleJoin, sendMessage, createNewEvent, fil
         unlockedTitle={levelUpData?.unlockedTitle}
       />
       {showReels && (
-        <EventReels
-          events={filteredEvents}
-          onClose={() => setShowReels(false)}
-          onSelectEvent={(event) => {
-            setShowReels(false);
-            setSelectedEvent(event);
-          }}
-        />
+        <Suspense fallback={null}>
+          <EventReels
+            events={filteredEvents}
+            onClose={() => setShowReels(false)}
+            onSelectEvent={(event) => {
+              setShowReels(false);
+              setSelectedEvent(event);
+            }}
+          />
+        </Suspense>
       )}
       <AvatarCropModal
         imageUrl={avatarCropImage}

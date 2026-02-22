@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from './api';
 import './index.css';
@@ -19,13 +19,14 @@ import AuthScreen from './components/AuthScreen';
 import Sidebar from './components/Sidebar';
 import BottomNav from './components/BottomNav';
 import Toast from './components/Toast';
-import MangoChat from './components/MangoChat';
 import IOSInstallPrompt from './components/IOSInstallPrompt';
-import Mango from './components/Mango';
-import MangoAssistant from './components/MangoAssistant';
 import Confetti from './components/Confetti';
 import RealtimePing from './components/RealtimePing';
-import OnboardingFlow from './components/OnboardingFlow';
+
+// Lazy-loaded components (heavy, conditionally rendered)
+const MangoChat = lazy(() => import('./components/MangoChat'));
+const MangoAssistant = lazy(() => import('./components/MangoAssistant'));
+const OnboardingFlow = lazy(() => import('./components/OnboardingFlow'));
 import {
   HomeSkeleton,
   HubSkeleton,
@@ -517,7 +518,7 @@ function App() {
 
             {/* Floating Navigation - Mobile Only */}
             <div className="md:hidden">
-              <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} onCreateClick={() => setShowCreate(true)} />
+              <BottomNav activeTab={activeTab} setActiveTab={setActiveTabWithEffects} onCreateClick={() => setShowCreate(true)} />
             </div>
 
             {/* Modals & Sheets */}
@@ -531,14 +532,16 @@ function App() {
             {/* Onboarding Flow */}
             <AnimatePresence>
               {user && !showOnboarding && !userPreferences && (
-                <OnboardingFlow
-                  userName={user?.name ?? 'there'}
-                  onComplete={(prefs) => {
-                    setUserPreferences(prefs);
-                    setShowOnboarding(true);
-                    showToast(`Welcome, ${user?.name?.split(' ')[0] ?? 'there'}! Let's find your tribe.`, 'success');
-                  }}
-                />
+                <Suspense fallback={null}>
+                  <OnboardingFlow
+                    userName={user?.name ?? 'there'}
+                    onComplete={(prefs) => {
+                      setUserPreferences(prefs);
+                      setShowOnboarding(true);
+                      showToast(`Welcome, ${user?.name?.split(' ')[0] ?? 'there'}! Let's find your tribe.`, 'success');
+                    }}
+                  />
+                </Suspense>
               )}
             </AnimatePresence>
 
@@ -553,14 +556,22 @@ function App() {
             />
 
             {/* Mango Assistant */}
-            {activeTab === 'home' && <MangoAssistant />}
+            {activeTab === 'home' && (
+              <Suspense fallback={null}>
+                <MangoAssistant />
+              </Suspense>
+            )}
 
             <IOSInstallPrompt />
           </motion.div>
         )}
       </AnimatePresence>
       <AnimatePresence>
-        {mango.isChatOpen && <MangoChat user={user} events={events} />}
+        {mango.isChatOpen && (
+          <Suspense fallback={null}>
+            <MangoChat user={user} events={events} />
+          </Suspense>
+        )}
       </AnimatePresence>
     </div>
   );

@@ -9,4 +9,14 @@ export default defineConfig({
   //   development → /SocialiseApp/dev/
   // Falls back to '/' for local dev.
   base: process.env.VITE_BASE_URL || '/',
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-motion': ['framer-motion'],
+          'vendor-maps': ['@react-google-maps/api', 'use-places-autocomplete'],
+        },
+      },
+    },
+  },
 })
