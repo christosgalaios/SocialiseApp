@@ -26,7 +26,7 @@
 | Deployment | GitHub Pages (frontend), Railway (backend) |
 | Fonts | Outfit (headings), Quicksand (body) |
 
-No Redux, no Zustand. Frontend state lives in `App.jsx` + localStorage. Backend uses Supabase (Postgres) for all persistence including auth.
+**State management:** Zustand stores in `src/stores/`. Tab content extracted to `HomeTab`, `HubTab`, `ExploreTab`, `ProfileTab`. Modals in `AppModals`. `App.jsx` is layout + effects + routing (~500 lines). Backend uses Supabase (Postgres) for all persistence including auth.
 
 ---
 
@@ -34,11 +34,12 @@ No Redux, no Zustand. Frontend state lives in `App.jsx` + localStorage. Backend 
 
 ```
 /src
-  App.jsx              # Main app — all state lives here
+  App.jsx              # Layout, effects, routing (~500 lines)
   api.js               # API client — all endpoints (auth, events, communities, feed, users)
   main.jsx             # Entry point + MangoContext provider
   index.css            # Design tokens, global styles, Tailwind overrides
-  /components          # 38 UI components
+  /stores              # Zustand stores (auth, events, communities, feed, ui)
+  /components          # UI components (incl. HomeTab, HubTab, ExploreTab, ProfileTab, AppModals)
   /contexts            # MangoContext (kitten assistant global state)
   /data
     constants.js       # UI constants: categories, tags, XP levels, advertised events
@@ -77,11 +78,11 @@ ANTIGRAVITY_BRAIN.md   # Design philosophy doc (read before UI changes)
 
 ## Architecture Patterns
 
-**State management:** Everything in `App.jsx`. No store. Custom `useLocalStorage(key, initialValue)` hook handles persistence. Props drilled to components.
+**State management:** Zustand stores in `src/stores/` — `authStore` (user, login, logout, session), `eventStore` (events, RSVP, save, chat), `communityStore` (communities, join/leave), `feedStore` (posts, reactions), `uiStore` (tabs, modals, filters, toasts, XP, preferences). Components import stores directly — no prop drilling for shared state.
 
-**Navigation:** Tab-based (`home` | `hub` | `explore` | `profile`). `setActiveTab` is the router. Mobile = BottomNav, Desktop = Sidebar.
+**Navigation:** Tab-based (`home` | `hub` | `explore` | `profile`). `setActiveTab` in uiStore is the router. Mobile = BottomNav, Desktop = Sidebar. Tab content lives in `HomeTab`, `HubTab`, `ExploreTab`, `ProfileTab`.
 
-**Modals/Sheets:** Controlled by boolean state in `App.jsx`. All wrapped in `<AnimatePresence>`.
+**Modals/Sheets:** Controlled by boolean state in `uiStore`. Rendered by `AppModals` component. All wrapped in `<AnimatePresence>`.
 
 **Auth flow:** Splash → (token in localStorage?) → App or AuthScreen. Session check runs `api.getMe(token)` on mount with 8s timeout. On failure, auto-logout.
 
@@ -116,7 +117,12 @@ ANTIGRAVITY_BRAIN.md   # Design philosophy doc (read before UI changes)
 
 | Component | File | Notes |
 |---|---|---|
-| App | `src/App.jsx` | All state, all handlers. ~1500 lines. |
+| App | `src/App.jsx` | Layout, effects, routing. ~500 lines. |
+| HomeTab | `src/components/HomeTab.jsx` | Home tab: recommendations, video wall, events. |
+| HubTab | `src/components/HubTab.jsx` | Hub tab: communities/tribes. |
+| ExploreTab | `src/components/ExploreTab.jsx` | Explore tab: search, filters, event list. |
+| ProfileTab | `src/components/ProfileTab.jsx` | Profile + settings tabs. |
+| AppModals | `src/components/AppModals.jsx` | All modals/sheets centralized. |
 | Mango | `src/components/Mango.jsx` | Interactive kitten SVG, 44kb. Physics, poses, drag. |
 | MangoSVG | `src/components/MangoSVG.jsx` | 74kb SVG definition. Don't touch unless working on Mango. |
 | MangoContext | `src/contexts/MangoContext.jsx` | Global state: pose, visibility, chat, notifications. |
@@ -305,6 +311,9 @@ These bugs from the original issue list have been resolved in the codebase:
 - `react-hooks` v7 compiler rules (`purity`, `immutability`, `set-state-in-effect`) disabled until Phase 2 refactor ✓
 - `server/routes/**/*.test.js` excluded from root Vitest config (server-only deps can't resolve in jsdom) ✓
 - All pre-existing lint errors fixed: unused vars/imports removed, `global` → `globalThis`, `process.env` → `import.meta.env` ✓
+- Phase 1 test infrastructure complete: 401 tests (229 frontend + 172 server) across 13 test files ✓
+- Phase 2 state management refactor: Zustand stores replace custom hooks, App.jsx reduced from ~1500 to ~500 lines ✓
+- Tab components extracted: HomeTab, HubTab, ExploreTab, ProfileTab, AppModals — each imports Zustand stores directly ✓
 
 ---
 
@@ -320,31 +329,30 @@ These bugs from the original issue list have been resolved in the codebase:
 - [x] Fix all pre-existing lint errors exposed by CI gates (91 errors → 0 errors, 6 warnings)
 - [x] Exclude `server/routes/**/*.test.js` from root Vitest config (server-only deps can't resolve in jsdom)
 
-### Phase 1: Test Infrastructure
+### Phase 1: Test Infrastructure ✅
 
-**Why next:** Zero tests across 38 components, 1500-line `App.jsx`, and 5 backend route files. Any refactor or feature addition risks silent regressions. Tests are the foundation that makes everything else safe.
+**Status:** Complete. 401 tests across 13 test files (229 frontend + 172 server). All passing.
 
-- [ ] Install Vitest + React Testing Library + jsdom (frontend), supertest (backend)
-- [ ] Add `npm test` script to both `package.json` files
-- [ ] Write backend route tests: `auth.js` (login/register/me), `events.js` (CRUD + RSVP), `communities.js` (CRUD + join/leave), `feed.js` (CRUD + reactions)
-- [ ] Write frontend component tests: `AuthScreen`, `CreateEventModal`, `EventDetailSheet`, `FeedItem`, `OnboardingFlow`
-- [ ] Write `api.js` unit tests (mock fetch, test error handling and parseJson)
-- [ ] Add test step to CI workflows (`deploy-develop.yml`, `deploy-master.yml`) — fail deploys on test failure
-- [ ] Use `/gen-test` skill to scaffold initial test files
+- [x] Install Vitest + React Testing Library + jsdom (frontend)
+- [x] Add `npm test` script to both `package.json` files
+- [x] Write backend route tests: `auth.js` (30), `events.js` (37), `communities.js` (33), `feed.js` (30), `matching.js` (42)
+- [x] Write frontend component tests: `AuthScreen` (22), `CreateEventModal` (23), `EventDetailSheet` (31), `FeedItem` (23), `OnboardingFlow` (27), `EventCard` (22)
+- [x] Write `api.js` unit tests (39 tests — mock fetch, error handling, parseJson)
 
-### Phase 2: State Management Refactor
+### Phase 2: State Management Refactor ✅
 
-**Why second:** `App.jsx` is 1509 lines with all state, handlers, and effects centralized. This blocks testability, code splitting, and team scalability. Tests from Phase 1 catch regressions during the refactor.
+**Status:** Complete. Zustand stores replace custom hooks. `App.jsx` reduced from ~1500 to ~500 lines.
 
-- [ ] Install Zustand
-- [ ] Extract auth state into `src/stores/authStore.js` (user, token, login, logout, session check)
-- [ ] Extract events state into `src/stores/eventStore.js` (events, RSVP, save, create, chat)
-- [ ] Extract communities state into `src/stores/communityStore.js` (communities, join/leave, chat)
-- [ ] Extract feed state into `src/stores/feedStore.js` (posts, reactions, create/delete)
-- [ ] Extract UI state into `src/stores/uiStore.js` (activeTab, modals, toasts, onboarding)
-- [ ] Slim `App.jsx` to layout + store hydration + routing
-- [ ] Update component imports to use store hooks instead of props
-- [ ] Verify all existing tests still pass after refactor
+- [x] Install Zustand (v5.0.11)
+- [x] Extract auth state into `src/stores/authStore.js`
+- [x] Extract events state into `src/stores/eventStore.js`
+- [x] Extract communities state into `src/stores/communityStore.js`
+- [x] Extract feed state into `src/stores/feedStore.js`
+- [x] Extract UI state into `src/stores/uiStore.js`
+- [x] Extract tab components: `HomeTab`, `HubTab`, `ExploreTab`, `ProfileTab`
+- [x] Extract `AppModals` component
+- [x] Slim `App.jsx` to layout + effects + routing
+- [x] Verify all 401 tests still pass after refactor
 
 ### Phase 3: Wire Remaining Mock Data + Real-Time
 
