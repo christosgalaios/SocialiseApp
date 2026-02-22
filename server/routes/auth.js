@@ -1,4 +1,5 @@
 const express = require('express');
+const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const rateLimit = require('express-rate-limit');
@@ -18,7 +19,8 @@ const authLimiter = rateLimit({
 if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
     throw new Error('JWT_SECRET env var is required in production. Set it before deploying.');
 }
-const SECRET_KEY = process.env.JWT_SECRET || 'socialise_dev_secret_key';
+// In dev, generate a random secret per server start — never use a predictable hardcoded fallback
+const SECRET_KEY = process.env.JWT_SECRET || crypto.randomBytes(32).toString('hex');
 
 // --- Input validation ---
 
@@ -74,12 +76,20 @@ const extractUserId = (authHeader) => {
     }
 };
 
+// Demo account — blocked in production to prevent abuse of documented credentials
+const DEMO_EMAIL = 'ben@demo.com';
+
 // POST /api/auth/login
 router.post('/login', authLimiter, async (req, res) => {
     const { email, password } = req.body;
 
     if (!isValidEmail(email) || !isValidPassword(password)) {
         return res.status(400).json({ message: 'Invalid email or password format' });
+    }
+
+    // Block demo account login in production
+    if (process.env.NODE_ENV === 'production' && email.trim().toLowerCase() === DEMO_EMAIL) {
+        return res.status(403).json({ message: 'Demo account is disabled in production' });
     }
 
     const { data: user } = await supabase
