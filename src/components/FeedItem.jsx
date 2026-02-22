@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Heart, MessageCircle, Send, Smile, Reply, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { DEFAULT_AVATAR } from '../data/constants';
 
 const EMOJI_OPTIONS = ['❤️', '😂', '🔥', '👏', '😮', '😢'];
 
@@ -68,10 +69,10 @@ const CommentItem = ({ comment, onReact, onReply, isReply = false, currentUser, 
     <div className={`flex gap-2 group/comment ${isReply ? 'ml-10' : ''}`}>
       {onOpenProfile && !isCurrentUser ? (
         <button type="button" onClick={handleProfileClick} className="flex-shrink-0 rounded-full focus:outline-none focus:ring-2 focus:ring-primary/30">
-          <img src={comment.avatar} alt={comment.user} className={`rounded-full object-cover border border-secondary/10 ${isReply ? 'w-6 h-6' : 'w-8 h-8'}`} loading="lazy" />
+          <img src={comment.avatar || DEFAULT_AVATAR} alt={comment.user} className={`rounded-full object-cover border border-secondary/10 ${isReply ? 'w-6 h-6' : 'w-8 h-8'}`} loading="lazy" />
         </button>
       ) : (
-        <img src={comment.avatar} alt={comment.user} className={`rounded-full object-cover border border-secondary/10 flex-shrink-0 ${isReply ? 'w-6 h-6' : 'w-8 h-8'}`} loading="lazy" />
+        <img src={comment.avatar || DEFAULT_AVATAR} alt={comment.user} className={`rounded-full object-cover border border-secondary/10 flex-shrink-0 ${isReply ? 'w-6 h-6' : 'w-8 h-8'}`} loading="lazy" />
       )}
       <div className="flex-1 min-w-0">
         <div className="bg-secondary/5 rounded-2xl px-3 py-2 relative">
@@ -174,7 +175,7 @@ const CommentItem = ({ comment, onReact, onReply, isReply = false, currentUser, 
               className="overflow-hidden"
             >
               <div className="flex gap-2 mt-2">
-                <img src={currentUser.avatar} alt="You" className="w-6 h-6 rounded-full object-cover" loading="lazy" />
+                <img src={currentUser?.avatar || DEFAULT_AVATAR} alt="You" className="w-6 h-6 rounded-full object-cover" loading="lazy" />
                 <input
                   type="text"
                   placeholder="Write a reply..."
@@ -339,7 +340,7 @@ const FeedItem = ({ post, currentUser = { name: 'Ben B.', avatar: '/ben-avatar.p
             onClick={() => onOpenProfile({ name: post.user, avatar: post.avatar, community: post.community })}
             className="flex items-center gap-3 text-left focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-2xl -m-1 p-1"
           >
-            <img src={post.avatar} className="w-10 h-10 rounded-[14px] object-cover border border-secondary/10 shadow-inner" alt={post.user} loading="lazy" />
+            <img src={post.avatar || DEFAULT_AVATAR} className="w-10 h-10 rounded-[14px] object-cover border border-secondary/10 shadow-inner" alt={post.user} loading="lazy" />
             <div>
               <h4 className="text-sm font-black tracking-tight text-secondary">{post.user}</h4>
               <p className="text-[10px] font-bold text-secondary/40 uppercase tracking-widest flex items-center gap-1.5">
@@ -349,7 +350,7 @@ const FeedItem = ({ post, currentUser = { name: 'Ben B.', avatar: '/ben-avatar.p
           </button>
         ) : (
           <>
-            <img src={post.avatar} className="w-10 h-10 rounded-[14px] object-cover border border-secondary/10 shadow-inner" alt={post.user} loading="lazy" />
+            <img src={post.avatar || DEFAULT_AVATAR} className="w-10 h-10 rounded-[14px] object-cover border border-secondary/10 shadow-inner" alt={post.user} loading="lazy" />
             <div>
               <h4 className="text-sm font-black tracking-tight text-secondary">{post.user}</h4>
               <p className="text-[10px] font-bold text-secondary/40 uppercase tracking-widest flex items-center gap-1.5">

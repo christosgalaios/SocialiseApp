@@ -2,6 +2,11 @@ import {
   LayoutGrid, Footprints, Martini, Dice5, Music, Palette, GraduationCap, Dumbbell, Coffee,
 } from 'lucide-react';
 
+// --- DEFAULT AVATAR ---
+// Used as fallback when a user has no profile picture
+const BASE_URL = import.meta.env.BASE_URL || '/';
+export const DEFAULT_AVATAR = `${BASE_URL}default-avatar.svg`;
+
 // --- CATEGORIES ---
 export const CATEGORIES = [
   { id: 'All', label: 'All', icon: LayoutGrid },

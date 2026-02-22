@@ -5,7 +5,7 @@ import {
   ChevronRight, Zap, ShieldCheck, Heart,
   MessageCircle, Check, Send, Mountain, Ruler, TrendingUp, Footprints
 } from 'lucide-react';
-import { INCLUSIVITY_TAGS, CATEGORY_ATTRIBUTES } from '../data/constants';
+import { INCLUSIVITY_TAGS, CATEGORY_ATTRIBUTES, DEFAULT_AVATAR } from '../data/constants';
 import { useEscapeKey, useFocusTrap } from '../hooks/useAccessibility';
 
 const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMessage, onOpenProfile }) => {
@@ -189,10 +189,10 @@ const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMe
                                 onClick={() => onOpenProfile({ name: msg.user, avatar: msg.avatar })}
                                 className="rounded-[18px] focus:outline-none focus:ring-2 focus:ring-primary/40"
                               >
-                                <img src={msg.avatar} className="w-12 h-12 rounded-[18px] object-cover shadow-2xl border border-white/10" alt={msg.user} loading="lazy" />
+                                <img src={msg.avatar || DEFAULT_AVATAR} className="w-12 h-12 rounded-[18px] object-cover shadow-2xl border border-white/10" alt={msg.user} loading="lazy" />
                               </button>
                             ) : (
-                              <img src={msg.avatar} className="w-12 h-12 rounded-[18px] object-cover shadow-2xl border border-white/10" alt={msg.user} loading="lazy" />
+                              <img src={msg.avatar || DEFAULT_AVATAR} className="w-12 h-12 rounded-[18px] object-cover shadow-2xl border border-white/10" alt={msg.user} loading="lazy" />
                             )}
                             {msg.isHost && <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-primary rounded-full border-2 border-dark flex items-center justify-center"><Check size={10} strokeWidth={4} className="text-white" /></div>}
                           </div>

@@ -44,17 +44,30 @@ router.get('/:id', async (req, res) => {
     const { data, error } = await supabase.from('communities').select('*').eq('id', req.params.id).single();
     if (error || !data) return res.status(404).json({ message: 'Community not found' });
 
-    // Get recent member avatars (first 4)
+    // Get recent member avatars (first 4) — fetch actual user avatars from users table
     const { data: members } = await supabase
         .from('community_members')
         .select('user_id')
         .eq('community_id', req.params.id)
         .limit(4);
 
+    const memberIds = (members || []).map(m => m.user_id);
+    let memberAvatars = [];
+    if (memberIds.length) {
+        const { data: users } = await supabase
+            .from('users')
+            .select('id, avatar')
+            .in('id', memberIds);
+        memberAvatars = memberIds.map(id => {
+            const u = (users || []).find(u => u.id === id);
+            return u?.avatar || '';
+        });
+    }
+
     res.json({
         ...data,
         members: data.member_count,
-        memberAvatars: (members || []).map(m => `https://i.pravatar.cc/150?u=${m.user_id}`),
+        memberAvatars,
     });
 });
 

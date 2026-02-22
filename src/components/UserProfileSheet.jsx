@@ -4,13 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 const MotionDiv = motion.div;
 import { X, MessageCircle, UserPlus, UserCheck } from 'lucide-react';
 import { useEscapeKey, useFocusTrap } from '../hooks/useAccessibility';
-
-// Deterministic hash for stable follower counts based on name
-const nameHash = (name, seed = 5) => {
-    let hash = 0;
-    for (let i = 0; i < (name || '').length; i++) hash = ((hash << seed) - hash) + name.charCodeAt(i);
-    return Math.abs(hash);
-};
+import { DEFAULT_AVATAR } from '../data/constants';
 
 /**
  * Sheet showing another user's profile (avatar, name, optional community/bio).
@@ -25,8 +19,8 @@ const UserProfileSheet = ({ profile, isOpen, onClose, onMessage }) => {
 
     const { name, avatar, community } = profile;
     const bio = profile.bio ?? (community ? `Member of ${community}` : 'Part of the Socialise community.');
-    const followers = profile.followers ?? (nameHash(name, 5) % 180 + 20);
-    const following = profile.following ?? (nameHash(name, 3) % 90 + 10);
+    const followers = profile.followers ?? 0;
+    const following = profile.following ?? 0;
 
     return (
         <AnimatePresence>
@@ -65,7 +59,7 @@ const UserProfileSheet = ({ profile, isOpen, onClose, onMessage }) => {
                             </div>
                             <div className="flex flex-col items-center text-center">
                                 <div className="w-24 h-24 rounded-[28px] overflow-hidden border-2 border-secondary/10 shadow-xl mb-4">
-                                    <img src={avatar} alt={name} className="w-full h-full object-cover" loading="lazy" />
+                                    <img src={avatar || DEFAULT_AVATAR} alt={name} className="w-full h-full object-cover" loading="lazy" />
                                 </div>
                                 <h2 className="text-2xl font-black tracking-tight text-secondary mb-1">
                                     {name}<span className="text-accent">.</span>

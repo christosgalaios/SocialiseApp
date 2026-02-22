@@ -104,10 +104,21 @@ export default function AppModals({ handleJoin, sendMessage, createNewEvent, fil
   const userXP = useUIStore((s) => s.userXP);
   const savedEventsData = useEventStore((s) => s.savedEvents);
 
-  const handleAvatarCropSave = (croppedDataUrl) => {
+  const handleAvatarCropSave = async (croppedDataUrl) => {
+    // Optimistic update — show the new avatar immediately
+    const previousAvatar = user?.avatar;
     useAuthStore.getState().setUser({ ...user, avatar: croppedDataUrl });
     setAvatarCropImage(null);
-    showToast('Profile photo updated!', 'success');
+
+    try {
+      const updatedUser = await api.updateProfile({ avatar: croppedDataUrl });
+      useAuthStore.getState().setUser(updatedUser);
+      showToast('Profile photo updated!', 'success');
+    } catch {
+      // Rollback on failure
+      useAuthStore.getState().setUser({ ...user, avatar: previousAvatar });
+      showToast('Failed to update profile photo', 'error');
+    }
   };
 
   const handleAvatarCropCancel = () => {
