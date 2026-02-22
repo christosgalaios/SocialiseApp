@@ -43,6 +43,7 @@ export default function ProfileTab({ onLogout }) {
   const setShowHelp = useUIStore((s) => s.setShowHelp);
   const setShowGroupChats = useUIStore((s) => s.setShowGroupChats);
   const setShowLevelDetail = useUIStore((s) => s.setShowLevelDetail);
+  const avatarCropImage = useUIStore((s) => s.avatarCropImage);
   const setAvatarCropImage = useUIStore((s) => s.setAvatarCropImage);
   const userXP = useUIStore((s) => s.userXP);
   const userUnlockedTitles = useUIStore((s) => s.userUnlockedTitles);
@@ -52,6 +53,10 @@ export default function ProfileTab({ onLogout }) {
   const handleAvatarUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
+      // Revoke previous blob URL to prevent memory leak
+      if (avatarCropImage && avatarCropImage.startsWith('blob:')) {
+        URL.revokeObjectURL(avatarCropImage);
+      }
       const imageUrl = URL.createObjectURL(file);
       setAvatarCropImage(imageUrl);
     }
@@ -155,7 +160,7 @@ export default function ProfileTab({ onLogout }) {
           <div className="text-center md:text-left">
             <div className="relative inline-block group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
               <div className="w-32 h-32 rounded-[32px] overflow-hidden border-4 border-white/10 shadow-2xl mx-auto md:mx-0 mb-4 relative z-10 transition-transform group-hover:scale-105">
-                <img src={user?.avatar} className="w-full h-full object-cover" alt="Profile" />
+                <img src={user?.avatar} className="w-full h-full object-cover" alt="Profile" loading="lazy" />
                 <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                   <Camera className="text-white drop-shadow-md" size={32} />
                 </div>

@@ -294,8 +294,8 @@ const FeedItem = ({ post, currentUser = { name: 'Ben B.', avatar: '/ben-avatar.p
       if (c.id === commentId) {
         const newReply = {
           id: Date.now(),
-          user: currentUser.name,
-          avatar: currentUser.avatar,
+          user: currentUser?.name ?? 'Guest',
+          avatar: currentUser?.avatar ?? '',
           text,
           time: 'Just now',
           reactions: {}
@@ -310,8 +310,8 @@ const FeedItem = ({ post, currentUser = { name: 'Ben B.', avatar: '/ben-avatar.p
     if (comment.trim()) {
       const newComment = {
         id: Date.now(),
-        user: currentUser.name,
-        avatar: currentUser.avatar,
+        user: currentUser?.name ?? 'Guest',
+        avatar: currentUser?.avatar ?? '',
         text: comment.trim(),
         time: 'Just now',
         reactions: {},

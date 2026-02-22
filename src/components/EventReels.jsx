@@ -31,6 +31,11 @@ const ReelSlideshow = ({ images, isActive }) => {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.6 }}
           alt=""
+          onError={() => {
+            if (images.length > 1) {
+              setCurrentIndex(prev => (prev + 1) % images.length);
+            }
+          }}
         />
       </AnimatePresence>
       {/* Slideshow dots */}

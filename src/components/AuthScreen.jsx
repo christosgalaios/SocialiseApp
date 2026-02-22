@@ -151,7 +151,7 @@ const AuthScreen = ({ onLogin }) => {
               transition={{ duration: 0.3 }}
             >
               <div className="flex items-center gap-3 mb-3">
-                <img src={TESTIMONIALS[activeTestimonial].avatar} className="w-10 h-10 rounded-full object-cover border-2 border-primary/20 shadow" alt={TESTIMONIALS[activeTestimonial].name} />
+                <img src={TESTIMONIALS[activeTestimonial].avatar} className="w-10 h-10 rounded-full object-cover border-2 border-primary/20 shadow" alt={TESTIMONIALS[activeTestimonial].name} loading="lazy" />
                 <div>
                   <p className="font-bold text-secondary text-sm">{TESTIMONIALS[activeTestimonial].name}</p>
                   <p className="text-[9px] font-bold text-primary uppercase tracking-widest">Community Member</p>
