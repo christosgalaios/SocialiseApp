@@ -57,6 +57,12 @@ const useAuthStore = create((set, get) => ({
     set({ _dataFetchedForUser: null });
     setAppState('app');
 
+    // Sync login streak from server to UI store
+    if (response.user?.loginStreak != null) {
+      const { default: useUIStore } = await import('./uiStore');
+      useUIStore.getState().setLoginStreak(response.user.loginStreak);
+    }
+
     if (onSuccess) {
       onSuccess(response.user);
     }
@@ -87,6 +93,13 @@ const useAuthStore = create((set, get) => ({
       const { setUser } = get();
       setUser(userData);
       set({ appState: 'app', _dataFetchedForUser: null });
+
+      // Sync login streak from server to UI store
+      if (userData?.loginStreak != null) {
+        const { default: useUIStore } = await import('./uiStore');
+        useUIStore.getState().setLoginStreak(userData.loginStreak);
+      }
+
       return userData;
     } catch (err) {
       console.error('Session check failed:', err);

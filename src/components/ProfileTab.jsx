@@ -46,6 +46,7 @@ export default function ProfileTab({ onLogout }) {
   const setShowLevelDetail = useUIStore((s) => s.setShowLevelDetail);
   const avatarCropImage = useUIStore((s) => s.avatarCropImage);
   const setAvatarCropImage = useUIStore((s) => s.setAvatarCropImage);
+  const loginStreak = useUIStore((s) => s.loginStreak);
   const userXP = useUIStore((s) => s.userXP);
   const userUnlockedTitles = useUIStore((s) => s.userUnlockedTitles);
 
@@ -199,7 +200,7 @@ export default function ProfileTab({ onLogout }) {
 
           {/* Level Circle */}
           <div className="flex-1 flex justify-center md:justify-end">
-            <WarmthScore level={currentLevel.level} levelProgress={progress} levelIcon={currentLevel.icon} streak={5} />
+            <WarmthScore level={currentLevel.level} levelProgress={progress} levelIcon={currentLevel.icon} streak={loginStreak} />
           </div>
         </motion.div>
 

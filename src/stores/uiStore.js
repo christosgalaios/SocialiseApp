@@ -128,6 +128,16 @@ const useUIStore = create((set) => ({
     localStorage.setItem('socialise_preferences', JSON.stringify(prefs));
   },
 
+  // Login streak
+  loginStreak: (() => {
+    const jsonValue = localStorage.getItem('socialise_login_streak');
+    return jsonValue ? JSON.parse(jsonValue) : 0;
+  })(),
+  setLoginStreak: (streak) => {
+    set({ loginStreak: streak });
+    localStorage.setItem('socialise_login_streak', JSON.stringify(streak));
+  },
+
   // User XP
   userXP: (() => {
     const jsonValue = localStorage.getItem('socialise_xp');
@@ -171,6 +181,7 @@ const useUIStore = create((set) => ({
   // Reset all per-user data to clean defaults
   resetUserData: () => {
     set({
+      loginStreak: 0,
       userXP: 0,
       userUnlockedTitles: [],
       userPreferences: null,
@@ -178,6 +189,7 @@ const useUIStore = create((set) => ({
       proEnabled: false,
       experimentalFeatures: false,
     });
+    localStorage.removeItem('socialise_login_streak');
     localStorage.removeItem('socialise_xp');
     localStorage.removeItem('socialise_unlocked_titles');
     localStorage.removeItem('socialise_preferences');
