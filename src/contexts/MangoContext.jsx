@@ -115,6 +115,7 @@ export const MangoProvider = ({ children }) => {
     );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useMango = () => {
     const context = useContext(MangoContext);
     if (!context) {

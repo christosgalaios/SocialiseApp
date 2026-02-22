@@ -197,7 +197,7 @@ function App() {
           try {
             if (window.navigator?.vibrate) window.navigator.vibrate(20);
             ui.hasVibratedRef.current = true;
-          } catch (e) { /* ignore */ }
+          } catch { /* ignore */ }
         } else if (newPullY < 50 && ui.hasVibratedRef.current) {
           // Reset if user pulls back up significantly
           ui.hasVibratedRef.current = false;
@@ -213,7 +213,7 @@ function App() {
       ui.setPullY(80); // Snap
       try {
         if (window.navigator?.vibrate) window.navigator.vibrate(50);
-      } catch (e) { /* ignore */ }
+      } catch { /* ignore */ }
 
       fetchAllData().then(() => {
         ui.setIsRefreshing(false);
@@ -375,7 +375,7 @@ function App() {
 
     try {
       await api.sendEventMessage(eventId, text);
-    } catch (err) {
+    } catch {
       ui.showToast('Failed to send message', 'error');
     }
   }, [auth.user, events, ui]);

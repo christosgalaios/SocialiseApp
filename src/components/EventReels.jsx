@@ -165,7 +165,7 @@ const ReelCard = ({ event, isActive, onLike, isLiked, onSelect }) => {
   );
 };
 
-const EventReels = ({ events, onClose, onSelectEvent, savedEvents = [], onSave }) => {
+const EventReels = ({ events, onClose, onSelectEvent }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [likedEvents, setLikedEvents] = useState([]);
   const containerRef = useRef(null);

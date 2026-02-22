@@ -66,7 +66,7 @@ const EmailVerificationModal = ({ email, verificationCode, onVerify, onSkip }) =
           We sent a code to <span className="font-bold text-secondary">{email}</span>
         </p>
 
-        {process.env.NODE_ENV !== 'production' && verificationCode && (
+        {import.meta.env.MODE !== 'production' && verificationCode && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3 mb-6">
             <p className="text-[11px] font-bold text-yellow-900 uppercase tracking-wider mb-1">Dev Mode</p>
             <p className="text-sm font-mono font-bold text-yellow-900">Code: <span className="text-lg">{verificationCode}</span></p>

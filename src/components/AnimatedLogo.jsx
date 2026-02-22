@@ -68,7 +68,7 @@ const AnimatedLogo = () => {
       </motion.div>
 
       {/* Radial Icons with glow */}
-      {icons.map(({ Icon, angle, delay, color }, i) => {
+      {icons.map(({ angle, delay, color }, i) => {
         const radius = 128;
         const rad = (angle - 90) * (Math.PI / 180);
         const x = 160 + radius * Math.cos(rad);

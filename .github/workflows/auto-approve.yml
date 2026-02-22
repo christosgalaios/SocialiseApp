@@ -9,8 +9,10 @@ permissions:
   pull-requests: write
 
 jobs:
-  auto-approve:
+  validate:
     runs-on: ubuntu-latest
+    outputs:
+      mergeable: ${{ steps.check-mergeable.outputs.mergeable }}
     steps:
       - name: Wait for mergeability check
         uses: actions/github-script@v7
@@ -46,53 +48,6 @@ jobs:
             core.setOutput('mergeable', mergeable.toString());
             core.info(`PR is mergeable: ${mergeable}`);
 
-      - name: Approve PR
-        if: steps.check-mergeable.outputs.mergeable == 'true'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            await github.rest.pulls.createReview({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.payload.pull_request.number,
-              event: 'APPROVE',
-              body: 'Auto-approved: no merge conflicts detected.',
-            });
-            core.info('PR approved successfully');
-
-      - name: Merge PR
-        if: steps.check-mergeable.outputs.mergeable == 'true'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            await github.rest.pulls.merge({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.payload.pull_request.number,
-              merge_method: 'squash',
-            });
-            core.info('PR merged successfully');
-
-      - name: Delete branch
-        if: steps.check-mergeable.outputs.mergeable == 'true'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const branch = context.payload.pull_request.head.ref;
-            const protectedBranches = ['development', 'production'];
-
-            if (protectedBranches.includes(branch)) {
-              core.info(`Branch '${branch}' is a protected branch — skipping deletion`);
-              return;
-            }
-
-            await github.rest.git.deleteRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: `heads/${branch}`,
-            });
-            core.info(`Branch '${branch}' deleted successfully`);
-
       - name: Post conflict notice
         if: steps.check-mergeable.outputs.mergeable == 'false'
         uses: actions/github-script@v7
@@ -119,3 +74,78 @@ jobs:
               });
             }
             core.info('PR has merge conflicts — skipping approval');
+
+      - uses: actions/checkout@v4
+        if: steps.check-mergeable.outputs.mergeable == 'true'
+
+      - name: Setup Node
+        if: steps.check-mergeable.outputs.mergeable == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        if: steps.check-mergeable.outputs.mergeable == 'true'
+        run: npm ci
+
+      - name: Run linter
+        if: steps.check-mergeable.outputs.mergeable == 'true'
+        run: npm run lint
+
+      - name: Run tests
+        if: steps.check-mergeable.outputs.mergeable == 'true'
+        run: npm test -- --run
+
+      - name: Build
+        if: steps.check-mergeable.outputs.mergeable == 'true'
+        run: npm run build
+
+  auto-approve:
+    needs: validate
+    if: needs.validate.outputs.mergeable == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Approve PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.pulls.createReview({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              event: 'APPROVE',
+              body: 'Auto-approved: no merge conflicts, lint/tests/build passed.',
+            });
+            core.info('PR approved successfully');
+
+      - name: Merge PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.pulls.merge({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              merge_method: 'squash',
+            });
+            core.info('PR merged successfully');
+
+      - name: Delete branch
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const branch = context.payload.pull_request.head.ref;
+            const protectedBranches = ['development', 'production'];
+
+            if (protectedBranches.includes(branch)) {
+              core.info(`Branch '${branch}' is a protected branch — skipping deletion`);
+              return;
+            }
+
+            await github.rest.git.deleteRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `heads/${branch}`,
+            });
+            core.info(`Branch '${branch}' deleted successfully`);
