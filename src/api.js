@@ -217,6 +217,12 @@ const api = {
     deleteAccount() {
         return fetchWithAuth('/users/me', { method: 'DELETE' });
     },
+
+    // ── Bugs ──────────────────────────────────────────────────────────────
+
+    reportBug(data) {
+        return fetchWithAuth('/bugs', { method: 'POST', body: data });
+    },
 };
 
 export default api;

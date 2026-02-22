@@ -19,6 +19,7 @@ import GroupChatsSheet from './GroupChatsSheet';
 import UserProfileSheet from './UserProfileSheet';
 import LevelUpModal from './LevelUpModal';
 import AvatarCropModal from './AvatarCropModal';
+import BugReportModal from './BugReportModal';
 
 // Lazy-loaded: CreateEventModal pulls in LocationPicker → Google Maps (~50kb)
 const CreateEventModal = lazy(() => import('./CreateEventModal'));
@@ -102,6 +103,8 @@ export default function AppModals({ handleJoin, sendMessage, createNewEvent, fil
   const avatarCropImage = useUIStore((s) => s.avatarCropImage);
   const setAvatarCropImage = useUIStore((s) => s.setAvatarCropImage);
   const userXP = useUIStore((s) => s.userXP);
+  const showBugReport = useUIStore((s) => s.showBugReport);
+  const setShowBugReport = useUIStore((s) => s.setShowBugReport);
   const savedEventsData = useEventStore((s) => s.savedEvents);
 
   const handleAvatarCropSave = async (croppedDataUrl) => {
@@ -326,13 +329,8 @@ export default function AppModals({ handleJoin, sendMessage, createNewEvent, fil
             setSavedEvents([]);
             setCommunities([]);
             setFeedPosts([]);
-            localStorage.removeItem('socialise_pro');
-            localStorage.removeItem('socialise_tribes');
-            localStorage.removeItem('socialise_onboarding_shown');
-            localStorage.removeItem('socialise_preferences');
-            localStorage.removeItem('socialise_experimental');
-            localStorage.removeItem('socialise_xp');
-            localStorage.removeItem('socialise_unlocked_titles');
+            useUIStore.getState().resetUserData();
+            useCommunityStore.getState().resetUserTribes();
             handleLogoutAuth();
             showToast('Account deleted successfully', 'info');
           } catch (err) {
@@ -375,6 +373,14 @@ export default function AppModals({ handleJoin, sendMessage, createNewEvent, fil
         isOpen={!!avatarCropImage}
         onSave={handleAvatarCropSave}
         onCancel={handleAvatarCropCancel}
+      />
+      <BugReportModal
+        isOpen={showBugReport}
+        onClose={() => setShowBugReport(false)}
+        onSubmit={async (formData) => {
+          const result = await api.reportBug(formData);
+          showToast(`Bug report ${result.bugId} logged!`, 'success');
+        }}
       />
     </AnimatePresence>
   );

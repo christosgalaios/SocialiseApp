@@ -14,6 +14,8 @@ This document explains all the automations configured for Socialise development.
 | **create-migration skill** | Skill | ✅ Ready | `/create-migration "description"` |
 | **code-reviewer** | Subagent | ✅ Ready | Use before merging to production |
 | **test-coverage-analyzer** | Subagent | ✅ Ready | Use after test infrastructure setup |
+| **fix-bugs skill** | Skill | ✅ Ready | `/fix-bugs` to process BUGS.md reports |
+| **bug-fixer** | Subagent | ✅ Ready | Used by `/fix-bugs` skill |
 
 ---
 
@@ -252,6 +254,35 @@ Recommendations:
 3. Then App.jsx handlers
 ```
 
+### bug-fixer — Bug Validation and Repair
+
+**Purpose:** Validates bug reports from BUGS.md and produces minimal, focused fixes
+
+**How it works:**
+
+1. Users report bugs via the in-app bug button → reports are appended to `BUGS.md`
+2. Developer runs `/fix-bugs` when ready to process reports
+3. The skill reads BUGS.md, sorts by severity (P1 → P2 → P3)
+4. For each `open` bug: validates against codebase, fixes if valid, adds regression test
+5. Updates bug status in BUGS.md: `fixed`, `rejected`, or `needs-triage`
+6. Each fix is committed separately
+
+**Safety guardrails:**
+- **Bug-only scope:** Cannot add new features, endpoints, or components. Only fixes existing broken behavior.
+- **Feature request detection:** Reports describing new behavior are marked `rejected`.
+- **File restrictions:** Cannot touch workflows, `.env`, migrations, `package.json`, or config files.
+- **Size limits:** Max 5 files changed, max 100 lines modified (excluding tests).
+- **Auth escalation:** Bugs in auth/security code are marked `needs-triage` for human review.
+- **Manual trigger only:** You choose when to run `/fix-bugs` — nothing runs automatically.
+
+**BUGS.md statuses:**
+| Status | Meaning |
+|--------|---------|
+| `open` | Not yet processed — ready for fixing |
+| `fixed` | Bug validated and fix committed |
+| `rejected` | Not a bug (feature request, invalid, cannot reproduce) |
+| `needs-triage` | Valid bug but out of scope for automated fixing |
+
 ---
 
 ## 🚀 Workflows
@@ -274,13 +305,21 @@ Recommendations:
 
 ### Bug Fix Workflow
 
+**Via /fix-bugs (recommended):**
+1. Users report bugs via the in-app bug icon → entries added to `BUGS.md`
+2. Run `/fix-bugs` to process all open reports (or `/fix-bugs P1` for critical only)
+3. Agent validates each bug, fixes, adds regression test, commits
+4. Push to development → auto-approve (lint + test + build) → merge
+
+**Manual (for complex bugs or `needs-triage` items):**
 1. Create feature branch from development
 2. Fix the bug
 3. Edit files → auto-lint keeps code clean
 4. `/gen-test path/to/file` → add test for the bug
-5. Merge to development → CI tests run
-6. code-reviewer checks for regressions
-7. Merge to production
+5. Update bug status in BUGS.md to `fixed`
+6. Merge to development → CI tests run
+7. code-reviewer checks for regressions
+8. Merge to production
 
 ### Database Schema Changes
 
@@ -320,7 +359,8 @@ Skill definitions live here.
 ```
 .claude/skills/
 ├── gen-test/SKILL.md
-└── create-migration/SKILL.md
+├── create-migration/SKILL.md
+└── fix-bugs/SKILL.md
 ```
 
 ### .claude/agents/
@@ -328,7 +368,8 @@ Subagent definitions.
 ```
 .claude/agents/
 ├── code-reviewer.md
-└── test-coverage-analyzer.md
+├── test-coverage-analyzer.md
+└── bug-fixer.md
 ```
 
 ---
@@ -403,7 +444,7 @@ Tell me how to query Supabase
 - **Claude Code help**: Type `/help`
 - **Project questions**: Read CLAUDE.md (project brain)
 - **Design system**: See ANTIGRAVITY_BRAIN.md
-- **Bug tracking**: GitHub Issues
+- **Bug tracking**: `BUGS.md` (in-app reports) + `/fix-bugs` skill
 
 ---
 
@@ -411,8 +452,8 @@ Tell me how to query Supabase
 
 - [x] MCP servers configured (GitHub, Supabase)
 - [x] Hooks active (auto-lint, block-env)
-- [x] Skills ready (gen-test, create-migration)
-- [x] Subagents available (code-reviewer, test-coverage-analyzer)
+- [x] Skills ready (gen-test, create-migration, fix-bugs)
+- [x] Subagents available (code-reviewer, test-coverage-analyzer, bug-fixer)
 - [x] Documentation created (this file)
 
 **You're ready to go!** Start with:

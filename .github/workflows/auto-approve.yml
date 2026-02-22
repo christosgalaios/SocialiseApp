@@ -15,6 +15,12 @@ jobs:
     outputs:
       mergeable: ${{ steps.check-mergeable.outputs.mergeable }}
     steps:
+      - name: Block non-development PRs to production
+        if: github.event.pull_request.base.ref == 'production' && github.event.pull_request.head.ref != 'development'
+        run: |
+          echo "::error::PRs to production must come from development, not ${{ github.event.pull_request.head.ref }}"
+          exit 1
+
       - name: Wait for mergeability check
         uses: actions/github-script@v7
         id: check-mergeable
@@ -49,32 +55,9 @@ jobs:
             core.setOutput('mergeable', mergeable.toString());
             core.info(`PR is mergeable: ${mergeable}`);
 
-      - name: Post conflict notice
+      - name: Log conflict notice
         if: steps.check-mergeable.outputs.mergeable == 'false'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            // Check if a conflict comment already exists to avoid duplicates
-            const { data: comments } = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.payload.pull_request.number,
-            });
-
-            const conflictComment = comments.find(c =>
-              c.user.login === 'github-actions[bot]' &&
-              c.body.includes('merge conflicts detected')
-            );
-
-            if (!conflictComment) {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.payload.pull_request.number,
-                body: '⚠️ **Auto-approve skipped:** merge conflicts detected. Please resolve conflicts and push again.',
-              });
-            }
-            core.info('PR has merge conflicts — skipping approval');
+        run: echo "::warning::Auto-approve skipped — PR has merge conflicts. Resolve conflicts and push again."
 
       - uses: actions/checkout@v4
         if: steps.check-mergeable.outputs.mergeable == 'true'
@@ -116,7 +99,6 @@ jobs:
               repo: context.repo.repo,
               pull_number: context.payload.pull_request.number,
               event: 'APPROVE',
-              body: 'Auto-approved: no merge conflicts, lint/tests/build passed.',
             });
             core.info('PR approved successfully');
 

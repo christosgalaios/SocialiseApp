@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, Wand2, MapPin, Calendar, Users, Sparkles, Heart, Zap } from 'lucide-react';
 import { useMango } from '../contexts/MangoContext';
+import useUIStore from '../stores/uiStore';
 
 const QUICK_PROMPTS = [
     { label: "What's on this week?", icon: '📅' },
@@ -13,6 +14,7 @@ const QUICK_PROMPTS = [
 
 const MangoChat = ({ user = {}, events = [] }) => {
     const { setIsChatOpen, setPose } = useMango();
+    const loginStreak = useUIStore((s) => s.loginStreak);
     const [input, setInput] = useState('');
     const userName = user?.name?.split(' ')[0] || 'there';
     const userInterests = user?.interests || [];
@@ -128,7 +130,7 @@ const MangoChat = ({ user = {}, events = [] }) => {
             responses.push({
                 id: Date.now() + 1,
                 type: 'bot',
-                text: `Here's your progress report! 🎮\n\n⭐ **Level 4 — Socialite**\n💎 **750 XP** (250 until Level 5: Trailblazer)\n🔥 **5-day streak!**\n\n**Unlocked titles:** 5/10\n• 👣 First Steps\n• 🦋 Social Butterfly\n• 🛡️ Tribe Leader\n• 💬 Conversation Starter\n• 🦉 Night Owl\n\n**Next unlock:** 🗺️ Explorer — attend events in 3 categories. You've done 2 so far! Almost there! 💪`
+                text: `Here's your progress report! 🎮\n\n⭐ **Level 4 — Socialite**\n💎 **750 XP** (250 until Level 5: Trailblazer)\n🔥 **${loginStreak > 0 ? `${loginStreak}-day streak!` : 'No streak yet — log in tomorrow to start one!'}**\n\n**Unlocked titles:** 5/10\n• 👣 First Steps\n• 🦋 Social Butterfly\n• 🛡️ Tribe Leader\n• 💬 Conversation Starter\n• 🦉 Night Owl\n\n**Next unlock:** 🗺️ Explorer — attend events in 3 categories. You've done 2 so far! Almost there! 💪`
             });
         }
         // Help / What can you do

@@ -13,12 +13,12 @@ const DAILY_REWARDS = [
 /**
  * WarmthScore - Level progress circle with daily streak rewards
  */
-const WarmthScore = ({ level = 4, levelProgress = 75, levelIcon = '⭐', streak = 5 }) => {
+const WarmthScore = ({ level = 4, levelProgress = 75, levelIcon = '⭐', streak = 0 }) => {
     const circumference = 2 * Math.PI * 45; // radius = 45
     const strokeDashoffset = circumference - (levelProgress / 100) * circumference;
 
-    // Which day of the 7-day cycle we're currently on (1–7)
-    const streakDay = ((streak - 1) % 7) + 1;
+    // Which day of the 7-day cycle we're currently on (1–7), 0 means no streak
+    const streakDay = streak > 0 ? ((streak - 1) % 7) + 1 : 0;
 
     return (
         <motion.div
@@ -107,12 +107,14 @@ const WarmthScore = ({ level = 4, levelProgress = 75, levelIcon = '⭐', streak 
 
             {/* Streak count badge */}
             <motion.div
-                className="flex items-center gap-1.5 mt-2 px-3 py-1 bg-accent/10 rounded-full border border-accent/20"
+                className={`flex items-center gap-1.5 mt-2 px-3 py-1 rounded-full border ${streak > 0 ? 'bg-accent/10 border-accent/20' : 'bg-secondary/5 border-secondary/10'}`}
                 initial={{ y: 5, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 1.4 }}
             >
-                <span className="text-xs font-black text-accent">🔥 {streak} day streak</span>
+                <span className={`text-xs font-black ${streak > 0 ? 'text-accent' : 'text-secondary/40'}`}>
+                    {streak > 0 ? `🔥 ${streak} day streak` : 'Log in daily to build a streak!'}
+                </span>
             </motion.div>
         </motion.div>
     );

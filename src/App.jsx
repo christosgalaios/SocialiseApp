@@ -22,6 +22,7 @@ import Toast from './components/Toast';
 import IOSInstallPrompt from './components/IOSInstallPrompt';
 import Confetti from './components/Confetti';
 import RealtimePing from './components/RealtimePing';
+import { Bug } from 'lucide-react';
 
 // Lazy-loaded components (heavy, conditionally rendered)
 const MangoChat = lazy(() => import('./components/MangoChat'));
@@ -185,6 +186,8 @@ function App() {
     setSavedEvents([]);
     setCommunities([]);
     setFeedPosts([]);
+    useUIStore.getState().resetUserData();
+    useCommunityStore.getState().resetUserTribes();
     useAuthStore.getState().handleLogout(() => {
       showToast('Signed out successfully', 'info');
     });
@@ -567,6 +570,17 @@ function App() {
                 <MangoAssistant />
               </Suspense>
             )}
+
+            {/* Bug Report Button */}
+            <motion.button
+              className="fixed bottom-28 right-4 z-50 w-11 h-11 rounded-full bg-secondary/90 text-white shadow-lg flex items-center justify-center backdrop-blur-sm border border-white/10 md:bottom-6"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={() => useUIStore.getState().setShowBugReport(true)}
+              aria-label="Report a bug"
+            >
+              <Bug size={18} />
+            </motion.button>
 
             <IOSInstallPrompt />
           </motion.div>

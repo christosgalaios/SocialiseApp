@@ -35,6 +35,12 @@ const useAuthStore = create((set, get) => ({
   handleLogin: async (type, credentials, { onSuccess } = {}) => {
     let response;
     if (type === 'register') {
+      // Clean slate for new user — clear any stale data from previous session
+      const { default: useUIStore } = await import('./uiStore');
+      const { default: useCommunityStore } = await import('./communityStore');
+      useUIStore.getState().resetUserData();
+      useCommunityStore.getState().resetUserTribes();
+
       response = await api.register(
         credentials.email,
         credentials.password,
@@ -50,6 +56,12 @@ const useAuthStore = create((set, get) => ({
     localStorage.setItem('socialise_token', response.token);
     set({ _dataFetchedForUser: null });
     setAppState('app');
+
+    // Sync login streak from server to UI store
+    if (response.user?.loginStreak != null) {
+      const { default: useUIStore } = await import('./uiStore');
+      useUIStore.getState().setLoginStreak(response.user.loginStreak);
+    }
 
     if (onSuccess) {
       onSuccess(response.user);
@@ -81,6 +93,13 @@ const useAuthStore = create((set, get) => ({
       const { setUser } = get();
       setUser(userData);
       set({ appState: 'app', _dataFetchedForUser: null });
+
+      // Sync login streak from server to UI store
+      if (userData?.loginStreak != null) {
+        const { default: useUIStore } = await import('./uiStore');
+        useUIStore.getState().setLoginStreak(userData.loginStreak);
+      }
+
       return userData;
     } catch (err) {
       console.error('Session check failed:', err);

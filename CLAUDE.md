@@ -72,7 +72,7 @@
   /skills              # Skill definitions (gen-test, create-migration)
 /public                # PWA icons, logos
 /docs                  # QA notes, dev task docs
-package.json           # Frontend deps (ESM) — v0.38.0
+package.json           # Frontend deps (ESM) — v0.1.0
 ANTIGRAVITY_BRAIN.md   # Design philosophy doc (read before UI changes)
 ```
 
@@ -135,7 +135,7 @@ ANTIGRAVITY_BRAIN.md   # Design philosophy doc (read before UI changes)
 | OnboardingFlow | `src/components/OnboardingFlow.jsx` | 3-step: interests → location → group size. |
 | CreateEventModal | `src/components/CreateEventModal.jsx` | Event creation form. |
 | VideoWall | `src/components/VideoWall.jsx` | Auto-playing video showcase. |
-| AuthScreen | `src/components/AuthScreen.jsx` | Login/register form. Demo: ben@demo.com / password. |
+| AuthScreen | `src/components/AuthScreen.jsx` | Login/register form. Demo: ben@demo.com / password (blocked in prod). |
 | Skeleton | `src/components/Skeleton.jsx` | Loading skeletons for each tab. |
 
 ---
@@ -216,8 +216,9 @@ Base (production): `https://socialise-app-production.up.railway.app/api`
 | GET | `/users/me/saved` | Required | My saved events |
 | GET | `/users/me/communities` | Required | My communities |
 | GET | `/events/recommendations/for-you` | Required | Micro-Meet recommendations (by match score) |
+| POST | `/bugs` | Required | Submit bug report (appends to BUGS.md) |
 
-**Demo credentials:** `ben@demo.com` / `password`
+**Demo credentials:** `ben@demo.com` / `password` (blocked in production — `NODE_ENV=production` returns 403)
 
 **User storage:** Supabase `users` table. Auth routes read/write Supabase directly via service role client.
 
@@ -302,9 +303,11 @@ These bugs from the original issue list have been resolved in the codebase:
 - GitHub Pages deploys to `/dev/` and `/prod/` subfolders — no more root-level conflicts ✓
 - Frontend wired to real API — `mockData.js` renamed to `constants.js` (UI config only, no mock data) ✓
 - Legacy `server/users.json` deleted (was already empty) ✓
-- JWT_SECRET hardcoded fallback removed — now throws in production if env var not set ✓
+- JWT_SECRET hardcoded fallback removed — now throws in production if env var not set. Dev fallback uses `crypto.randomBytes()` (not a predictable string) ✓
 - Duplicate inline JWT verification in `communities.js` replaced with shared `extractUserId` helper ✓
-- Rate limiting added to `/auth/login` and `/auth/register` via `express-rate-limit` (15 requests per 15 min per IP) ✓
+- Rate limiting added to `/auth/login` and `/auth/register` via `express-rate-limit` (15 requests per 15 min per IP). Mutation rate limiter (100 req/15 min) added globally to events, communities, feed, and users routes ✓
+- Demo account (`ben@demo.com`) blocked in production (`NODE_ENV=production` returns 403) ✓
+- `.gitleaksignore` added to suppress false positives from old dev-only JWT fallback string in git history ✓
 - ESLint config split into frontend (`src/`) and server (`server/`) blocks — 0 errors, 0 warnings ✓
 - Unused `motion` import removed from `Sidebar.jsx`; remaining `motion` imports whitelisted (JSX member expression false positives) ✓
 - CORS origin list logged on server startup for production verification ✓
@@ -337,6 +340,7 @@ These bugs from the original issue list have been resolved in the codebase:
 - `EventReels` slideshow images have `onError` fallback (skip to next image on load failure) ✓
 - `loading="lazy"` added to all remaining img tags: HomeTab, ProfileTab, AuthScreen, IOSInstallPrompt, RealtimePing ✓
 - Component test coverage expanded: 409 frontend tests across 18 test files (useAccessibility 16, BottomNav 16, Toast 10, Sidebar 16, ErrorBoundary 11) ✓
+- `auto-approve.yml` blocks feature branch PRs from targeting `production` — only `development` → `production` PRs are allowed ✓
 
 ---
 
@@ -419,7 +423,7 @@ These bugs from the original issue list have been resolved in the codebase:
 - [ ] Set `ALLOWED_ORIGINS` env var in production Railway to exact production domains only
 - [ ] Tighten RLS policies — restrict beyond service role if frontend ever talks to Supabase directly
 - [ ] Add CSRF protection if moving to cookie-based auth
-- [ ] Add rate limiting to all mutation endpoints (currently only on `/auth/*`)
+- [x] Add rate limiting to all mutation endpoints (100 req/15 min for POST/PUT/DELETE on events, communities, feed, users)
 
 ### Phase 6: Bug Fixes + Production Polish
 
@@ -477,9 +481,12 @@ Configuration lives in `.claude/`. Full docs: `.claude/AUTOMATION_SETUP.md` and 
 | Hook | `block-env` | Prevents editing `.env` files |
 | Skill | `/gen-test` | Generate unit tests (Vitest + React Testing Library) |
 | Skill | `/create-migration` | Create Supabase migration files |
+| Skill | `/fix-bugs` | Process bug reports from BUGS.md — validate, fix, and commit |
 | Subagent | `code-reviewer` | Security, quality, design system compliance review |
 | Subagent | `test-coverage-analyzer` | Identify untested code and coverage gaps |
-| Workflow | `auto-approve` | Validates (lint + test + build), then auto-approves, squash-merges, and deletes branch for conflict-free PRs |
+| Subagent | `bug-fixer` | Validates bug reports and creates minimal fixes (bug-only, no features) |
+| Workflow | `auto-approve` | Blocks feature→production PRs, validates (lint + test + build), then auto-approves, squash-merges, and deletes branch for conflict-free PRs |
+| Workflow | `bug-fixer` | Triggered by `bug` label on issues — validates, fixes, and creates PR via Claude Code |
 
 ---
 
@@ -498,7 +505,7 @@ Configuration lives in `.claude/`. Full docs: `.claude/AUTOMATION_SETUP.md` and 
 3. Push to `development` → auto-deploys to `/dev/` preview for testing
 4. Merge `development` → `production` → auto-deploys to `/prod/` production
 
-**Auto-approve PRs:** The `auto-approve.yml` workflow runs on all PRs. It first runs a `validate` job (lint, tests, build). If the PR has no merge conflicts and validation passes, it automatically approves, squash-merges, and deletes the source branch. PRs with conflicts get a comment and are skipped.
+**Auto-approve PRs:** The `auto-approve.yml` workflow runs on all PRs. It blocks PRs targeting `production` from any branch other than `development` (posts a comment and fails). For allowed PRs, it runs a `validate` job (lint, tests, build). If the PR has no merge conflicts and validation passes, it automatically approves, squash-merges, and deletes the source branch. PRs with conflicts get a comment and are skipped.
 
 ### Running Locally
 

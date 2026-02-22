@@ -56,6 +56,8 @@ const useUIStore = create((set) => ({
   setLevelUpData: (data) => set({ levelUpData: data }),
   showLevelDetail: false,
   setShowLevelDetail: (show) => set({ showLevelDetail: show }),
+  showBugReport: false,
+  setShowBugReport: (show) => set({ showBugReport: show }),
 
   // Explore filters
   searchQuery: '',
@@ -128,6 +130,16 @@ const useUIStore = create((set) => ({
     localStorage.setItem('socialise_preferences', JSON.stringify(prefs));
   },
 
+  // Login streak
+  loginStreak: (() => {
+    const jsonValue = localStorage.getItem('socialise_login_streak');
+    return jsonValue ? JSON.parse(jsonValue) : 0;
+  })(),
+  setLoginStreak: (streak) => {
+    set({ loginStreak: streak });
+    localStorage.setItem('socialise_login_streak', JSON.stringify(streak));
+  },
+
   // User XP
   userXP: (() => {
     const jsonValue = localStorage.getItem('socialise_xp');
@@ -166,6 +178,26 @@ const useUIStore = create((set) => ({
   setExperimentalFeatures: (enabled) => {
     set({ experimentalFeatures: enabled });
     localStorage.setItem('socialise_experimental', JSON.stringify(enabled));
+  },
+
+  // Reset all per-user data to clean defaults
+  resetUserData: () => {
+    set({
+      loginStreak: 0,
+      userXP: 0,
+      userUnlockedTitles: [],
+      userPreferences: null,
+      showOnboarding: false,
+      proEnabled: false,
+      experimentalFeatures: false,
+    });
+    localStorage.removeItem('socialise_login_streak');
+    localStorage.removeItem('socialise_xp');
+    localStorage.removeItem('socialise_unlocked_titles');
+    localStorage.removeItem('socialise_preferences');
+    localStorage.removeItem('socialise_onboarding_shown');
+    localStorage.removeItem('socialise_pro');
+    localStorage.removeItem('socialise_experimental');
   },
 }));
 
