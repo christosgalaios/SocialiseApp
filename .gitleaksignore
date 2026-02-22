@@ -1,0 +1,10 @@
+# Known non-secrets in git history — safe to ignore
+#
+# "socialise_dev_secret_key" was a local-only dev fallback for JWT_SECRET,
+# never used in production. Replaced with crypto.randomBytes() in the fix.
+# These commit fingerprints suppress gitleaks/GitHub secret scanning false positives.
+
+7221bb79a62983ddaf7c3c925aa45670c6b07252:server/routes/auth.js:socialise_dev_secret_key
+87489feffd9284ffa6070743aa9165e0a2a9988f:server/routes/auth.js:socialise_dev_secret_key
+42579391dc0fb984a1c1b0b2d7619d187789691c:server/routes/auth.js:socialise_dev_secret_key
+4a9bf6344acd28c683e8c7ca8088aa5dde48edd1:server/routes/auth.js:socialise_dev_secret_key
