@@ -800,7 +800,7 @@ const Mango = ({
         if (tapDuration < 300 && !hasDraggedRef.current && !isDragging) {
             toggleChat();
         }
-    }, [interactive, isDragging, isHolding, toggleChat]);
+    }, [interactive, isDragging, isHolding, initialPose, toggleChat]);
 
     // Handle drag start
     const handleDragStart = useCallback(() => {

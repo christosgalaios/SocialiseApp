@@ -30,6 +30,7 @@ const AuthScreen = ({ onLogin }) => {
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -60,6 +61,10 @@ const AuthScreen = ({ onLogin }) => {
     }
     if (!password.trim() || password.length < 6) {
       setError('Password must be at least 6 characters');
+      return;
+    }
+    if (isRegister && password !== confirmPassword) {
+      setError('Passwords do not match');
       return;
     }
     setLoading(true);
@@ -237,6 +242,31 @@ const AuthScreen = ({ onLogin }) => {
             />
           </div>
 
+          <AnimatePresence mode="wait">
+            {isRegister && (
+              <motion.div
+                key="confirm-password-field"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="relative">
+                  <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary/40" />
+                  <input
+                    type="password"
+                    placeholder="Confirm password"
+                    value={confirmPassword}
+                    onChange={(e) => { setConfirmPassword(e.target.value); setError(''); }}
+                    className="w-full py-4 pl-12 pr-4 rounded-2xl bg-white border border-secondary/10 text-[var(--text)] font-medium text-sm focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition-all"
+                    required
+                    minLength={6}
+                  />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           <AnimatePresence>
             {error && (
               <motion.div
@@ -265,7 +295,7 @@ const AuthScreen = ({ onLogin }) => {
         </form>
 
         <button
-          onClick={() => { setIsRegister(!isRegister); setFirstName(''); setLastName(''); setError(''); }}
+          onClick={() => { setIsRegister(!isRegister); setFirstName(''); setLastName(''); setConfirmPassword(''); setError(''); }}
           className="w-full py-3 text-center text-xs font-bold text-secondary/60 hover:text-primary transition-colors"
         >
           {isRegister ? 'Already have an account? Log in' : "Don't have an account? Sign up"}

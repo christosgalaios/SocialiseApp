@@ -139,10 +139,12 @@ describe('AuthScreen', () => {
       await user.click(toggleButton);
 
       const emailInput = screen.getByPlaceholderText(/Email address/i);
-      const passwordInput = screen.getByPlaceholderText(/Password/i);
+      const passwordInput = screen.getByPlaceholderText('Password (min 6 characters)');
+      const confirmPasswordInput = screen.getByPlaceholderText('Confirm password');
 
       await user.type(emailInput, 'new@example.com');
       await user.type(passwordInput, 'password123');
+      await user.type(confirmPasswordInput, 'password123');
 
       const submitButton = screen.getByText(/Create Account/i);
       await user.click(submitButton);
@@ -163,11 +165,13 @@ describe('AuthScreen', () => {
 
       const firstNameInput = screen.getByPlaceholderText(/First name/i);
       const emailInput = screen.getByPlaceholderText(/Email address/i);
-      const passwordInput = screen.getByPlaceholderText(/Password/i);
+      const passwordInput = screen.getByPlaceholderText('Password (min 6 characters)');
+      const confirmPasswordInput = screen.getByPlaceholderText('Confirm password');
 
       await user.type(firstNameInput, 'John');
       await user.type(emailInput, 'john@example.com');
       await user.type(passwordInput, 'password123');
+      await user.type(confirmPasswordInput, 'password123');
 
       const submitButton = screen.getByText(/Create Account/i);
       await user.click(submitButton);
@@ -189,12 +193,14 @@ describe('AuthScreen', () => {
       const firstNameInput = screen.getByPlaceholderText(/First name/i);
       const lastNameInput = screen.getByPlaceholderText(/Last name/i);
       const emailInput = screen.getByPlaceholderText(/Email address/i);
-      const passwordInput = screen.getByPlaceholderText(/Password/i);
+      const passwordInput = screen.getByPlaceholderText('Password (min 6 characters)');
+      const confirmPasswordInput = screen.getByPlaceholderText('Confirm password');
 
       await user.type(firstNameInput, 'John');
       await user.type(lastNameInput, 'Doe');
       await user.type(emailInput, 'john@example.com');
       await user.type(passwordInput, 'password123');
+      await user.type(confirmPasswordInput, 'password123');
 
       const submitButton = screen.getByText(/Create Account/i);
       await user.click(submitButton);
@@ -307,13 +313,15 @@ describe('AuthScreen', () => {
       const firstNameInput = screen.getByPlaceholderText(/First name/i);
       const lastNameInput = screen.getByPlaceholderText(/Last name/i);
       const emailInput = screen.getByPlaceholderText(/Email address/i);
-      const passwordInput = screen.getByPlaceholderText(/Password/i);
+      const passwordInput = screen.getByPlaceholderText('Password (min 6 characters)');
+      const confirmPasswordInput = screen.getByPlaceholderText('Confirm password');
       const submitButton = screen.getByText(/Create Account/i);
 
       await user.type(firstNameInput, 'John');
       await user.type(lastNameInput, 'Doe');
       await user.type(emailInput, 'existing@example.com');
       await user.type(passwordInput, 'password123');
+      await user.type(confirmPasswordInput, 'password123');
       await user.click(submitButton);
 
       await waitFor(() => {
@@ -389,13 +397,15 @@ describe('AuthScreen', () => {
       const firstNameInput = screen.getByPlaceholderText(/First name/i);
       const lastNameInput = screen.getByPlaceholderText(/Last name/i);
       const emailInput = screen.getByPlaceholderText(/Email address/i);
-      const passwordInput = screen.getByPlaceholderText(/Password/i);
+      const passwordInput = screen.getByPlaceholderText('Password (min 6 characters)');
+      const confirmPasswordInput = screen.getByPlaceholderText('Confirm password');
       const submitButton = screen.getByText(/Create Account/i);
 
       await user.type(firstNameInput, '  John  ');
       await user.type(lastNameInput, '  Doe  ');
       await user.type(emailInput, 'john@example.com');
       await user.type(passwordInput, 'password123');
+      await user.type(confirmPasswordInput, 'password123');
       await user.click(submitButton);
 
       await waitFor(() => {

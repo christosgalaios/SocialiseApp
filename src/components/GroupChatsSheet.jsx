@@ -97,15 +97,16 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
   const messagesEndRef = useRef(null);
   const autoReplyIndex = useRef(0);
 
+  const selectedCommunityId = selectedCommunity?.id;
   useEffect(() => {
-    if (!selectedCommunity) return;
+    if (!selectedCommunityId) return;
     autoReplyIndex.current = 0;
     // Load from localStorage first, then fetch from API
-    const stored = getStoredMessages(selectedCommunity.id);
+    const stored = getStoredMessages(selectedCommunityId);
     if (stored.length) {
       setMessages(stored);
     } else {
-      api.getCommunityChat(selectedCommunity.id).then(data => {
+      api.getCommunityChat(selectedCommunityId).then(data => {
         const mapped = (data || []).map(m => ({
           id: m.id,
           user: m.user_name,
@@ -115,10 +116,10 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
           isMe: false,
         }));
         setMessages(mapped);
-        if (mapped.length) setStoredMessages(selectedCommunity.id, mapped);
+        if (mapped.length) setStoredMessages(selectedCommunityId, mapped);
       }).catch(() => setMessages([]));
     }
-  }, [selectedCommunity?.id]);
+  }, [selectedCommunityId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
