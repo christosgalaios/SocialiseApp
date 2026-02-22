@@ -58,6 +58,8 @@
     003_users_table.sql       # Users table migration from JSON
     004_enable_rls.sql        # RLS policies on all tables
     005_fix_function_search_path.sql  # Security hardening
+    006_login_streak.sql              # Login streak columns
+    007_user_xp.sql                   # XP and unlocked titles columns
   /routes
     auth.js            # Login/register/me — Supabase
     events.js          # CRUD + RSVP/save/chat — Supabase
@@ -173,8 +175,8 @@ ANTIGRAVITY_BRAIN.md   # Design philosophy doc (read before UI changes)
 | `socialise_onboarding_shown` | Boolean | Onboarding complete |
 | `socialise_preferences` | Object | User onboarding prefs |
 | `socialise_experimental` | Boolean | Experimental features toggle |
-| `socialise_xp` | Number | User XP points (gamification) |
-| `socialise_unlocked_titles` | Array | Unlocked achievement title IDs |
+| `socialise_xp` | Number | User XP points (synced from Supabase, cached locally) |
+| `socialise_unlocked_titles` | Array | Unlocked achievement title IDs (synced from Supabase, cached locally) |
 
 ---
 
@@ -212,6 +214,7 @@ Base (production): `https://socialise-app-production.up.railway.app/api`
 | DELETE | `/feed/:id` | Required | Delete own post |
 | POST | `/feed/:id/react` | Required | Toggle emoji reaction |
 | PUT | `/users/me` | Required | Update own profile |
+| PUT | `/users/me/xp` | Required | Update XP and/or unlocked titles |
 | GET | `/users/me/events` | Required | My hosted + attending events |
 | GET | `/users/me/saved` | Required | My saved events |
 | GET | `/users/me/communities` | Required | My communities |
@@ -247,7 +250,8 @@ Base (production): `https://socialise-app-production.up.railway.app/api`
 | Event chat messages | Real — fetched from API, sent via API |
 | Micro-Meet recommendations | Real — matching algorithm in `server/matching.js` |
 | Row Level Security | Real — RLS enabled and enforced on all tables |
-| UI constants (categories, XP, tags) | Frontend-only — defined in `src/data/constants.js` |
+| XP and unlocked titles | Real — persisted in Supabase `users` table, synced on login, updated via `PUT /users/me/xp` |
+| UI constants (categories, XP levels, tags) | Frontend-only — defined in `src/data/constants.js` |
 | Realtime pings | Simulated with setTimeout |
 | Pro subscription | UI only — no payment, no enforcement |
 | Google login | Simulated — just loads DEMO_USER |
@@ -267,7 +271,7 @@ Base (production): `https://socialise-app-production.up.railway.app/api`
 - Duplicate JWT verification in communities.js replaced with shared `extractUserId` helper
 - Micro-Meet matching algorithm (`server/matching.js`)
 - Seed data script (`server/seed.js`)
-- Migration runner (`server/migrate.js`) + 5 migration files in `server/migrations/`
+- Migration runner (`server/migrate.js`) + 7 migration files in `server/migrations/`
 - Railway deployment configured for production + development environments
 - API URL now reads from `VITE_API_URL` env var (not hardcoded)
 - GitHub Pages deploys to `/dev/` and `/prod/` subfolders via separate workflows
@@ -342,6 +346,7 @@ These bugs from the original issue list have been resolved in the codebase:
 - Component test coverage expanded: 409 frontend tests across 18 test files (useAccessibility 16, BottomNav 16, Toast 10, Sidebar 16, ErrorBoundary 11) ✓
 - `auto-approve.yml` blocks feature branch PRs from targeting `production` — only `development` → `production` PRs are allowed ✓
 - `deploy-production.yml` back-merges production into development after deploy — keeps branches in sync (merge commits from development→production PRs no longer cause "behind" drift) ✓
+- XP and unlocked titles persisted to Supabase `users` table (migration 007) — fixes level mismatch between prod and dev environments. Auth responses include `xp` and `unlockedTitles`, synced to uiStore on login/session check. `PUT /api/users/me/xp` endpoint for updates. ✓
 
 ---
 
@@ -466,7 +471,7 @@ ESLint passes clean (0 errors, 0 warnings). The config (`eslint.config.js`) has 
 - No direct INSERT/UPDATE/DELETE on `users` table from frontend roles
 - All data mutation goes through Express API → service role client
 
-**Migrations:** Run via `node server/migrate.js`. Files in `server/migrations/` are executed in order (001–005). See Directory Layout above for details.
+**Migrations:** Run via `node server/migrate.js`. Files in `server/migrations/` are executed in order (001–007). See Directory Layout above for details.
 
 ---
 
