@@ -15,6 +15,20 @@ jobs:
     outputs:
       mergeable: ${{ steps.check-mergeable.outputs.mergeable }}
     steps:
+      - name: Block non-development PRs to production
+        if: github.event.pull_request.base.ref == 'production' && github.event.pull_request.head.ref != 'development'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const head = context.payload.pull_request.head.ref;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: `❌ **PR rejected:** Only the \`development\` branch can merge into \`production\`. This PR is from \`${head}\`. Please target \`development\` instead.`,
+            });
+            core.setFailed(`PRs to production must come from development, not ${head}`);
+
       - name: Wait for mergeability check
         uses: actions/github-script@v7
         id: check-mergeable
