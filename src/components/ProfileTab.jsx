@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { version as APP_VERSION } from '../../package.json';
+const APP_VERSION = import.meta.env.VITE_APP_VERSION || '0.1.dev';
 import {
   Mail, ShieldCheck, Zap, Check, Heart, Crown, ChevronRight, LogOut, Camera, Users, Settings, MessageCircle, ArrowLeft,
 } from 'lucide-react';

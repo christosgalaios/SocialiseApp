@@ -294,7 +294,7 @@ These bugs from the original issue list have been resolved in the codebase:
 - `OnboardingFlow` receives `userName={user?.name ?? 'there'}` ✓
 - `api.js` uses `parseJson()` wrapper + checks `response.ok` before throwing ✓
 - `handleLogout` uses a stable `handleLogoutRef` to avoid dependency array issue ✓
-- `deploy-development.yml` no longer bumps the patch version — fixes `package.json` merge conflicts when promoting `development` → `production` ✓
+- Version bumping removed from all deploy workflows — version now derived dynamically from latest merged PR number (`0.1.{PR#}`) via `VITE_APP_VERSION` env var, eliminating all version-related merge conflicts and branch divergence ✓
 - Auth migrated from `users.json` to Supabase `users` table — fixes ephemeral filesystem issue on Railway ✓
 - Row Level Security (RLS) enabled on all Supabase tables with appropriate policies ✓
 - `update_updated_at` function secured with immutable `search_path` ✓
@@ -522,8 +522,10 @@ node index.js        # Express @ localhost:3001
 - `production` branch → GitHub Actions auto-deploys to `/prod/` + uses `socialise-app-production` Railway project
 
 **Versioning:**
-- `production` deploy bumps the minor version (x.**y**.0) in `package.json` and syncs it back to `development`.
-- `development` deploy does **not** bump the version — this is intentional. Both branches must stay on the same version to avoid merge conflicts when promoting `development` → `production`.
+- Version is derived dynamically at build time from the latest merged PR number: `0.1.{PR#}` (e.g. `0.1.104`).
+- `package.json` version is a static placeholder (`0.1.0`) — not used at runtime.
+- Both deploy workflows pass `VITE_APP_VERSION` to the Vite build. The app reads it via `import.meta.env.VITE_APP_VERSION`.
+- No version bump commits, no sync between branches — eliminates merge conflicts and branch divergence.
 
 **ESLint:** `npm run lint` — React hooks rules enabled. Fix lint errors before pushing.
 
