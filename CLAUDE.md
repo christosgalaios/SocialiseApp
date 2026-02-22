@@ -1,6 +1,6 @@
 # Socialise App — Claude Brain
 
-> Fast-reference context for Claude Code. Read this before touching anything.
+> Fast-reference context for Claude Code. Read this file before touching anything.
 
 ---
 
