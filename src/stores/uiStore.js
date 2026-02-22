@@ -56,6 +56,8 @@ const useUIStore = create((set) => ({
   setLevelUpData: (data) => set({ levelUpData: data }),
   showLevelDetail: false,
   setShowLevelDetail: (show) => set({ showLevelDetail: show }),
+  showBugReport: false,
+  setShowBugReport: (show) => set({ showBugReport: show }),
 
   // Explore filters
   searchQuery: '',

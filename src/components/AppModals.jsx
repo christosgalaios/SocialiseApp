@@ -19,6 +19,7 @@ import GroupChatsSheet from './GroupChatsSheet';
 import UserProfileSheet from './UserProfileSheet';
 import LevelUpModal from './LevelUpModal';
 import AvatarCropModal from './AvatarCropModal';
+import BugReportModal from './BugReportModal';
 
 // Lazy-loaded: CreateEventModal pulls in LocationPicker → Google Maps (~50kb)
 const CreateEventModal = lazy(() => import('./CreateEventModal'));
@@ -102,6 +103,8 @@ export default function AppModals({ handleJoin, sendMessage, createNewEvent, fil
   const avatarCropImage = useUIStore((s) => s.avatarCropImage);
   const setAvatarCropImage = useUIStore((s) => s.setAvatarCropImage);
   const userXP = useUIStore((s) => s.userXP);
+  const showBugReport = useUIStore((s) => s.showBugReport);
+  const setShowBugReport = useUIStore((s) => s.setShowBugReport);
   const savedEventsData = useEventStore((s) => s.savedEvents);
 
   const handleAvatarCropSave = async (croppedDataUrl) => {
@@ -370,6 +373,14 @@ export default function AppModals({ handleJoin, sendMessage, createNewEvent, fil
         isOpen={!!avatarCropImage}
         onSave={handleAvatarCropSave}
         onCancel={handleAvatarCropCancel}
+      />
+      <BugReportModal
+        isOpen={showBugReport}
+        onClose={() => setShowBugReport(false)}
+        onSubmit={async (formData) => {
+          const result = await api.reportBug(formData);
+          showToast(`Bug report #${result.issueNumber} submitted!`, 'success');
+        }}
       />
     </AnimatePresence>
   );
