@@ -46,12 +46,14 @@ const eventsRouter = require('./routes/events');
 const communitiesRouter = require('./routes/communities');
 const feedRouter = require('./routes/feed');
 const usersRouter = require('./routes/users');
+const bugsRouter = require('./routes/bugs');
 
 app.use('/api/auth', authRouter);
 app.use('/api/events', eventsRouter);
 app.use('/api/communities', communitiesRouter);
 app.use('/api/feed', feedRouter);
 app.use('/api/users', usersRouter);
+app.use('/api/bugs', bugsRouter);
 
 // --- Start ---
 
