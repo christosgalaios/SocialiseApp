@@ -3,6 +3,11 @@ name: Deploy development → GitHub Pages preview (development branch)
 on:
   push:
     branches: [development]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch to deploy'
+        default: 'development'
 
 permissions:
   contents: write

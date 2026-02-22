@@ -3,6 +3,11 @@ name: Deploy production → GitHub Pages (production branch)
 on:
   push:
     branches: [production]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch to deploy'
+        default: 'production'
 
 permissions:
   contents: write
