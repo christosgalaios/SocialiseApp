@@ -85,3 +85,32 @@ jobs:
           # Deploys into /prod/ without touching the /dev/ preview build.
           target-folder: prod
           clean: true
+
+  # ── Back-merge production → development ──
+  # Merge commits from development→production PRs only exist on production.
+  # This keeps development in sync so GitHub doesn't show it as "behind".
+  sync-development:
+    needs: build-and-deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Merge production into development
+        uses: actions/github-script@v7
+        with:
+          script: |
+            try {
+              await github.rest.repos.merge({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                base: 'development',
+                head: 'production',
+                commit_message: 'chore: sync development with production merge commits [skip ci]',
+              });
+              core.info('Successfully synced development with production');
+            } catch (error) {
+              // 204 = nothing to merge (already in sync), which is fine
+              if (error.status === 204) {
+                core.info('Branches already in sync — nothing to merge');
+              } else {
+                core.warning(`Back-merge failed (non-blocking): ${error.message}`);
+              }
+            }
