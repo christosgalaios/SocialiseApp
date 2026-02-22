@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Image, AlertCircle, Check } from 'lucide-react';
 import { CATEGORIES } from '../data/constants';
 import LocationPicker from './LocationPicker';
+import { useEscapeKey, useFocusTrap } from '../hooks/useAccessibility';
 
 const CreateEventModal = ({ onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -10,6 +11,8 @@ const CreateEventModal = ({ onClose, onSubmit }) => {
   });
   const [errors, setErrors] = useState({});
   const [imagePreview, setImagePreview] = useState(null);
+  useEscapeKey(true, onClose);
+  const focusTrapRef = useFocusTrap(true);
 
   const validate = () => {
     const newErrors = {};
@@ -41,7 +44,7 @@ const CreateEventModal = ({ onClose, onSubmit }) => {
   const categories = CATEGORIES.filter(c => c.id !== 'All');
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label="Create event" ref={focusTrapRef}>
       <motion.div
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         onClick={onClose}
@@ -53,7 +56,7 @@ const CreateEventModal = ({ onClose, onSubmit }) => {
       >
         {/* Header */}
         <div className="sticky top-0 bg-paper p-6 pb-4 border-b border-secondary/10 z-10">
-          <button onClick={onClose} className="absolute top-6 right-6 text-secondary/30 hover:text-secondary transition-colors active:scale-90">
+          <button onClick={onClose} className="absolute top-6 right-6 text-secondary/30 hover:text-secondary transition-colors active:scale-90" aria-label="Close">
             <X size={24} strokeWidth={2.5} />
           </button>
           <h2 className="text-2xl font-black tracking-tight text-secondary">Create Event<span className="text-accent">.</span></h2>
@@ -63,22 +66,24 @@ const CreateEventModal = ({ onClose, onSubmit }) => {
         <div className="p-6 space-y-5">
           {/* Image Preview/Input */}
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-secondary/50 uppercase tracking-widest ml-3">Cover Image</label>
+            <label htmlFor="event-image" className="text-[10px] font-black text-secondary/50 uppercase tracking-widest ml-3">Cover Image</label>
             {imagePreview ? (
               <div className="relative rounded-2xl overflow-hidden">
-                <img src={imagePreview} alt="Preview" className="w-full h-40 object-cover" onError={() => setImagePreview(null)} />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                <img src={imagePreview} alt="Preview" className="w-full h-40 object-cover" loading="lazy" onError={() => setImagePreview(null)} />
+                <div className="absolute inset-0 bg-gradient-to-t from-secondary/50 to-transparent" aria-hidden="true" />
                 <button
                   onClick={() => handleImageUrl('')}
-                  className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/50 flex items-center justify-center text-white hover:bg-black/70"
+                  className="absolute top-2 right-2 w-8 h-8 rounded-full bg-secondary/70 flex items-center justify-center text-white hover:bg-secondary/90"
+                  aria-label="Remove image"
                 >
                   <X size={16} />
                 </button>
               </div>
             ) : (
               <div className="relative">
-                <Image size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary/40" />
+                <Image size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary/40" aria-hidden="true" />
                 <input
+                  id="event-image"
                   type="url"
                   placeholder="Paste image URL..."
                   value={formData.image}
@@ -91,16 +96,19 @@ const CreateEventModal = ({ onClose, onSubmit }) => {
 
           {/* Title */}
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-secondary/50 uppercase tracking-widest ml-3">Event Title</label>
+            <label htmlFor="event-title" className="text-[10px] font-black text-secondary/50 uppercase tracking-widest ml-3">Event Title</label>
             <input
+              id="event-title"
               type="text"
               placeholder="e.g. Friday Drinks at The Golden Lion"
               value={formData.title}
               onChange={e => setFormData({ ...formData, title: e.target.value })}
               className={`w-full bg-secondary/5 border rounded-2xl px-4 py-4 text-sm font-bold focus:outline-none focus:border-primary transition-all placeholder:text-secondary/30 ${errors.title ? 'border-red-500' : 'border-secondary/10'}`}
+              aria-invalid={!!errors.title}
+              aria-describedby={errors.title ? 'title-error' : undefined}
             />
             {errors.title && (
-              <p className="text-xs text-red-500 flex items-center gap-1 ml-3">
+              <p id="title-error" className="text-xs text-red-500 flex items-center gap-1 ml-3" role="alert">
                 <AlertCircle size={12} /> {errors.title}
               </p>
             )}
@@ -108,11 +116,13 @@ const CreateEventModal = ({ onClose, onSubmit }) => {
 
           {/* Category */}
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-secondary/50 uppercase tracking-widest ml-3">Category</label>
-            <div className="flex flex-wrap gap-2">
+            <span className="text-[10px] font-black text-secondary/50 uppercase tracking-widest ml-3" id="category-label">Category</span>
+            <div className="flex flex-wrap gap-2" role="radiogroup" aria-labelledby="category-label">
               {categories.slice(0, 6).map(cat => (
                 <button
                   key={cat.id}
+                  role="radio"
+                  aria-checked={formData.category === cat.id}
                   onClick={() => setFormData({ ...formData, category: cat.id })}
                   className={`px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all ${formData.category === cat.id
                     ? 'bg-primary text-white'
@@ -129,8 +139,9 @@ const CreateEventModal = ({ onClose, onSubmit }) => {
           {/* Date & Time */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-secondary/50 uppercase tracking-widest ml-3">Date</label>
+              <label htmlFor="event-date" className="text-[10px] font-black text-secondary/50 uppercase tracking-widest ml-3">Date</label>
               <input
+                id="event-date"
                 type="date"
                 value={formData.date}
                 onChange={e => setFormData({ ...formData, date: e.target.value })}
@@ -138,8 +149,9 @@ const CreateEventModal = ({ onClose, onSubmit }) => {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-secondary/50 uppercase tracking-widest ml-3">Time</label>
+              <label htmlFor="event-time" className="text-[10px] font-black text-secondary/50 uppercase tracking-widest ml-3">Time</label>
               <input
+                id="event-time"
                 type="time"
                 value={formData.time}
                 onChange={e => setFormData({ ...formData, time: e.target.value })}
@@ -169,21 +181,25 @@ const CreateEventModal = ({ onClose, onSubmit }) => {
               }}
             />
             {errors.location && (
-              <p className="text-xs text-red-500 flex items-center gap-1 ml-3">
+              <p className="text-xs text-red-500 flex items-center gap-1 ml-3" role="alert">
                 <AlertCircle size={12} /> {errors.location}
               </p>
             )}
           </div>
 
           {/* Pricing Toggle */}
-          <div className="flex bg-secondary/5 p-1.5 rounded-2xl border border-secondary/10">
+          <div className="flex bg-secondary/5 p-1.5 rounded-2xl border border-secondary/10" role="radiogroup" aria-label="Event pricing">
             <button
+              role="radio"
+              aria-checked={formData.type === 'free'}
               onClick={() => setFormData({ ...formData, type: 'free', price: 0 })}
               className={`flex-1 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${formData.type === 'free' ? 'bg-primary text-white shadow-lg' : 'text-secondary/50'}`}
             >
               Free
             </button>
             <button
+              role="radio"
+              aria-checked={formData.type === 'ticketed'}
               onClick={() => setFormData({ ...formData, type: 'ticketed', price: 10 })}
               className={`flex-1 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${formData.type === 'ticketed' ? 'bg-primary text-white shadow-lg' : 'text-secondary/50'}`}
             >
@@ -200,16 +216,19 @@ const CreateEventModal = ({ onClose, onSubmit }) => {
                 exit={{ opacity: 0, height: 0 }}
                 className="space-y-2 overflow-hidden"
               >
-                <label className="text-[10px] font-black text-secondary/50 uppercase tracking-widest ml-3">Ticket Price (£)</label>
+                <label htmlFor="event-price" className="text-[10px] font-black text-secondary/50 uppercase tracking-widest ml-3">Ticket Price (£)</label>
                 <input
+                  id="event-price"
                   type="number"
                   min="1"
                   value={formData.price}
                   onChange={e => setFormData({ ...formData, price: Number(e.target.value) })}
                   className={`w-full bg-secondary/5 border rounded-2xl px-4 py-4 text-lg font-black focus:outline-none focus:border-primary ${errors.price ? 'border-red-500' : 'border-secondary/10'}`}
+                  aria-invalid={!!errors.price}
+                  aria-describedby={errors.price ? 'price-error' : undefined}
                 />
                 {errors.price && (
-                  <p className="text-xs text-red-500 flex items-center gap-1 ml-3">
+                  <p id="price-error" className="text-xs text-red-500 flex items-center gap-1 ml-3" role="alert">
                     <AlertCircle size={12} /> {errors.price}
                   </p>
                 )}
@@ -235,4 +254,3 @@ const CreateEventModal = ({ onClose, onSubmit }) => {
 };
 
 export default CreateEventModal;
-

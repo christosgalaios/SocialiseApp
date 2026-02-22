@@ -2,29 +2,10 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, ArrowLeft, Image, Smile, Mic, Users, Pin, Search, Phone, Video } from 'lucide-react';
 import api from '../api';
+import useAuthStore from '../stores/authStore';
+import { useEscapeKey, useFocusTrap } from '../hooks/useAccessibility';
 
-const STORAGE_PREFIX = 'socialise_community_chats_';
-
-const getStoredMessages = (communityId) => {
-  try {
-    const raw = localStorage.getItem(`${STORAGE_PREFIX}${communityId}`);
-    if (raw) return JSON.parse(raw);
-  } catch { /* ignore parse errors */ }
-  return [];
-};
-
-const setStoredMessages = (communityId, messages) => {
-  localStorage.setItem(`${STORAGE_PREFIX}${communityId}`, JSON.stringify(messages));
-};
-
-const DEMO_USER_NAME = 'You';
 const QUICK_REACTIONS = ['❤️', '😂', '🔥', '👏', '😮', '👍'];
-
-// Simulated typing responses
-const AUTO_REPLIES = [
-  { user: "Sarah K.", avatar: "https://i.pravatar.cc/150?u=sarah", delay: 3000, message: "That sounds great! Count me in 😊" },
-  { user: "Marcus V.", avatar: "https://i.pravatar.cc/150?u=marcus", delay: 6000, message: "Awesome, see you all there!" },
-];
 
 const MessageBubble = ({ msg }) => {
   const [showReactions, setShowReactions] = useState(false);
@@ -88,99 +69,84 @@ const MessageBubble = ({ msg }) => {
 };
 
 export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [] }) {
+  const user = useAuthStore((s) => s.user);
+  useEscapeKey(isOpen, onClose);
+  const focusTrapRef = useFocusTrap(isOpen);
   const [selectedCommunity, setSelectedCommunity] = useState(null);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
-  const [isTyping, setIsTyping] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   const messagesEndRef = useRef(null);
-  const autoReplyIndex = useRef(0);
 
   const selectedCommunityId = selectedCommunity?.id;
   useEffect(() => {
     if (!selectedCommunityId) return;
-    autoReplyIndex.current = 0;
-    // Load from localStorage first, then fetch from API
-    const stored = getStoredMessages(selectedCommunityId);
-    if (stored.length) {
-      setMessages(stored);
-    } else {
-      api.getCommunityChat(selectedCommunityId).then(data => {
-        const mapped = (data || []).map(m => ({
-          id: m.id,
-          user: m.user_name,
-          avatar: m.user_avatar || `https://i.pravatar.cc/150?u=${m.user_id}`,
-          message: m.message,
-          time: new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          isMe: false,
-        }));
-        setMessages(mapped);
-        if (mapped.length) setStoredMessages(selectedCommunityId, mapped);
-      }).catch(() => setMessages([]));
-    }
-  }, [selectedCommunityId]);
+    let cancelled = false;
+    setLoading(true);
+    api.getCommunityChat(selectedCommunityId).then(data => {
+      if (cancelled) return;
+      const mapped = (data || []).map(m => ({
+        id: m.id,
+        user: m.user_name,
+        avatar: m.user_avatar || `https://i.pravatar.cc/150?u=${m.user_id}`,
+        message: m.message,
+        time: m.created_at ? new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
+        isMe: m.user_id === user?.id,
+      }));
+      setMessages(mapped);
+    }).catch(() => {
+      if (!cancelled) setMessages([]);
+    }).finally(() => {
+      if (!cancelled) setLoading(false);
+    });
+    return () => { cancelled = true; };
+  }, [selectedCommunityId, user?.id]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isTyping]);
+  }, [messages]);
 
   const openCommunity = (community) => {
     setSelectedCommunity(community);
-    setMessages(getStoredMessages(community.id));
+    setMessages([]);
   };
 
   const closeCommunity = () => {
     setSelectedCommunity(null);
     setInput('');
-    setIsTyping(null);
   };
 
-  const handleSend = (e) => {
+  const handleSend = async (e) => {
     e.preventDefault();
     if (!input.trim() || !selectedCommunity) return;
-    const newMsg = {
-      id: Date.now(),
-      user: DEMO_USER_NAME,
-      avatar: null,
+
+    const name = user?.name ?? 'Guest';
+    const parts = name.split(' ');
+    const displayName = `${parts[0] ?? ''} ${parts[1]?.[0] ?? ''}.`.trim() || 'Guest';
+
+    const optimisticId = 'temp-' + Date.now();
+    const optimisticMsg = {
+      id: optimisticId,
+      user: displayName,
+      avatar: user?.avatar ?? null,
       message: input.trim(),
       time: 'Just now',
       isMe: true,
     };
-    const next = [...messages, newMsg];
-    setMessages(next);
-    setStoredMessages(selectedCommunity.id, next);
+
+    setMessages(prev => [...prev, optimisticMsg]);
+    const text = input.trim();
     setInput('');
 
-    // Post to API (fire-and-forget)
-    api.sendCommunityMessage(selectedCommunity.id, newMsg.message).catch(() => {});
-
-    // Simulate typing + auto reply
-    if (autoReplyIndex.current < AUTO_REPLIES.length) {
-      const reply = AUTO_REPLIES[autoReplyIndex.current];
-      autoReplyIndex.current++;
-      setTimeout(() => setIsTyping(reply.user), 1500);
-      setTimeout(() => {
-        setIsTyping(null);
-        const replyMsg = {
-          id: Date.now() + 1,
-          user: reply.user,
-          avatar: reply.avatar,
-          message: reply.message,
-          time: 'Just now',
-          isMe: false,
-        };
-        setMessages(prev => {
-          const updated = [...prev, replyMsg];
-          setStoredMessages(selectedCommunity.id, updated);
-          return updated;
-        });
-      }, reply.delay);
+    try {
+      await api.sendCommunityMessage(selectedCommunity.id, text);
+    } catch {
+      // Remove optimistic message on failure
+      setMessages(prev => prev.filter(m => m.id !== optimisticId));
     }
   };
-
-  // Online member count (simulated)
-  const onlineCount = selectedCommunity ? Math.min(Math.floor(selectedCommunity.members * 0.08), 99) : 0;
 
   if (!isOpen) return null;
 
@@ -192,6 +158,10 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-[55] bg-secondary/60 backdrop-blur-sm"
         onClick={onClose}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Group chats"
+        ref={focusTrapRef}
       >
         <motion.div
           initial={{ y: '100%' }}
@@ -222,21 +192,21 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
                   </div>
                   <div className="flex-1 min-w-0">
                     <h2 className="font-black text-secondary truncate text-sm">{selectedCommunity.name}</h2>
-                    <p className="text-[10px] font-bold text-secondary/50 flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                      {onlineCount} online • {selectedCommunity.members} members
+                    <p className="text-[10px] font-bold text-secondary/50">
+                      {selectedCommunity.members} members
                     </p>
                   </div>
                   <div className="flex items-center gap-1">
-                    <button className="w-9 h-9 rounded-full bg-secondary/10 flex items-center justify-center text-secondary/60 hover:bg-secondary/20 transition-colors">
+                    <button className="w-9 h-9 rounded-full bg-secondary/10 flex items-center justify-center text-secondary/60 hover:bg-secondary/20 transition-colors" aria-label="Voice call">
                       <Phone size={16} />
                     </button>
-                    <button className="w-9 h-9 rounded-full bg-secondary/10 flex items-center justify-center text-secondary/60 hover:bg-secondary/20 transition-colors">
+                    <button className="w-9 h-9 rounded-full bg-secondary/10 flex items-center justify-center text-secondary/60 hover:bg-secondary/20 transition-colors" aria-label="Video call">
                       <Video size={16} />
                     </button>
                     <button
                       onClick={onClose}
                       className="w-9 h-9 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
+                      aria-label="Close"
                     >
                       <X size={16} className="text-secondary" />
                     </button>
@@ -255,7 +225,13 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
                 <div className="text-center text-[10px] font-bold uppercase tracking-wider text-secondary/40 py-2">
                   Today
                 </div>
-                {messages.length === 0 && (
+                {loading && messages.length === 0 && (
+                  <div className="text-center py-8">
+                    <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+                    <p className="text-xs text-secondary/40">Loading messages...</p>
+                  </div>
+                )}
+                {!loading && messages.length === 0 && (
                   <div className="text-center py-8">
                     <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-secondary/10 flex items-center justify-center">
                       <Users size={24} className="text-secondary/40" />
@@ -267,29 +243,13 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
                 {messages.map((msg) => (
                   <MessageBubble key={msg.id} msg={msg} />
                 ))}
-
-                {/* Typing indicator */}
-                {isTyping && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center gap-2 text-secondary/50 text-xs font-medium"
-                  >
-                    <span className="italic">{isTyping} is typing</span>
-                    <div className="flex gap-0.5">
-                      <div className="w-1.5 h-1.5 bg-secondary/40 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <div className="w-1.5 h-1.5 bg-secondary/40 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <div className="w-1.5 h-1.5 bg-secondary/40 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                    </div>
-                  </motion.div>
-                )}
                 <div ref={messagesEndRef} />
               </div>
 
               {/* Input area */}
               <form onSubmit={handleSend} className="p-3 border-t border-secondary/10 bg-paper shrink-0 pb-[max(12px,env(safe-area-inset-bottom))]">
                 <div className="flex items-center gap-2">
-                  <button type="button" className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary/50 hover:bg-secondary/20 transition-colors shrink-0">
+                  <button type="button" className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary/50 hover:bg-secondary/20 transition-colors shrink-0" aria-label="Emoji">
                     <Smile size={20} />
                   </button>
                   <input
@@ -297,20 +257,22 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     placeholder="Type a message..."
+                    aria-label="Chat message"
                     className="flex-1 bg-secondary/5 border border-secondary/10 rounded-2xl px-4 py-3 text-[var(--text)] placeholder:text-secondary/40 focus:outline-none focus:ring-2 focus:ring-primary/30 font-medium text-sm"
                   />
-                  <button type="button" className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary/50 hover:bg-secondary/20 transition-colors shrink-0">
+                  <button type="button" className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary/50 hover:bg-secondary/20 transition-colors shrink-0" aria-label="Attach image">
                     <Image size={20} />
                   </button>
                   {input.trim() ? (
                     <button
                       type="submit"
                       className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center shadow-lg active:scale-95 transition-transform shrink-0"
+                      aria-label="Send message"
                     >
                       <Send size={18} />
                     </button>
                   ) : (
-                    <button type="button" className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                    <button type="button" className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0" aria-label="Voice message">
                       <Mic size={20} />
                     </button>
                   )}
@@ -367,37 +329,28 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
                 ) : (
                   joinedCommunities
                     .filter(c => !searchQuery || c.name.toLowerCase().includes(searchQuery.toLowerCase()))
-                    .map((community) => {
-                      const stored = getStoredMessages(community.id);
-                      const lastMsg = stored.length ? stored[stored.length - 1] : null;
-                      return (
-                        <motion.button
-                          key={community.id}
-                          whileTap={{ scale: 0.98 }}
-                          onClick={() => openCommunity(community)}
-                          className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-secondary/5 transition-colors text-left"
-                        >
-                          <div className="relative shrink-0">
-                            <div className="w-14 h-14 rounded-2xl bg-secondary/10 flex items-center justify-center text-2xl border border-secondary/15">
-                              {community.avatar || '💬'}
-                            </div>
-                            <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-green-500 rounded-full border-2 border-paper" />
+                    .map((community) => (
+                      <motion.button
+                        key={community.id}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => openCommunity(community)}
+                        className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-secondary/5 transition-colors text-left"
+                      >
+                        <div className="relative shrink-0">
+                          <div className="w-14 h-14 rounded-2xl bg-secondary/10 flex items-center justify-center text-2xl border border-secondary/15">
+                            {community.avatar || '💬'}
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between mb-0.5">
-                              <h3 className="font-bold text-secondary text-sm truncate">{community.name}</h3>
-                              <span className="text-[10px] text-secondary/40 font-medium shrink-0 ml-2">{lastMsg?.time || ''}</span>
-                            </div>
-                            <p className="text-xs text-secondary/50 truncate">
-                              {lastMsg ? `${lastMsg.user}: ${lastMsg.message}` : 'No messages yet'}
-                            </p>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between mb-0.5">
+                            <h3 className="font-bold text-secondary text-sm truncate">{community.name}</h3>
                           </div>
-                          {community.unread > 0 && (
-                            <span className="w-5 h-5 rounded-full bg-primary text-[10px] font-black text-white flex items-center justify-center shrink-0">{community.unread}</span>
-                          )}
-                        </motion.button>
-                      );
-                    })
+                          <p className="text-xs text-secondary/50 truncate">
+                            {community.members} members
+                          </p>
+                        </div>
+                      </motion.button>
+                    ))
                 )}
               </div>
             </>

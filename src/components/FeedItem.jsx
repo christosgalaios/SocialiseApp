@@ -88,6 +88,7 @@ const CommentItem = ({ comment, onReact, onReply, isReply = false, currentUser, 
           <button
             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
             className="absolute -right-1 -bottom-1 w-5 h-5 rounded-full bg-paper border border-secondary/20 flex items-center justify-center opacity-0 group-hover/comment:opacity-100 transition-opacity hover:bg-secondary/10"
+            aria-label="React with emoji"
           >
             <Smile size={10} className="text-secondary/60" />
           </button>
@@ -180,7 +181,7 @@ const CommentItem = ({ comment, onReact, onReply, isReply = false, currentUser, 
                   value={replyText}
                   onChange={(e) => setReplyText(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && submitReply()}
-                  className="flex-1 bg-secondary/5 border border-secondary/20 rounded-xl px-3 py-1.5 text-xs text-secondary focus:outline-none focus:border-primary placeholder:text-secondary/40"
+                  className="flex-1 bg-secondary/5 border border-secondary/20 rounded-xl px-3 py-1.5 text-xs text-[var(--text)] focus:outline-none focus:border-primary placeholder:text-secondary/40"
                   autoFocus
                 />
                 <button
@@ -293,8 +294,8 @@ const FeedItem = ({ post, currentUser = { name: 'Ben B.', avatar: '/ben-avatar.p
       if (c.id === commentId) {
         const newReply = {
           id: Date.now(),
-          user: currentUser.name,
-          avatar: currentUser.avatar,
+          user: currentUser?.name ?? 'Guest',
+          avatar: currentUser?.avatar ?? '',
           text,
           time: 'Just now',
           reactions: {}
@@ -309,8 +310,8 @@ const FeedItem = ({ post, currentUser = { name: 'Ben B.', avatar: '/ben-avatar.p
     if (comment.trim()) {
       const newComment = {
         id: Date.now(),
-        user: currentUser.name,
-        avatar: currentUser.avatar,
+        user: currentUser?.name ?? 'Guest',
+        avatar: currentUser?.avatar ?? '',
         text: comment.trim(),
         time: 'Just now',
         reactions: {},
@@ -429,7 +430,7 @@ const FeedItem = ({ post, currentUser = { name: 'Ben B.', avatar: '/ben-avatar.p
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && submitComment()}
-                  className="flex-1 bg-secondary/5 border border-secondary/20 rounded-xl px-4 py-2 text-sm text-secondary focus:outline-none focus:border-primary placeholder:text-secondary/40"
+                  className="flex-1 bg-secondary/5 border border-secondary/20 rounded-xl px-4 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-primary placeholder:text-secondary/40"
                 />
                 <button
                   onClick={submitComment}

@@ -94,7 +94,7 @@ const ExploreFilters = ({
                         placeholder="Search events, vibes, people..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full bg-secondary/10 border border-secondary/20 rounded-[24px] pl-12 pr-6 py-4 text-sm font-bold focus:outline-none focus:border-primary transition-all shadow-lg placeholder:text-secondary/50 text-text"
+                        className="w-full bg-secondary/10 border border-secondary/20 rounded-[24px] pl-12 pr-6 py-4 text-sm font-bold focus:outline-none focus:border-primary transition-all shadow-lg placeholder:text-secondary/50 text-[var(--text)]"
                     />
                 </div>
 

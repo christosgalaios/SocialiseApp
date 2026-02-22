@@ -42,6 +42,7 @@ const RealtimePing = ({
                                     src={avatar}
                                     className="w-8 h-8 rounded-full object-cover border-2 border-white relative z-10"
                                     alt={name}
+                                    loading="lazy"
                                 />
                             ) : (
                                 <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm relative z-10">

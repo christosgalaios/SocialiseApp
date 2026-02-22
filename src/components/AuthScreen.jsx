@@ -151,7 +151,7 @@ const AuthScreen = ({ onLogin }) => {
               transition={{ duration: 0.3 }}
             >
               <div className="flex items-center gap-3 mb-3">
-                <img src={TESTIMONIALS[activeTestimonial].avatar} className="w-10 h-10 rounded-full object-cover border-2 border-primary/20 shadow" alt={TESTIMONIALS[activeTestimonial].name} />
+                <img src={TESTIMONIALS[activeTestimonial].avatar} className="w-10 h-10 rounded-full object-cover border-2 border-primary/20 shadow" alt={TESTIMONIALS[activeTestimonial].name} loading="lazy" />
                 <div>
                   <p className="font-bold text-secondary text-sm">{TESTIMONIALS[activeTestimonial].name}</p>
                   <p className="text-[9px] font-bold text-primary uppercase tracking-widest">Community Member</p>
@@ -197,6 +197,7 @@ const AuthScreen = ({ onLogin }) => {
                     <input
                       type="text"
                       placeholder="First name"
+                      aria-label="First name"
                       value={firstName}
                       onChange={(e) => { setFirstName(e.target.value); setError(''); }}
                       className="w-full py-4 pl-12 pr-4 rounded-2xl bg-white border border-secondary/10 text-[var(--text)] font-medium text-sm focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition-all"
@@ -207,6 +208,7 @@ const AuthScreen = ({ onLogin }) => {
                     <input
                       type="text"
                       placeholder="Last name"
+                      aria-label="Last name"
                       value={lastName}
                       onChange={(e) => { setLastName(e.target.value); setError(''); }}
                       className="w-full py-4 pl-12 pr-4 rounded-2xl bg-white border border-secondary/10 text-[var(--text)] font-medium text-sm focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition-all"
@@ -222,6 +224,7 @@ const AuthScreen = ({ onLogin }) => {
             <input
               type="email"
               placeholder="Email address"
+              aria-label="Email address"
               value={email}
               onChange={(e) => { setEmail(e.target.value); setError(''); }}
               className="w-full py-4 pl-12 pr-4 rounded-2xl bg-white border border-secondary/10 text-[var(--text)] font-medium text-sm focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition-all"
@@ -234,6 +237,7 @@ const AuthScreen = ({ onLogin }) => {
             <input
               type="password"
               placeholder="Password (min 6 characters)"
+              aria-label="Password"
               value={password}
               onChange={(e) => { setPassword(e.target.value); setError(''); }}
               className="w-full py-4 pl-12 pr-4 rounded-2xl bg-white border border-secondary/10 text-[var(--text)] font-medium text-sm focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition-all"
@@ -256,6 +260,7 @@ const AuthScreen = ({ onLogin }) => {
                   <input
                     type="password"
                     placeholder="Confirm password"
+                    aria-label="Confirm password"
                     value={confirmPassword}
                     onChange={(e) => { setConfirmPassword(e.target.value); setError(''); }}
                     className="w-full py-4 pl-12 pr-4 rounded-2xl bg-white border border-secondary/10 text-[var(--text)] font-medium text-sm focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition-all"
@@ -274,6 +279,7 @@ const AuthScreen = ({ onLogin }) => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-2xl p-3"
+                role="alert"
               >
                 <AlertCircle size={16} className="text-red-600 flex-shrink-0 mt-0.5" />
                 <p className="text-xs font-bold text-red-700">{error}</p>

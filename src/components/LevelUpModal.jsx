@@ -1,11 +1,15 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Star, Sparkles, Trophy, ChevronRight } from 'lucide-react';
+import { useEscapeKey, useFocusTrap } from '../hooks/useAccessibility';
 
 /**
  * LevelUpModal - Celebration screen when a user levels up.
  * Shows animated level badge, new title unlock, and XP progress.
  */
 const LevelUpModal = ({ isOpen, onClose, newLevel, unlockedTitle }) => {
+  useEscapeKey(isOpen, onClose);
+  const focusTrapRef = useFocusTrap(isOpen);
+
   if (!isOpen) return null;
 
   return (
@@ -16,6 +20,10 @@ const LevelUpModal = ({ isOpen, onClose, newLevel, unlockedTitle }) => {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-[200] flex items-center justify-center p-6"
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Level up to level ${newLevel?.level || 1}`}
+          ref={focusTrapRef}
         >
           {/* Backdrop with radial glow */}
           <div className="absolute inset-0 bg-secondary/90 backdrop-blur-xl" onClick={onClose} />
@@ -59,6 +67,7 @@ const LevelUpModal = ({ isOpen, onClose, newLevel, unlockedTitle }) => {
             <button
               onClick={onClose}
               className="absolute -top-2 -right-2 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white/60 hover:bg-white/20 transition-colors z-20"
+              aria-label="Close"
             >
               <X size={18} />
             </button>

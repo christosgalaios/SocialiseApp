@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Crown, Check, Zap, Users, BarChart3, Wand2, Shield } from 'lucide-react';
+import { useEscapeKey, useFocusTrap } from '../hooks/useAccessibility';
 
 const ProUpgradeModal = ({ isOpen, onClose, onUpgrade }) => {
+    useEscapeKey(isOpen, onClose);
+    const focusTrapRef = useFocusTrap(isOpen);
     const [isProcessing, setIsProcessing] = useState(false);
 
     const handleUpgrade = () => {
@@ -28,8 +31,12 @@ const ProUpgradeModal = ({ isOpen, onClose, onUpgrade }) => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+                    className="fixed inset-0 z-50 bg-secondary/60 backdrop-blur-sm flex items-center justify-center p-4"
                     onClick={onClose}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label="Upgrade to Pro"
+                    ref={focusTrapRef}
                 >
                     <motion.div
                         initial={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -57,6 +64,7 @@ const ProUpgradeModal = ({ isOpen, onClose, onUpgrade }) => {
                             <button
                                 onClick={onClose}
                                 className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
+                                aria-label="Close"
                             >
                                 <X size={18} className="text-white" />
                             </button>
