@@ -216,6 +216,7 @@ Base (production): `https://socialise-app-production.up.railway.app/api`
 | GET | `/users/me/saved` | Required | My saved events |
 | GET | `/users/me/communities` | Required | My communities |
 | GET | `/events/recommendations/for-you` | Required | Micro-Meet recommendations (by match score) |
+| POST | `/bugs` | Required | Submit bug report (appends to BUGS.md) |
 
 **Demo credentials:** `ben@demo.com` / `password` (blocked in production — `NODE_ENV=production` returns 403)
 
@@ -480,9 +481,10 @@ Configuration lives in `.claude/`. Full docs: `.claude/AUTOMATION_SETUP.md` and 
 | Hook | `block-env` | Prevents editing `.env` files |
 | Skill | `/gen-test` | Generate unit tests (Vitest + React Testing Library) |
 | Skill | `/create-migration` | Create Supabase migration files |
+| Skill | `/fix-bugs` | Process bug reports from BUGS.md — validate, fix, and commit |
 | Subagent | `code-reviewer` | Security, quality, design system compliance review |
 | Subagent | `test-coverage-analyzer` | Identify untested code and coverage gaps |
-| Subagent | `bug-fixer` | Validates bug reports and creates minimal fix PRs (bug-only, no features) |
+| Subagent | `bug-fixer` | Validates bug reports and creates minimal fixes (bug-only, no features) |
 | Workflow | `auto-approve` | Blocks feature→production PRs, validates (lint + test + build), then auto-approves, squash-merges, and deletes branch for conflict-free PRs |
 | Workflow | `bug-fixer` | Triggered by `bug` label on issues — validates, fixes, and creates PR via Claude Code |
 

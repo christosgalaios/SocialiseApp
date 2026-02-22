@@ -379,7 +379,7 @@ export default function AppModals({ handleJoin, sendMessage, createNewEvent, fil
         onClose={() => setShowBugReport(false)}
         onSubmit={async (formData) => {
           const result = await api.reportBug(formData);
-          showToast(`Bug report #${result.issueNumber} submitted!`, 'success');
+          showToast(`Bug report ${result.bugId} logged!`, 'success');
         }}
       />
     </AnimatePresence>
