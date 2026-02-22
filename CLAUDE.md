@@ -341,6 +341,7 @@ These bugs from the original issue list have been resolved in the codebase:
 - `loading="lazy"` added to all remaining img tags: HomeTab, ProfileTab, AuthScreen, IOSInstallPrompt, RealtimePing ✓
 - Component test coverage expanded: 409 frontend tests across 18 test files (useAccessibility 16, BottomNav 16, Toast 10, Sidebar 16, ErrorBoundary 11) ✓
 - `auto-approve.yml` blocks feature branch PRs from targeting `production` — only `development` → `production` PRs are allowed ✓
+- `deploy-production.yml` back-merges production into development after deploy — keeps branches in sync (merge commits from development→production PRs no longer cause "behind" drift) ✓
 
 ---
 
@@ -580,3 +581,9 @@ When auto-approve squash-merged PRs from development → production, and the old
 GitHub Actions prevents workflow cascading by default. When `auto-approve.yml` merges a PR using the built-in `GITHUB_TOKEN`, the resulting push to the target branch does **not** trigger `on: push` workflows (like `deploy-development.yml` or `deploy-production.yml`). This is a GitHub security feature to prevent infinite loops. The old deploy workflows happened to work because version sync commits were pushed using git credentials, not `GITHUB_TOKEN`.
 
 **Rule:** If a workflow merges PRs via the GitHub API (using `GITHUB_TOKEN`), it must explicitly trigger downstream workflows using `workflow_dispatch`. Add `workflow_dispatch` as a trigger on deploy workflows, and have auto-approve call `actions.createWorkflowDispatch()` after merging. The auto-approve workflow needs `actions: write` permission for this.
+
+### 6. Regular merges create commits that only exist on the target branch
+
+When auto-approve merges `development → production` using a regular merge (not fast-forward), the merge commit only exists on `production`. Over time, `development` falls behind by N merge commits — even though the actual source code is identical. GitHub shows `development` as "N commits behind production", which is confusing and can cause messy diffs in future PRs.
+
+**Rule:** After deploying to production, back-merge `production` into `development` to bring in the merge commit metadata. The `deploy-production.yml` workflow does this automatically via `github.rest.repos.merge()` in the `sync-development` job. The `[skip ci]` tag in the commit message prevents the back-merge from triggering deploy-development.
