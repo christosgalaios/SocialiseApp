@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, HelpCircle, ChevronDown, Mail, Shield, FileText, MessageCircle, Trash2, AlertTriangle } from 'lucide-react';
+import { useEscapeKey, useFocusTrap } from '../hooks/useAccessibility';
 
 const HelpSheet = ({ isOpen, onClose, onDeleteAccount }) => {
+    useEscapeKey(isOpen, onClose);
+    const focusTrapRef = useFocusTrap(isOpen);
     const [openFaq, setOpenFaq] = useState(null);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [deleting, setDeleting] = useState(false);
@@ -41,6 +44,10 @@ const HelpSheet = ({ isOpen, onClose, onDeleteAccount }) => {
                     exit={{ opacity: 0 }}
                     className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
                     onClick={onClose}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label="Help and support"
+                    ref={focusTrapRef}
                 >
                     <motion.div
                         initial={{ y: '100%' }}
@@ -63,6 +70,7 @@ const HelpSheet = ({ isOpen, onClose, onDeleteAccount }) => {
                             <button
                                 onClick={onClose}
                                 className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
+                                aria-label="Close"
                             >
                                 <X size={20} className="text-secondary" />
                             </button>
@@ -151,6 +159,9 @@ const HelpSheet = ({ isOpen, onClose, onDeleteAccount }) => {
                                 exit={{ opacity: 0 }}
                                 className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-md flex items-center justify-center p-6"
                                 onClick={() => !deleting && setShowDeleteConfirm(false)}
+                                role="alertdialog"
+                                aria-modal="true"
+                                aria-label="Delete account confirmation"
                             >
                                 <motion.div
                                     initial={{ scale: 0.9, opacity: 0 }}

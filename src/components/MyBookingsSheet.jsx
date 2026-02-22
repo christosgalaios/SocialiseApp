@@ -1,7 +1,11 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Calendar, MapPin, Clock, Ticket, Trash2 } from 'lucide-react';
+import { useEscapeKey, useFocusTrap } from '../hooks/useAccessibility';
 
 const MyBookingsSheet = ({ isOpen, onClose, bookings = [], onCancel }) => {
+    useEscapeKey(isOpen, onClose);
+    const focusTrapRef = useFocusTrap(isOpen);
+
     return (
         <AnimatePresence>
             {isOpen && (
@@ -11,6 +15,10 @@ const MyBookingsSheet = ({ isOpen, onClose, bookings = [], onCancel }) => {
                     exit={{ opacity: 0 }}
                     className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
                     onClick={onClose}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label="My bookings"
+                    ref={focusTrapRef}
                 >
                     <motion.div
                         initial={{ y: '100%' }}
@@ -33,6 +41,7 @@ const MyBookingsSheet = ({ isOpen, onClose, bookings = [], onCancel }) => {
                             <button
                                 onClick={onClose}
                                 className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
+                                aria-label="Close"
                             >
                                 <X size={20} className="text-secondary" />
                             </button>

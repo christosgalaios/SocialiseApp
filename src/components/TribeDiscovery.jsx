@@ -2,11 +2,14 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Search, Users, UserPlus, Check } from 'lucide-react';
 import api from '../api';
+import { useEscapeKey, useFocusTrap } from '../hooks/useAccessibility';
 
 const TribeDiscovery = ({ isOpen, onClose, onJoin, joinedTribes = [] }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [joiningId, setJoiningId] = useState(null);
     const [allCommunities, setAllCommunities] = useState([]);
+    useEscapeKey(isOpen, onClose);
+    const focusTrapRef = useFocusTrap(isOpen);
 
     // Fetch communities when the modal opens
     useEffect(() => {
@@ -42,6 +45,10 @@ const TribeDiscovery = ({ isOpen, onClose, onJoin, joinedTribes = [] }) => {
                     exit={{ opacity: 0 }}
                     className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
                     onClick={onClose}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label="Find your tribe"
+                    ref={focusTrapRef}
                 >
                     <motion.div
                         initial={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -60,6 +67,7 @@ const TribeDiscovery = ({ isOpen, onClose, onJoin, joinedTribes = [] }) => {
                                 <button
                                     onClick={onClose}
                                     className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
+                                    aria-label="Close"
                                 >
                                     <X size={20} />
                                 </button>

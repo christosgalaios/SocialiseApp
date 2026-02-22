@@ -26,7 +26,7 @@ const EventReels = lazy(() => import('./EventReels'));
 
 // Match Analysis Modal (inline component)
 const MatchAnalysisModal = ({ event, onConfirm, onCancel }) => (
-  <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-secondary/80 backdrop-blur-xl">
+  <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-secondary/80 backdrop-blur-xl" role="alertdialog" aria-modal="true" aria-label="Match analysis">
     <motion.div
       initial={{ scale: 0.9, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
@@ -174,6 +174,9 @@ export default function AppModals({ handleJoin, sendMessage, createNewEvent, fil
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Level roadmap"
           onClick={() => setShowLevelDetail(false)}
         >
           <motion.div

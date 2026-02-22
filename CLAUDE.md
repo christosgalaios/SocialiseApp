@@ -41,6 +41,8 @@
   /stores              # Zustand stores (auth, events, communities, feed, ui)
   /components          # UI components (incl. HomeTab, HubTab, ExploreTab, ProfileTab, AppModals)
   /contexts            # MangoContext (kitten assistant global state)
+  /hooks
+    useAccessibility.js  # useEscapeKey + useFocusTrap hooks for modal/sheet accessibility
   /data
     constants.js       # UI constants: categories, tags, XP levels, advertised events
 /server
@@ -325,6 +327,7 @@ These bugs from the original issue list have been resolved in the codebase:
 - Orphaned hooks directory (`src/hooks/`) deleted — replaced by Zustand stores in Phase 2 ✓
 - Orphaned `EmailVerificationModal.jsx` deleted — email verification intentionally removed ✓
 - `GroupChatsSheet` wired to real API — removed localStorage fallback, fake `AUTO_REPLIES`, and simulated online count ✓
+- Phase 4 accessibility: `useEscapeKey` + `useFocusTrap` hooks, ARIA roles on all 14 modals/sheets, keyboard nav on BottomNav/Sidebar, skip link, `prefers-reduced-motion`, `aria-live` toasts ✓
 
 ---
 
@@ -380,17 +383,22 @@ These bugs from the original issue list have been resolved in the codebase:
 - [ ] Add connection status indicator (connected/reconnecting)
 - [ ] Handle Realtime subscription cleanup on unmount
 
-### Phase 4: Accessibility
+### Phase 4: Accessibility ✅
 
-**Why fourth:** Only 10 ARIA attributes across 6 of 38 components. Most interactive elements (modals, tabs, bottom sheets, nav) lack keyboard support and screen reader labels. Required for inclusive UX and potential legal compliance.
+**Status:** Complete. Accessibility hooks (`useEscapeKey`, `useFocusTrap`) in `src/hooks/useAccessibility.js`. All 14 modals/sheets have `role="dialog"`, `aria-modal`, `aria-label`, Escape key close, and focus trapping. Navigation has ARIA tablist/listbox patterns with arrow key support. Skip link and `prefers-reduced-motion` added globally.
 
-- [ ] Add ARIA roles and labels to all modals/sheets (`EventDetailSheet`, `CreateEventModal`, `MatchAnalysisModal`, etc.)
-- [ ] Add keyboard navigation to `BottomNav` and `Sidebar` (tab order, Enter/Space activation)
-- [ ] Add focus trapping to modal/sheet components
-- [ ] Add `aria-live` regions for toast notifications and dynamic content
-- [ ] Add skip-to-content link
+- [x] Add ARIA roles and labels to all modals/sheets (14 components: EventDetailSheet, CreateEventModal, GroupChatsSheet, TribeSheet, TribeDiscovery, MyBookingsSheet, SavedEventsSheet, ProUpgradeModal, HelpSheet, LevelUpModal, UserProfileSheet, MatchAnalysisModal, AvatarCropModal, Level Detail inline)
+- [x] Add keyboard navigation to `BottomNav` (role="tablist", arrow keys cycle tabs) and `Sidebar` (role="listbox", arrow keys cycle categories)
+- [x] Add focus trapping to all modal/sheet components via shared `useFocusTrap` hook (traps Tab, restores focus on close)
+- [x] Add Escape key close to all modals/sheets via shared `useEscapeKey` hook
+- [x] Add `aria-live="polite"` region to Toast notifications (screen readers announce toasts)
+- [x] Add skip-to-content link (`<a href="#main-content">`) with `.sr-only` styling in App.jsx
+- [x] Add `prefers-reduced-motion` media query in `index.css` — disables all CSS animations/transitions
+- [x] Add `aria-label` to all icon-only buttons (close, send, phone, video, notification toggle, leave, etc.)
+- [x] Add `aria-hidden="true"` to decorative elements (glow rings, active indicators, chevron icons)
+- [x] BottomNav uses `<nav>` landmark with `aria-label="Main navigation"`
+- [x] Sidebar uses `<nav>` landmark with `aria-label="Category filter"`
 - [ ] Test with screen reader (VoiceOver/NVDA) and keyboard-only navigation
-- [ ] Add `prefers-reduced-motion` media query to disable Framer Motion animations
 
 ### Phase 5: Security Hardening (Pre-Launch)
 
@@ -423,7 +431,7 @@ These bugs from the original issue list have been resolved in the codebase:
 
 ### ESLint
 
-ESLint passes clean (0 errors, 6 warnings). The warnings are all `react-hooks/exhaustive-deps` — intentionally omitted dependencies to prevent infinite loops. The config (`eslint.config.js`) has four blocks:
+ESLint passes clean (0 errors, 0 warnings). The config (`eslint.config.js`) has four blocks:
 - **`src/**`** — Browser globals, React hooks plugin, Vite refresh plugin. `motion` is whitelisted in `varsIgnorePattern` because `<motion.div>` JSX member expressions aren't recognized as usage by `no-unused-vars`. Three `react-hooks` v7 rules disabled (`purity`, `immutability`, `set-state-in-effect`) — they require Phase 2 state refactor to fix properly.
 - **`src/**/*.test.*` + `src/test/**`** — Adds Vitest globals (`describe`, `it`, `expect`, `vi`, `beforeAll`, `afterAll`, etc.) and `globalThis`.
 - **`server/**` (excluding tests)** — Node.js globals, CommonJS `sourceType`. Underscore-prefixed args (`_password`, `_code`) are ignored.

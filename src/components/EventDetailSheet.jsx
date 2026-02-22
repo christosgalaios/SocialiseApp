@@ -6,13 +6,16 @@ import {
   MessageCircle, Check, Send, Mountain, Ruler, TrendingUp, Footprints
 } from 'lucide-react';
 import { INCLUSIVITY_TAGS, CATEGORY_ATTRIBUTES } from '../data/constants';
+import { useEscapeKey, useFocusTrap } from '../hooks/useAccessibility';
 
 const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMessage, onOpenProfile }) => {
   const [activeTab, setActiveTab] = useState('info');
   const [inputText, setInputText] = useState('');
+  useEscapeKey(!!event, onClose);
+  const focusTrapRef = useFocusTrap(!!event);
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-end justify-center">
+    <div className="fixed inset-0 z-[100] flex items-end justify-center" role="dialog" aria-modal="true" aria-label={event?.title || 'Event details'} ref={focusTrapRef}>
       <motion.div
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         onClick={onClose}
@@ -48,18 +51,22 @@ const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMe
               <button onClick={onClose} className="p-4 flex items-center justify-center text-secondary/70 hover:text-secondary active:scale-90 transition-all" aria-label="Close">
                 <X size={24} strokeWidth={2.5} />
               </button>
-              {['info', 'chat'].map(tab => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`flex-1 py-4 text-[12px] font-black uppercase tracking-[0.2em] transition-all relative border-b-2 -mb-px ${activeTab === tab ? 'border-primary text-secondary' : 'border-transparent text-secondary/40'}`}
-                >
-                  {tab === 'info' ? 'The Experience' : 'Community Hub'}
-                  {tab === 'chat' && messages.length > 0 && (
-                    <span className="ml-3 bg-primary/10 text-primary px-2 py-0.5 rounded-md text-[10px]">{messages.length}</span>
-                  )}
-                </button>
-              ))}
+              <div role="tablist" aria-label="Event sections" className="flex flex-1">
+                {['info', 'chat'].map(tab => (
+                  <button
+                    key={tab}
+                    role="tab"
+                    aria-selected={activeTab === tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`flex-1 py-4 text-[12px] font-black uppercase tracking-[0.2em] transition-all relative border-b-2 -mb-px ${activeTab === tab ? 'border-primary text-secondary' : 'border-transparent text-secondary/40'}`}
+                  >
+                    {tab === 'info' ? 'The Experience' : 'Community Hub'}
+                    {tab === 'chat' && messages.length > 0 && (
+                      <span className="ml-3 bg-primary/10 text-primary px-2 py-0.5 rounded-md text-[10px]">{messages.length}</span>
+                    )}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Content Area */}
@@ -233,6 +240,7 @@ const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMe
               <button
                 onClick={() => { onSendMessage(inputText); setInputText(''); }}
                 className="w-16 h-16 bg-primary rounded-[22px] flex items-center justify-center text-white shadow-xl active:scale-95 transition-all"
+                aria-label="Send message"
               >
                 <Send size={28} strokeWidth={2.5} />
               </button>

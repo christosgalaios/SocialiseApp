@@ -432,6 +432,11 @@ function App() {
 
   return (
     <div className="h-[100dvh] w-full flex flex-col bg-paper font-sans overflow-hidden">
+      {/* Skip to content link for keyboard users */}
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[300] focus:top-4 focus:left-4 focus:px-4 focus:py-2 focus:bg-primary focus:text-white focus:rounded-lg focus:font-bold focus:text-sm">
+        Skip to main content
+      </a>
+
       {/* Global Toast Notifications */}
       <AnimatePresence>
         {notifications.map(n => (
@@ -465,6 +470,7 @@ function App() {
 
               {/* Main Content Area */}
               <main
+                id="main-content"
                 ref={mainContentRef}
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, ArrowLeft, Image, Smile, Mic, Users, Pin, Search, Phone, Video } from 'lucide-react';
 import api from '../api';
 import useAuthStore from '../stores/authStore';
+import { useEscapeKey, useFocusTrap } from '../hooks/useAccessibility';
 
 const QUICK_REACTIONS = ['❤️', '😂', '🔥', '👏', '😮', '👍'];
 
@@ -69,6 +70,8 @@ const MessageBubble = ({ msg }) => {
 
 export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [] }) {
   const user = useAuthStore((s) => s.user);
+  useEscapeKey(isOpen, onClose);
+  const focusTrapRef = useFocusTrap(isOpen);
   const [selectedCommunity, setSelectedCommunity] = useState(null);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
@@ -155,6 +158,10 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-[55] bg-secondary/60 backdrop-blur-sm"
         onClick={onClose}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Group chats"
+        ref={focusTrapRef}
       >
         <motion.div
           initial={{ y: '100%' }}
@@ -190,15 +197,16 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
                     </p>
                   </div>
                   <div className="flex items-center gap-1">
-                    <button className="w-9 h-9 rounded-full bg-secondary/10 flex items-center justify-center text-secondary/60 hover:bg-secondary/20 transition-colors">
+                    <button className="w-9 h-9 rounded-full bg-secondary/10 flex items-center justify-center text-secondary/60 hover:bg-secondary/20 transition-colors" aria-label="Voice call">
                       <Phone size={16} />
                     </button>
-                    <button className="w-9 h-9 rounded-full bg-secondary/10 flex items-center justify-center text-secondary/60 hover:bg-secondary/20 transition-colors">
+                    <button className="w-9 h-9 rounded-full bg-secondary/10 flex items-center justify-center text-secondary/60 hover:bg-secondary/20 transition-colors" aria-label="Video call">
                       <Video size={16} />
                     </button>
                     <button
                       onClick={onClose}
                       className="w-9 h-9 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
+                      aria-label="Close"
                     >
                       <X size={16} className="text-secondary" />
                     </button>

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const MotionDiv = motion.div;
 import { X, MessageCircle, UserPlus, UserCheck } from 'lucide-react';
+import { useEscapeKey, useFocusTrap } from '../hooks/useAccessibility';
 
 // Deterministic hash for stable follower counts based on name
 const nameHash = (name, seed = 5) => {
@@ -17,6 +18,8 @@ const nameHash = (name, seed = 5) => {
  */
 const UserProfileSheet = ({ profile, isOpen, onClose, onMessage }) => {
     const [isFollowing, setIsFollowing] = useState(false);
+    useEscapeKey(isOpen, onClose);
+    const focusTrapRef = useFocusTrap(isOpen);
 
     if (!profile) return null;
 
@@ -34,6 +37,10 @@ const UserProfileSheet = ({ profile, isOpen, onClose, onMessage }) => {
                     exit={{ opacity: 0 }}
                     className="fixed inset-0 z-[90] bg-secondary/60 backdrop-blur-sm"
                     onClick={onClose}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label={profile?.name ? `${profile.name}'s profile` : 'User profile'}
+                    ref={focusTrapRef}
                 >
                     <MotionDiv
                         initial={{ y: '100%' }}
