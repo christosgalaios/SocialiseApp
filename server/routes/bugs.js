@@ -1,12 +1,13 @@
 const express = require('express');
+const fs = require('fs');
+const path = require('path');
 const { authenticateToken } = require('./auth');
 
 const router = express.Router();
 
-const GITHUB_REPO_OWNER = process.env.GITHUB_REPO_OWNER || 'christosgalaios';
-const GITHUB_REPO_NAME = process.env.GITHUB_REPO_NAME || 'SocialiseApp';
+const BUGS_FILE = path.join(__dirname, '..', '..', 'BUGS.md');
 
-// POST /api/bugs — Create a GitHub Issue from an in-app bug report
+// POST /api/bugs — Append a bug report to BUGS.md
 router.post('/', authenticateToken, async (req, res) => {
     const { area, severity, steps, expected, actual, component, context } = req.body;
 
@@ -28,68 +29,60 @@ router.post('/', authenticateToken, async (req, res) => {
     if (component && component.length > 200) return res.status(400).json({ message: 'Component name too long (max 200 characters)' });
     if (context && context.length > 2000) return res.status(400).json({ message: 'Additional context too long (max 2000 characters)' });
 
-    // Build GitHub Issue body matching the structured template
+    // Generate a bug ID from timestamp
+    const bugId = `BUG-${Date.now()}`;
+    const timestamp = new Date().toISOString();
+
     const severityLabels = {
-        P1: 'P1 - Critical (app crashes, data loss, auth broken)',
-        P2: 'P2 - Major (feature broken, wrong data shown)',
-        P3: 'P3 - Minor (visual glitch, edge case, typo)',
+        P1: 'P1 - Critical',
+        P2: 'P2 - Major',
+        P3: 'P3 - Minor',
     };
 
-    const issueBody = [
-        `### Affected Area\n\n${area}`,
-        `### Severity\n\n${severityLabels[severity]}`,
-        `### Steps to Reproduce\n\n${steps.trim()}`,
-        `### Expected Behavior\n\n${expected.trim()}`,
-        `### Actual Behavior\n\n${actual.trim()}`,
-        component ? `### Affected Component or File\n\n${component.trim()}` : null,
-        context ? `### Additional Context\n\n${context.trim()}` : null,
-        `---\n*Reported from the Socialise app by user ${req.user.id}*`,
-    ].filter(Boolean).join('\n\n');
-
-    // Construct a title from severity + area
-    const issueTitle = `[BUG] [${severity}] ${area}: ${actual.trim().slice(0, 80)}${actual.trim().length > 80 ? '...' : ''}`;
-
-    // Create GitHub Issue via API
-    const token = process.env.GITHUB_TOKEN;
-    if (!token) {
-        console.error('[bugs POST] GITHUB_TOKEN not configured');
-        return res.status(503).json({ message: 'Bug reporting is not configured. Please contact the team directly.' });
-    }
+    // Build markdown entry
+    const entry = [
+        `## ${bugId}`,
+        '',
+        `- **Status:** open`,
+        `- **Severity:** ${severityLabels[severity]}`,
+        `- **Area:** ${area}`,
+        `- **Reported:** ${timestamp}`,
+        `- **Reporter:** user-${req.user.id}`,
+        component ? `- **Component:** ${component.trim()}` : null,
+        '',
+        `### Steps to Reproduce`,
+        '',
+        steps.trim(),
+        '',
+        `### Expected Behavior`,
+        '',
+        expected.trim(),
+        '',
+        `### Actual Behavior`,
+        '',
+        actual.trim(),
+        '',
+        context ? `### Additional Context\n\n${context.trim()}\n` : null,
+        '---',
+        '',
+    ].filter(v => v !== null).join('\n');
 
     try {
-        const response = await fetch(
-            `https://api.github.com/repos/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/issues`,
-            {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    Accept: 'application/vnd.github+json',
-                    'Content-Type': 'application/json',
-                    'X-GitHub-Api-Version': '2022-11-28',
-                },
-                body: JSON.stringify({
-                    title: issueTitle,
-                    body: issueBody,
-                    labels: ['bug'],
-                }),
-            }
-        );
-
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            console.error('[bugs POST] GitHub API error:', response.status, errorData);
-            return res.status(502).json({ message: 'Failed to create bug report. Please try again.' });
+        // Create file with header if it doesn't exist
+        if (!fs.existsSync(BUGS_FILE)) {
+            fs.writeFileSync(BUGS_FILE, '# Bug Reports\n\nBug reports submitted from the Socialise app. Run `/fix-bugs` to process them.\n\n---\n\n');
         }
 
-        const issue = await response.json();
+        // Append the new bug entry
+        fs.appendFileSync(BUGS_FILE, entry);
+
         res.status(201).json({
-            message: 'Bug report submitted successfully',
-            issueNumber: issue.number,
-            issueUrl: issue.html_url,
+            message: 'Bug report logged',
+            bugId,
         });
     } catch (err) {
-        console.error('[bugs POST] Error creating GitHub issue:', err);
-        res.status(500).json({ message: 'Failed to submit bug report' });
+        console.error('[bugs POST] Error writing to BUGS.md:', err);
+        res.status(500).json({ message: 'Failed to log bug report' });
     }
 });
 

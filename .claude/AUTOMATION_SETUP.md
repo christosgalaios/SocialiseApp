@@ -14,7 +14,8 @@ This document explains all the automations configured for Socialise development.
 | **create-migration skill** | Skill | ✅ Ready | `/create-migration "description"` |
 | **code-reviewer** | Subagent | ✅ Ready | Use before merging to production |
 | **test-coverage-analyzer** | Subagent | ✅ Ready | Use after test infrastructure setup |
-| **bug-fixer** | Subagent + Workflow | ✅ Ready | Auto-triggered on `bug`-labeled issues |
+| **fix-bugs skill** | Skill | ✅ Ready | `/fix-bugs` to process BUGS.md reports |
+| **bug-fixer** | Subagent | ✅ Ready | Used by `/fix-bugs` skill |
 
 ---
 
@@ -253,39 +254,34 @@ Recommendations:
 3. Then App.jsx handlers
 ```
 
-### bug-fixer — Automated Bug Validation and Repair
+### bug-fixer — Bug Validation and Repair
 
-**Purpose:** Validates bug reports and produces minimal, focused fixes automatically
+**Purpose:** Validates bug reports from BUGS.md and produces minimal, focused fixes
 
 **How it works:**
 
-1. A user files a bug report using the structured issue template (GitHub Issues)
-2. The `bug` label triggers the `bug-fixer.yml` GitHub Actions workflow
-3. The workflow validates the issue structure and rejects feature requests
-4. Claude Code analyzes the codebase, validates the bug, and produces a fix
-5. A PR is created targeting `development` — it flows through `auto-approve.yml`
-6. If the agent can't fix it, the issue is labeled `needs-triage` for human attention
+1. Users report bugs via the in-app bug button → reports are appended to `BUGS.md`
+2. Developer runs `/fix-bugs` when ready to process reports
+3. The skill reads BUGS.md, sorts by severity (P1 → P2 → P3)
+4. For each `open` bug: validates against codebase, fixes if valid, adds regression test
+5. Updates bug status in BUGS.md: `fixed`, `rejected`, or `needs-triage`
+6. Each fix is committed separately
 
 **Safety guardrails:**
-- **Bug-only scope:** Agent cannot add new features, endpoints, or components. It can only fix existing broken behavior.
+- **Bug-only scope:** Cannot add new features, endpoints, or components. Only fixes existing broken behavior.
+- **Feature request detection:** Reports describing new behavior are marked `rejected`.
 - **File restrictions:** Cannot touch workflows, `.env`, migrations, `package.json`, or config files.
 - **Size limits:** Max 5 files changed, max 100 lines modified (excluding tests).
-- **Auth escalation:** Any bug touching auth or security code is auto-escalated to human.
-- **Feature request detection:** Issues that describe new behavior (not broken existing behavior) are rejected with `not-a-bug` label.
-- **Validation pipeline:** Fix PRs go through the same lint + test + build pipeline as all other PRs.
-- **Forbidden file enforcement:** The workflow double-checks changed files against a blocklist before creating the PR.
+- **Auth escalation:** Bugs in auth/security code are marked `needs-triage` for human review.
+- **Manual trigger only:** You choose when to run `/fix-bugs` — nothing runs automatically.
 
-**Triggering:**
-- Automatic: Add the `bug` label to any issue filed with the bug report template
-- The agent runs once per issue. Re-labeling an issue that was already processed won't re-trigger (the `bug` label is removed on failure).
-
-**Labels used:**
-| Label | Meaning |
-|-------|---------|
-| `bug` | Triggers the agent (removed after processing) |
-| `automated-fix` | Applied to PRs created by the agent |
-| `needs-triage` | Agent couldn't fix — needs human attention |
-| `not-a-bug` | Issue was a feature request, not a bug |
+**BUGS.md statuses:**
+| Status | Meaning |
+|--------|---------|
+| `open` | Not yet processed — ready for fixing |
+| `fixed` | Bug validated and fix committed |
+| `rejected` | Not a bug (feature request, invalid, cannot reproduce) |
+| `needs-triage` | Valid bug but out of scope for automated fixing |
 
 ---
 
@@ -309,20 +305,21 @@ Recommendations:
 
 ### Bug Fix Workflow
 
-**Automated (via bug-fixer agent):**
-1. File a bug report using the issue template → add `bug` label
-2. Agent validates, fixes, adds regression test, creates PR
-3. PR goes through auto-approve (lint + test + build)
-4. Issue auto-closes on merge via `Fixes #N`
+**Via /fix-bugs (recommended):**
+1. Users report bugs via the in-app bug icon → entries added to `BUGS.md`
+2. Run `/fix-bugs` to process all open reports (or `/fix-bugs P1` for critical only)
+3. Agent validates each bug, fixes, adds regression test, commits
+4. Push to development → auto-approve (lint + test + build) → merge
 
-**Manual (for complex bugs or agent escalations):**
+**Manual (for complex bugs or `needs-triage` items):**
 1. Create feature branch from development
 2. Fix the bug
 3. Edit files → auto-lint keeps code clean
 4. `/gen-test path/to/file` → add test for the bug
-5. Merge to development → CI tests run
-6. code-reviewer checks for regressions
-7. Merge to production
+5. Update bug status in BUGS.md to `fixed`
+6. Merge to development → CI tests run
+7. code-reviewer checks for regressions
+8. Merge to production
 
 ### Database Schema Changes
 
@@ -362,7 +359,8 @@ Skill definitions live here.
 ```
 .claude/skills/
 ├── gen-test/SKILL.md
-└── create-migration/SKILL.md
+├── create-migration/SKILL.md
+└── fix-bugs/SKILL.md
 ```
 
 ### .claude/agents/
@@ -370,7 +368,8 @@ Subagent definitions.
 ```
 .claude/agents/
 ├── code-reviewer.md
-└── test-coverage-analyzer.md
+├── test-coverage-analyzer.md
+└── bug-fixer.md
 ```
 
 ---
@@ -445,7 +444,7 @@ Tell me how to query Supabase
 - **Claude Code help**: Type `/help`
 - **Project questions**: Read CLAUDE.md (project brain)
 - **Design system**: See ANTIGRAVITY_BRAIN.md
-- **Bug tracking**: GitHub Issues
+- **Bug tracking**: `BUGS.md` (in-app reports) + `/fix-bugs` skill
 
 ---
 
@@ -453,8 +452,8 @@ Tell me how to query Supabase
 
 - [x] MCP servers configured (GitHub, Supabase)
 - [x] Hooks active (auto-lint, block-env)
-- [x] Skills ready (gen-test, create-migration)
-- [x] Subagents available (code-reviewer, test-coverage-analyzer)
+- [x] Skills ready (gen-test, create-migration, fix-bugs)
+- [x] Subagents available (code-reviewer, test-coverage-analyzer, bug-fixer)
 - [x] Documentation created (this file)
 
 **You're ready to go!** Start with:

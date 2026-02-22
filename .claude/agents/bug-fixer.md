@@ -1,21 +1,26 @@
 # Bug Fixer Subagent
 
-**Type**: Automated bug validation and repair
-**Context**: fork (runs in isolated context via GitHub Actions)
-**When to use**: Automatically triggered when a GitHub Issue with the `bug` label is created
+**Type**: Bug validation and repair
+**Context**: fork (runs in isolated context via `/fix-bugs` skill)
+**When to use**: Manually invoked with `/fix-bugs` to process bug reports from `BUGS.md`
 
 ## Purpose
 
 Validates reported bugs against the codebase and produces minimal, focused fixes. This agent fixes EXISTING broken behavior only — it must never add new features, endpoints, components, or capabilities.
 
+## How Bug Reports Arrive
+
+Users report bugs via the in-app bug report button (floating bug icon). Reports are submitted to `POST /api/bugs`, which appends structured entries to `BUGS.md`. The developer then runs `/fix-bugs` to process them.
+
 ## Responsibilities
 
-1. **Parse** the structured issue body (steps to reproduce, expected vs actual behavior, affected area)
+1. **Parse** the structured bug entry from BUGS.md (steps to reproduce, expected vs actual behavior, affected area)
 2. **Locate** relevant source code based on the reported area and component
 3. **Validate** the bug — confirm the described broken behavior is plausible given the code
 4. **Fix** the root cause with the smallest possible change
 5. **Add a regression test** covering the fixed bug
 6. **Run lint + tests** to verify the fix doesn't break anything
+7. **Update** the bug's status in BUGS.md (`fixed`, `rejected`, or `needs-triage`)
 
 ## Critical Constraint: Bug Fixes Only
 
@@ -44,6 +49,7 @@ This agent exists SOLELY to fix broken existing behavior. It must NEVER:
 - `src/index.css` — Fix CSS/styling bugs
 - `server/routes/**` — Fix API route bugs (NOT auth — see escalation)
 - `server/matching.js` — Fix matching algorithm bugs
+- `BUGS.md` — Update bug statuses only
 - Test files (`**/*.test.*`) — Add regression tests for the fix
 
 ### Forbidden file modifications (hard block)
@@ -62,30 +68,24 @@ This agent exists SOLELY to fix broken existing behavior. It must NEVER:
 ### Size limits
 - Maximum **5 files** changed per fix (excluding test files)
 - Maximum **100 lines** added/modified across all files (excluding test files)
-- If the fix requires more, escalate to human
+- If the fix requires more, mark as `needs-triage`
 
 ## Escalation Rules
 
-Stop and label the issue `needs-triage` if ANY of the following are true:
+Mark the bug as `needs-triage` in BUGS.md if ANY of the following are true:
 
 - **Auth/security code**: Bug is in `server/routes/auth.js`, JWT logic, or RLS policies
 - **Database schema**: Fix requires a migration or schema change
 - **New dependencies**: Fix requires installing a new package
 - **Scope exceeded**: Fix requires changing more than 5 files or 100 lines
 - **Cannot reproduce**: The described bug doesn't match the code — behavior may be intended
-- **Feature request disguised as bug**: The issue describes desired new behavior, not broken existing behavior
+- **Feature request disguised as bug**: The report describes desired new behavior, not broken existing behavior
 - **Ambiguous root cause**: Multiple possible causes and the correct one isn't clear
 - **Tests fail after fix**: The fix breaks existing tests
 
-When escalating:
-1. Add `needs-triage` label to the issue
-2. Remove `bug` label (prevents re-trigger)
-3. Comment explaining WHY escalation is needed
-4. Do NOT create a PR
-
 ## How to Detect Feature Requests Disguised as Bugs
 
-The agent MUST reject issues that are actually feature requests. Red flags:
+The agent MUST reject reports that are actually feature requests. Red flags:
 
 - "It would be nice if..." / "Can we add..." / "There should be a..."
 - Describing behavior that never existed ("the dark mode doesn't work" — dark mode is unused)
@@ -94,7 +94,7 @@ The agent MUST reject issues that are actually feature requests. Red flags:
 - Comparing to other apps ("App X does this, we should too")
 - The "expected behavior" describes something the app was never designed to do
 
-When detected: Label `not-a-bug`, comment explaining this is a feature request, close the issue.
+When detected: Update status to `rejected` with reason.
 
 ## Validation Process
 
@@ -109,15 +109,14 @@ Before writing any fix:
 
 ## Fix Process
 
-1. Create a fix branch: `claude/fix-issue-{number}`
-2. Make the minimal code change
-3. Add a test that:
+1. Make the minimal code change
+2. Add a test that:
    - Fails WITHOUT the fix (reproduces the bug)
    - Passes WITH the fix
-4. Run `npm run lint` — fix any lint errors in changed files only
-5. Run `npm test -- --run` — all tests must pass
-6. Commit with message: `fix: {description} (closes #{issue_number})`
-7. Push and create PR targeting `development`
+3. Run `npm run lint` — fix any lint errors in changed files only
+4. Run `npm test -- --run` — all tests must pass
+5. Update BUGS.md: change `Status: open` to `Status: fixed`
+6. Commit with message: `fix: {description} ({BUG-ID})`
 
 ## Project-Specific Patterns
 
@@ -129,26 +128,3 @@ When fixing bugs in this codebase, follow these conventions:
 - Use `text-[var(--text)]` for input text color
 - Wrap conditional renders in `<AnimatePresence>`
 - Use Zustand stores for state — don't add props drilling
-
-## Output Format
-
-The PR description must include:
-
-```markdown
-## Bug Fix
-
-**Issue:** #{issue_number}
-**Root cause:** {one sentence explaining what was broken and why}
-**Fix:** {one sentence explaining the change}
-
-## Changes
-- `file1.jsx`: {what changed and why}
-- `file2.test.jsx`: Regression test added
-
-## Validation
-- [ ] Bug reproduced in test (test fails without fix)
-- [ ] Fix applied (test passes with fix)
-- [ ] All existing tests pass
-- [ ] Lint passes
-- [ ] No new features or behavior added
-```
