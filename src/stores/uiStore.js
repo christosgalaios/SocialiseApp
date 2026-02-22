@@ -131,7 +131,7 @@ const useUIStore = create((set) => ({
   // User XP
   userXP: (() => {
     const jsonValue = localStorage.getItem('socialise_xp');
-    return jsonValue ? JSON.parse(jsonValue) : 750;
+    return jsonValue ? JSON.parse(jsonValue) : 0;
   })(),
   setUserXP: (xp) => {
     set({ userXP: xp });
@@ -141,9 +141,7 @@ const useUIStore = create((set) => ({
   // Unlocked titles
   userUnlockedTitles: (() => {
     const jsonValue = localStorage.getItem('socialise_unlocked_titles');
-    return jsonValue
-      ? JSON.parse(jsonValue)
-      : ['first-event', 'social-butterfly', 'tribe-leader', 'conversation-starter', 'night-owl'];
+    return jsonValue ? JSON.parse(jsonValue) : [];
   })(),
   setUserUnlockedTitles: (titles) => {
     set({ userUnlockedTitles: titles });

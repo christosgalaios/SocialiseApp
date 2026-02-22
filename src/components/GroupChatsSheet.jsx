@@ -4,6 +4,7 @@ import { X, Send, ArrowLeft, Image, Smile, Mic, Users, Pin, Search, Phone, Video
 import api from '../api';
 import useAuthStore from '../stores/authStore';
 import { useEscapeKey, useFocusTrap } from '../hooks/useAccessibility';
+import { DEFAULT_AVATAR } from '../data/constants';
 
 const QUICK_REACTIONS = ['❤️', '😂', '🔥', '👏', '😮', '👍'];
 
@@ -16,7 +17,7 @@ const MessageBubble = ({ msg }) => {
       <div className="max-w-[85%] relative">
         {!msg.isMe && (
           <div className="flex items-center gap-2 mb-1 ml-1">
-            <img src={msg.avatar} alt="" className="w-5 h-5 rounded-full object-cover" loading="lazy" />
+            <img src={msg.avatar || DEFAULT_AVATAR} alt="" className="w-5 h-5 rounded-full object-cover" loading="lazy" />
             <span className="text-[10px] font-bold text-secondary/60">{msg.user}</span>
           </div>
         )}
@@ -90,7 +91,7 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
       const mapped = (data || []).map(m => ({
         id: m.id,
         user: m.user_name,
-        avatar: m.user_avatar || `https://i.pravatar.cc/150?u=${m.user_id}`,
+        avatar: m.user_avatar || '',
         message: m.message,
         time: m.created_at ? new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
         isMe: m.user_id === user?.id,

@@ -1,8 +1,38 @@
 const express = require('express');
+const sharp = require('sharp');
 const supabase = require('../supabase');
 const { authenticateToken, toPublicUser } = require('./auth');
 
 const router = express.Router();
+
+// Avatar size/quality constants for server-side downscaling
+const AVATAR_SIZE = 128;       // px — square output
+const AVATAR_QUALITY = 70;     // JPEG quality (0-100)
+const AVATAR_MAX_BYTES = 100000; // reject data URLs larger than ~100KB before processing
+
+/**
+ * Downscale a base64 data-URL avatar to AVATAR_SIZE×AVATAR_SIZE JPEG.
+ * Returns a smaller data URL string, or null if the input is not a data URL.
+ */
+async function processAvatar(dataUrl) {
+    if (!dataUrl || !dataUrl.startsWith('data:image/')) return null;
+
+    // Extract raw base64 payload
+    const base64Data = dataUrl.split(',')[1];
+    if (!base64Data) return null;
+
+    const inputBuffer = Buffer.from(base64Data, 'base64');
+    if (inputBuffer.length > AVATAR_MAX_BYTES * 1.5) {
+        throw new Error('Avatar image too large');
+    }
+
+    const outputBuffer = await sharp(inputBuffer)
+        .resize(AVATAR_SIZE, AVATAR_SIZE, { fit: 'cover' })
+        .jpeg({ quality: AVATAR_QUALITY })
+        .toBuffer();
+
+    return `data:image/jpeg;base64,${outputBuffer.toString('base64')}`;
+}
 
 // --- PUT /api/users/me --- (update own profile)
 router.put('/me', authenticateToken, async (req, res) => {
@@ -19,6 +49,15 @@ router.put('/me', authenticateToken, async (req, res) => {
     }
     if (updates.interests !== undefined && !Array.isArray(updates.interests)) {
         return res.status(400).json({ message: 'Interests must be an array' });
+    }
+
+    // Server-side avatar downscaling — shrink data-URL images before storing
+    if (updates.avatar && updates.avatar.startsWith('data:image/')) {
+        try {
+            updates.avatar = await processAvatar(updates.avatar);
+        } catch {
+            return res.status(400).json({ message: 'Failed to process avatar image' });
+        }
     }
 
     const { data: updated, error } = await supabase
