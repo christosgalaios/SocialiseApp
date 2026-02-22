@@ -185,6 +185,8 @@ function App() {
     setSavedEvents([]);
     setCommunities([]);
     setFeedPosts([]);
+    useUIStore.getState().resetUserData();
+    useCommunityStore.getState().resetUserTribes();
     useAuthStore.getState().handleLogout(() => {
       showToast('Signed out successfully', 'info');
     });

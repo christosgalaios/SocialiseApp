@@ -326,13 +326,8 @@ export default function AppModals({ handleJoin, sendMessage, createNewEvent, fil
             setSavedEvents([]);
             setCommunities([]);
             setFeedPosts([]);
-            localStorage.removeItem('socialise_pro');
-            localStorage.removeItem('socialise_tribes');
-            localStorage.removeItem('socialise_onboarding_shown');
-            localStorage.removeItem('socialise_preferences');
-            localStorage.removeItem('socialise_experimental');
-            localStorage.removeItem('socialise_xp');
-            localStorage.removeItem('socialise_unlocked_titles');
+            useUIStore.getState().resetUserData();
+            useCommunityStore.getState().resetUserTribes();
             handleLogoutAuth();
             showToast('Account deleted successfully', 'info');
           } catch (err) {

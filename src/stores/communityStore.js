@@ -35,6 +35,11 @@ const useCommunityStore = create((set, get) => ({
     localStorage.setItem('socialise_tribes', JSON.stringify(tribes));
   },
 
+  resetUserTribes: () => {
+    set({ userTribes: [] });
+    localStorage.removeItem('socialise_tribes');
+  },
+
   // Actions
   handleJoinTribe: async (tribe, { onSuccess, onError } = {}) => {
     const { userTribes } = get();
