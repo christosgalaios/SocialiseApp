@@ -23,7 +23,7 @@ export default function HubTab() {
     >
       <header className="mb-10">
         <h1 className="text-4xl font-black tracking-tighter mb-2 text-primary">Community Hub<span className="text-accent">.</span></h1>
-        <p className="text-gray-400 font-medium">Your tribes and local buzz.</p>
+        <p className="text-secondary/60 font-medium">Your tribes and local buzz.</p>
       </header>
 
       <div className="grid md:grid-cols-3 gap-8">

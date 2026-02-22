@@ -37,7 +37,7 @@ const MatchAnalysisModal = ({ event, onConfirm, onCancel }) => (
         <Zap size={40} className="text-primary animate-pulse" />
       </div>
       <h3 className="text-2xl font-black mb-2">High Synergy Detected</h3>
-      <p className="text-sm text-gray-400 mb-8 leading-relaxed">
+      <p className="text-sm text-secondary/60 mb-8 leading-relaxed">
         Our AI has analyzed the attendee list. You have a <span className="text-primary font-black">94% match</span> with this tribe based on your interests in <span className="text-white font-bold">{(event.matchTags?.slice(0, 2).join(' & ')) ?? 'this event'}</span>.
       </p>
       <div className="flex gap-3">
