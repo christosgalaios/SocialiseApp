@@ -337,6 +337,7 @@ These bugs from the original issue list have been resolved in the codebase:
 - `EventReels` slideshow images have `onError` fallback (skip to next image on load failure) ✓
 - `loading="lazy"` added to all remaining img tags: HomeTab, ProfileTab, AuthScreen, IOSInstallPrompt, RealtimePing ✓
 - Component test coverage expanded: 409 frontend tests across 18 test files (useAccessibility 16, BottomNav 16, Toast 10, Sidebar 16, ErrorBoundary 11) ✓
+- `auto-approve.yml` blocks feature branch PRs from targeting `production` — only `development` → `production` PRs are allowed ✓
 
 ---
 
@@ -479,7 +480,7 @@ Configuration lives in `.claude/`. Full docs: `.claude/AUTOMATION_SETUP.md` and 
 | Skill | `/create-migration` | Create Supabase migration files |
 | Subagent | `code-reviewer` | Security, quality, design system compliance review |
 | Subagent | `test-coverage-analyzer` | Identify untested code and coverage gaps |
-| Workflow | `auto-approve` | Validates (lint + test + build), then auto-approves, squash-merges, and deletes branch for conflict-free PRs |
+| Workflow | `auto-approve` | Blocks feature→production PRs, validates (lint + test + build), then auto-approves, squash-merges, and deletes branch for conflict-free PRs |
 
 ---
 
@@ -498,7 +499,7 @@ Configuration lives in `.claude/`. Full docs: `.claude/AUTOMATION_SETUP.md` and 
 3. Push to `development` → auto-deploys to `/dev/` preview for testing
 4. Merge `development` → `production` → auto-deploys to `/prod/` production
 
-**Auto-approve PRs:** The `auto-approve.yml` workflow runs on all PRs. It first runs a `validate` job (lint, tests, build). If the PR has no merge conflicts and validation passes, it automatically approves, squash-merges, and deletes the source branch. PRs with conflicts get a comment and are skipped.
+**Auto-approve PRs:** The `auto-approve.yml` workflow runs on all PRs. It blocks PRs targeting `production` from any branch other than `development` (posts a comment and fails). For allowed PRs, it runs a `validate` job (lint, tests, build). If the PR has no merge conflicts and validation passes, it automatically approves, squash-merges, and deletes the source branch. PRs with conflicts get a comment and are skipped.
 
 ### Running Locally
 
