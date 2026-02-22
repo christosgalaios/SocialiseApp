@@ -88,6 +88,8 @@ ANTIGRAVITY_BRAIN.md   # Design philosophy doc (read before UI changes)
 
 **API client (`src/api.js`):** Wraps `fetch` with `parseJson()` helper — handles non-JSON responses, checks `response.ok`, throws descriptive `Error` objects. Callers show errors via `showToast`.
 
+**Code splitting:** Vite `manualChunks` splits framer-motion (129kb) and Google Maps (158kb) into separate cacheable vendor chunks. Heavy conditional components (`MangoChat`, `MangoAssistant`, `OnboardingFlow`, `CreateEventModal`, `EventReels`) use `React.lazy()` + `Suspense` for on-demand loading. Main chunk: 389kb.
+
 ---
 
 ## Design System — "Warm Hearth"
@@ -314,6 +316,12 @@ These bugs from the original issue list have been resolved in the codebase:
 - Phase 1 test infrastructure complete: 401 tests (229 frontend + 172 server) across 13 test files ✓
 - Phase 2 state management refactor: Zustand stores replace custom hooks, App.jsx reduced from ~1500 to ~500 lines ✓
 - Tab components extracted: HomeTab, HubTab, ExploreTab, ProfileTab, AppModals — each imports Zustand stores directly ✓
+- Store tests added: 111 tests across 5 store test files (total: 512 tests) ✓
+- BottomNav fixed to use `setActiveTabWithEffects` — restores scroll-to-top and mango animations on mobile tab switches ✓
+- MyBookingsSheet cancel now calls `api.leaveEvent()` with rollback on failure (was optimistic-only with stale closure) ✓
+- Bundle optimized from 736kb → 389kb main chunk via code splitting: `manualChunks` for vendor libs + `React.lazy()` for heavy conditional components ✓
+- Google Maps chunk (158kb) lazy-loaded — only fetched when CreateEventModal opens ✓
+- `MangoSVG.jsx` (74kb) confirmed orphaned — component defined inline in `Mango.jsx` ✓
 
 ---
 
@@ -331,7 +339,7 @@ These bugs from the original issue list have been resolved in the codebase:
 
 ### Phase 1: Test Infrastructure ✅
 
-**Status:** Complete. 401 tests across 13 test files (229 frontend + 172 server). All passing.
+**Status:** Complete. 512 tests across 18 test files (340 frontend + 172 server). All passing.
 
 - [x] Install Vitest + React Testing Library + jsdom (frontend)
 - [x] Add `npm test` script to both `package.json` files
@@ -352,7 +360,8 @@ These bugs from the original issue list have been resolved in the codebase:
 - [x] Extract tab components: `HomeTab`, `HubTab`, `ExploreTab`, `ProfileTab`
 - [x] Extract `AppModals` component
 - [x] Slim `App.jsx` to layout + effects + routing
-- [x] Verify all 401 tests still pass after refactor
+- [x] Write store tests: authStore (13), eventStore (35), communityStore (18), feedStore (7), uiStore (38)
+- [x] Verify all 512 tests still pass after refactor
 
 ### Phase 3: Wire Remaining Mock Data + Real-Time
 
@@ -404,7 +413,8 @@ These bugs from the original issue list have been resolved in the codebase:
 - [ ] Add service worker for offline support / PWA install prompt
 - [ ] Implement Google OAuth (currently simulated with DEMO_USER)
 - [ ] Add error boundary components for graceful crash recovery
-- [ ] Performance audit: bundle splitting, lazy-load routes, optimize Mango SVG (74kb)
+- [x] Performance audit: bundle splitting (736kb → 389kb main chunk), lazy-load heavy components (MangoChat, MangoAssistant, OnboardingFlow, CreateEventModal, EventReels), vendor chunks for framer-motion and Google Maps
+- [ ] Delete orphaned `MangoSVG.jsx` (74kb, not imported anywhere — SVG defined inline in `Mango.jsx`)
 - [ ] Extract `useLocalStorage` hook from `App.jsx` (lines 77–98) into `src/hooks/useLocalStorage.js`
 
 ### ESLint
