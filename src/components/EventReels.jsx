@@ -195,16 +195,19 @@ const EventReels = ({ events, onClose, onSelectEvent }) => {
     }
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'ArrowUp') handlePrev();
-    if (e.key === 'ArrowDown') handleNext();
-    if (e.key === 'Escape') onClose();
-  };
-
   useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'ArrowUp' && currentIndex > 0) {
+        setCurrentIndex(prev => prev - 1);
+      } else if (e.key === 'ArrowDown' && currentIndex < events.length - 1) {
+        setCurrentIndex(prev => prev + 1);
+      } else if (e.key === 'Escape') {
+        onClose();
+      }
+    };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentIndex]);
+  }, [currentIndex, events.length, onClose]);
 
   const toggleLike = (eventId) => {
     setLikedEvents(prev =>
