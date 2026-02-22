@@ -3,11 +3,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Users, MessageCircle, LogOut, Bell, BellOff, Star, UserPlus, UserCheck, Shield, Heart } from 'lucide-react';
 import api from '../api';
 import FeedItem from './FeedItem';
+import { useEscapeKey, useFocusTrap } from '../hooks/useAccessibility';
+import { DEFAULT_AVATAR } from '../data/constants';
 
 const TribeSheet = ({ tribe, isOpen, onClose, onLeave }) => {
     const [notificationsOn, setNotificationsOn] = useState(true);
     const [isFollowing, setIsFollowing] = useState(true);
     const [activeSection, setActiveSection] = useState('activity'); // 'activity' | 'reviews'
+    useEscapeKey(isOpen, onClose);
+    const focusTrapRef = useFocusTrap(isOpen);
     const [tribePosts, setTribePosts] = useState([]);
     const reviews = [];
 
@@ -31,6 +35,10 @@ const TribeSheet = ({ tribe, isOpen, onClose, onLeave }) => {
                     exit={{ opacity: 0 }}
                     className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
                     onClick={onClose}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label={tribe?.name || 'Tribe details'}
+                    ref={focusTrapRef}
                 >
                     <motion.div
                         initial={{ y: '100%' }}
@@ -63,6 +71,7 @@ const TribeSheet = ({ tribe, isOpen, onClose, onLeave }) => {
                                 <button
                                     onClick={onClose}
                                     className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
+                                    aria-label="Close"
                                 >
                                     <X size={20} />
                                 </button>
@@ -91,9 +100,10 @@ const TribeSheet = ({ tribe, isOpen, onClose, onLeave }) => {
                                         {tribe.memberAvatars?.slice(0, 4).map((avatar, i) => (
                                             <img
                                                 key={i}
-                                                src={avatar}
+                                                src={avatar || DEFAULT_AVATAR}
                                                 alt=""
                                                 className="w-8 h-8 rounded-full border-2 border-paper object-cover"
+                                                loading="lazy"
                                             />
                                         ))}
                                     </div>
@@ -127,12 +137,14 @@ const TribeSheet = ({ tribe, isOpen, onClose, onLeave }) => {
                                         ? 'bg-secondary/10 text-secondary border border-secondary/20'
                                         : 'bg-white/5 text-secondary/50 border border-white/10'
                                         }`}
+                                    aria-label={notificationsOn ? 'Mute notifications' : 'Enable notifications'}
                                 >
                                     {notificationsOn ? <Bell size={16} /> : <BellOff size={16} />}
                                 </button>
                                 <button
                                     onClick={() => onLeave(tribe.id)}
                                     className="px-4 py-3 rounded-xl text-xs font-bold bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 transition-all flex items-center gap-2"
+                                    aria-label="Leave tribe"
                                 >
                                     <LogOut size={16} />
                                 </button>
@@ -140,10 +152,12 @@ const TribeSheet = ({ tribe, isOpen, onClose, onLeave }) => {
                         </div>
 
                         {/* Section tabs: Activity / Reviews */}
-                        <div className="flex border-b border-secondary/10">
+                        <div className="flex border-b border-secondary/10" role="tablist" aria-label="Tribe sections">
                             {['activity', 'reviews'].map(section => (
                                 <button
                                     key={section}
+                                    role="tab"
+                                    aria-selected={activeSection === section}
                                     onClick={() => setActiveSection(section)}
                                     className={`flex-1 py-3.5 text-[11px] font-black uppercase tracking-[0.15em] transition-all border-b-2 -mb-px ${
                                         activeSection === section
@@ -200,7 +214,7 @@ const TribeSheet = ({ tribe, isOpen, onClose, onLeave }) => {
                                         {reviews.map(review => (
                                             <div key={review.id} className="premium-card p-5">
                                                 <div className="flex items-center gap-3 mb-3">
-                                                    <img src={review.avatar} alt={review.user} className="w-10 h-10 rounded-full object-cover border border-secondary/10" loading="lazy" />
+                                                    <img src={review.avatar || DEFAULT_AVATAR} alt={review.user} className="w-10 h-10 rounded-full object-cover border border-secondary/10" loading="lazy" />
                                                     <div className="flex-1">
                                                         <h4 className="font-bold text-sm text-secondary">{review.user}</h4>
                                                         <p className="text-[10px] text-secondary/40">{review.time}</p>

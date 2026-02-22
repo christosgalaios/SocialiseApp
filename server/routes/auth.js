@@ -141,7 +141,7 @@ router.post('/register', authLimiter, async (req, res) => {
             password: hashedPassword,
             name: fullName,
             location: 'London',
-            avatar: `https://i.pravatar.cc/150?u=${normalizedEmail}`,
+            avatar: '',
             bio: '',
             interests: [],
             tribe: 'Newcomers',

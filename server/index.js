@@ -34,7 +34,7 @@ const corsOptions = {
 // Handle preflight OPTIONS requests for all routes before auth/validation
 app.use(cors(corsOptions));
 
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '500kb' }));
 
 // Healthcheck — used by Railway; must return 200 with no auth
 app.get('/api/health', (_req, res) => res.sendStatus(200));
