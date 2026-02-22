@@ -32,48 +32,7 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: Configure Git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-      # Increment the minor version (y in x.y.z) and reset patch to 0.
-      # The new version is committed back to production and synced to develop
-      # so the next develop push increments from the correct baseline.
-      - name: Bump minor version
-        id: version
-        run: |
-          node -e "
-            const fs = require('fs');
-            const p = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-            const [x, y] = p.version.split('.').map(Number);
-            p.version = [x, y + 1, 0].join('.');
-            fs.writeFileSync('package.json', JSON.stringify(p, null, 2) + '\n');
-            fs.appendFileSync(process.env.GITHUB_OUTPUT, 'version=' + p.version + '\n');
-          "
-
-      - name: Commit and push version bump to production
-        run: |
-          git add package.json
-          git commit -m "chore: bump version to ${{ steps.version.outputs.version }} [skip ci]"
-          git push origin production
-
-      # Sync the new baseline version to development so the next development push
-      # increments patch from x.(y+1).0 rather than the old x.y.z.
-      - name: Sync version to development
-        run: |
-          git fetch origin development
-          git checkout -B development origin/development
-          node -e "
-            const fs = require('fs');
-            const p = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-            p.version = '${{ steps.version.outputs.version }}';
-            fs.writeFileSync('package.json', JSON.stringify(p, null, 2) + '\n');
-          "
-          git add package.json
-          git commit -m "chore: sync version ${{ steps.version.outputs.version }} from production [skip ci]"
-          git push origin development
-          git checkout production
+      # ── Validate FIRST — nothing is committed until lint/tests/build pass ──
 
       - name: Install dependencies
         run: npm ci
@@ -92,6 +51,53 @@ jobs:
           VITE_BASE_URL: /SocialiseApp/prod/
           VITE_API_URL: https://socialise-app-production.up.railway.app/api
           VITE_GOOGLE_MAPS_API_KEY: ${{ secrets.VITE_GOOGLE_MAPS_API_KEY }}
+
+      # ── Version bump + sync AFTER validation passes ──
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      # Increment the minor version (y in x.y.z) and reset patch to 0.
+      - name: Bump minor version
+        id: version
+        run: |
+          node -e "
+            const fs = require('fs');
+            const p = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+            const [x, y] = p.version.split('.').map(Number);
+            p.version = [x, y + 1, 0].join('.');
+            fs.writeFileSync('package.json', JSON.stringify(p, null, 2) + '\n');
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, 'version=' + p.version + '\n');
+          "
+
+      - name: Commit and push version bump to production
+        run: |
+          git add package.json
+          git commit -m "chore: bump version to ${{ steps.version.outputs.version }} [skip ci]"
+          git push origin production
+
+      # Sync the new baseline version to development so both branches
+      # stay on the same version. Uses diff check to skip commit if
+      # the version already matches (e.g. from a previous partial run).
+      - name: Sync version to development
+        run: |
+          git fetch origin development
+          git checkout -B development origin/development
+          node -e "
+            const fs = require('fs');
+            const p = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+            p.version = '${{ steps.version.outputs.version }}';
+            fs.writeFileSync('package.json', JSON.stringify(p, null, 2) + '\n');
+          "
+          git add package.json
+          git diff --cached --quiet && echo "Version already in sync" || \
+            git commit -m "chore: sync version ${{ steps.version.outputs.version }} from production [skip ci]"
+          git push origin development || echo "::warning::Failed to sync version to development — may need manual sync"
+          git checkout production
+
+      # ── Deploy (only reached if everything above succeeded) ──
 
       - name: Deploy to gh-pages (prod subfolder)
         uses: JamesIves/github-pages-deploy-action@v4
