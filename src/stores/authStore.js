@@ -35,6 +35,12 @@ const useAuthStore = create((set, get) => ({
   handleLogin: async (type, credentials, { onSuccess } = {}) => {
     let response;
     if (type === 'register') {
+      // Clean slate for new user — clear any stale data from previous session
+      const { default: useUIStore } = await import('./uiStore');
+      const { default: useCommunityStore } = await import('./communityStore');
+      useUIStore.getState().resetUserData();
+      useCommunityStore.getState().resetUserTribes();
+
       response = await api.register(
         credentials.email,
         credentials.password,

@@ -167,6 +167,24 @@ const useUIStore = create((set) => ({
     set({ experimentalFeatures: enabled });
     localStorage.setItem('socialise_experimental', JSON.stringify(enabled));
   },
+
+  // Reset all per-user data to clean defaults
+  resetUserData: () => {
+    set({
+      userXP: 0,
+      userUnlockedTitles: [],
+      userPreferences: null,
+      showOnboarding: false,
+      proEnabled: false,
+      experimentalFeatures: false,
+    });
+    localStorage.removeItem('socialise_xp');
+    localStorage.removeItem('socialise_unlocked_titles');
+    localStorage.removeItem('socialise_preferences');
+    localStorage.removeItem('socialise_onboarding_shown');
+    localStorage.removeItem('socialise_pro');
+    localStorage.removeItem('socialise_experimental');
+  },
 }));
 
 export default useUIStore;
