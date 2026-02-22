@@ -72,7 +72,7 @@
   /skills              # Skill definitions (gen-test, create-migration)
 /public                # PWA icons, logos
 /docs                  # QA notes, dev task docs
-package.json           # Frontend deps (ESM) — v0.38.0
+package.json           # Frontend deps (ESM) — v0.1.0
 ANTIGRAVITY_BRAIN.md   # Design philosophy doc (read before UI changes)
 ```
 
@@ -135,7 +135,7 @@ ANTIGRAVITY_BRAIN.md   # Design philosophy doc (read before UI changes)
 | OnboardingFlow | `src/components/OnboardingFlow.jsx` | 3-step: interests → location → group size. |
 | CreateEventModal | `src/components/CreateEventModal.jsx` | Event creation form. |
 | VideoWall | `src/components/VideoWall.jsx` | Auto-playing video showcase. |
-| AuthScreen | `src/components/AuthScreen.jsx` | Login/register form. Demo: ben@demo.com / password. |
+| AuthScreen | `src/components/AuthScreen.jsx` | Login/register form. Demo: ben@demo.com / password (blocked in prod). |
 | Skeleton | `src/components/Skeleton.jsx` | Loading skeletons for each tab. |
 
 ---
@@ -217,7 +217,7 @@ Base (production): `https://socialise-app-production.up.railway.app/api`
 | GET | `/users/me/communities` | Required | My communities |
 | GET | `/events/recommendations/for-you` | Required | Micro-Meet recommendations (by match score) |
 
-**Demo credentials:** `ben@demo.com` / `password`
+**Demo credentials:** `ben@demo.com` / `password` (blocked in production — `NODE_ENV=production` returns 403)
 
 **User storage:** Supabase `users` table. Auth routes read/write Supabase directly via service role client.
 
@@ -302,9 +302,11 @@ These bugs from the original issue list have been resolved in the codebase:
 - GitHub Pages deploys to `/dev/` and `/prod/` subfolders — no more root-level conflicts ✓
 - Frontend wired to real API — `mockData.js` renamed to `constants.js` (UI config only, no mock data) ✓
 - Legacy `server/users.json` deleted (was already empty) ✓
-- JWT_SECRET hardcoded fallback removed — now throws in production if env var not set ✓
+- JWT_SECRET hardcoded fallback removed — now throws in production if env var not set. Dev fallback uses `crypto.randomBytes()` (not a predictable string) ✓
 - Duplicate inline JWT verification in `communities.js` replaced with shared `extractUserId` helper ✓
-- Rate limiting added to `/auth/login` and `/auth/register` via `express-rate-limit` (15 requests per 15 min per IP) ✓
+- Rate limiting added to `/auth/login` and `/auth/register` via `express-rate-limit` (15 requests per 15 min per IP). Mutation rate limiter (100 req/15 min) added globally to events, communities, feed, and users routes ✓
+- Demo account (`ben@demo.com`) blocked in production (`NODE_ENV=production` returns 403) ✓
+- `.gitleaksignore` added to suppress false positives from old dev-only JWT fallback string in git history ✓
 - ESLint config split into frontend (`src/`) and server (`server/`) blocks — 0 errors, 0 warnings ✓
 - Unused `motion` import removed from `Sidebar.jsx`; remaining `motion` imports whitelisted (JSX member expression false positives) ✓
 - CORS origin list logged on server startup for production verification ✓
@@ -420,7 +422,7 @@ These bugs from the original issue list have been resolved in the codebase:
 - [ ] Set `ALLOWED_ORIGINS` env var in production Railway to exact production domains only
 - [ ] Tighten RLS policies — restrict beyond service role if frontend ever talks to Supabase directly
 - [ ] Add CSRF protection if moving to cookie-based auth
-- [ ] Add rate limiting to all mutation endpoints (currently only on `/auth/*`)
+- [x] Add rate limiting to all mutation endpoints (100 req/15 min for POST/PUT/DELETE on events, communities, feed, users)
 
 ### Phase 6: Bug Fixes + Production Polish
 

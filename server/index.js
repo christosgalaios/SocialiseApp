@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const rateLimit = require('express-rate-limit');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -35,6 +36,21 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app.use(bodyParser.json({ limit: '500kb' }));
+
+// Rate limiting for mutation endpoints (POST/PUT/DELETE) — prevents abuse
+// Auth routes have their own stricter limiter (15 req/15 min); this covers everything else
+const mutationLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // 100 mutations per window per IP
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { message: 'Too many requests. Please try again later.' },
+    skip: (req) => req.method === 'GET' || req.method === 'OPTIONS',
+});
+app.use('/api/events', mutationLimiter);
+app.use('/api/communities', mutationLimiter);
+app.use('/api/feed', mutationLimiter);
+app.use('/api/users', mutationLimiter);
 
 // Healthcheck — used by Railway; must return 200 with no auth
 app.get('/api/health', (_req, res) => res.sendStatus(200));
