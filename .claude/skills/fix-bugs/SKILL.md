@@ -12,24 +12,39 @@ Reads `BUGS.md`, processes each `open` bug report, validates it against the code
 ## Usage
 
 ```
-/fix-bugs           # Process all open bugs (P1 first, then P2, then P3)
-/fix-bugs P1        # Only process P1 (critical) bugs
+/fix-bugs           # Process all open bugs (auto-prioritized)
 /fix-bugs BUG-123   # Process a specific bug by ID
 ```
 
 ## How It Works
 
 1. **Read** `BUGS.md` and parse all entries with `Status: open`
-2. **Sort** by severity: P1 → P2 → P3
-3. **For each bug:**
+2. **Prioritize** each bug automatically based on its description and codebase context:
+   - **P1 (Critical):** Data loss, auth broken, app crashes, API errors affecting core flows
+   - **P2 (Major):** Feature broken, wrong data displayed, state management bugs, broken interactions
+   - **P3 (Minor):** Visual glitches, typos, edge cases, styling inconsistencies
+3. **Process** bugs in priority order: P1 → P2 → P3
+4. **For each bug:**
    a. Read the bug-fixer agent definition at `.claude/agents/bug-fixer.md` for full rules
-   b. Validate: is this a real bug in existing behavior, or a feature request / invalid report?
-   c. If invalid: update status to `rejected` with reason, skip
-   d. If valid: locate the root cause, apply the minimal fix, add a regression test
-   e. Run `npm run lint` and `npm test -- --run` to verify
-   f. If fix works: update bug status to `fixed` in BUGS.md, commit the fix
-   g. If fix fails or is out of scope: update status to `needs-triage` with reason
-4. **Push** all fix commits to `development` branch
+   b. Analyze the description to identify the affected area and component
+   c. Validate: is this a real bug in existing behavior, or a feature request / invalid report?
+   d. If invalid: update status to `rejected` with reason, skip
+   e. If valid: locate the root cause, apply the minimal fix, add a regression test
+   f. Run `npm run lint` and `npm test -- --run` to verify
+   g. If fix works: update bug status to `fixed` and priority to the inferred value, commit
+   h. If fix fails or is out of scope: update status to `needs-triage` with reason
+5. **Push** all fix commits to `development` branch
+
+## Auto-Prioritization
+
+Bug reports from users contain only a free-text description. The agent determines priority by analyzing:
+
+- **Keywords**: "crash", "can't log in", "data lost", "blank screen" → P1
+- **Affected area**: Auth/login bugs → P1, core feature bugs → P2, visual issues → P3
+- **Scope of impact**: Affects all users → higher priority, edge case → lower
+- **Component criticality**: `auth.js`, `api.js`, `App.jsx` → higher; `Mango.jsx`, styling → lower
+
+The inferred priority is written back to the bug entry when processed.
 
 ## Critical Rules
 
@@ -51,25 +66,30 @@ Each bug entry looks like:
 ## BUG-1234567890
 
 - **Status:** open
-- **Severity:** P1 - Critical
-- **Area:** Frontend - UI/Components
+- **Priority:** auto
 - **Reported:** 2025-01-15T10:30:00Z
 - **Reporter:** user-abc123
-- **Component:** EventDetailSheet
 
-### Steps to Reproduce
+### Description
 
-1. Open an event detail
-2. Click the chat tab
-3. Send a message
+Chat messages disappear after sending in the event detail page. I type a message, hit send, and it briefly shows then vanishes.
 
-### Expected Behavior
+---
+```
 
-Message appears in the chat
+After processing, the entry is updated:
 
-### Actual Behavior
+```markdown
+## BUG-1234567890
 
-Message disappears and error shown
+- **Status:** fixed
+- **Priority:** P2 - Major
+- **Reported:** 2025-01-15T10:30:00Z
+- **Reporter:** user-abc123
+
+### Description
+
+Chat messages disappear after sending in the event detail page. I type a message, hit send, and it briefly shows then vanishes.
 
 ---
 ```
@@ -92,4 +112,4 @@ fix: {description} ({BUG-ID})
 
 ## After Processing
 
-The skill updates `BUGS.md` in place, changing the status of each processed entry. Fixed bugs stay in the file as a record. You can periodically clean up old `fixed` entries.
+The skill updates `BUGS.md` in place, changing the status and priority of each processed entry. Fixed bugs stay in the file as a record.

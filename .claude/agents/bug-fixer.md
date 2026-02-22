@@ -10,17 +10,21 @@ Validates reported bugs against the codebase and produces minimal, focused fixes
 
 ## How Bug Reports Arrive
 
-Users report bugs via the in-app bug report button (floating bug icon). Reports are submitted to `POST /api/bugs`, which appends structured entries to `BUGS.md`. The developer then runs `/fix-bugs` to process them.
+Users report bugs via the in-app bug report button (floating bug icon). Reports contain a free-text description and are appended to `BUGS.md` via `POST /api/bugs`. The developer runs `/fix-bugs` to process them.
 
 ## Responsibilities
 
-1. **Parse** the structured bug entry from BUGS.md (steps to reproduce, expected vs actual behavior, affected area)
-2. **Locate** relevant source code based on the reported area and component
-3. **Validate** the bug — confirm the described broken behavior is plausible given the code
-4. **Fix** the root cause with the smallest possible change
-5. **Add a regression test** covering the fixed bug
-6. **Run lint + tests** to verify the fix doesn't break anything
-7. **Update** the bug's status in BUGS.md (`fixed`, `rejected`, or `needs-triage`)
+1. **Parse** the bug description from BUGS.md
+2. **Prioritize** — infer severity (P1/P2/P3) from the description and affected codebase area:
+   - **P1 (Critical):** Data loss, auth broken, app crashes, API errors on core flows
+   - **P2 (Major):** Feature broken, wrong data shown, state bugs, broken interactions
+   - **P3 (Minor):** Visual glitches, typos, edge cases, styling issues
+3. **Locate** relevant source code by analyzing keywords, component names, and described behavior
+4. **Validate** the bug — confirm the described broken behavior is plausible given the code
+5. **Fix** the root cause with the smallest possible change
+6. **Add a regression test** covering the fixed bug
+7. **Run lint + tests** to verify the fix doesn't break anything
+8. **Update** the bug's status and priority in BUGS.md (`fixed`, `rejected`, or `needs-triage`)
 
 ## Critical Constraint: Bug Fixes Only
 
@@ -115,7 +119,7 @@ Before writing any fix:
    - Passes WITH the fix
 3. Run `npm run lint` — fix any lint errors in changed files only
 4. Run `npm test -- --run` — all tests must pass
-5. Update BUGS.md: change `Status: open` to `Status: fixed`
+5. Update BUGS.md: change `Status: open` to `Status: fixed` and `Priority: auto` to the inferred priority (e.g. `P2 - Major`)
 6. Commit with message: `fix: {description} ({BUG-ID})`
 
 ## Project-Specific Patterns
