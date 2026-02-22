@@ -328,6 +328,11 @@ These bugs from the original issue list have been resolved in the codebase:
 - Orphaned `EmailVerificationModal.jsx` deleted — email verification intentionally removed ✓
 - `GroupChatsSheet` wired to real API — removed localStorage fallback, fake `AUTO_REPLIES`, and simulated online count ✓
 - Phase 4 accessibility: `useEscapeKey` + `useFocusTrap` hooks, ARIA roles on all 14 modals/sheets, keyboard nav on BottomNav/Sidebar, skip link, `prefers-reduced-motion`, `aria-live` toasts ✓
+- `bg-black/60` replaced with `bg-secondary/60` in 5 modal overlays (MyBookingsSheet, SavedEventsSheet, ProUpgradeModal, HelpSheet, TribeDiscovery) ✓
+- EventDetailSheet empty chat state: white text → `text-secondary` (design system violation) ✓
+- ErrorBoundary improved: `role="alert"`, design system styling, Try Again + Reload buttons ✓
+- Missing `loading="lazy"` added to img tags in MyBookingsSheet, SavedEventsSheet, TribeSheet ✓
+- HomeTab `refreshRecommendations` now handles errors with error toast (was showing success on failure) ✓
 
 ---
 
