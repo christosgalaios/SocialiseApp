@@ -72,7 +72,7 @@
   /skills              # Skill definitions (gen-test, create-migration)
 /public                # PWA icons, logos
 /docs                  # QA notes, dev task docs
-package.json           # Frontend deps (ESM) — v0.35.0
+package.json           # Frontend deps (ESM) — v0.38.0
 ANTIGRAVITY_BRAIN.md   # Design philosophy doc (read before UI changes)
 ```
 
@@ -90,7 +90,7 @@ ANTIGRAVITY_BRAIN.md   # Design philosophy doc (read before UI changes)
 
 **API client (`src/api.js`):** Wraps `fetch` with `parseJson()` helper — handles non-JSON responses, checks `response.ok`, throws descriptive `Error` objects. Callers show errors via `showToast`.
 
-**Code splitting:** Vite `manualChunks` splits framer-motion (129kb) and Google Maps (158kb) into separate cacheable vendor chunks. Heavy conditional components (`MangoChat`, `MangoAssistant`, `OnboardingFlow`, `CreateEventModal`, `EventReels`) use `React.lazy()` + `Suspense` for on-demand loading. Main chunk: 389kb.
+**Code splitting:** Vite `manualChunks` splits framer-motion (129kb) and Google Maps (158kb) into separate cacheable vendor chunks. Heavy conditional components (`MangoChat`, `MangoAssistant`, `OnboardingFlow`, `CreateEventModal`, `EventReels`) use `React.lazy()` + `Suspense` for on-demand loading. Main chunk: ~393kb.
 
 ---
 
@@ -127,8 +127,7 @@ ANTIGRAVITY_BRAIN.md   # Design philosophy doc (read before UI changes)
 | ExploreTab | `src/components/ExploreTab.jsx` | Explore tab: search, filters, event list. |
 | ProfileTab | `src/components/ProfileTab.jsx` | Profile + settings tabs. |
 | AppModals | `src/components/AppModals.jsx` | All modals/sheets centralized. |
-| Mango | `src/components/Mango.jsx` | Interactive kitten SVG, 44kb. Physics, poses, drag. |
-| MangoSVG | `src/components/MangoSVG.jsx` | 74kb SVG definition. Don't touch unless working on Mango. |
+| Mango | `src/components/Mango.jsx` | Interactive kitten SVG, 44kb. Physics, poses, drag. SVG defined inline. |
 | MangoContext | `src/contexts/MangoContext.jsx` | Global state: pose, visibility, chat, notifications. |
 | EventDetailSheet | `src/components/EventDetailSheet.jsx` | Bottom sheet: info + chat tabs. |
 | LocationPicker | `src/components/LocationPicker.jsx` | Google Maps + Places autocomplete. Has value-sync useEffect. |
@@ -535,7 +534,7 @@ node index.js        # Express @ localhost:3001
 ## Conventions
 
 - Components use default exports.
-- State handlers defined in `App.jsx`, passed as props.
+- State managed via Zustand stores (`src/stores/`). Components import stores directly — minimal prop drilling.
 - Toast notifications via `showToast(message, type)` — types: `'success'`, `'error'`, `'info'`.
 - Optional chaining everywhere user/event data is accessed: `user?.name ?? 'fallback'`.
 - Framer Motion used for all transitions. `AnimatePresence` wraps conditionally rendered elements.
