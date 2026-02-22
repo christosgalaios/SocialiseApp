@@ -1,6 +1,8 @@
+/* eslint-disable no-unused-vars, react-refresh/only-export-components */
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { useMango } from '../contexts/MangoContext';
 import { motion, useMotionValue, useTransform, AnimatePresence, useVelocity, animate } from 'framer-motion';
+/* eslint-enable no-unused-vars */
 
 /**
  * MangoSVG - A playful orange tabby kitten with interactive poses
@@ -9,7 +11,8 @@ import { motion, useMotionValue, useTransform, AnimatePresence, useVelocity, ani
 const MangoSVG = ({ pose = 'wave', size = 80, isDragging = false, wallSide = 'right' }) => {
     // Brand colors
     const orange = '#E2725B';           // Primary terracotta
-    const orangeLight = '#EFA090';      // Lighter shade  
+    // eslint-disable-next-line no-unused-vars
+    const orangeLight = '#EFA090';      // Lighter shade
     const orangeDark = '#C75B47';       // Darker stripes
     const white = '#FFFFFF';            // Chest, paws
     const cream = '#FFF8F0';            // Muzzle

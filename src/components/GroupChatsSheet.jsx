@@ -9,7 +9,7 @@ const getStoredMessages = (communityId) => {
   try {
     const raw = localStorage.getItem(`${STORAGE_PREFIX}${communityId}`);
     if (raw) return JSON.parse(raw);
-  } catch (_) {}
+  } catch { /* ignore parse errors */ }
   return [];
 };
 
@@ -26,7 +26,7 @@ const AUTO_REPLIES = [
   { user: "Marcus V.", avatar: "https://i.pravatar.cc/150?u=marcus", delay: 6000, message: "Awesome, see you all there!" },
 ];
 
-const MessageBubble = ({ msg, onReact }) => {
+const MessageBubble = ({ msg }) => {
   const [showReactions, setShowReactions] = useState(false);
   const [reaction, setReaction] = useState(msg.reaction || null);
 

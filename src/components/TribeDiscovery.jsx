@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Search, Users, Wand2, TrendingUp, MapPin, UserPlus, Check } from 'lucide-react';
+import { X, Search, Users, UserPlus, Check } from 'lucide-react';
 import api from '../api';
 
 const TribeDiscovery = ({ isOpen, onClose, onJoin, joinedTribes = [] }) => {
@@ -31,13 +31,6 @@ const TribeDiscovery = ({ isOpen, onClose, onJoin, joinedTribes = [] }) => {
             onJoin(tribe);
             setJoiningId(null);
         }, 600);
-    };
-
-    const getReasonIcon = (reason) => {
-        if (reason.includes('interests')) return <Wand2 size={12} />;
-        if (reason.includes('Trending')) return <TrendingUp size={12} />;
-        if (reason.includes('Popular')) return <MapPin size={12} />;
-        return <Users size={12} />;
     };
 
     return (

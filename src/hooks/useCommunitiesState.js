@@ -66,7 +66,7 @@ export function useCommunitiesState() {
 
   // Leave tribe
   const handleLeaveTribe = useCallback(async (tribeId, { onSuccess, onError }) => {
-    const tribe = communities.find(c => c.id === tribeId);
+    communities.find(c => c.id === tribeId);
 
     try {
       // Optimistic UI

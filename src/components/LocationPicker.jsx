@@ -171,7 +171,7 @@ const MapSearch = ({ value, onChange }) => {
                     zoom={14}
                     center={center}
                     options={mapOptions}
-                    onClick={(e) => {
+                    onClick={() => {
                         // Optional: Allow clicking map to set location reverse geocoding
                         // For now just console log or simple pin move without address update could be confusing
                         // Keep it simple: Search drives the map.
