@@ -48,7 +48,7 @@ const IOSInstallPrompt = () => {
 
             <div className="flex items-start gap-4 pr-6">
               <div className="bg-indigo-500/20 p-3 rounded-xl">
-                <img src={`${import.meta.env.BASE_URL}pwa-192x192.png`} alt="App Icon" className="w-10 h-10 rounded-lg object-cover" onError={(e) => e.target.style.display = 'none'} />
+                <img src={`${import.meta.env.BASE_URL}pwa-192x192.png`} alt="App Icon" className="w-10 h-10 rounded-lg object-cover" loading="lazy" onError={(e) => e.target.style.display = 'none'} />
                 <Share className="text-indigo-400 w-10 h-10 hidden" style={{ display: 'none' }} /> 
                 {/* Fallback icon if image fails, though we'll just hide image on error */}
               </div>
