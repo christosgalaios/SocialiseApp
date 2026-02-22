@@ -490,7 +490,7 @@ Configuration lives in `.claude/`. Full docs: `.claude/AUTOMATION_SETUP.md` and 
 | Branch | Environment | GitHub Pages | Backend | Workflow |
 |--------|---|---|---|---|
 | `development` | Development/Preview | `/SocialiseApp/dev/` | `socialise-app-development.up.railway.app` | `deploy-develop.yml` |
-| `master` | Production | `/SocialiseApp/prod/` | `socialise-app-production.up.railway.app` | `deploy-master.yml` |
+| `production` | Production | `/SocialiseApp/prod/` | `socialise-app-production.up.railway.app` | `deploy-production.yml` |
 
 **Workflow:**
 1. Create feature branches from `development`
