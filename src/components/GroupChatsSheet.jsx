@@ -249,7 +249,7 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
               {/* Input area */}
               <form onSubmit={handleSend} className="p-3 border-t border-secondary/10 bg-paper shrink-0 pb-[max(12px,env(safe-area-inset-bottom))]">
                 <div className="flex items-center gap-2">
-                  <button type="button" className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary/50 hover:bg-secondary/20 transition-colors shrink-0">
+                  <button type="button" className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary/50 hover:bg-secondary/20 transition-colors shrink-0" aria-label="Emoji">
                     <Smile size={20} />
                   </button>
                   <input
@@ -257,20 +257,22 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     placeholder="Type a message..."
+                    aria-label="Chat message"
                     className="flex-1 bg-secondary/5 border border-secondary/10 rounded-2xl px-4 py-3 text-[var(--text)] placeholder:text-secondary/40 focus:outline-none focus:ring-2 focus:ring-primary/30 font-medium text-sm"
                   />
-                  <button type="button" className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary/50 hover:bg-secondary/20 transition-colors shrink-0">
+                  <button type="button" className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary/50 hover:bg-secondary/20 transition-colors shrink-0" aria-label="Attach image">
                     <Image size={20} />
                   </button>
                   {input.trim() ? (
                     <button
                       type="submit"
                       className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center shadow-lg active:scale-95 transition-transform shrink-0"
+                      aria-label="Send message"
                     >
                       <Send size={18} />
                     </button>
                   ) : (
-                    <button type="button" className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                    <button type="button" className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0" aria-label="Voice message">
                       <Mic size={20} />
                     </button>
                   )}

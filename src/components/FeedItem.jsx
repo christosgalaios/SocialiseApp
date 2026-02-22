@@ -88,6 +88,7 @@ const CommentItem = ({ comment, onReact, onReply, isReply = false, currentUser, 
           <button
             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
             className="absolute -right-1 -bottom-1 w-5 h-5 rounded-full bg-paper border border-secondary/20 flex items-center justify-center opacity-0 group-hover/comment:opacity-100 transition-opacity hover:bg-secondary/10"
+            aria-label="React with emoji"
           >
             <Smile size={10} className="text-secondary/60" />
           </button>

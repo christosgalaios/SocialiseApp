@@ -13,7 +13,7 @@ const SavedEventsSheet = ({ isOpen, onClose, savedEvents = [], onRemove, onSelec
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
+                    className="fixed inset-0 z-50 bg-secondary/60 backdrop-blur-sm"
                     onClick={onClose}
                     role="dialog"
                     aria-modal="true"
@@ -63,6 +63,7 @@ const SavedEventsSheet = ({ isOpen, onClose, savedEvents = [], onRemove, onSelec
                                                     src={event.image}
                                                     alt={event.title}
                                                     className="w-20 h-20 rounded-xl object-cover"
+                                                    loading="lazy"
                                                 />
                                                 <div className="flex-1 min-w-0">
                                                     <h3 className="font-bold text-sm truncate text-secondary">{event.title}</h3>

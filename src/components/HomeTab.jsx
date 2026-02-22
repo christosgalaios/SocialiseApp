@@ -47,7 +47,9 @@ export default function HomeTab({ onProfileClick, filteredEvents, fetchAllData }
 
   const refreshRecommendations = useCallback(() => {
     setRecommendedLimit(3);
-    fetchAllData().then(() => showToast('Recommendations refreshed', 'success'));
+    fetchAllData()
+      .then(() => showToast('Recommendations refreshed', 'success'))
+      .catch(() => showToast('Failed to refresh', 'error'));
   }, [fetchAllData, setRecommendedLimit, showToast]);
 
   const recommended = filteredEvents.filter(e => !e.isMicroMeet).sort((a, b) => {

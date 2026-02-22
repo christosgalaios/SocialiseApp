@@ -174,7 +174,7 @@ const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMe
                       <div className="absolute inset-0 bg-primary/10 animate-pulse" />
                       <MessageCircle size={40} className="text-primary relative z-10" />
                     </div>
-                    <h5 className="font-black text-xl mb-2 tracking-tight text-white">Pre-Event Hub</h5>
+                    <h5 className="font-black text-xl mb-2 tracking-tight text-secondary">Pre-Event Hub</h5>
                     <p className="text-xs font-medium leading-relaxed italic opacity-80">Be the spark. Introduce yourself and start the conversation before you meet in person!</p>
                   </div>
                 ) : (

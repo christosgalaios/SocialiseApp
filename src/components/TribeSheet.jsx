@@ -102,6 +102,7 @@ const TribeSheet = ({ tribe, isOpen, onClose, onLeave }) => {
                                                 src={avatar}
                                                 alt=""
                                                 className="w-8 h-8 rounded-full border-2 border-paper object-cover"
+                                                loading="lazy"
                                             />
                                         ))}
                                     </div>
