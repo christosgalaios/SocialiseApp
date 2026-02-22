@@ -73,6 +73,41 @@ router.put('/me', authenticateToken, async (req, res) => {
     res.json(toPublicUser(updated));
 });
 
+// --- PUT /api/users/me/xp --- (update XP and unlocked titles)
+router.put('/me/xp', authenticateToken, async (req, res) => {
+    const { xp, unlockedTitles } = req.body;
+
+    const updates = {};
+    if (xp != null) {
+        if (typeof xp !== 'number' || xp < 0 || !Number.isInteger(xp)) {
+            return res.status(400).json({ message: 'XP must be a non-negative integer' });
+        }
+        updates.xp = xp;
+    }
+    if (unlockedTitles != null) {
+        if (!Array.isArray(unlockedTitles) || !unlockedTitles.every(t => typeof t === 'string')) {
+            return res.status(400).json({ message: 'Unlocked titles must be an array of strings' });
+        }
+        updates.unlocked_titles = unlockedTitles;
+    }
+
+    if (Object.keys(updates).length === 0) {
+        return res.status(400).json({ message: 'Nothing to update' });
+    }
+
+    const { data: updated, error } = await supabase
+        .from('users')
+        .update(updates)
+        .eq('id', req.user.id)
+        .select()
+        .single();
+
+    if (!updated) return res.status(404).json({ message: 'User not found' });
+    if (error) return res.status(500).json({ message: 'Failed to update XP' });
+
+    res.json(toPublicUser(updated));
+});
+
 // --- GET /api/users/me/events --- (hosted + attending)
 router.get('/me/events', authenticateToken, async (req, res) => {
     const userId = req.user.id;

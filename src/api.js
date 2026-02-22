@@ -214,6 +214,10 @@ const api = {
         return fetchWithAuth('/users/me/communities');
     },
 
+    updateXP(data) {
+        return fetchWithAuth('/users/me/xp', { method: 'PUT', body: data });
+    },
+
     deleteAccount() {
         return fetchWithAuth('/users/me', { method: 'DELETE' });
     },
