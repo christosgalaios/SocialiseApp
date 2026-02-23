@@ -2,7 +2,7 @@
   <img src="public/logo.png" alt="Socialise" width="80" />
 </p>
 
-<h1 align="center">Socialise</h1>
+<h1 align="center">Socialise.</h1>
 
 <p align="center">
   Community-driven social event discovery and micro-meet matchmaking platform.
