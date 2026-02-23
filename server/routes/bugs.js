@@ -5,7 +5,7 @@ const supabase = require('../supabase');
 const router = express.Router();
 
 // --- Input sanitization for bug descriptions ---
-// User descriptions are stored in Supabase and read by the /fix-bugs agent.
+// User descriptions are stored in Supabase and synced to Google Sheets.
 // We must prevent: (1) prompt injection attempts, (2) metadata spoofing.
 function sanitizeDescription(raw) {
     let text = raw.trim();
@@ -28,7 +28,23 @@ function sanitizeDescription(raw) {
     return text.trim();
 }
 
-// POST /api/bugs — Store a bug report in Supabase
+// Fire-and-forget sync to Google Sheet via Apps Script webhook.
+// If BUGS_SHEET_WEBHOOK_URL is not set, silently skips — sheet sync is optional.
+function syncToSheet(row) {
+    const webhookUrl = process.env.BUGS_SHEET_WEBHOOK_URL;
+    if (!webhookUrl) return;
+
+    fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(row),
+    }).catch(err => {
+        // Non-fatal — Supabase is source of truth
+        console.warn('[bugs] Sheet sync failed (non-fatal):', err.message);
+    });
+}
+
+// POST /api/bugs — Store a bug report in Supabase + sync to Google Sheet
 router.post('/', authenticateToken, async (req, res) => {
     const { description } = req.body;
 
@@ -45,6 +61,7 @@ router.post('/', authenticateToken, async (req, res) => {
     }
 
     const bugId = `BUG-${Date.now()}`;
+    const createdAt = new Date().toISOString();
 
     // Detect environment from request origin
     const origin = req.headers.origin || req.headers.referer || '';
@@ -63,12 +80,16 @@ router.post('/', authenticateToken, async (req, res) => {
                 priority: 'auto',
                 reporter_id: req.user.id,
                 environment: env,
+                created_at: createdAt,
             });
 
         if (error) {
             console.error('[bugs POST] Supabase error:', error);
             return res.status(500).json({ message: 'Failed to log bug report' });
         }
+
+        // Sync to Google Sheet (non-blocking — Supabase is source of truth)
+        syncToSheet({ bug_id: bugId, description: sanitized, status: 'open', priority: 'auto', environment: env, created_at: createdAt });
 
         res.status(201).json({
             message: 'Bug report logged',
