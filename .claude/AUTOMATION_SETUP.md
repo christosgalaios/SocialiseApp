@@ -14,7 +14,7 @@ This document explains all the automations configured for Socialise development.
 | **create-migration skill** | Skill | ✅ Ready | `/create-migration "description"` |
 | **code-reviewer** | Subagent | ✅ Ready | Use before merging to production |
 | **test-coverage-analyzer** | Subagent | ✅ Ready | Use after test infrastructure setup |
-| **fix-bugs skill** | Skill | ✅ Ready | `/fix-bugs` to process BUGS.md reports |
+| **fix-bugs skill** | Skill | ✅ Ready | `/fix-bugs` to process bug reports from Supabase |
 | **bug-fixer** | Subagent | ✅ Ready | Used by `/fix-bugs` skill |
 
 ---
@@ -256,15 +256,15 @@ Recommendations:
 
 ### bug-fixer — Bug Validation and Repair
 
-**Purpose:** Validates bug reports from BUGS.md and produces minimal, focused fixes
+**Purpose:** Validates bug reports from Supabase and produces minimal, focused fixes
 
 **How it works:**
 
-1. Users report bugs via the in-app bug button → reports are appended to `BUGS.md`
+1. Users report bugs via the in-app bug button → reports are stored in Supabase `bug_reports` table
 2. Developer runs `/fix-bugs` when ready to process reports
-3. The skill reads BUGS.md, sorts by severity (P1 → P2 → P3)
+3. The skill fetches open bugs via `GET /api/bugs?status=open`, sorts by severity (P1 → P2 → P3)
 4. For each `open` bug: validates against codebase, fixes if valid, adds regression test
-5. Updates bug status in BUGS.md: `fixed`, `rejected`, or `needs-triage`
+5. Updates bug status via `PUT /api/bugs/:bugId`: `fixed`, `rejected`, or `needs-triage`
 6. Each fix is committed separately
 
 **Safety guardrails:**
@@ -275,7 +275,7 @@ Recommendations:
 - **Auth escalation:** Bugs in auth/security code are marked `needs-triage` for human review.
 - **Manual trigger only:** You choose when to run `/fix-bugs` — nothing runs automatically.
 
-**BUGS.md statuses:**
+**Bug report statuses:**
 | Status | Meaning |
 |--------|---------|
 | `open` | Not yet processed — ready for fixing |
@@ -306,8 +306,8 @@ Recommendations:
 ### Bug Fix Workflow
 
 **Via /fix-bugs (recommended):**
-1. Users report bugs via the in-app bug icon → entries added to `BUGS.md`
-2. Run `/fix-bugs` to process all open reports (or `/fix-bugs P1` for critical only)
+1. Users report bugs via the in-app bug icon → stored in Supabase `bug_reports` table
+2. Run `/fix-bugs` to process all open reports (or `/fix-bugs BUG-123` for a specific bug)
 3. Agent validates each bug, fixes, adds regression test, commits
 4. Push to development → auto-approve (lint + test + build) → merge
 
@@ -316,7 +316,7 @@ Recommendations:
 2. Fix the bug
 3. Edit files → auto-lint keeps code clean
 4. `/gen-test path/to/file` → add test for the bug
-5. Update bug status in BUGS.md to `fixed`
+5. Update bug status via `PUT /api/bugs/:bugId` with `{"status": "fixed"}`
 6. Merge to development → CI tests run
 7. code-reviewer checks for regressions
 8. Merge to production
@@ -444,7 +444,7 @@ Tell me how to query Supabase
 - **Claude Code help**: Type `/help`
 - **Project questions**: Read CLAUDE.md (project brain)
 - **Design system**: See ANTIGRAVITY_BRAIN.md
-- **Bug tracking**: `BUGS.md` (in-app reports) + `/fix-bugs` skill
+- **Bug tracking**: Supabase `bug_reports` table (in-app reports) + `/fix-bugs` skill
 
 ---
 

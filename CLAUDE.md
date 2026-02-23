@@ -60,6 +60,7 @@
     005_fix_function_search_path.sql  # Security hardening
     006_login_streak.sql              # Login streak columns
     007_user_xp.sql                   # XP and unlocked titles columns
+    008_bug_reports.sql                # Bug reports table (replaces BUGS.md file)
   /routes
     auth.js            # Login/register/me — Supabase
     events.js          # CRUD + RSVP/save/chat — Supabase
@@ -219,7 +220,9 @@ Base (production): `https://socialise-app-production.up.railway.app/api`
 | GET | `/users/me/saved` | Required | My saved events |
 | GET | `/users/me/communities` | Required | My communities |
 | GET | `/events/recommendations/for-you` | Required | Micro-Meet recommendations (by match score) |
-| POST | `/bugs` | Required | Submit bug report (appends to BUGS.md) |
+| POST | `/bugs` | Required | Submit bug report (stored in Supabase `bug_reports` table) |
+| GET | `/bugs` | Required | List bug reports (filterable by `?status=open`) |
+| PUT | `/bugs/:bugId` | Required | Update bug report status/priority (used by `/fix-bugs` skill) |
 
 **Demo credentials:** `ben@demo.com` / `password` (blocked in production — `NODE_ENV=production` returns 403)
 
@@ -464,14 +467,14 @@ ESLint passes clean (0 errors, 0 warnings). The config (`eslint.config.js`) has 
 **Security model:** Frontend never talks to Supabase directly. All requests go through Express, which uses the Supabase service role key (`bypassrls=true`). RLS protects against direct database access.
 
 **Tables with RLS enabled and forced:**
-`users`, `events`, `event_rsvps`, `saved_events`, `chat_messages`, `communities`, `community_members`, `community_messages`, `feed_posts`, `post_reactions`
+`users`, `events`, `event_rsvps`, `saved_events`, `chat_messages`, `communities`, `community_members`, `community_messages`, `feed_posts`, `post_reactions`, `bug_reports`
 
 **Key restrictions:**
 - Sensitive columns (`password`, `verification_code`, `verification_code_expiry`) revoked from `anon` and `authenticated` roles
 - No direct INSERT/UPDATE/DELETE on `users` table from frontend roles
 - All data mutation goes through Express API → service role client
 
-**Migrations:** Run via `node server/migrate.js`. Files in `server/migrations/` are executed in order (001–007). See Directory Layout above for details.
+**Migrations:** Run via `node server/migrate.js`. Files in `server/migrations/` are executed in order (001–008). See Directory Layout above for details.
 
 ---
 
@@ -487,7 +490,7 @@ Configuration lives in `.claude/`. Full docs: `.claude/AUTOMATION_SETUP.md` and 
 | Hook | `block-env` | Prevents editing `.env` files |
 | Skill | `/gen-test` | Generate unit tests (Vitest + React Testing Library) |
 | Skill | `/create-migration` | Create Supabase migration files |
-| Skill | `/fix-bugs` | Process bug reports from BUGS.md — validate, fix, and commit |
+| Skill | `/fix-bugs` | Process bug reports from Supabase — validate, fix, and commit |
 | Subagent | `code-reviewer` | Security, quality, design system compliance review |
 | Subagent | `test-coverage-analyzer` | Identify untested code and coverage gaps |
 | Subagent | `bug-fixer` | Validates bug reports and creates minimal fixes (bug-only, no features) |
