@@ -76,7 +76,6 @@
 /public                # PWA icons, logos
 /docs                  # QA notes, dev task docs
 package.json           # Frontend deps (ESM) — v0.1.0
-ANTIGRAVITY_BRAIN.md   # Design philosophy doc (read before UI changes)
 ```
 
 ---
@@ -99,24 +98,32 @@ ANTIGRAVITY_BRAIN.md   # Design philosophy doc (read before UI changes)
 
 ## Design System — "Warm Hearth"
 
-**Full doc:** `ANTIGRAVITY_BRAIN.md` — read it before any UI changes.
+**Philosophy:** Prioritize human connection over cold "tech" aesthetics. The app should feel tactile, grounded, and inviting.
 
-| Token | Value | Usage |
-|---|---|---|
-| `--primary` | `#E2725B` | Terracotta — actions, CTAs |
-| `--secondary` | `#2D5F5D` | Teal — nav, text, calm sections |
-| `--accent` | `#F4B942` | Gold — highlights, delight |
-| `--bg-paper` | `#F9F7F2` | Background (never pure white) |
-| `--text` | `#1A1C1C` | Main text |
-| `--text-muted` | `#5C6363` | Secondary text |
+| Token | Value | Name | Usage |
+|---|---|---|---|
+| `--primary` | `#E2725B` | Community Terracotta | Warm, inviting — actions, CTAs, interactions |
+| `--secondary` | `#2D5F5D` | Open Door Teal | Grounded, calm — nav, text, secondary gradients |
+| `--accent` | `#F4B942` | Latecomer Gold | Highlights, sparks, "delight" moments |
+| `--bg-paper` | `#F9F7F2` | Paper White | Background (never pure `#FFFFFF`) |
+| `--text` | `#1A1C1C` | Soft Charcoal | Main text (high contrast but softer than pure black) |
+| `--text-muted` | `#5C6363` | — | Secondary text, placeholders |
+
+**Typography:** `Outfit` for headings (bold, rounded, friendly). `Quicksand` for body (rounded sans-serif, high readability).
 
 **Critical rules:**
 - Light mode only. Dark mode CSS vars exist but are unused.
 - Never white text on light background.
 - Inputs must use `text-[var(--text)]` — not Tailwind text utilities.
-- Heavy roundness: `rounded-[24px]` / `rounded-[32px]` for cards/modals.
+- Heavy roundness: `rounded-[24px]` / `rounded-[32px]` for cards/modals. `rounded-2xl` for inner elements.
 - Scrollbars hidden globally (`no-scrollbar`).
 - Card class: `.premium-card`. Frosted glass: `.glass-2`. Glow: `.glow-primary`.
+
+**Component patterns:**
+- **Modals:** Centered, `fixed inset-0`, backdrop blur (`bg-secondary/60 backdrop-blur-sm`). Paper-colored content box.
+- **Sheets:** Slide-up from bottom (mobile style). Used for bookings, saved, help, etc.
+- **Feed:** Threaded comments with hard max-depth of 1 (comment → reply, no deeper nesting). Emoji toggles (one per person).
+- **Maps:** `LocationPicker.jsx` handles autocomplete + pin. Graceful failure: shows "Key missing" UI if `VITE_GOOGLE_MAPS_API_KEY` is absent.
 
 ---
 

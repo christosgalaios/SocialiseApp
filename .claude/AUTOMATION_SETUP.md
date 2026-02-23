@@ -466,7 +466,7 @@ Tell me how to query Supabase
 - **Setup issues**: Check this file (AUTOMATION_SETUP.md)
 - **Claude Code help**: Type `/help`
 - **Project questions**: Read CLAUDE.md (project brain)
-- **Design system**: See ANTIGRAVITY_BRAIN.md
+- **Design system**: See CLAUDE.md (Design System section)
 - **Bug tracking**: Supabase `bug_reports` table (in-app reports) + `/fix-bugs` skill
 
 ---

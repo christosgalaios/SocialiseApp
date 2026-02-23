@@ -225,7 +225,7 @@ The design philosophy prioritizes human warmth over cold tech aesthetics.
 
 **Typography:** Outfit (headings) + Quicksand (body)
 
-See [ANTIGRAVITY_BRAIN.md](ANTIGRAVITY_BRAIN.md) for the full design system reference.
+See the "Design System" section in [CLAUDE.md](CLAUDE.md) for the full reference.
 
 ---
 

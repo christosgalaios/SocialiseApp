@@ -146,8 +146,7 @@ You set: Manually in Railway/production
 |-----|----------|
 | `AUTOMATION_SETUP.md` | How everything works, troubleshooting |
 | `PLUGINS_AND_EXTENSIONS.md` | Optional plugins to install |
-| `CLAUDE.md` | Project architecture, conventions |
-| `ANTIGRAVITY_BRAIN.md` | Design system, colors, spacing |
+| `CLAUDE.md` | Project architecture, conventions, design system |
 
 ---
 
