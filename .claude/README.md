@@ -172,7 +172,7 @@ To disable a hook temporarily:
 - **Claude Code help**: Type `/help` in Claude
 - **Setup questions**: See `AUTOMATION_SETUP.md`
 - **Project context**: See `../CLAUDE.md`
-- **Design system**: See `../ANTIGRAVITY_BRAIN.md`
+- **Design system**: See `../CLAUDE.md` (Design System section)
 
 ---
 

@@ -86,7 +86,7 @@ This agent exists SOLELY to fix broken existing behavior. It must NEVER:
 - `package.json` / `package-lock.json` — No dependency changes
 - `server/package.json` / `server/package-lock.json` — No dependency changes
 - `vite.config.js` / `eslint.config.js` — No build/lint config changes
-- `CLAUDE.md` / `ANTIGRAVITY_BRAIN.md` — No documentation changes
+- `CLAUDE.md` — No documentation changes
 - `public/**` — No static asset changes
 
 ### Size limits

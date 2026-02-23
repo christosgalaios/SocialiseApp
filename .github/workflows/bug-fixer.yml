@@ -245,7 +245,6 @@ jobs:
               /^vite\.config\.js$/,
               /^eslint\.config\.js$/,
               /^CLAUDE\.md$/,
-              /^ANTIGRAVITY_BRAIN\.md$/,
               /^public\//
             ];
 

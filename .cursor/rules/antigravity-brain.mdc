@@ -1,11 +1,11 @@
 ---
-description: Socialise design system, architecture, and patterns from ANTIGRAVITY_BRAIN
+description: Socialise design system, architecture, and patterns (Warm Hearth)
 alwaysApply: true
 ---
 
-# Antigravity Brain (Socialise)
+# Warm Hearth Design System (Socialise)
 
-**Full reference**: `ANTIGRAVITY_BRAIN.md`. Follow it for design and architecture.
+**Full reference**: `CLAUDE.md` (Design System section). Follow it for design and architecture.
 
 ## Design
 - **Palette**: Primary `#E2725B` (terracotta), Secondary `#2D5F5D` (teal), Accent `#F4B942`, Paper `#F9F7F2`, Text `#1A1C1C`, Muted `#5C6363`. No pure white backgrounds.
@@ -18,4 +18,4 @@ alwaysApply: true
 - Comments: max depth 1 (Comment → Reply). Bottom nav, sheets for My Bookings/Saved/Help.
 
 ## When editing
-- Preserve "Warm Hearth" feel and the rules above. Check ANTIGRAVITY_BRAIN.md for learnings and roadmap.
+- Preserve "Warm Hearth" feel and the rules above. Check CLAUDE.md for full design system details.
