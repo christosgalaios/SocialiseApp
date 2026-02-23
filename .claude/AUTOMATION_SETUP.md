@@ -283,6 +283,29 @@ Recommendations:
 | `rejected` | Not a bug (feature request, invalid, cannot reproduce) |
 | `needs-triage` | Valid bug but out of scope for automated fixing |
 
+**Google Sheet sync (optional — enables cloud Claude access):**
+
+New bug reports are synced to a Google Sheet in real time so you can paste the sheet URL to any Claude session (web or local) and it can read the bugs without needing API credentials.
+
+Setup (one time):
+1. Create a new Google Sheet with columns: `bug_id | description | status | priority | environment | created_at`
+2. Set sharing to "Anyone with the link can view"
+3. In the sheet, open Extensions → Apps Script and paste:
+   ```js
+   function doPost(e) {
+     const data = JSON.parse(e.postData.contents);
+     SpreadsheetApp.getActiveSpreadsheet().getActiveSheet().appendRow([
+       data.bug_id, data.description, data.status,
+       data.priority, data.environment, data.created_at
+     ]);
+     return ContentService.createTextOutput('ok');
+   }
+   ```
+4. Deploy as web app: Execute as "Me", access "Anyone" → copy the `/exec` URL
+5. Add to Railway env vars: `BUGS_SHEET_WEBHOOK_URL=https://script.google.com/macros/s/.../exec`
+
+Once set up, paste the sheet's view URL to any Claude session and ask it to read your bugs.
+
 ---
 
 ## 🚀 Workflows
