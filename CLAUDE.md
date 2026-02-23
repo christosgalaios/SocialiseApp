@@ -234,6 +234,7 @@ Base (production): `https://socialise-app-production.up.railway.app/api`
 - `ALLOWED_ORIGINS` — Comma-separated CORS origins. Defaults to localhost dev origins.
 - `SUPABASE_URL` — Supabase project URL. Required.
 - `SUPABASE_SERVICE_ROLE_KEY` — Supabase service role key (server-side only, bypasses RLS). Required.
+- `BUGS_SHEET_WEBHOOK_URL` — Optional. Google Apps Script web app URL. When set, new bug reports are synced to a Google Sheet in real time (fire-and-forget — failures don't affect the API response).
 
 ---
 
