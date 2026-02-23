@@ -460,6 +460,23 @@ These bugs from the original issue list have been resolved in the codebase:
 - [x] Delete orphaned hooks (`src/hooks/` — replaced by Zustand stores)
 - [x] Delete orphaned `EmailVerificationModal.jsx` (email verification intentionally removed)
 
+### Phase 7: TikTok Integration
+
+**Why:** Allow event hosts to connect their TikTok account and embed TikTok videos directly into event listings — richer event previews, better engagement, and leverages content creators already promoting events on TikTok.
+
+- [ ] Add TikTok OAuth flow (connect/disconnect TikTok account in Profile settings)
+- [ ] Store TikTok connection tokens securely in Supabase `users` table (new columns: `tiktok_user_id`, `tiktok_access_token`, `tiktok_username`)
+- [ ] Create migration for TikTok user fields
+- [ ] Add TikTok video URL field to event creation form (`CreateEventModal`)
+- [ ] Build `TikTokEmbed` component — renders TikTok oEmbed player for event detail pages
+- [ ] Add TikTok video display to `EventDetailSheet` (show embedded video in event info tab)
+- [ ] Add backend routes: `POST /api/auth/tiktok/connect`, `POST /api/auth/tiktok/disconnect`, `GET /api/auth/tiktok/callback`
+- [ ] Add TikTok oEmbed proxy endpoint (`GET /api/tiktok/oembed?url=...`) to avoid CORS issues
+- [ ] Validate TikTok URLs server-side before storing (must match `tiktok.com/@user/video/...` pattern)
+- [ ] Show connected TikTok username badge on host profiles
+- [ ] Allow hosts to browse/select from their own TikTok videos when creating events (TikTok Display API)
+- [ ] Add TikTok video previews to event cards in feed/explore views (thumbnail + play icon)
+
 ### ESLint
 
 ESLint passes clean (0 errors, 0 warnings). The config (`eslint.config.js`) has four blocks:
