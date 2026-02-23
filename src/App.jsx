@@ -275,6 +275,8 @@ function App() {
       const currentLevel = XP_LEVELS.filter(l => l.xpRequired <= userXP).pop();
       const newLevel = XP_LEVELS.filter(l => l.xpRequired <= newXP).pop();
       setUserXP(newXP);
+      // Persist XP to backend (fire-and-forget — localStorage is source of truth for optimistic UI)
+      api.updateXP({ xp: newXP }).catch(() => {});
       if (newLevel && currentLevel && newLevel.level > currentLevel.level) {
         setTimeout(() => {
           setLevelUpData({ newLevel, unlockedTitle: null });
