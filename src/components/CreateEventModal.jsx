@@ -59,10 +59,10 @@ const CreateEventModal = ({ onClose, onSubmit }) => {
       />
       <motion.div
         initial={{ y: 50, opacity: 0, scale: 0.9 }} animate={{ y: 0, opacity: 1, scale: 1 }} exit={{ y: 50, opacity: 0, scale: 0.9 }}
-        className="bg-paper w-full max-w-md rounded-[32px] overflow-x-hidden overflow-y-auto border border-secondary/10 shadow-2xl relative z-50 max-h-[90vh]"
+        className="bg-paper w-full max-w-md rounded-[32px] overflow-hidden border border-secondary/10 shadow-2xl relative z-50 max-h-[90vh] flex flex-col"
       >
-        {/* Header */}
-        <div className="sticky top-0 bg-paper p-6 pb-4 border-b border-secondary/10 z-20">
+        {/* Header — outside scroll area so close button is always reachable */}
+        <div className="bg-paper p-6 pb-4 border-b border-secondary/10 relative shrink-0">
           <button onClick={onClose} className="absolute top-4 right-4 z-30 w-10 h-10 flex items-center justify-center rounded-xl bg-paper text-secondary/50 hover:text-secondary hover:bg-secondary/10 transition-colors active:scale-90" aria-label="Close">
             <X size={20} strokeWidth={2.5} />
           </button>
@@ -70,6 +70,8 @@ const CreateEventModal = ({ onClose, onSubmit }) => {
           <p className="text-xs text-secondary/50 font-medium mt-1">Share your vibe with the community</p>
         </div>
 
+        {/* Scrollable form content */}
+        <div className="flex-1 overflow-y-auto overscroll-y-contain no-scrollbar">
         <div className="p-6 space-y-5">
           {/* Image Preview/Input */}
           <div className="space-y-2">
@@ -244,9 +246,10 @@ const CreateEventModal = ({ onClose, onSubmit }) => {
             )}
           </AnimatePresence>
         </div>
+        </div>
 
-        {/* Footer */}
-        <div className="sticky bottom-0 bg-paper p-6 pt-4 border-t border-secondary/10">
+        {/* Footer — outside scroll area so submit button is always reachable */}
+        <div className="bg-paper p-6 pt-4 border-t border-secondary/10 shrink-0">
           <button
             onClick={handleSubmit}
             disabled={isSubmitting}
