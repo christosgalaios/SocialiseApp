@@ -382,9 +382,12 @@ export default function AppModals({ handleJoin, sendMessage, createNewEvent, fil
         isOpen={showBugReport}
         onClose={() => setShowBugReport(false)}
         onSubmit={async (formData) => {
+          const path = window.location.pathname;
+          const environment = path.includes('/prod') ? 'PROD' : path.includes('/dev') ? 'DEV' : 'LOCAL';
           const result = await api.reportBug({
             ...formData,
             app_version: import.meta.env.VITE_APP_VERSION || '0.1.dev',
+            environment,
           });
           showToast(`Bug report ${result.bugId} logged!`, 'success');
         }}

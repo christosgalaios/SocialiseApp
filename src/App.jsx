@@ -423,7 +423,7 @@ function App() {
 
   const handleTouchEnd = () => {
     touchStartY.current = 0;
-    if (pullY > 60) {
+    if (pullY > 60 && !isRefreshing) {
       setIsRefreshing(true);
       setPullY(80);
       try {
@@ -454,11 +454,12 @@ function App() {
       setTimeout(() => mango.setMessage(null), 2500);
       setTimeout(() => mango.setPose('wave'), 4000);
     }
+    setPullY(0);
     setActiveTab(id, direction);
     if (mainContentRef.current) {
       mainContentRef.current.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [activeTab, setActiveTab, mango]);
+  }, [activeTab, setActiveTab, mango, setPullY]);
 
   const handleSplashFinish = useCallback(() => {
     splashDoneRef.current = true;
@@ -509,9 +510,7 @@ function App() {
               <main
                 id="main-content"
                 ref={mainContentRef}
-                onTouchStart={handleTouchStart}
-                onTouchMove={handleTouchMove}
-                onTouchEnd={handleTouchEnd}
+                {...(activeTab === 'home' ? { onTouchStart: handleTouchStart, onTouchMove: handleTouchMove, onTouchEnd: handleTouchEnd } : {})}
                 className="flex-1 overflow-y-auto overflow-x-hidden relative scroll-smooth no-scrollbar pb-24 md:pb-0"
               >
                 {/* Pull Refresh Indicator */}
@@ -527,7 +526,7 @@ function App() {
                   </div>
                 </motion.div>
 
-                <motion.div style={{ translateY: pullY }} className="min-h-full">
+                <motion.div style={activeTab === 'home' ? { translateY: pullY } : undefined} className="min-h-full">
                   <AnimatePresence mode="wait">
                     {activeTab === 'home' && (
                       contentReady ? (
