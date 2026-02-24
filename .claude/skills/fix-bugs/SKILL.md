@@ -18,11 +18,11 @@ Fetches open bug reports from the Supabase `bug_reports` table via the API, proc
 
 ## How It Works
 
-1. **Fetch** bug reports from the API:
-   - All open bugs: `GET /api/bugs?status=open` (requires auth token)
+1. **Fetch** bug reports — try the API first, fall back to Supabase REST or Google Sheet if needed:
+   - **Primary (API):** `GET /api/bugs?status=open` via the backend at `VITE_API_URL` or `http://localhost:3001/api`. Requires a JWT token — check `localStorage` for `socialise_token`, or login via `POST /api/auth/login` with `{"email": "ben@demo.com", "password": "password"}` (dev only)
+   - **Fallback (Supabase REST):** If the backend is unreachable (DNS failure, not running), query Supabase directly: `GET ${SUPABASE_URL}/rest/v1/bug_reports?status=eq.open&order=created_at.desc&apikey=${SUPABASE_SERVICE_ROLE_KEY}` with header `Authorization: Bearer ${SUPABASE_SERVICE_ROLE_KEY}`
+   - **Fallback (Google Sheet):** If Supabase is also unreachable, fetch from the Google Sheet CSV export: `https://docs.google.com/spreadsheets/d/1WcsoRjbQbDp9B6HHBzCtksh1SH8jH_0sGY6a7Z9xHMA/gviz/tq?tqx=out:csv` — parse the CSV and filter for `status=open` rows
    - Specific bug: fetch all, then filter by `bug_id`
-   - The backend is at the URL in `VITE_API_URL` env var, or `http://localhost:3001/api` by default
-   - You need a valid JWT token. Check `localStorage` for `socialise_token`, or use the demo credentials to get one: `POST /api/auth/login` with `{"email": "ben@demo.com", "password": "password"}` (dev only)
 2. **Deduplicate** — group reports that describe the same underlying bug:
    - Compare descriptions semantically (not just string matching)
    - Reports from different environments (prod/dev/local) about the same issue are duplicates
@@ -44,7 +44,10 @@ Fetches open bug reports from the Supabase `bug_reports` table via the API, proc
    f. Run `npm run lint` and `npm test -- --run` to verify
    g. If fix works: update bug via `PUT /api/bugs/:bugId` with `{"status": "fixed", "priority": "{inferred}"}`, commit
    h. If fix fails or is out of scope: update status to `needs-triage` with reason
-6. **Push** all fix commits to `development` branch
+6. **Update** bug status — use the API if backend is running, otherwise update Supabase directly and sync the Google Sheet:
+   - **Primary (API):** `PUT /api/bugs/:bugId` — automatically syncs Supabase + Google Sheet
+   - **Fallback (Supabase + Sheet):** If the backend is down, update Supabase directly via REST: `PATCH ${SUPABASE_URL}/rest/v1/bug_reports?bug_id=eq.{BUG-ID}&apikey=${SUPABASE_SERVICE_ROLE_KEY}` with body `{"status": "fixed", "priority": "P2"}`, then sync the Google Sheet via the Apps Script webhook: `POST https://script.google.com/macros/s/AKfycbzNTlbwhCHCBjBBfIAlIo9jycgSjQKTc5DGymDsCnNdaf_ljAzfCj1IhGgINXfkl6f29A/exec` with body `{"action": "update", "bug_id": "{BUG-ID}", "status": "fixed", "priority": "P2"}`
+7. **Push** all fix commits to `development` branch
 
 ## API Endpoints for Bug Reports
 
@@ -52,7 +55,7 @@ Fetches open bug reports from the Supabase `bug_reports` table via the API, proc
 |--------|----------|---------|
 | GET | `/api/bugs?status=open` | Fetch all open bug reports |
 | GET | `/api/bugs` | Fetch all bug reports (any status) |
-| PUT | `/api/bugs/:bugId` | Update status and/or priority (bugId is the `BUG-{timestamp}` string) |
+| PUT | `/api/bugs/:bugId` | Update status and/or priority (auto-syncs Google Sheet) |
 
 ### Bug report object shape
 
@@ -120,6 +123,16 @@ Each fix gets its own commit:
 fix: {description} ({BUG-ID})
 ```
 
+## Google Sheet Sync
+
+Bug reports are tracked in both Supabase (source of truth) and a Google Sheet (human-readable dashboard):
+- **Sheet URL:** `https://docs.google.com/spreadsheets/d/1WcsoRjbQbDp9B6HHBzCtksh1SH8jH_0sGY6a7Z9xHMA`
+- **Apps Script webhook:** `https://script.google.com/macros/s/AKfycbzNTlbwhCHCBjBBfIAlIo9jycgSjQKTc5DGymDsCnNdaf_ljAzfCj1IhGgINXfkl6f29A/exec`
+- The webhook supports two actions:
+  - **Create** (no `action` field): appends a new row with `{ bug_id, description, status, priority, environment, created_at, app_version }`
+  - **Update** (`action: 'update'`): finds row by `bug_id` and updates `status` and/or `priority` in place. Returns `updated`, `not_found`, or `ok`.
+- The backend's `PUT /api/bugs/:bugId` automatically syncs to the sheet. When using the Supabase REST fallback, you must sync the sheet manually via the webhook.
+
 ## After Processing
 
-The skill updates bug statuses via the API. Fixed, rejected, and triaged bugs remain in the database as a record.
+The skill updates bug statuses in Supabase (via API or REST fallback) and the Google Sheet (via API auto-sync or manual webhook call). Fixed, rejected, and triaged bugs remain in both systems as a record.

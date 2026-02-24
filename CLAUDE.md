@@ -242,7 +242,7 @@ Base (production): `https://socialise-app-production.up.railway.app/api`
 - `ALLOWED_ORIGINS` — Comma-separated CORS origins. Defaults to localhost dev origins.
 - `SUPABASE_URL` — Supabase project URL. Required.
 - `SUPABASE_SERVICE_ROLE_KEY` — Supabase service role key (server-side only, bypasses RLS). Required.
-- `BUGS_SHEET_WEBHOOK_URL` — Optional. Google Apps Script web app URL. When set, new bug reports are synced to a Google Sheet in real time (fire-and-forget — failures don't affect the API response).
+- `BUGS_SHEET_WEBHOOK_URL` — Optional. Google Apps Script web app URL. When set, bug reports are synced to a Google Sheet in real time (fire-and-forget — failures don't affect the API response). Supports two modes: new bug creation (appends row) and status updates via `PUT /bugs/:bugId` (updates existing row by `bug_id`). The Apps Script handles `{ action: 'update', bug_id, status?, priority? }` payloads to update in place.
 
 ---
 
@@ -359,6 +359,10 @@ These bugs from the original issue list have been resolved in the codebase:
 - `auto-approve.yml` blocks feature branch PRs from targeting `production` — only `development` → `production` PRs are allowed ✓
 - `deploy-production.yml` back-merges production into development after deploy — keeps branches in sync (merge commits from development→production PRs no longer cause "behind" drift) ✓
 - XP and unlocked titles persisted to Supabase `users` table (migration 007) — fixes level mismatch between prod and dev environments. Auth responses include `xp` and `unlockedTitles`, synced to uiStore on login/session check. `PUT /api/users/me/xp` endpoint for updates. ✓
+- EventReels swipe freeze fixed — `isAnimating` ref guard prevents rapid swipe state changes during `AnimatePresence` transitions, `onTouchCancel` handler resets stale touch refs, `touchStartY` reset on touch end (BUG-1771870680693) ✓
+- CreateEventModal hardlock fixed — `isSubmitting` state with loading spinner prevents double-submission and gives users feedback during API calls (BUG-1771870610374) ✓
+- VideoWall timeout accumulation fixed — `handleInteractionEnd` clears previous timeout before creating a new one, preventing leaked `setTimeout` callbacks that caused jank (BUG-1771870610374) ✓
+- `PUT /api/bugs/:bugId` now syncs status/priority updates to Google Sheet via Apps Script webhook (fire-and-forget, same as `POST /bugs`) ✓
 
 ---
 

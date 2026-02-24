@@ -30,6 +30,9 @@ function sanitizeDescription(raw) {
 
 // Fire-and-forget sync to Google Sheet via Apps Script webhook.
 // If BUGS_SHEET_WEBHOOK_URL is not set, silently skips — sheet sync is optional.
+// Supports two modes:
+//   - Create: sends full bug data (appends a new row)
+//   - Update: sends { action: 'update', bug_id, status?, priority? } (updates existing row)
 function syncToSheet(row) {
     const webhookUrl = process.env.BUGS_SHEET_WEBHOOK_URL;
     if (!webhookUrl) return;
@@ -159,6 +162,9 @@ router.put('/:bugId', authenticateToken, async (req, res) => {
         if (!data) {
             return res.status(404).json({ message: 'Bug report not found' });
         }
+
+        // Sync status/priority update to Google Sheet (non-blocking)
+        syncToSheet({ action: 'update', bug_id: bugId, ...updates });
 
         res.json(data);
     } catch (err) {
