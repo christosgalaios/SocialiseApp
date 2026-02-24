@@ -61,6 +61,7 @@
     006_login_streak.sql              # Login streak columns
     007_user_xp.sql                   # XP and unlocked titles columns
     008_bug_reports.sql                # Bug reports table (replaces BUGS.md file)
+    009_bug_report_version.sql         # Add app_version column to bug_reports
   /routes
     auth.js            # Login/register/me — Supabase
     events.js          # CRUD + RSVP/save/chat — Supabase
