@@ -80,19 +80,34 @@ router.post('/', authenticateToken, async (req, res) => {
     const sanitized = sanitizeDescription(description);
 
     try {
-        const { error } = await supabase
-            .from('bug_reports')
-            .insert({
-                bug_id: bugId,
-                description: sanitized,
-                status: 'open',
-                priority: 'auto',
-                reporter_id: req.user.id,
-                environment: env,
-                app_version: app_version || null,
-                platform: platform || null,
-                created_at: createdAt,
-            });
+        // Base columns from migration 008 (always present)
+        const baseRow = {
+            bug_id: bugId,
+            description: sanitized,
+            status: 'open',
+            priority: 'auto',
+            reporter_id: req.user.id,
+            environment: env,
+            created_at: createdAt,
+        };
+
+        // Optional columns from later migrations (009: app_version, 010: platform)
+        // If the column doesn't exist yet (migration not applied), the insert
+        // would fail with PGRST204. We try with all columns first, then fall
+        // back to base columns only.
+        const fullRow = {
+            ...baseRow,
+            app_version: app_version || null,
+            platform: platform || null,
+        };
+
+        let { error } = await supabase.from('bug_reports').insert(fullRow);
+
+        // PGRST204 = column not found in schema cache (migration not yet applied)
+        if (error && error.code === 'PGRST204') {
+            console.warn('[bugs POST] Column missing, retrying with base columns only:', error.message);
+            ({ error } = await supabase.from('bug_reports').insert(baseRow));
+        }
 
         if (error) {
             console.error('[bugs POST] Supabase error:', error);
