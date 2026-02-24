@@ -489,6 +489,8 @@ function App() {
                 activeCategory={activeCategory}
                 onSelect={setActiveCategory}
                 experimentalFeatures={experimentalFeatures}
+                activeTab={activeTab}
+                setActiveTab={setActiveTabWithEffects}
               />
 
               {/* Main Content Area */}

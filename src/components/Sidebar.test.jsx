@@ -16,6 +16,7 @@ vi.mock('../data/constants', () => ({
 
 describe('Sidebar', () => {
   const mockOnSelect = vi.fn();
+  const mockSetActiveTab = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -23,12 +24,28 @@ describe('Sidebar', () => {
 
   describe('Rendering', () => {
     it('should render navigation landmark', () => {
-      render(<Sidebar activeCategory="All" onSelect={mockOnSelect} />);
-      expect(screen.getByRole('navigation', { name: 'Category filter' })).toBeInTheDocument();
+      render(<Sidebar activeCategory="All" onSelect={mockOnSelect} activeTab="home" setActiveTab={mockSetActiveTab} />);
+      expect(screen.getByRole('navigation', { name: 'Desktop navigation' })).toBeInTheDocument();
+    });
+
+    it('should render navigation tabs', () => {
+      render(<Sidebar activeCategory="All" onSelect={mockOnSelect} activeTab="home" setActiveTab={mockSetActiveTab} />);
+      expect(screen.getByText('Navigate')).toBeInTheDocument();
+      expect(screen.getByText('Home')).toBeInTheDocument();
+      expect(screen.getByText('Hub')).toBeInTheDocument();
+      expect(screen.getByText('Explore')).toBeInTheDocument();
+      expect(screen.getByText('Profile')).toBeInTheDocument();
+    });
+
+    it('should call setActiveTab when a nav tab is clicked', async () => {
+      const user = userEvent.setup({ delay: null });
+      render(<Sidebar activeCategory="All" onSelect={mockOnSelect} activeTab="home" setActiveTab={mockSetActiveTab} />);
+      await user.click(screen.getByText('Hub'));
+      expect(mockSetActiveTab).toHaveBeenCalledWith('hub');
     });
 
     it('should render category heading', () => {
-      render(<Sidebar activeCategory="All" onSelect={mockOnSelect} />);
+      render(<Sidebar activeCategory="All" onSelect={mockOnSelect} activeTab="home" setActiveTab={mockSetActiveTab} />);
       expect(screen.getByText('Discover')).toBeInTheDocument();
     });
 
