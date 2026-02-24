@@ -30,6 +30,9 @@ function sanitizeDescription(raw) {
 
 // Fire-and-forget sync to Google Sheet via Apps Script webhook.
 // If BUGS_SHEET_WEBHOOK_URL is not set, silently skips — sheet sync is optional.
+// Supports two modes:
+//   - Create: sends full bug data (appends a new row)
+//   - Update: sends { action: 'update', bug_id, status?, priority? } (updates existing row)
 function syncToSheet(row) {
     const webhookUrl = process.env.BUGS_SHEET_WEBHOOK_URL;
     if (!webhookUrl) return;
@@ -64,8 +67,9 @@ router.post('/', authenticateToken, async (req, res) => {
     const createdAt = new Date().toISOString();
 
     // Detect environment from request origin
+    // GitHub Pages deploys to /SocialiseApp/prod/ and /SocialiseApp/dev/
     const origin = req.headers.origin || req.headers.referer || '';
-    const env = origin.includes('/prod') ? 'production' : origin.includes('/dev') ? 'development' : 'local';
+    const env = origin.includes('/prod') ? 'PROD' : origin.includes('/dev') ? 'DEV' : 'LOCAL';
 
     // Sanitize user input before storing
     const sanitized = sanitizeDescription(description);
@@ -159,6 +163,9 @@ router.put('/:bugId', authenticateToken, async (req, res) => {
         if (!data) {
             return res.status(404).json({ message: 'Bug report not found' });
         }
+
+        // Sync status/priority update to Google Sheet (non-blocking)
+        syncToSheet({ action: 'update', bug_id: bugId, ...updates });
 
         res.json(data);
     } catch (err) {

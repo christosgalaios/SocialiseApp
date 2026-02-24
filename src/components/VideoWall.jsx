@@ -156,6 +156,7 @@ const VideoCard = ({ ad, onSelect, muted, onToggleMute, isSponsored = true }) =>
 
 const VideoWall = ({ onEventSelect, userName = "You" }) => {
     const scrollRef = useRef(null);
+    const interactionTimeoutRef = useRef(null);
     const [isInteracting, setIsInteracting] = useState(false);
     const [activeIndex, setActiveIndex] = useState(0);
     const [muted, setMuted] = useState(true);
@@ -197,7 +198,10 @@ const VideoWall = ({ onEventSelect, userName = "You" }) => {
 
     // Pause longer after interaction (5s instead of 3s)
     const handleInteractionEnd = () => {
-        setTimeout(() => setIsInteracting(false), 5000);
+        if (interactionTimeoutRef.current) {
+            clearTimeout(interactionTimeoutRef.current);
+        }
+        interactionTimeoutRef.current = setTimeout(() => setIsInteracting(false), 5000);
     };
 
     const scrollTo = (direction) => {
