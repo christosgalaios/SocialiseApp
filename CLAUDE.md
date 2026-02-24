@@ -242,7 +242,7 @@ Base (production): `https://socialise-app-production.up.railway.app/api`
 - `ALLOWED_ORIGINS` — Comma-separated CORS origins. Defaults to localhost dev origins.
 - `SUPABASE_URL` — Supabase project URL. Required.
 - `SUPABASE_SERVICE_ROLE_KEY` — Supabase service role key (server-side only, bypasses RLS). Required.
-- `BUGS_SHEET_WEBHOOK_URL` — Optional. Google Apps Script web app URL. When set, bug reports are synced to a Google Sheet in real time (fire-and-forget — failures don't affect the API response). Supports two modes: new bug creation (appends row) and status updates via `PUT /bugs/:bugId` (updates existing row by `bug_id`). The Apps Script handles `{ action: 'update', bug_id, status?, priority? }` payloads to update in place.
+- `BUGS_SHEET_WEBHOOK_URL` — Optional. Google Apps Script web app URL. When set, bug reports are synced to a Google Sheet in real time (fire-and-forget — failures don't affect the API response). Supports two modes: new bug creation (appends row) and status updates via `PUT /bugs/:bugId` (updates existing row by `bug_id`). The Apps Script uses header-based column lookup (not hardcoded indices) so columns can be reordered freely. Environment values are `PROD` (from `/prod/` page), `DEV` (from `/dev/` page), or `LOCAL` (localhost). The Apps Script source is in `docs/google-sheets-apps-script.js`.
 
 ---
 
@@ -363,6 +363,9 @@ These bugs from the original issue list have been resolved in the codebase:
 - CreateEventModal hardlock fixed — `isSubmitting` state with loading spinner prevents double-submission and gives users feedback during API calls (BUG-1771870610374) ✓
 - VideoWall timeout accumulation fixed — `handleInteractionEnd` clears previous timeout before creating a new one, preventing leaked `setTimeout` callbacks that caused jank (BUG-1771870610374) ✓
 - `PUT /api/bugs/:bugId` now syncs status/priority updates to Google Sheet via Apps Script webhook (fire-and-forget, same as `POST /bugs`) ✓
+- Bug report environment detection uses short uppercase values: `PROD` (from `/prod/` page), `DEV` (from `/dev/` page), `LOCAL` (localhost) — consistent with Google Sheet dropdown options ✓
+- Google Sheet Apps Script uses header-based column lookup (`getColumnMap_`) instead of hardcoded indices — columns can be reordered freely without breaking create/update logic ✓
+- `/fix-bugs` skill now shows a tidy bug summary table first and asks what to fix (all open / P1 only / specific bug) before processing — no longer auto-processes everything immediately ✓
 
 ---
 

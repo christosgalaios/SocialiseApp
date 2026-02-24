@@ -67,8 +67,9 @@ router.post('/', authenticateToken, async (req, res) => {
     const createdAt = new Date().toISOString();
 
     // Detect environment from request origin
+    // GitHub Pages deploys to /SocialiseApp/prod/ and /SocialiseApp/dev/
     const origin = req.headers.origin || req.headers.referer || '';
-    const env = origin.includes('/prod') ? 'production' : origin.includes('/dev') ? 'development' : 'local';
+    const env = origin.includes('/prod') ? 'PROD' : origin.includes('/dev') ? 'DEV' : 'LOCAL';
 
     // Sanitize user input before storing
     const sanitized = sanitizeDescription(description);
