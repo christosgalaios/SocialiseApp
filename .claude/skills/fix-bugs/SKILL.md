@@ -65,6 +65,7 @@ Fetches open bug reports from the Supabase `bug_reports` table via the API, proc
   "priority": "auto",
   "reporter_id": "user-abc123",
   "environment": "production",
+  "app_version": "0.1.104",
   "created_at": "2025-01-15T10:30:00.000Z",
   "updated_at": "2025-01-15T10:30:00.000Z"
 }

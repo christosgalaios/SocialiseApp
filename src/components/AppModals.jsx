@@ -378,7 +378,10 @@ export default function AppModals({ handleJoin, sendMessage, createNewEvent, fil
         isOpen={showBugReport}
         onClose={() => setShowBugReport(false)}
         onSubmit={async (formData) => {
-          const result = await api.reportBug(formData);
+          const result = await api.reportBug({
+            ...formData,
+            app_version: import.meta.env.VITE_APP_VERSION || '0.1.dev',
+          });
           showToast(`Bug report ${result.bugId} logged!`, 'success');
         }}
       />
