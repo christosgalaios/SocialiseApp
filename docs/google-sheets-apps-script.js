@@ -51,8 +51,9 @@ var COL_PRIORITY    = 'Priority';
 var COL_ENVIRONMENT = 'Environment';
 var COL_CREATED_AT  = 'Created At';
 var COL_APP_VERSION = 'App Version';
+var COL_FIXED_AT    = 'Fixed At';
 
-var HEADERS = [COL_BUG_ID, COL_DESCRIPTION, COL_STATUS, COL_PRIORITY, COL_ENVIRONMENT, COL_CREATED_AT, COL_APP_VERSION];
+var HEADERS = [COL_BUG_ID, COL_DESCRIPTION, COL_STATUS, COL_PRIORITY, COL_ENVIRONMENT, COL_CREATED_AT, COL_APP_VERSION, COL_FIXED_AT];
 
 /**
  * Returns a map of { headerName: columnIndex (1-based) } for the given sheet.
@@ -91,6 +92,11 @@ function doPost(e) {
       if (allData[i][bugIdCol - 1] === data.bug_id) {
         if (data.status && cols[COL_STATUS])     sheet.getRange(i + 1, cols[COL_STATUS]).setValue(data.status);
         if (data.priority && cols[COL_PRIORITY])  sheet.getRange(i + 1, cols[COL_PRIORITY]).setValue(data.priority);
+        // Auto-populate "Fixed At" timestamp when status changes to "fixed"
+        if (data.status === 'fixed' && cols[COL_FIXED_AT]) {
+          var fixedAt = data.fixed_at || new Date().toISOString();
+          sheet.getRange(i + 1, cols[COL_FIXED_AT]).setValue(fixedAt);
+        }
         return ContentService.createTextOutput('updated');
       }
     }
