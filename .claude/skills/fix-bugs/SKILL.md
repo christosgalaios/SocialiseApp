@@ -18,7 +18,7 @@ Fetches bug reports from the Google Sheet (the human-readable bug dashboard), au
 
 ## How It Works
 
-### Phase 1: Fetch, Auto-Prioritize, & Present (always runs first)
+### Phase 1: Fetch, Display, & Ask (no network writes — show results fast)
 
 1. **Fetch** all bug reports from the **Google Sheet CSV export** (the single source for this skill):
    - URL: `https://docs.google.com/spreadsheets/d/1WcsoRjbQbDp9B6HHBzCtksh1SH8jH_0sGY6a7Z9xHMA/gviz/tq?tqx=out:csv`
@@ -26,26 +26,17 @@ Fetches bug reports from the Google Sheet (the human-readable bug dashboard), au
    - Skip empty rows and header row
    - This is the only data source — do NOT fall back to the API or Supabase REST
 
-2. **Auto-prioritize, consolidate, and update the sheet** — this happens automatically before showing anything to the user:
+2. **Auto-prioritize and consolidate IN MEMORY** — compute everything locally, no network writes yet:
    - **Prioritize** any bugs with `auto` or empty priority based on description analysis:
      - **P1 (Critical):** Data loss, auth broken, app crashes, API errors affecting core flows, keywords like "crash", "can't log in", "data lost", "blank screen"
      - **P2 (Major):** Feature broken, wrong data displayed, state management bugs, broken interactions
      - **P3 (Minor):** Visual glitches, typos, edge cases, styling inconsistencies
      - **Boost:** Bugs from `PROD` or `BOTH` get priority bumped; `Reports` count ≥ 2 boosts priority one level
-   - **Consolidate duplicates:** Find bugs with identical descriptions (case-insensitive, trimmed). For each group with more than one row:
-     - Keep the **earliest** bug (primary) — the one with the lowest `Created At` or first appearance in the sheet
-     - Update the primary via the Apps Script webhook with:
-       - `reports`: total count of all rows in the group (sum of their individual `Reports` values, or 1 per row if the column was empty)
-       - `environment`: merged — if reports came from `PROD` and `DEV`, set to `BOTH`; if all from the same env, keep as-is
-       - `app_version`: all unique versions comma-separated (e.g. `0.1.104, 0.1.107`)
-       - `status` + `fixed_at`: if the primary was `fixed` and a newer report exists with status `open`, set `status` to `open` and `fixed_at` to `''` to re-open it
-     - Mark each duplicate as `status: 'duplicate of {PRIMARY_BUG_ID}'` via separate `action: 'update'` calls
-     - Log each consolidation (e.g. "Consolidated BUG-456 into BUG-123 (3 reports, BOTH envs, versions: 0.1.104, 0.1.107)")
-   - **Normalize** environment values: `production` → `PROD`, `development` → `DEV`, `local` → `LOCAL`
-   - **Push all changes** to both Supabase and Google Sheet via `PUT /api/bugs/:bugId` (which auto-syncs to the sheet). If the backend is unreachable, update the sheet directly via the Apps Script webhook: `POST https://script.google.com/macros/s/AKfycbzNTlbwhCHCBjBBfIAlIo9jycgSjQKTc5DGymDsCnNdaf_ljAzfCj1IhGgINXfkl6f29A/exec` with body `{"action": "update", "bug_id": "{BUG-ID}", "status": "...", "priority": "..."}`
-   - Log each update as it happens so the user sees progress (e.g. "Set BUG-123 → P2", "Consolidated BUG-456 into BUG-123")
+   - **Consolidate duplicates in memory:** Find bugs with identical descriptions (case-insensitive, trimmed). For each group with more than one row, annotate the primary (earliest) with the merged data and mark duplicates as `duplicate of {PRIMARY_BUG_ID}`. This is in-memory only at this stage.
+   - **Normalize** environment values in memory: `production` → `PROD`, `development` → `DEV`, `local` → `LOCAL`
+   - **No sheet or API writes happen in this phase.** All changes are computed locally. Sheet updates happen lazily in Phase 2 when bugs are actually processed.
 
-3. **Display** a summary table of ALL bugs (open, fixed, rejected, etc.) with the now-updated priorities:
+3. **Display** a summary table of ALL bugs (open, fixed, rejected, etc.) with the computed priorities:
    ```
    | Bug ID              | Reports | Status     | Priority | Env   | Description (truncated)                    |
    |---------------------|---------|------------|----------|-------|--------------------------------------------|
@@ -53,6 +44,7 @@ Fetches bug reports from the Google Sheet (the human-readable bug dashboard), au
    | BUG-1771870680693   | 1       | fixed      | P2       | LOCAL | Swiping can get frozen                     |
    | BUG-1771870492212   | 1       | rejected   | P3       | LOCAL | Test of the api                            |
    ```
+   Indicate with a note if any priorities were inferred (e.g. "* = inferred priority, not yet written to sheet").
 
 4. **Ask the user** what they want to fix using AskUserQuestion:
    - **All open bugs** — process every bug with status `open`, auto-prioritized
@@ -62,7 +54,7 @@ Fetches bug reports from the Google Sheet (the human-readable bug dashboard), au
 
 ### Phase 2: Process Selected Bugs (ONE AT A TIME)
 
-Deduplication and prioritization already happened in Phase 1. Bugs are ready to process.
+Now that the user has chosen what to fix, write updates to the sheet/Supabase lazily as each bug is processed.
 
 **CRITICAL: Sequential One-Bug-At-A-Time Workflow**
 
@@ -71,30 +63,35 @@ Process bugs ONE AT A TIME in priority order (P1 → P2 → P3). Never work on m
 5. **Process** bugs in priority order: P1 → P2 → P3
 6. **For each unique bug, follow this EXACT sequence:**
 
-   **Step 1 — Mark as in-progress:**
+   **Step 1 — Write deduplication/priority updates (first-time write for this bug):**
+   If the bug had its priority inferred or environment normalized in Phase 1 (was `auto` or unnormalized), write those computed values back now via the Apps Script webhook before starting work:
+   `POST` to the webhook with `{"action": "update", "bug_id": "{BUG-ID}", "priority": "{inferred}", "environment": "{normalized}"}`
+   If it was a duplicate identified in Phase 1, mark it now: `{"action": "update", "bug_id": "{DUPLICATE-BUG-ID}", "status": "duplicate of {PRIMARY-BUG-ID}"}`
+
+   **Step 2 — Mark as in-progress:**
    Update the Google Sheet to set the bug's status to `in-progress` via the Apps Script webhook:
    `POST` to the webhook with `{"action": "update", "bug_id": "{BUG-ID}", "status": "in-progress"}`
 
-   **Step 2 — Fix the bug:**
+   **Step 3 — Fix the bug:**
    a. Read the bug-fixer agent definition at `.claude/agents/bug-fixer.md` for full rules
    b. Analyze the description to identify the affected area and component
    c. Validate: is this a real bug in existing behavior, or a feature request / invalid report?
-   d. If invalid: update status to `rejected` (see Step 3), skip to next bug
+   d. If invalid: update status to `rejected` (see Step 4), skip to next bug
    e. If valid: locate the root cause, apply the minimal fix, add a regression test
    f. Run `npm run lint` and `npm test -- --run` to verify
 
-   **Step 3 — Mark as fixed (or rejected/needs-triage) with timestamp:**
+   **Step 4 — Mark as fixed (or rejected/needs-triage) with timestamp:**
    Update the Google Sheet via the Apps Script webhook with the final status AND a `fixed_at` timestamp:
    - **Fixed:** `{"action": "update", "bug_id": "{BUG-ID}", "status": "fixed", "priority": "{inferred}", "fixed_at": "{ISO timestamp}"}`
    - **Rejected:** `{"action": "update", "bug_id": "{BUG-ID}", "status": "rejected", "priority": "P3"}`
    - **Needs triage:** `{"action": "update", "bug_id": "{BUG-ID}", "status": "needs-triage"}`
    The Apps Script auto-populates the "Fixed At" column when status is set to "fixed".
 
-   **Step 4 — Commit and push this bug's fix:**
+   **Step 5 — Commit and push this bug's fix:**
    Commit with message `fix: {description} ({BUG-ID})` and push to the branch.
 
-   **Step 5 — Move to next bug:**
-   Only after Step 4 is complete, go back to Step 1 for the next bug.
+   **Step 6 — Move to next bug:**
+   Only after Step 5 is complete, go back to Step 1 for the next bug.
 
 7. **Update** bug status via the API (which auto-syncs to both Supabase and Google Sheet):
    - **Primary:** `PUT /api/bugs/:bugId` — automatically syncs Supabase + Google Sheet
@@ -145,7 +142,7 @@ Bug reports from users contain only a free-text description. The agent determine
 - **Reports count**: `Reports` ≥ 2 boosts priority one level (P3 → P2, P2 → P1)
 - **Environment**: `PROD` or `BOTH` boosts priority one level
 
-The inferred priority is written back to the bug report via the PUT endpoint.
+The inferred priority is written back to the bug report lazily (in Phase 2, just before processing that bug) — not upfront in Phase 1.
 
 ## Critical Rules
 
