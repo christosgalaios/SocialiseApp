@@ -3,7 +3,7 @@ const { authenticateToken } = require('./auth');
 const supabase = require('../supabase');
 const {
     BUG_INSERT_FAILED, BUG_FETCH_FAILED, BUG_UPDATE_FAILED,
-    BUG_NOT_FOUND, BUG_INVALID_INPUT,
+    BUG_DELETE_FAILED, BUG_NOT_FOUND, BUG_INVALID_INPUT,
 } = require('../errors');
 
 const router = express.Router();
@@ -34,9 +34,10 @@ function sanitizeDescription(raw) {
 
 // Fire-and-forget sync to Google Sheet via Apps Script webhook.
 // If BUGS_SHEET_WEBHOOK_URL is not set, silently skips — sheet sync is optional.
-// Supports two modes:
+// Supports three modes:
 //   - Create: sends full bug data (appends a new row)
 //   - Update: sends { action: 'update', bug_id, status?, priority? } (updates existing row)
+//   - Delete: sends { action: 'delete', bug_id } (removes the row from the sheet)
 function syncToSheet(row) {
     const webhookUrl = process.env.BUGS_SHEET_WEBHOOK_URL;
     if (!webhookUrl) return;
@@ -197,6 +198,37 @@ router.put('/:bugId', authenticateToken, async (req, res) => {
     } catch (err) {
         console.error('[bugs PUT] Error updating bug report:', err);
         res.status(500).json({ code: BUG_UPDATE_FAILED, message: 'Failed to update bug report: unexpected server error' });
+    }
+});
+
+// DELETE /api/bugs/:bugId — Delete a bug report (used for duplicate consolidation)
+router.delete('/:bugId', authenticateToken, async (req, res) => {
+    const { bugId } = req.params;
+
+    try {
+        const { data, error } = await supabase
+            .from('bug_reports')
+            .delete()
+            .eq('bug_id', bugId)
+            .select()
+            .single();
+
+        if (error) {
+            console.error('[bugs DELETE] Supabase error:', error);
+            return res.status(500).json({ code: BUG_DELETE_FAILED, message: 'Failed to delete bug report' });
+        }
+
+        if (!data) {
+            return res.status(404).json({ code: BUG_NOT_FOUND, message: 'Bug report not found' });
+        }
+
+        // Sync deletion to Google Sheet (non-blocking)
+        syncToSheet({ action: 'delete', bug_id: bugId });
+
+        res.json({ deleted: true, bug_id: bugId });
+    } catch (err) {
+        console.error('[bugs DELETE] Error deleting bug report:', err);
+        res.status(500).json({ code: BUG_DELETE_FAILED, message: 'Failed to delete bug report: unexpected server error' });
     }
 });
 
