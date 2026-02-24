@@ -368,7 +368,7 @@ These bugs from the original issue list have been resolved in the codebase:
 - Google Sheet Apps Script uses header-based column lookup (`getColumnMap_`) instead of hardcoded indices — columns can be reordered freely without breaking create/update logic ✓
 - `/fix-bugs` skill fetches from Google Sheet (single source), auto-prioritizes and updates the sheet first, then shows summary table and asks what to fix (all open / P1 only / specific bug) ✓
 - Google Sheet "Fixed At" column auto-populated by Apps Script when status is set to `fixed` — timestamps when each bug was resolved ✓
-- `/fix-bugs` workflow processes bugs ONE AT A TIME: mark `in-progress` → fix → mark `fixed` with timestamp → commit + push → next bug. No automatic pickup of new bugs after completing the agreed list ✓
+- `/fix-bugs` workflow processes bugs ONE AT A TIME: mark `in-progress` in Supabase → fix code → mark `fixed` in Supabase → commit + push → next bug. Status updates go directly to Supabase REST API (`PATCH $SUPABASE_URL/rest/v1/bug_reports`) using the service role key — never skip this step. No automatic pickup of new bugs after completing the agreed list ✓
 - LocationPicker shows fallback text input when Google Maps API key is missing or fails to load (BUG-1771938422741) ✓
 - CreateEventModal close button enlarged to 40x40 touch target, z-index stacking fixed, overflow-x-hidden for reliable scrolling (BUG-1771938439942) ✓
 - Explore filters (category, search, size, date, tags) no longer affect HomeTab — `filteredEvents` scoped to ExploreTab only; HomeTab uses full unfiltered events from store; Sidebar "Discover" category section only renders on explore tab (BUG-1771942366608) ✓
@@ -637,3 +637,15 @@ GitHub Actions prevents workflow cascading by default. When `auto-approve.yml` m
 When auto-approve merges `development → production` using a regular merge (not fast-forward), the merge commit only exists on `production`. Over time, `development` falls behind by N merge commits — even though the actual source code is identical. GitHub shows `development` as "N commits behind production", which is confusing and can cause messy diffs in future PRs.
 
 **Rule:** After deploying to production, back-merge `production` into `development` to bring in the merge commit metadata. The `deploy-production.yml` workflow does this automatically via `github.rest.repos.merge()` in the `sync-development` job. The `[skip ci]` tag in the commit message prevents the back-merge from triggering deploy-development.
+
+### 7. `/fix-bugs` must update bug statuses in Supabase — not just fix code
+
+When processing bugs via `/fix-bugs`, the full lifecycle is: **mark `in-progress` in Supabase → fix the code → mark `fixed` in Supabase → commit + push**. Fixing code and pushing without updating the bug status in the database means the bug sheet stays stale, the `/fix-bugs` skill will re-surface the same bugs next run, and there's no audit trail of when things were resolved.
+
+**Rule:** Every `/fix-bugs` run MUST update bug statuses directly in Supabase via the REST API (`PATCH /rest/v1/bug_reports?bug_id=eq.{ID}`). Use the `SUPABASE_SERVICE_ROLE_KEY` from environment variables — it bypasses RLS. The local Express server may not be reachable (DNS issues in sandboxed environments), but the Supabase REST API at `$SUPABASE_URL/rest/v1/` is. The Google Sheet webhook (`BUGS_SHEET_WEBHOOK_URL`) may also be unavailable — that's fine, Supabase is the source of truth and the sheet syncs on the next deployed backend call. Never skip the status update step.
+
+### 8. External services in sandboxed environments — know what's reachable
+
+In this sandbox environment, DNS resolution for some hosts fails (`EAI_AGAIN`), but the Supabase REST API resolves fine via its IP. The local Express server can't connect to Supabase (DNS failure), but direct `curl` to `$SUPABASE_URL/rest/v1/` works. The production Railway backend (`socialise-app-production.up.railway.app`) is reachable but blocks demo login. The development Railway backend may not be running.
+
+**Rule:** When you need to update Supabase data and the local server can't start, go directly to the Supabase REST API with the service role key. Don't waste time trying to start the local server, logging in for a JWT, or retrying DNS failures. Use `printenv` to get env vars into shell variables (avoids quoting issues with `$VAR` in curl commands).
