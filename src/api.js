@@ -241,10 +241,14 @@ const api = {
         return fetchWithAuth('/users/me', { method: 'DELETE' });
     },
 
-    // ── Bugs ──────────────────────────────────────────────────────────────
+    // ── Bugs & Feature Requests ───────────────────────────────────────────
 
     reportBug(data) {
         return fetchWithAuth('/bugs', { method: 'POST', body: data });
+    },
+
+    submitFeatureRequest(data) {
+        return fetchWithAuth('/bugs', { method: 'POST', body: { ...data, type: 'feature' } });
     },
 };
 

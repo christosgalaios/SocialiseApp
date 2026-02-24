@@ -58,6 +58,8 @@ const useUIStore = create((set) => ({
   setShowLevelDetail: (show) => set({ showLevelDetail: show }),
   showBugReport: false,
   setShowBugReport: (show) => set({ showBugReport: show }),
+  showFeatureRequest: false,
+  setShowFeatureRequest: (show) => set({ showFeatureRequest: show }),
   showChangelog: false,
   setShowChangelog: (show) => set({ showChangelog: show }),
 

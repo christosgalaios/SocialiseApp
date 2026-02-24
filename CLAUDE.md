@@ -63,6 +63,7 @@
     008_bug_reports.sql                # Bug reports table (replaces BUGS.md file)
     009_bug_report_version.sql         # Add app_version column to bug_reports
     010_bug_report_platform.sql         # Add platform column to bug_reports
+    011_report_type.sql                 # Add type column (bug/feature) to bug_reports
   /routes
     auth.js            # Login/register/me — Supabase
     events.js          # CRUD + RSVP/save/chat — Supabase
@@ -148,6 +149,8 @@ package.json           # Frontend deps (ESM) — v0.1.0
 | CreateEventModal | `src/components/CreateEventModal.jsx` | Event creation form. |
 | VideoWall | `src/components/VideoWall.jsx` | Auto-playing video showcase. |
 | AuthScreen | `src/components/AuthScreen.jsx` | Login/register form. Demo: ben@demo.com / password (blocked in prod). |
+| BugReportModal | `src/components/BugReportModal.jsx` | Bug report submission form. |
+| FeatureRequestModal | `src/components/FeatureRequestModal.jsx` | Feature request submission form (mirrors BugReportModal). |
 | Skeleton | `src/components/Skeleton.jsx` | Loading skeletons for each tab. |
 
 ---
@@ -229,9 +232,9 @@ Base (production): `https://socialise-app-production.up.railway.app/api`
 | GET | `/users/me/saved` | Required | My saved events |
 | GET | `/users/me/communities` | Required | My communities |
 | GET | `/events/recommendations/for-you` | Required | Micro-Meet recommendations (by match score) |
-| POST | `/bugs` | Required | Submit bug report (stored in Supabase `bug_reports` table) |
-| GET | `/bugs` | Required | List bug reports (filterable by `?status=open`) |
-| PUT | `/bugs/:bugId` | Required | Update bug report status/priority (used by `/fix-bugs` skill) |
+| POST | `/bugs` | Required | Submit bug report or feature request (pass `type: 'feature'` for feature requests; stored in Supabase `bug_reports` table) |
+| GET | `/bugs` | Required | List bug reports/feature requests (filterable by `?status=open` and/or `?type=feature`) |
+| PUT | `/bugs/:bugId` | Required | Update report status/priority/type (used by `/fix-bugs` skill) |
 | DELETE | `/bugs/:bugId` | Required | Delete bug report (used for duplicate consolidation — syncs deletion to Google Sheet) |
 
 **Demo credentials:** `ben@demo.com` / `password` (blocked in production — `NODE_ENV=production` returns 403)
@@ -388,6 +391,7 @@ These bugs from the original issue list have been resolved in the codebase:
 - Explore tab first-load animation glitch fixed — `transition={{ duration: 0.15 }}` on ExploreTab motion.div reduces the visible gap from `AnimatePresence mode="wait"` sequential transitions (BUG-1771954315641) ✓
 - ChangelogSheet scroll fixed — replaced `maxHeight` calc with flex layout (`flex-1 min-h-0`) + `overscroll-contain` so the "What's New" sheet scrolls properly on iOS Safari (BUG-1771957626306) ✓
 - VideoWall press-and-hold drag glitch fixed — replaced Framer Motion `whileTap` with manual press tracking via `onPointerDown` + global `pointerup` listener so cards stay scaled down until touch is fully released, even when finger drags off the card (BUG-1771957730622) ✓
+- Feature request submission added — `FeatureRequestModal` component (mirrors `BugReportModal`), Lightbulb button above Bug button, `type` column in `bug_reports` table (migration 011), `FEAT-` ID prefix for feature requests, Google Sheet `Type` column, `/fix-bugs` skill re-categorizes bug-as-feature instead of rejecting ✓
 
 ---
 
@@ -530,7 +534,7 @@ ESLint passes clean (0 errors, 0 warnings). The config (`eslint.config.js`) has 
 - No direct INSERT/UPDATE/DELETE on `users` table from frontend roles
 - All data mutation goes through Express API → service role client
 
-**Migrations:** Run via `node server/migrate.js`. Files in `server/migrations/` are executed in order (001–010). See Directory Layout above for details.
+**Migrations:** Run via `node server/migrate.js`. Files in `server/migrations/` are executed in order (001–011). See Directory Layout above for details.
 
 ---
 

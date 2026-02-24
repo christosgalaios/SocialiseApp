@@ -21,6 +21,7 @@ import UserProfileSheet from './UserProfileSheet';
 import LevelUpModal from './LevelUpModal';
 import AvatarCropModal from './AvatarCropModal';
 import BugReportModal from './BugReportModal';
+import FeatureRequestModal from './FeatureRequestModal';
 import ChangelogSheet from './ChangelogSheet';
 
 // Lazy-loaded: CreateEventModal pulls in LocationPicker → Google Maps (~50kb)
@@ -107,6 +108,8 @@ export default function AppModals({ handleJoin, sendMessage, createNewEvent, fil
   const userXP = useUIStore((s) => s.userXP);
   const showBugReport = useUIStore((s) => s.showBugReport);
   const setShowBugReport = useUIStore((s) => s.setShowBugReport);
+  const showFeatureRequest = useUIStore((s) => s.showFeatureRequest);
+  const setShowFeatureRequest = useUIStore((s) => s.setShowFeatureRequest);
   const showChangelog = useUIStore((s) => s.showChangelog);
   const setShowChangelog = useUIStore((s) => s.setShowChangelog);
   const savedEventsData = useEventStore((s) => s.savedEvents);
@@ -390,6 +393,20 @@ export default function AppModals({ handleJoin, sendMessage, createNewEvent, fil
             environment,
           });
           showToast(`Bug report ${result.bugId} logged!`, 'success');
+        }}
+      />
+      <FeatureRequestModal
+        isOpen={showFeatureRequest}
+        onClose={() => setShowFeatureRequest(false)}
+        onSubmit={async (formData) => {
+          const path = window.location.pathname;
+          const environment = path.includes('/prod') ? 'PROD' : path.includes('/dev') ? 'DEV' : 'LOCAL';
+          const result = await api.submitFeatureRequest({
+            ...formData,
+            app_version: import.meta.env.VITE_APP_VERSION || '0.1.dev',
+            environment,
+          });
+          showToast(`Feature request ${result.bugId} logged!`, 'success');
         }}
       />
       <ChangelogSheet

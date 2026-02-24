@@ -23,7 +23,7 @@ import Toast from './components/Toast';
 import IOSInstallPrompt from './components/IOSInstallPrompt';
 import Confetti from './components/Confetti';
 import RealtimePing from './components/RealtimePing';
-import { Bug } from 'lucide-react';
+import { Bug, Lightbulb } from 'lucide-react';
 
 // Lazy-loaded components (heavy, conditionally rendered)
 const MangoChat = lazy(() => import('./components/MangoChat'));
@@ -619,6 +619,17 @@ function App() {
                 <MangoAssistant />
               </Suspense>
             )}
+
+            {/* Feature Request Button (above bug button) */}
+            <motion.button
+              className="fixed bottom-[140px] right-4 z-50 w-11 h-11 rounded-full bg-secondary/90 text-white shadow-lg flex items-center justify-center backdrop-blur-sm border border-white/10 md:bottom-[60px]"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={() => useUIStore.getState().setShowFeatureRequest(true)}
+              aria-label="Request a feature"
+            >
+              <Lightbulb size={18} />
+            </motion.button>
 
             {/* Bug Report Button */}
             <motion.button

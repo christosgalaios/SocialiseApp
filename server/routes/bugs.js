@@ -52,12 +52,18 @@ function syncToSheet(row) {
     });
 }
 
-// POST /api/bugs — Store a bug report in Supabase + sync to Google Sheet
+// POST /api/bugs — Store a bug report or feature request in Supabase + sync to Google Sheet
 router.post('/', authenticateToken, async (req, res) => {
-    const { description, app_version, platform, environment } = req.body;
+    const { description, app_version, platform, environment, type } = req.body;
+
+    // Validate type field — defaults to 'bug' for backwards compatibility
+    const validTypes = ['bug', 'feature'];
+    const reportType = validTypes.includes(type) ? type : 'bug';
+    const isFeature = reportType === 'feature';
+    const label = isFeature ? 'Feature request' : 'Bug report';
 
     if (!description?.trim()) {
-        return res.status(400).json({ code: BUG_INVALID_INPUT, message: 'Bug description is required' });
+        return res.status(400).json({ code: BUG_INVALID_INPUT, message: `${label} description is required` });
     }
 
     if (description.trim().length < 10) {
@@ -68,7 +74,8 @@ router.post('/', authenticateToken, async (req, res) => {
         return res.status(400).json({ code: BUG_INVALID_INPUT, message: 'Description too long (max 2000 characters)' });
     }
 
-    const bugId = `BUG-${Date.now()}`;
+    // ID prefix: FEAT- for feature requests, BUG- for bug reports
+    const bugId = `${isFeature ? 'FEAT' : 'BUG'}-${Date.now()}`;
     const createdAt = new Date().toISOString();
 
     // Prefer client-sent environment (detected from window.location.pathname on frontend)
@@ -97,7 +104,7 @@ router.post('/', authenticateToken, async (req, res) => {
             created_at: createdAt,
         };
 
-        // Optional columns from later migrations (009: app_version, 010: platform)
+        // Optional columns from later migrations (009: app_version, 010: platform, 011: type)
         // If the column doesn't exist yet (migration not applied), the insert
         // would fail with PGRST204. We try with all columns first, then fall
         // back to base columns only.
@@ -105,6 +112,7 @@ router.post('/', authenticateToken, async (req, res) => {
             ...baseRow,
             app_version: app_version || null,
             platform: platform || null,
+            type: reportType,
         };
 
         let { error } = await supabase.from('bug_reports').insert(fullRow);
@@ -121,10 +129,10 @@ router.post('/', authenticateToken, async (req, res) => {
         }
 
         // Sync to Google Sheet (non-blocking — Supabase is source of truth)
-        syncToSheet({ bug_id: bugId, description: sanitized, status: 'open', priority: 'auto', environment: env, app_version: app_version || null, platform: platform || null, created_at: createdAt });
+        syncToSheet({ bug_id: bugId, description: sanitized, status: 'open', priority: 'auto', environment: env, app_version: app_version || null, platform: platform || null, type: reportType, created_at: createdAt });
 
         res.status(201).json({
-            message: 'Bug report logged',
+            message: `${label} logged`,
             bugId,
         });
     } catch (err) {
@@ -133,9 +141,9 @@ router.post('/', authenticateToken, async (req, res) => {
     }
 });
 
-// GET /api/bugs — List bug reports (for /fix-bugs skill)
+// GET /api/bugs — List bug reports and feature requests (for /fix-bugs skill)
 router.get('/', authenticateToken, async (req, res) => {
-    const { status } = req.query;
+    const { status, type } = req.query;
 
     try {
         let query = supabase
@@ -145,6 +153,10 @@ router.get('/', authenticateToken, async (req, res) => {
 
         if (status) {
             query = query.eq('status', status);
+        }
+
+        if (type) {
+            query = query.eq('type', type);
         }
 
         const { data, error } = await query;
@@ -164,9 +176,9 @@ router.get('/', authenticateToken, async (req, res) => {
 // PUT /api/bugs/:bugId — Update bug report fields (used by /fix-bugs skill)
 router.put('/:bugId', authenticateToken, async (req, res) => {
     const { bugId } = req.params;
-    const { status, priority, environment, description, app_version } = req.body;
+    const { status, priority, environment, description, app_version, type } = req.body;
 
-    if (!status && !priority && !environment && !description && !app_version) {
+    if (!status && !priority && !environment && !description && !app_version && !type) {
         return res.status(400).json({ code: BUG_INVALID_INPUT, message: 'Provide at least one field to update' });
     }
 
@@ -176,6 +188,7 @@ router.put('/:bugId', authenticateToken, async (req, res) => {
     if (environment) updates.environment = environment;
     if (description) updates.description = description;
     if (app_version) updates.app_version = app_version;
+    if (type && ['bug', 'feature'].includes(type)) updates.type = type;
 
     try {
         const { data, error } = await supabase

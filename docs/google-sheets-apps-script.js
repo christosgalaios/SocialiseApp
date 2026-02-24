@@ -1,5 +1,5 @@
 // ==========================================
-// Socialise App — Bug Report Sheet Manager
+// Socialise App — Bug Report & Feature Request Sheet Manager
 // ==========================================
 //
 // Compatible with Google Sheets Smart Tables.
@@ -9,7 +9,7 @@
 //   2. Replace all existing code with this file
 //   3. Save (Ctrl+S)
 //   4. Run tidySheet() from the function dropdown > Run
-//      (this auto-adds any missing columns: Platform, Reports, Fixed At, etc.)
+//      (this auto-adds any missing columns: Platform, Reports, Fixed At, Type, etc.)
 //   5. Grant permissions when prompted
 //   6. Deploy > Manage deployments > Edit > New version > Deploy
 //   7. Configure dropdown colors manually (see DROPDOWN SETUP below)
@@ -42,6 +42,10 @@
 //     LOCAL         → Grey
 //     BOTH          → Purple
 //
+//   TYPE column:
+//     bug           → Red
+//     feature       → Green
+//
 //   REPORTS column:
 //     (no dropdown — numeric field showing how many times this bug was reported)
 //
@@ -63,8 +67,9 @@ var COL_APP_VERSION = 'App Version';
 var COL_PLATFORM    = 'Platform';
 var COL_FIXED_AT    = 'Fixed At';
 var COL_REPORTS     = 'Reports';
+var COL_TYPE        = 'Type';
 
-var HEADERS = [COL_BUG_ID, COL_DESCRIPTION, COL_STATUS, COL_PRIORITY, COL_ENVIRONMENT, COL_CREATED_AT, COL_APP_VERSION, COL_PLATFORM, COL_FIXED_AT, COL_REPORTS];
+var HEADERS = [COL_BUG_ID, COL_DESCRIPTION, COL_STATUS, COL_PRIORITY, COL_ENVIRONMENT, COL_CREATED_AT, COL_APP_VERSION, COL_PLATFORM, COL_FIXED_AT, COL_REPORTS, COL_TYPE];
 
 /**
  * Returns a map of { headerName: columnIndex (1-based) } for the given sheet.
@@ -85,8 +90,8 @@ function getColumnMap_(sheet) {
  * Called by the Express backend (server/routes/bugs.js).
  *
  * Payloads:
- *   Create: { bug_id, description, status, priority, environment, created_at, app_version, platform }
- *   Update: { action: 'update', bug_id, status?, priority?, reports?, environment?, app_version?, fixed_at? }
+ *   Create: { bug_id, description, status, priority, environment, created_at, app_version, platform, type }
+ *   Update: { action: 'update', bug_id, status?, priority?, reports?, environment?, app_version?, fixed_at?, type? }
  *   Delete: { action: 'delete', bug_id }
  *
  * Duplicate detection (CREATE mode):
@@ -136,6 +141,8 @@ function doPost(e) {
           sheet.getRange(i + 1, cols[COL_APP_VERSION]).setValue(data.app_version);
         if (data.reports != null && cols[COL_REPORTS])
           sheet.getRange(i + 1, cols[COL_REPORTS]).setValue(data.reports);
+        if (data.type && cols[COL_TYPE])
+          sheet.getRange(i + 1, cols[COL_TYPE]).setValue(data.type);
 
         // Auto-populate "Fixed At" timestamp when status changes to "fixed"
         if (data.status === 'fixed' && cols[COL_FIXED_AT]) {
@@ -154,9 +161,10 @@ function doPost(e) {
   }
 
   // --- CREATE mode ---
-  // Before appending, check if a bug with the same description already exists.
+  // Before appending, check if a report with the same description and type already exists.
   // If so, consolidate the incoming report into the existing row instead of creating a new one.
   var incomingDescNorm = String(data.description || '').trim().toLowerCase();
+  var incomingType = data.type || 'bug';
 
   if (incomingDescNorm) {
     var existingData = sheet.getDataRange().getValues();
@@ -166,10 +174,17 @@ function doPost(e) {
     var versionCol = cols[COL_APP_VERSION];
     var reportsCol = cols[COL_REPORTS];
     var fixedAtCol = cols[COL_FIXED_AT];
+    var typeCol    = cols[COL_TYPE];
 
     for (var j = 1; j < existingData.length; j++) {
       var rowDescNorm = String(existingData[j][descCol - 1] || '').trim().toLowerCase();
       if (rowDescNorm !== incomingDescNorm) continue;
+
+      // Only consolidate if the type matches (bugs with bugs, features with features)
+      if (typeCol) {
+        var rowType = String(existingData[j][typeCol - 1] || 'bug').trim().toLowerCase();
+        if (rowType !== incomingType) continue;
+      }
 
       // Match found — consolidate into this row
       var rowNum = j + 1;
@@ -226,6 +241,7 @@ function doPost(e) {
   fieldMap[COL_APP_VERSION] = data.app_version || '';
   fieldMap[COL_PLATFORM]    = data.platform || '';
   fieldMap[COL_REPORTS]     = 1;
+  fieldMap[COL_TYPE]        = data.type || 'bug';
 
   // Place each field in the correct column position
   var maxCol = 0;
@@ -419,8 +435,10 @@ function consolidateDuplicateDescriptions_(sheet) {
   var versionColIdx = cols[COL_APP_VERSION] ? cols[COL_APP_VERSION] - 1 : 6;
   var reportsColIdx = cols[COL_REPORTS]     ? cols[COL_REPORTS] - 1     : -1;
   var fixedAtColIdx = cols[COL_FIXED_AT]    ? cols[COL_FIXED_AT] - 1    : 7;
+  var typeColIdx    = cols[COL_TYPE]        ? cols[COL_TYPE] - 1        : -1;
 
-  // Map: normalized description → first (primary) row index (1-based)
+  // Map: "type:normalized_description" → first (primary) row index (1-based)
+  // Keyed by type+description so bugs and features are consolidated separately
   var firstOccurrence = {};
   var rowsToDelete = [];
 
@@ -429,7 +447,8 @@ function consolidateDuplicateDescriptions_(sheet) {
     var bugId = String(data[i][bugIdColIdx]).trim();
     if (!desc || !bugId) continue;
 
-    var descNorm = desc.toLowerCase();
+    var rowType = typeColIdx >= 0 ? String(data[i][typeColIdx] || 'bug').trim().toLowerCase() : 'bug';
+    var descNorm = rowType + ':' + desc.toLowerCase();
 
     if (firstOccurrence[descNorm] !== undefined) {
       // Duplicate — merge into the primary row
