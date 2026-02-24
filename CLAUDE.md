@@ -542,6 +542,27 @@ Configuration lives in `.claude/`. Full docs: `.claude/AUTOMATION_SETUP.md` and 
 
 ---
 
+## Changelog
+
+`CHANGELOG.md` in the project root tracks all user-facing changes using the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
+
+**When to update it:** Every PR that delivers a user-facing change — new feature, bug fix, behaviour change, or security improvement.
+
+**How to update it:**
+1. Open `CHANGELOG.md`.
+2. Add entries under the `[Unreleased]` section at the top using the appropriate category:
+   - **Added** — new feature or capability
+   - **Changed** — behaviour that worked before but works differently now
+   - **Fixed** — something that was broken and is now correct
+   - **Removed** — feature or behaviour intentionally dropped
+   - **Security** — vulnerability fix or hardening
+3. Write entries from the **user's perspective** — describe what they can now do or what no longer breaks, not the internal implementation detail.
+4. When a batch of changes ships to production, rename `[Unreleased]` to `[0.1.{PR#}] — YYYY-MM-DD` and add a fresh `[Unreleased]` block above it.
+
+**What not to include:** CI workflow tweaks, docs-only changes, dependency bumps with no user impact, and version sync commits.
+
+---
+
 ## Development Workflow
 
 ### Branches

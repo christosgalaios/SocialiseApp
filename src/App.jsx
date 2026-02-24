@@ -150,6 +150,17 @@ function App() {
     return () => clearTimeout(t);
   }, [appState, setContentReady]);
 
+  // Show changelog sheet 500ms after home page is ready
+  const changelogShownRef = useRef(false);
+  useEffect(() => {
+    if (!contentReady || appState !== 'app' || changelogShownRef.current) return;
+    changelogShownRef.current = true;
+    const t = setTimeout(() => {
+      useUIStore.getState().setShowChangelog(true);
+    }, 500);
+    return () => clearTimeout(t);
+  }, [contentReady, appState]);
+
   // Fetch all data from API
   const fetchAllData = useCallback(async () => {
     try {
