@@ -1,6 +1,7 @@
 import { useEffect, useRef, useCallback, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from './api';
+import { formatError } from './errorUtils';
 import './index.css';
 
 // --- STORES ---
@@ -197,7 +198,7 @@ function App() {
         },
       });
     } catch (err) {
-      showToast(err.message || 'Authentication failed', 'error');
+      showToast(formatError(err, 'Authentication failed'), 'error');
     }
   }, [showToast]);
 
@@ -292,7 +293,7 @@ function App() {
         await api.leaveEvent(id);
       } catch (err) {
         setJoinedEvents(prev => [...prev, id]);
-        showToast(err.message, 'error');
+        showToast(formatError(err), 'error');
       }
     } else {
       // Join
@@ -321,7 +322,7 @@ function App() {
         await api.joinEvent(id);
       } catch (err) {
         setJoinedEvents(prev => prev.filter(e => e !== id));
-        showToast(err.message, 'error');
+        showToast(formatError(err), 'error');
       }
     }
   }, [setJoinedEvents, showToast, userXP, setUserXP, setLevelUpData, setShowLevelUp, setShowConfetti, mango]);
@@ -347,8 +348,8 @@ function App() {
 
     try {
       await api.sendEventMessage(eventId, text);
-    } catch {
-      showToast('Failed to send message', 'error');
+    } catch (err) {
+      showToast(formatError(err, 'Failed to send message'), 'error');
     }
   }, [user, setChatMessages, showToast]);
 
@@ -359,7 +360,7 @@ function App() {
       useEventStore.getState().setShowCreate(false);
       showToast('Experience published successfully!', 'success');
     } catch (err) {
-      showToast(err.message || 'Failed to create event', 'error');
+      showToast(formatError(err, 'Failed to create event'), 'error');
     }
   }, [setEvents, showToast]);
 

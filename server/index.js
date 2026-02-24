@@ -5,6 +5,8 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const rateLimit = require('express-rate-limit');
 
+const { RATE_LIMITED, CORS_BLOCKED } = require('./errors');
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -25,7 +27,7 @@ const allowedOrigins = [...new Set([...defaultOrigins, ...envOrigins])];
 const corsOptions = {
     origin: (origin, callback) => {
         if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
-        callback(new Error(`CORS: origin '${origin}' not allowed`));
+        callback(new Error(`Origin '${origin}' not allowed by CORS policy`));
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -44,7 +46,7 @@ const mutationLimiter = rateLimit({
     max: 100, // 100 mutations per window per IP
     standardHeaders: true,
     legacyHeaders: false,
-    message: { message: 'Too many requests. Please try again later.' },
+    message: { code: RATE_LIMITED, message: 'Too many requests. Please try again later.' },
     skip: (req) => req.method === 'GET' || req.method === 'OPTIONS',
 });
 app.use('/api/events', mutationLimiter);
@@ -70,6 +72,18 @@ app.use('/api/communities', communitiesRouter);
 app.use('/api/feed', feedRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/bugs', bugsRouter);
+
+// --- Global error handler (CORS rejections, JSON parse errors, etc.) ---
+// Express error-handling middleware must have exactly 4 params
+app.use((err, _req, res, _next) => {
+    // CORS errors from the origin callback
+    if (err.message && err.message.includes('CORS')) {
+        return res.status(403).json({ code: CORS_BLOCKED, message: err.message });
+    }
+    // Fallback for unexpected errors
+    console.error('[server] Unhandled error:', err);
+    res.status(500).json({ code: 'ERR_INTERNAL', message: 'Internal server error' });
+});
 
 // --- Start ---
 

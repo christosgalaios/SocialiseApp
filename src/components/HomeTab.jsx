@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { Heart, Zap, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { formatError } from '../errorUtils';
 import useAuthStore from '../stores/authStore';
 import useEventStore from '../stores/eventStore';
 import useUIStore from '../stores/uiStore';
@@ -50,7 +51,7 @@ export default function HomeTab({ onProfileClick, fetchAllData }) {
     setRecommendedLimit(3);
     fetchAllData()
       .then(() => showToast('Recommendations refreshed', 'success'))
-      .catch(() => showToast('Failed to refresh', 'error'));
+      .catch((err) => showToast(formatError(err, 'Failed to refresh'), 'error'));
   }, [fetchAllData, setRecommendedLimit, showToast]);
 
   const recommended = events.filter(e => !e.isMicroMeet).sort((a, b) => {

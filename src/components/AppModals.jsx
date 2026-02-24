@@ -7,6 +7,7 @@ import useCommunityStore from '../stores/communityStore';
 import useFeedStore from '../stores/feedStore';
 import useUIStore from '../stores/uiStore';
 import api from '../api';
+import { formatError } from '../errorUtils';
 import { XP_LEVELS } from '../data/constants';
 import EventDetailSheet from './EventDetailSheet';
 import TribeSheet from './TribeSheet';
@@ -120,10 +121,10 @@ export default function AppModals({ handleJoin, sendMessage, createNewEvent, fil
       const updatedUser = await api.updateProfile({ avatar: croppedDataUrl });
       useAuthStore.getState().setUser(updatedUser);
       showToast('Profile photo updated!', 'success');
-    } catch {
+    } catch (err) {
       // Rollback on failure
       useAuthStore.getState().setUser({ ...user, avatar: previousAvatar });
-      showToast('Failed to update profile photo', 'error');
+      showToast(formatError(err, 'Failed to update profile photo'), 'error');
     }
   };
 
@@ -285,7 +286,7 @@ export default function AppModals({ handleJoin, sendMessage, createNewEvent, fil
             await api.leaveEvent(id);
           } catch (err) {
             setJoinedEvents(prev => [...prev, id]);
-            showToast(err.message, 'error');
+            showToast(formatError(err), 'error');
           }
         }}
       />
@@ -301,7 +302,7 @@ export default function AppModals({ handleJoin, sendMessage, createNewEvent, fil
             await api.unsaveEvent(id);
           } catch (err) {
             setSavedEvents(prev => [...prev, id]);
-            showToast(err.message, 'error');
+            showToast(formatError(err), 'error');
           }
         }}
         onSelect={(event) => {
@@ -337,7 +338,7 @@ export default function AppModals({ handleJoin, sendMessage, createNewEvent, fil
             handleLogoutAuth();
             showToast('Account deleted successfully', 'info');
           } catch (err) {
-            showToast(err.message || 'Failed to delete account', 'error');
+            showToast(formatError(err, 'Failed to delete account'), 'error');
           }
         }}
       />
