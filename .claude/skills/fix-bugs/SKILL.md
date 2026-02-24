@@ -22,28 +22,36 @@ Fetches bug reports from the Google Sheet (the human-readable bug dashboard), au
 
 1. **Fetch** all bug reports from the **Google Sheet CSV export** (the single source for this skill):
    - URL: `https://docs.google.com/spreadsheets/d/1WcsoRjbQbDp9B6HHBzCtksh1SH8jH_0sGY6a7Z9xHMA/gviz/tq?tqx=out:csv`
-   - Parse the CSV — columns are: `Bug ID`, `Description`, `Status`, `Priority`, `Environment`, `Created At`, `App Version`
+   - Parse the CSV — columns are: `Bug ID`, `Description`, `Status`, `Priority`, `Environment`, `Created At`, `App Version`, `Fixed At`, `Reports`
    - Skip empty rows and header row
    - This is the only data source — do NOT fall back to the API or Supabase REST
 
-2. **Auto-prioritize and update the sheet** — this happens automatically before showing anything to the user:
+2. **Auto-prioritize, consolidate, and update the sheet** — this happens automatically before showing anything to the user:
    - **Prioritize** any bugs with `auto` or empty priority based on description analysis:
      - **P1 (Critical):** Data loss, auth broken, app crashes, API errors affecting core flows, keywords like "crash", "can't log in", "data lost", "blank screen"
      - **P2 (Major):** Feature broken, wrong data displayed, state management bugs, broken interactions
      - **P3 (Minor):** Visual glitches, typos, edge cases, styling inconsistencies
-     - **Boost:** Bugs from `PROD` get priority bumped, multiple reports of same issue = higher priority
-   - **Deduplicate:** Find reports describing the same underlying issue, mark extras as `duplicate of {BUG-ID}`
+     - **Boost:** Bugs from `PROD` or `BOTH` get priority bumped; `Reports` count ≥ 2 boosts priority one level
+   - **Consolidate duplicates:** Find bugs with identical descriptions (case-insensitive, trimmed). For each group with more than one row:
+     - Keep the **earliest** bug (primary) — the one with the lowest `Created At` or first appearance in the sheet
+     - Update the primary via the Apps Script webhook with:
+       - `reports`: total count of all rows in the group (sum of their individual `Reports` values, or 1 per row if the column was empty)
+       - `environment`: merged — if reports came from `PROD` and `DEV`, set to `BOTH`; if all from the same env, keep as-is
+       - `app_version`: all unique versions comma-separated (e.g. `0.1.104, 0.1.107`)
+       - `status` + `fixed_at`: if the primary was `fixed` and a newer report exists with status `open`, set `status` to `open` and `fixed_at` to `''` to re-open it
+     - Mark each duplicate as `status: 'duplicate of {PRIMARY_BUG_ID}'` via separate `action: 'update'` calls
+     - Log each consolidation (e.g. "Consolidated BUG-456 into BUG-123 (3 reports, BOTH envs, versions: 0.1.104, 0.1.107)")
    - **Normalize** environment values: `production` → `PROD`, `development` → `DEV`, `local` → `LOCAL`
    - **Push all changes** to both Supabase and Google Sheet via `PUT /api/bugs/:bugId` (which auto-syncs to the sheet). If the backend is unreachable, update the sheet directly via the Apps Script webhook: `POST https://script.google.com/macros/s/AKfycbzNTlbwhCHCBjBBfIAlIo9jycgSjQKTc5DGymDsCnNdaf_ljAzfCj1IhGgINXfkl6f29A/exec` with body `{"action": "update", "bug_id": "{BUG-ID}", "status": "...", "priority": "..."}`
-   - Log each update as it happens so the user sees progress (e.g. "Set BUG-123 → P2", "Marked BUG-456 as duplicate of BUG-123")
+   - Log each update as it happens so the user sees progress (e.g. "Set BUG-123 → P2", "Consolidated BUG-456 into BUG-123")
 
 3. **Display** a summary table of ALL bugs (open, fixed, rejected, etc.) with the now-updated priorities:
    ```
-   | Bug ID              | Status     | Priority | Env   | Description (truncated)                    |
-   |---------------------|------------|----------|-------|--------------------------------------------|
-   | BUG-1771870610374   | open       | P2       | LOCAL | App not responsive, create events hardlock |
-   | BUG-1771870680693   | fixed      | P2       | LOCAL | Swiping can get frozen                     |
-   | BUG-1771870492212   | rejected   | P3       | LOCAL | Test of the api                            |
+   | Bug ID              | Reports | Status     | Priority | Env   | Description (truncated)                    |
+   |---------------------|---------|------------|----------|-------|--------------------------------------------|
+   | BUG-1771870610374   | 3       | open       | P1       | BOTH  | App not responsive, create events hardlock |
+   | BUG-1771870680693   | 1       | fixed      | P2       | LOCAL | Swiping can get frozen                     |
+   | BUG-1771870492212   | 1       | rejected   | P3       | LOCAL | Test of the api                            |
    ```
 
 4. **Ask the user** what they want to fix using AskUserQuestion:
@@ -124,6 +132,7 @@ Process bugs ONE AT A TIME in priority order (P1 → P2 → P3). Never work on m
 | `PROD` | Bug reported from the production site (`/SocialiseApp/prod/`) |
 | `DEV` | Bug reported from the development preview (`/SocialiseApp/dev/`) |
 | `LOCAL` | Bug reported from localhost during development |
+| `BOTH` | Bug reported from multiple environments (at least one PROD and one DEV/LOCAL report consolidated) |
 
 ## Auto-Prioritization
 
@@ -133,6 +142,8 @@ Bug reports from users contain only a free-text description. The agent determine
 - **Affected area**: Auth/login bugs → P1, core feature bugs → P2, visual issues → P3
 - **Scope of impact**: Affects all users → higher priority, edge case → lower
 - **Component criticality**: `auth.js`, `api.js`, `App.jsx` → higher; `Mango.jsx`, styling → lower
+- **Reports count**: `Reports` ≥ 2 boosts priority one level (P3 → P2, P2 → P1)
+- **Environment**: `PROD` or `BOTH` boosts priority one level
 
 The inferred priority is written back to the bug report via the PUT endpoint.
 
@@ -166,7 +177,7 @@ Read `.claude/agents/bug-fixer.md` for the full constraint set. Key rules:
 | `fixed` | Bug validated and fix committed |
 | `rejected` | Not a bug (feature request, invalid, or cannot reproduce) |
 | `needs-triage` | Valid bug but out of scope for automated fixing (auth, migrations, etc.) |
-| `duplicate of {ID}` | Same bug as another report — the primary report will be fixed |
+| `duplicate of {ID}` | Same description as another report — the primary report carries the consolidated data |
 
 ## Commit Format
 
@@ -183,24 +194,32 @@ The Google Sheet is the single source for fetching bugs in this skill. Updates f
 - **CSV export URL (for fetching):** `https://docs.google.com/spreadsheets/d/1WcsoRjbQbDp9B6HHBzCtksh1SH8jH_0sGY6a7Z9xHMA/gviz/tq?tqx=out:csv`
 - **Apps Script webhook (for updates):** `https://script.google.com/macros/s/AKfycbzNTlbwhCHCBjBBfIAlIo9jycgSjQKTc5DGymDsCnNdaf_ljAzfCj1IhGgINXfkl6f29A/exec`
 - The webhook supports two actions:
-  - **Create** (no `action` field): appends a new row with `{ bug_id, description, status, priority, environment, created_at, app_version }`
-  - **Update** (`action: 'update'`): finds row by `bug_id` and updates `status` and/or `priority` in place. Returns `updated`, `not_found`, or `ok`.
+  - **Create** (no `action` field): appends a new row with `{ bug_id, description, status, priority, environment, created_at, app_version }`. If a row with the same description already exists, the incoming report is **consolidated** into that row (reports incremented, environment merged, version appended, re-opened if fixed). Returns `ok`, `consolidated`, or an error.
+  - **Update** (`action: 'update'`): finds row by `bug_id` and updates fields in place. Supported update fields:
+    - `status` — new status value; setting `fixed` auto-populates Fixed At; setting `open` clears Fixed At
+    - `priority` — new priority value
+    - `reports` — reports count (number)
+    - `environment` — merged environment value (e.g. `BOTH`)
+    - `app_version` — merged app version string (e.g. `0.1.104, 0.1.107`)
+    - `fixed_at` — ISO timestamp (pass `''` to clear when re-opening)
+    Returns `updated`, `not_found`, or `ok`.
 - The backend's `PUT /api/bugs/:bugId` automatically syncs to the sheet. When the backend is unreachable, update the sheet directly via the webhook.
 
 ### Google Sheet column mapping
 
 The Apps Script uses header-based column lookup (not hardcoded indices). Columns can be reordered freely. The standard headers are:
 
-| Column | Type | Dropdown values |
-|--------|------|-----------------|
+| Column | Type | Notes |
+|--------|------|-------|
 | Bug ID | Text (monospace) | — |
 | Description | Text (wrapped) | — |
-| Status | Dropdown | `open`, `in-progress`, `fixed`, `rejected`, `needs-triage`, `duplicate` |
+| Status | Dropdown | `open`, `in-progress`, `fixed`, `rejected`, `needs-triage`, `duplicate of {ID}` |
 | Priority | Dropdown | `auto`, `P1`, `P2`, `P3` |
-| Environment | Dropdown | `PROD`, `DEV`, `LOCAL` |
+| Environment | Dropdown | `PROD`, `DEV`, `LOCAL`, `BOTH` |
 | Created At | Timestamp | — |
-| App Version | Text | — |
-| Fixed At | Timestamp | — (auto-populated by Apps Script when status is set to `fixed`) |
+| App Version | Text | Comma-separated if multiple versions (e.g. `0.1.104, 0.1.107`) |
+| Fixed At | Timestamp | Auto-populated by Apps Script when status is set to `fixed`; cleared when re-opened |
+| Reports | Number | How many times this bug has been reported; auto-set to 1 on create, incremented on consolidation |
 
 ### Conditional formatting (automatic via Apps Script `formatSheet()`)
 
@@ -219,6 +238,7 @@ The Apps Script uses header-based column lookup (not hardcoded indices). Columns
 | Environment | `PROD` | Red `#FFEBEE` | `#C62828` |
 | Environment | `DEV` | Blue `#E3F2FD` | `#1565C0` |
 | Environment | `LOCAL` | Gray `#F5F5F5` | `#616161` |
+| Environment | `BOTH` | Purple `#F3E5F5` | `#6A1B9A` |
 
 ## After Processing
 
