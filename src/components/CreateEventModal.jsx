@@ -11,6 +11,7 @@ const CreateEventModal = ({ onClose, onSubmit }) => {
   });
   const [errors, setErrors] = useState({});
   const [imagePreview, setImagePreview] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   useEscapeKey(true, onClose);
   const focusTrapRef = useFocusTrap(true);
 
@@ -23,12 +24,18 @@ const CreateEventModal = ({ onClose, onSubmit }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    if (isSubmitting) return;
     if (validate()) {
-      onSubmit({
-        ...formData,
-        image: formData.image || 'https://images.unsplash.com/photo-1529543544277-750e0c7e4d18?w=800&q=80'
-      });
+      setIsSubmitting(true);
+      try {
+        await onSubmit({
+          ...formData,
+          image: formData.image || 'https://images.unsplash.com/photo-1529543544277-750e0c7e4d18?w=800&q=80'
+        });
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -242,10 +249,20 @@ const CreateEventModal = ({ onClose, onSubmit }) => {
         <div className="sticky bottom-0 bg-paper p-6 pt-4 border-t border-secondary/10">
           <button
             onClick={handleSubmit}
-            className="w-full py-4 bg-gradient-to-r from-primary to-accent rounded-2xl font-black uppercase tracking-widest shadow-lg text-white flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
+            disabled={isSubmitting}
+            className={`w-full py-4 bg-gradient-to-r from-primary to-accent rounded-2xl font-black uppercase tracking-widest shadow-lg text-white flex items-center justify-center gap-2 active:scale-[0.98] transition-transform ${isSubmitting ? 'opacity-60 cursor-not-allowed' : ''}`}
           >
-            <Check size={18} />
-            Publish Event
+            {isSubmitting ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                Publishing...
+              </>
+            ) : (
+              <>
+                <Check size={18} />
+                Publish Event
+              </>
+            )}
           </button>
         </div>
       </motion.div>
