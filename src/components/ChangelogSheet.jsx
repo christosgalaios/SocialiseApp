@@ -238,16 +238,16 @@ const ChangelogSheet = ({ isOpen, onClose }) => {
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="absolute inset-x-0 bottom-0 top-16 bg-paper rounded-t-[32px] overflow-hidden shadow-2xl"
+            className="absolute inset-x-0 bottom-0 top-16 bg-paper rounded-t-[32px] overflow-hidden shadow-2xl flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Handle */}
-            <div className="flex justify-center pt-3 pb-2">
+            <div className="flex justify-center pt-3 pb-2 shrink-0">
               <div className="w-12 h-1 rounded-full bg-secondary/20" />
             </div>
 
             {/* Header */}
-            <div className="px-6 pb-4 border-b border-secondary/10 flex items-center justify-between">
+            <div className="px-6 pb-4 border-b border-secondary/10 flex items-center justify-between shrink-0">
               <div>
                 <h2 className="text-xl font-black tracking-tight text-primary">
                   What&apos;s New<span className="text-accent">.</span>
@@ -266,7 +266,7 @@ const ChangelogSheet = ({ isOpen, onClose }) => {
             </div>
 
             {/* Scrollable content */}
-            <div className="overflow-y-auto no-scrollbar" style={{ maxHeight: 'calc(100vh - 160px)' }}>
+            <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar overscroll-contain">
               <div className="px-6 py-5 space-y-6">
                 {CHANGELOG.map((release) => (
                   <div key={release.version}>

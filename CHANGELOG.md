@@ -12,6 +12,10 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 
 ## [Unreleased]
 
+### Fixed
+- "What's New" changelog sheet is now scrollable on iOS Safari
+- Video cards stay pressed when dragging after a long press — no more visual snap-back glitch
+
 ---
 
 ## [0.1.164] — 2026-02-24

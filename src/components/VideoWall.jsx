@@ -60,6 +60,19 @@ const CuratedIntroCard = ({ userName = "You" }) => (
 
 const VideoCard = ({ ad, onSelect, muted, onToggleMute, isSponsored = true }) => {
     const videoRef = useRef(null);
+    const [isPressed, setIsPressed] = useState(false);
+
+    // Global pointer-up listener ensures press resets even when finger drags off the card
+    useEffect(() => {
+        if (!isPressed) return;
+        const release = () => setIsPressed(false);
+        window.addEventListener('pointerup', release);
+        window.addEventListener('pointercancel', release);
+        return () => {
+            window.removeEventListener('pointerup', release);
+            window.removeEventListener('pointercancel', release);
+        };
+    }, [isPressed]);
 
     useEffect(() => {
         if (videoRef.current) {
@@ -87,9 +100,10 @@ const VideoCard = ({ ad, onSelect, muted, onToggleMute, isSponsored = true }) =>
             onClick={() => onSelect(ad.eventId)}
             className="relative snap-center shrink-0 w-[280px] h-[400px] rounded-[32px] overflow-hidden cursor-pointer group shadow-2xl bg-secondary"
             initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            animate={{ opacity: 1, scale: isPressed ? 0.98 : 1 }}
+            transition={{ scale: { type: 'spring', stiffness: 400, damping: 25 } }}
+            whileHover={!isPressed ? { scale: 1.02 } : undefined}
+            onPointerDown={() => setIsPressed(true)}
         >
             <video
                 ref={videoRef}

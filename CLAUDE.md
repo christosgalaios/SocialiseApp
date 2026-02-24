@@ -386,6 +386,8 @@ These bugs from the original issue list have been resolved in the codebase:
 - Main content scroll freeze after closing sheets fixed — CSS `:has()` rule locks `#main-content` overflow when any `role="dialog"` or `role="alertdialog"` exists in the DOM. When the dialog unmounts, overflow restores and iOS re-engages the parent scroll context automatically. Works across all 14+ modals/sheets (BUG-1771954483248) ✓
 - Pull-to-refresh no longer triggers on horizontal swipes — tracks both X and Y touch coordinates with direction locking after 10px of movement. VideoWall carousel scrolling no longer conflicts with pull-to-refresh (BUG-1771954280752) ✓
 - Explore tab first-load animation glitch fixed — `transition={{ duration: 0.15 }}` on ExploreTab motion.div reduces the visible gap from `AnimatePresence mode="wait"` sequential transitions (BUG-1771954315641) ✓
+- ChangelogSheet scroll fixed — replaced `maxHeight` calc with flex layout (`flex-1 min-h-0`) + `overscroll-contain` so the "What's New" sheet scrolls properly on iOS Safari (BUG-1771957626306) ✓
+- VideoWall press-and-hold drag glitch fixed — replaced Framer Motion `whileTap` with manual press tracking via `onPointerDown` + global `pointerup` listener so cards stay scaled down until touch is fully released, even when finger drags off the card (BUG-1771957730622) ✓
 
 ---
 
@@ -714,17 +716,22 @@ Updating bug statuses directly via the Supabase REST API (`PATCH /rest/v1/bug_re
      -H "Prefer: return=minimal"
    ```
 
-Also update Supabase directly (`PATCH /rest/v1/bug_reports`) as a belt-and-suspenders measure — but the production API call is what syncs the sheet and is the required step. Never skip it.
+Also update Supabase directly (`PATCH /rest/v1/bug_reports`) as a belt-and-suspenders measure. In practice, Supabase direct updates have been observed to trigger the Google Sheet sync on their own (likely via a Supabase database webhook or trigger). Don't assume this will always work — verify via CSV export (see lesson #10).
 
-### 10. Always verify Google Sheet state after updates — never assume success
+### 10. Always verify Google Sheet state IMMEDIATELY after Supabase update — before trying fallbacks
 
-After updating bug statuses via the production API or webhook, always verify the changes landed on the Google Sheet by fetching the CSV export and checking the relevant rows. Don't claim an update worked without verification — the API may accept fields it doesn't forward to the sheet (e.g. the `PUT /api/bugs/:bugId` endpoint originally only forwarded `status` and `priority` to the webhook, silently ignoring `environment`, `description`, `reports`, and `app_version`).
+After updating bug statuses via **any method** (production API, Supabase REST, or webhook), **always check the CSV export first** before panicking or trying fallback approaches. The Supabase direct `PATCH` may be sufficient to trigger sheet sync (it has been observed to work). Don't waste time trying the production API registration, then the Apps Script webhook, then giving up — just verify the result.
 
-**Rule:** After every sheet-affecting operation (status update, consolidation, deletion), fetch the CSV and `grep` for the bug ID to confirm the change is visible:
+**Rule:** The FIRST thing to do after any Supabase update is verify the CSV:
 ```bash
 curl -s -L "https://docs.google.com/spreadsheets/d/1WcsoRjbQbDp9B6HHBzCtksh1SH8jH_0sGY6a7Z9xHMA/gviz/tq?tqx=out:csv" | grep "BUG-ID"
 ```
-If the field didn't update, fall back to the Apps Script webhook directly (`POST` with `action: 'update'`). The webhook supports all fields: `status`, `priority`, `environment`, `reports`, `app_version`, `fixed_at`.
+**Only if** the CSV shows the status is stale should you try fallbacks in this order:
+1. Production API (`PUT /api/bugs/:bugId`) — requires temp user auth (see lesson #9)
+2. Apps Script webhook directly (`POST` with `action: 'update'`) — URL in `.claude/skills/fix-bugs/SKILL.md`
+3. If all fail, explicitly tell the user the sheet needs manual sync
+
+Never claim the sheet is out of sync without checking the CSV first.
 
 ### 11. Always rebase onto development before pushing — prevents merge conflicts from squash-merged PRs
 
