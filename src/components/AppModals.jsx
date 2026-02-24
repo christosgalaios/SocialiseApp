@@ -20,6 +20,7 @@ import UserProfileSheet from './UserProfileSheet';
 import LevelUpModal from './LevelUpModal';
 import AvatarCropModal from './AvatarCropModal';
 import BugReportModal from './BugReportModal';
+import ChangelogSheet from './ChangelogSheet';
 
 // Lazy-loaded: CreateEventModal pulls in LocationPicker → Google Maps (~50kb)
 const CreateEventModal = lazy(() => import('./CreateEventModal'));
@@ -105,6 +106,8 @@ export default function AppModals({ handleJoin, sendMessage, createNewEvent, fil
   const userXP = useUIStore((s) => s.userXP);
   const showBugReport = useUIStore((s) => s.showBugReport);
   const setShowBugReport = useUIStore((s) => s.setShowBugReport);
+  const showChangelog = useUIStore((s) => s.showChangelog);
+  const setShowChangelog = useUIStore((s) => s.setShowChangelog);
   const savedEventsData = useEventStore((s) => s.savedEvents);
 
   const handleAvatarCropSave = async (croppedDataUrl) => {
@@ -384,6 +387,10 @@ export default function AppModals({ handleJoin, sendMessage, createNewEvent, fil
           });
           showToast(`Bug report ${result.bugId} logged!`, 'success');
         }}
+      />
+      <ChangelogSheet
+        isOpen={showChangelog}
+        onClose={() => setShowChangelog(false)}
       />
     </AnimatePresence>
   );

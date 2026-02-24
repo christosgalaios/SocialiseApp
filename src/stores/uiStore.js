@@ -58,6 +58,8 @@ const useUIStore = create((set) => ({
   setShowLevelDetail: (show) => set({ showLevelDetail: show }),
   showBugReport: false,
   setShowBugReport: (show) => set({ showBugReport: show }),
+  showChangelog: false,
+  setShowChangelog: (show) => set({ showChangelog: show }),
 
   // Explore filters
   searchQuery: '',
