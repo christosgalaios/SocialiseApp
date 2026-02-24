@@ -8,6 +8,7 @@ This document explains all the automations configured for Socialise development.
 |-----------|------|--------|-----------|
 | **GitHub MCP** | MCP Server | ✅ Configured | `claude` auto-enables via `settings.json` |
 | **Supabase MCP** | MCP Server | ✅ Configured | `claude` auto-enables via `settings.json` |
+| **Session start hook** | Hook | ✅ Active | Creates server/.env + starts backend on session start |
 | **Auto-lint hook** | Hook | ✅ Active | Runs automatically on file edits |
 | **Block .env hook** | Hook | ✅ Active | Prevents accidental credential edits |
 | **gen-test skill** | Skill | ✅ Ready | `/gen-test path/to/component.jsx` |
@@ -84,6 +85,26 @@ Hooks run automatically in response to tool usage events.
 
 **Example:**
 You edit `src/App.jsx` with improper spacing → Hook auto-fixes → CI passes
+
+### Session Start Hook (SessionStart)
+**When it runs:** At the start of every new Claude Code web session
+
+**What it does:**
+- Checks for `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and `JWT_SECRET` environment variables
+- Creates `server/.env` from those variables (so the backend can connect to Supabase)
+- Installs server dependencies if missing
+- Starts the Express backend server in the background (port 3001)
+- Persists env vars for subsequent Bash commands in the session
+
+**Setup (one time):**
+Set these environment variables in your Claude Code web environment settings:
+- `SUPABASE_URL` — Your Supabase project URL
+- `SUPABASE_SERVICE_ROLE_KEY` — Service role key from Supabase Dashboard → Project Settings → API
+- `JWT_SECRET` — Same value as in your Railway deployment
+
+**Script:** `.claude/hooks/session-start.sh`
+
+**Why it exists:** The `/fix-bugs` skill needs a running backend to fetch bug reports from Supabase. Without this hook, you'd need to manually set up credentials every session.
 
 ### Block .env Hook (PreToolUse)
 **When it runs:** Before you try to edit `.env`, `.env.*.local`, or `server/.env*`
@@ -367,6 +388,9 @@ Main configuration file. Controls MCP servers and hooks.
     { "name": "supabase", "enabled": true }
   ],
   "hooks": {
+    "SessionStart": [
+      { "matcher": "startup", "hooks": [{ "type": "command", "command": "..." }] }
+    ],
     "PostToolUse": [
       { "name": "auto-lint", "enabled": true }
     ],
