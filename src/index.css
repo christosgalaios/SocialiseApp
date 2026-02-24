@@ -288,6 +288,14 @@
   border-radius: inherit;
 }
 
+/* Lock main content scroll when any dialog overlay is open.
+   Prevents iOS scroll-freeze when sheets/modals close — the browser
+   re-engages the scroll context automatically when overflow is restored. */
+body:has([role="dialog"]) #main-content,
+body:has([role="alertdialog"]) #main-content {
+  overflow: hidden !important;
+}
+
 /* Accessibility: reduce motion for users who prefer it */
 @media (prefers-reduced-motion: reduce) {
   *,

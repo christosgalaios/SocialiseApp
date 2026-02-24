@@ -102,6 +102,8 @@ function App() {
   // Refs for touch handling
   const mainContentRef = useRef(null);
   const touchStartY = useRef(0);
+  const touchStartX = useRef(0);
+  const touchDirectionLocked = useRef(null); // 'vertical' | 'horizontal' | null
   const hasVibratedRef = useRef(false);
   const dataFetchedForUser = useRef(null);
 
@@ -398,14 +400,27 @@ function App() {
   const handleTouchStart = (e) => {
     if (activeTab === 'home' && mainContentRef.current?.scrollTop === 0) {
       touchStartY.current = e.touches[0].clientY;
+      touchStartX.current = e.touches[0].clientX;
+      touchDirectionLocked.current = null;
       hasVibratedRef.current = false;
     }
   };
 
   const handleTouchMove = (e) => {
     const touchY = e.touches[0].clientY;
+    const touchX = e.touches[0].clientX;
     if (activeTab === 'home' && mainContentRef.current?.scrollTop === 0 && touchStartY.current > 0) {
       const deltaY = touchY - touchStartY.current;
+      const deltaX = touchX - touchStartX.current;
+
+      // Lock direction after enough movement to distinguish horizontal vs vertical
+      if (!touchDirectionLocked.current && (Math.abs(deltaY) > 10 || Math.abs(deltaX) > 10)) {
+        touchDirectionLocked.current = Math.abs(deltaX) > Math.abs(deltaY) ? 'horizontal' : 'vertical';
+      }
+
+      // Only activate pull-to-refresh on vertical swipes (not horizontal VideoWall scrolling)
+      if (touchDirectionLocked.current === 'horizontal') return;
+
       if (deltaY > 0 && !isRefreshing) {
         const newPullY = Math.min(deltaY * 0.4, 150);
         setPullY(newPullY);
@@ -423,6 +438,8 @@ function App() {
 
   const handleTouchEnd = () => {
     touchStartY.current = 0;
+    touchStartX.current = 0;
+    touchDirectionLocked.current = null;
     if (pullY > 60 && !isRefreshing) {
       setIsRefreshing(true);
       setPullY(80);

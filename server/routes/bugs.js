@@ -161,18 +161,21 @@ router.get('/', authenticateToken, async (req, res) => {
     }
 });
 
-// PUT /api/bugs/:bugId — Update bug status/priority (used by /fix-bugs skill)
+// PUT /api/bugs/:bugId — Update bug report fields (used by /fix-bugs skill)
 router.put('/:bugId', authenticateToken, async (req, res) => {
     const { bugId } = req.params;
-    const { status, priority } = req.body;
+    const { status, priority, environment, description, app_version } = req.body;
 
-    if (!status && !priority) {
-        return res.status(400).json({ code: BUG_INVALID_INPUT, message: 'Provide status or priority to update' });
+    if (!status && !priority && !environment && !description && !app_version) {
+        return res.status(400).json({ code: BUG_INVALID_INPUT, message: 'Provide at least one field to update' });
     }
 
     const updates = {};
     if (status) updates.status = status;
     if (priority) updates.priority = priority;
+    if (environment) updates.environment = environment;
+    if (description) updates.description = description;
+    if (app_version) updates.app_version = app_version;
 
     try {
         const { data, error } = await supabase

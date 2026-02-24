@@ -28,6 +28,7 @@ export default function ExploreTab({ filteredEvents }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
+      transition={{ duration: 0.15 }}
       className="p-5 md:p-10 max-w-7xl mx-auto pb-32"
     >
       <header className="mb-8">

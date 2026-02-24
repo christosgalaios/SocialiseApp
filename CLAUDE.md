@@ -232,6 +232,7 @@ Base (production): `https://socialise-app-production.up.railway.app/api`
 | POST | `/bugs` | Required | Submit bug report (stored in Supabase `bug_reports` table) |
 | GET | `/bugs` | Required | List bug reports (filterable by `?status=open`) |
 | PUT | `/bugs/:bugId` | Required | Update bug report status/priority (used by `/fix-bugs` skill) |
+| DELETE | `/bugs/:bugId` | Required | Delete bug report (used for duplicate consolidation — syncs deletion to Google Sheet) |
 
 **Demo credentials:** `ben@demo.com` / `password` (blocked in production — `NODE_ENV=production` returns 403)
 
@@ -368,12 +369,23 @@ These bugs from the original issue list have been resolved in the codebase:
 - Google Sheet Apps Script uses header-based column lookup (`getColumnMap_`) instead of hardcoded indices — columns can be reordered freely without breaking create/update logic ✓
 - `/fix-bugs` skill fetches from Google Sheet (single source), auto-prioritizes and updates the sheet first, then shows summary table and asks what to fix (all open / P1 only / specific bug) ✓
 - Google Sheet "Fixed At" column auto-populated by Apps Script when status is set to `fixed` — timestamps when each bug was resolved ✓
-- `/fix-bugs` workflow processes bugs ONE AT A TIME: mark `in-progress` in Supabase → fix code → mark `fixed` in Supabase → commit + push → next bug. Status updates go directly to Supabase REST API (`PATCH $SUPABASE_URL/rest/v1/bug_reports`) using the service role key — never skip this step. No automatic pickup of new bugs after completing the agreed list ✓
+- `/fix-bugs` workflow processes bugs ONE AT A TIME: mark `in-progress` via production API (syncs Supabase + Sheet) → fix code → mark `fixed` via production API → commit + push → next bug. Uses temp user registration on production backend for auth (see Lesson #9). No automatic pickup of new bugs after completing the agreed list ✓
 - LocationPicker shows fallback text input when Google Maps API key is missing or fails to load (BUG-1771938422741) ✓
 - CreateEventModal close button enlarged to 40x40 touch target, z-index stacking fixed, overflow-x-hidden for reliable scrolling (BUG-1771938439942) ✓
 - Explore filters (category, search, size, date, tags) no longer affect HomeTab — `filteredEvents` scoped to ExploreTab only; HomeTab uses full unfiltered events from store; Sidebar "Discover" category section only renders on explore tab (BUG-1771942366608) ✓
 - CreateEventModal close button given explicit `z-30` and `bg-paper` to prevent occlusion during scroll on mobile (BUG-1771942525165) ✓
 - Bug reports now capture platform info (OS, browser, device type) — auto-detected from `navigator.userAgent` in `BugReportModal`, stored in `bug_reports.platform` column (migration 010), synced to Google Sheet ✓
+- Bug report environment detection fixed — `BugReportModal` now correctly reads `window.location.pathname` instead of hardcoded value; all three environments (PROD/DEV/LOCAL) report correctly (BUG-1771951807738) ✓
+- Profile page scroll freeze fixed — `overscroll-behavior: contain` on profile content prevents iOS scroll context from leaking to parent (BUG-1771951713663) ✓
+- Feed double-refresh fixed — debounce guard on pull-to-refresh `fetchAllData` prevents rapid successive API calls (BUG-1771951999824) ✓
+- Bug report modal text overflow fixed — `break-words` and `overflow-wrap` on description textarea prevent long unbroken strings from breaking layout (BUG-1771951629740) ✓
+- VideoWall diagonal scroll glitch fixed — `touch-action: pan-x` on horizontal scroll container prevents vertical scroll interference on diagonal swipes (BUG-1771951846903) ✓
+- `DELETE /api/bugs/:bugId` endpoint added — deletes from Supabase and syncs deletion to Google Sheet via Apps Script `action: 'delete'` webhook. Enables proper duplicate consolidation (delete duplicates from both DB and sheet) ✓
+- Apps Script `doPost` now supports `action: 'delete'` — removes a row by `bug_id`, complementing existing create/update actions ✓
+- CreateEventModal restructured — header (with close button) and footer (with submit button) moved outside the scrollable area. Only form content scrolls. Eliminates iOS sticky-inside-overflow touch handling issues that prevented the close button from working (BUG-1771954170889) ✓
+- Main content scroll freeze after closing sheets fixed — CSS `:has()` rule locks `#main-content` overflow when any `role="dialog"` or `role="alertdialog"` exists in the DOM. When the dialog unmounts, overflow restores and iOS re-engages the parent scroll context automatically. Works across all 14+ modals/sheets (BUG-1771954483248) ✓
+- Pull-to-refresh no longer triggers on horizontal swipes — tracks both X and Y touch coordinates with direction locking after 10px of movement. VideoWall carousel scrolling no longer conflicts with pull-to-refresh (BUG-1771954280752) ✓
+- Explore tab first-load animation glitch fixed — `transition={{ duration: 0.15 }}` on ExploreTab motion.div reduces the visible gap from `AnimatePresence mode="wait"` sequential transitions (BUG-1771954315641) ✓
 
 ---
 
@@ -660,14 +672,80 @@ When auto-approve merges `development → production` using a regular merge (not
 
 **Rule:** After deploying to production, back-merge `production` into `development` to bring in the merge commit metadata. The `deploy-production.yml` workflow does this automatically via `github.rest.repos.merge()` in the `sync-development` job. The `[skip ci]` tag in the commit message prevents the back-merge from triggering deploy-development.
 
-### 7. `/fix-bugs` must update bug statuses in Supabase — not just fix code
+### 7. `/fix-bugs` must update bug statuses in BOTH Supabase and Google Sheet — not just fix code
 
-When processing bugs via `/fix-bugs`, the full lifecycle is: **mark `in-progress` in Supabase → fix the code → mark `fixed` in Supabase → commit + push**. Fixing code and pushing without updating the bug status in the database means the bug sheet stays stale, the `/fix-bugs` skill will re-surface the same bugs next run, and there's no audit trail of when things were resolved.
+When processing bugs via `/fix-bugs`, the full lifecycle is: **mark `in-progress` in Supabase + Sheet → fix the code → mark `fixed` in Supabase + Sheet → commit + push**. Fixing code and pushing without updating statuses means the bug sheet stays stale, the `/fix-bugs` skill will re-surface the same bugs next run, and there's no audit trail of when things were resolved.
 
-**Rule:** Every `/fix-bugs` run MUST update bug statuses directly in Supabase via the REST API (`PATCH /rest/v1/bug_reports?bug_id=eq.{ID}`). Use the `SUPABASE_SERVICE_ROLE_KEY` from environment variables — it bypasses RLS. The local Express server may not be reachable (DNS issues in sandboxed environments), but the Supabase REST API at `$SUPABASE_URL/rest/v1/` is. The Google Sheet webhook (`BUGS_SHEET_WEBHOOK_URL`) may also be unavailable — that's fine, Supabase is the source of truth and the sheet syncs on the next deployed backend call. Never skip the status update step.
+**Rule:** Every `/fix-bugs` run MUST update bug statuses in both Supabase and the Google Sheet. The production API (`PUT /api/bugs/:bugId`) handles both automatically — see lesson #9 for how to authenticate. Process bugs ONE AT A TIME: mark in-progress on the sheet → fix → mark fixed on the sheet → commit + push → next bug. Never batch status updates or skip sheet sync.
 
 ### 8. External services in sandboxed environments — know what's reachable
 
 In this sandbox environment, DNS resolution for some hosts fails (`EAI_AGAIN`), but the Supabase REST API resolves fine via its IP. The local Express server can't connect to Supabase (DNS failure), but direct `curl` to `$SUPABASE_URL/rest/v1/` works. The production Railway backend (`socialise-app-production.up.railway.app`) is reachable but blocks demo login. The development Railway backend may not be running.
 
 **Rule:** When you need to update Supabase data and the local server can't start, go directly to the Supabase REST API with the service role key. Don't waste time trying to start the local server, logging in for a JWT, or retrying DNS failures. Use `printenv` to get env vars into shell variables (avoids quoting issues with `$VAR` in curl commands).
+
+### 9. Google Sheet sync requires the production API — Supabase REST alone is not enough
+
+Updating bug statuses directly via the Supabase REST API (`PATCH /rest/v1/bug_reports`) only updates the database. The Google Sheet stays stale because the webhook (`BUGS_SHEET_WEBHOOK_URL`) is only configured on the Railway-deployed backends — it's not available in the sandbox environment. The user sees the sheet, not Supabase, so sheet sync is mandatory.
+
+**Rule:** Always sync bug status changes to the Google Sheet via the **production API** (`PUT https://socialise-app-production.up.railway.app/api/bugs/:bugId`). This endpoint updates Supabase AND fires the Google Sheet webhook in one call. To authenticate:
+
+1. **Register a temp user** on the production backend:
+   ```bash
+   TEMP_EMAIL="claude-bot-$(date +%s)@temp.dev"
+   RESULT=$(curl -s -X POST https://socialise-app-production.up.railway.app/api/auth/register \
+     -H "Content-Type: application/json" \
+     -d "{\"email\":\"$TEMP_EMAIL\",\"password\":\"TempPass123!\",\"firstName\":\"Claude\",\"lastName\":\"Bot\"}")
+   TOKEN=$(echo "$RESULT" | grep -o '"token":"[^"]*"' | cut -d'"' -f4)
+   ```
+
+2. **Use the token** to update bugs:
+   ```bash
+   curl -s -X PUT "https://socialise-app-production.up.railway.app/api/bugs/$BUG_ID" \
+     -H "Content-Type: application/json" \
+     -H "Authorization: Bearer $TOKEN" \
+     -d '{"status":"fixed"}'
+   ```
+
+3. **Clean up the temp user** after all updates:
+   ```bash
+   curl -s -X DELETE "$SUPABASE_URL/rest/v1/users?email=eq.$TEMP_EMAIL" \
+     -H "apikey: $SUPABASE_KEY" -H "Authorization: Bearer $SUPABASE_KEY" \
+     -H "Prefer: return=minimal"
+   ```
+
+Also update Supabase directly (`PATCH /rest/v1/bug_reports`) as a belt-and-suspenders measure — but the production API call is what syncs the sheet and is the required step. Never skip it.
+
+### 10. Always verify Google Sheet state after updates — never assume success
+
+After updating bug statuses via the production API or webhook, always verify the changes landed on the Google Sheet by fetching the CSV export and checking the relevant rows. Don't claim an update worked without verification — the API may accept fields it doesn't forward to the sheet (e.g. the `PUT /api/bugs/:bugId` endpoint originally only forwarded `status` and `priority` to the webhook, silently ignoring `environment`, `description`, `reports`, and `app_version`).
+
+**Rule:** After every sheet-affecting operation (status update, consolidation, deletion), fetch the CSV and `grep` for the bug ID to confirm the change is visible:
+```bash
+curl -s -L "https://docs.google.com/spreadsheets/d/1WcsoRjbQbDp9B6HHBzCtksh1SH8jH_0sGY6a7Z9xHMA/gviz/tq?tqx=out:csv" | grep "BUG-ID"
+```
+If the field didn't update, fall back to the Apps Script webhook directly (`POST` with `action: 'update'`). The webhook supports all fields: `status`, `priority`, `environment`, `reports`, `app_version`, `fixed_at`.
+
+### 11. Always rebase onto development before pushing — prevents merge conflicts from squash-merged PRs
+
+When auto-approve squash-merges a PR into `development`, the squashed commit has different history than the original commits on the feature branch. If you keep committing on the same branch and push again, the next PR will always conflict — Git sees the squashed version and the original commits as unrelated changes to the same files.
+
+**Rule:** Before every `git push`, always rebase onto the latest `origin/development`:
+```bash
+git fetch origin development && git rebase origin/development
+```
+If the rebase drops commits (because they were already squash-merged), that's correct — Git recognizes the patches are already upstream. If there are conflicts, resolve them during the rebase. Then force-push with `--force-with-lease` (safe — only affects the feature branch, not development or other branches).
+
+This must happen **every time** before pushing, not just when conflicts are detected. It's a 2-second operation when there's nothing to rebase, and it prevents the conflict entirely.
+
+### 12. Identify lesson-learned opportunities proactively in every conversation
+
+At the end of each task or conversation, proactively review what happened and surface any lesson-learned opportunities — don't wait for the user to point out mistakes. Look for:
+
+- **Assumptions that turned out wrong** (e.g., claiming an update worked without verifying)
+- **Workflow gaps that caused rework** (e.g., an endpoint silently ignoring fields)
+- **Duplicate detection failures** (e.g., missing that two bugs describe the same symptom)
+- **Process improvements worth encoding** into CLAUDE.md, skill files, or agent definitions
+- **Verification steps that were skipped** (e.g., not checking the Google Sheet after an update)
+
+When a lesson is identified, propose updating the relevant documentation (CLAUDE.md, skill definitions, agent definitions) to make it permanent. Don't just note it — encode it so it can't happen again.
