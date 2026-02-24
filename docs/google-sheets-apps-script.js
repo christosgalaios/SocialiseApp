@@ -40,6 +40,10 @@
 //     DEV           → Blue
 //     LOCAL         → Grey
 //
+//   PLATFORM column:
+//     Plain text — auto-detected from user agent.
+//     Format: "OS / Browser / Device" (e.g. "Android 14 / Chrome 120 / Mobile")
+//
 // ==========================================
 
 // ---- Column header constants ----
@@ -51,9 +55,10 @@ var COL_PRIORITY    = 'Priority';
 var COL_ENVIRONMENT = 'Environment';
 var COL_CREATED_AT  = 'Created At';
 var COL_APP_VERSION = 'App Version';
+var COL_PLATFORM    = 'Platform';
 var COL_FIXED_AT    = 'Fixed At';
 
-var HEADERS = [COL_BUG_ID, COL_DESCRIPTION, COL_STATUS, COL_PRIORITY, COL_ENVIRONMENT, COL_CREATED_AT, COL_APP_VERSION, COL_FIXED_AT];
+var HEADERS = [COL_BUG_ID, COL_DESCRIPTION, COL_STATUS, COL_PRIORITY, COL_ENVIRONMENT, COL_CREATED_AT, COL_APP_VERSION, COL_PLATFORM, COL_FIXED_AT];
 
 /**
  * Returns a map of { headerName: columnIndex (1-based) } for the given sheet.
@@ -74,7 +79,7 @@ function getColumnMap_(sheet) {
  * Called by the Express backend (server/routes/bugs.js).
  *
  * Payloads:
- *   Create: { bug_id, description, status, priority, environment, created_at, app_version }
+ *   Create: { bug_id, description, status, priority, environment, created_at, app_version, platform }
  *   Update: { action: 'update', bug_id, status?, priority? }
  */
 function doPost(e) {
@@ -113,6 +118,7 @@ function doPost(e) {
   fieldMap[COL_ENVIRONMENT] = normalizeEnv_(data.environment || '');
   fieldMap[COL_CREATED_AT]  = data.created_at || new Date().toISOString();
   fieldMap[COL_APP_VERSION] = data.app_version || '';
+  fieldMap[COL_PLATFORM]    = data.platform || '';
 
   // Place each field in the correct column position
   var maxCol = 0;
