@@ -4,6 +4,11 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const rateLimit = require('express-rate-limit');
 const supabase = require('../supabase');
+const {
+    AUTH_INVALID_INPUT, AUTH_INVALID_CREDENTIALS, AUTH_DEMO_BLOCKED,
+    AUTH_DUPLICATE_EMAIL, AUTH_CREATE_FAILED, AUTH_TOKEN_MISSING,
+    AUTH_TOKEN_INVALID, AUTH_USER_NOT_FOUND, AUTH_RATE_LIMITED,
+} = require('../errors');
 
 const router = express.Router();
 
@@ -13,7 +18,7 @@ const authLimiter = rateLimit({
     max: 15, // 15 attempts per window per IP
     standardHeaders: true,
     legacyHeaders: false,
-    message: { message: 'Too many attempts. Please try again in 15 minutes.' },
+    message: { code: AUTH_RATE_LIMITED, message: 'Too many attempts. Please try again in 15 minutes.' },
 });
 
 if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
@@ -80,9 +85,9 @@ const updateLoginStreak = async (userId, currentRow) => {
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
-    if (!token) return res.sendStatus(401);
+    if (!token) return res.status(401).json({ code: AUTH_TOKEN_MISSING, message: 'Authentication required' });
     jwt.verify(token, SECRET_KEY, (err, payload) => {
-        if (err) return res.sendStatus(403);
+        if (err) return res.status(403).json({ code: AUTH_TOKEN_INVALID, message: 'Invalid or expired token' });
         req.user = payload;
         next();
     });
@@ -95,7 +100,7 @@ const loadUserProfile = async (req, res, next) => {
         .select('*')
         .eq('id', req.user.id)
         .single();
-    if (!profile) return res.sendStatus(404);
+    if (!profile) return res.status(404).json({ code: AUTH_USER_NOT_FOUND, message: 'User profile not found' });
     req.userProfile = toPublicUser(profile);
     next();
 };
@@ -121,12 +126,12 @@ router.post('/login', authLimiter, async (req, res) => {
     const { email, password } = req.body;
 
     if (!isValidEmail(email) || !isValidPassword(password)) {
-        return res.status(400).json({ message: 'Invalid email or password format' });
+        return res.status(400).json({ code: AUTH_INVALID_INPUT, message: 'Invalid email or password format' });
     }
 
     // Block demo account login in production
     if (process.env.NODE_ENV === 'production' && email.trim().toLowerCase() === DEMO_EMAIL) {
-        return res.status(403).json({ message: 'Demo account is disabled in production' });
+        return res.status(403).json({ code: AUTH_DEMO_BLOCKED, message: 'Demo account is disabled in production' });
     }
 
     const { data: user } = await supabase
@@ -136,12 +141,12 @@ router.post('/login', authLimiter, async (req, res) => {
         .single();
 
     if (!user) {
-        return res.status(400).json({ message: 'Invalid credentials' });
+        return res.status(400).json({ code: AUTH_INVALID_CREDENTIALS, message: 'Invalid credentials' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-        return res.status(400).json({ message: 'Invalid credentials' });
+        return res.status(400).json({ code: AUTH_INVALID_CREDENTIALS, message: 'Invalid credentials' });
     }
 
     const updatedUser = await updateLoginStreak(user.id, user);
@@ -155,16 +160,16 @@ router.post('/register', authLimiter, async (req, res) => {
     const { email, password, firstName, lastName } = req.body;
 
     if (!isValidEmail(email)) {
-        return res.status(400).json({ message: 'Invalid email address' });
+        return res.status(400).json({ code: AUTH_INVALID_INPUT, message: 'Invalid email address' });
     }
     if (!isValidPassword(password)) {
-        return res.status(400).json({ message: 'Password must be at least 6 characters' });
+        return res.status(400).json({ code: AUTH_INVALID_INPUT, message: 'Password must be at least 6 characters' });
     }
     if (!isValidName(firstName)) {
-        return res.status(400).json({ message: 'First name is required' });
+        return res.status(400).json({ code: AUTH_INVALID_INPUT, message: 'First name is required' });
     }
     if (!isValidName(lastName)) {
-        return res.status(400).json({ message: 'Last name is required' });
+        return res.status(400).json({ code: AUTH_INVALID_INPUT, message: 'Last name is required' });
     }
 
     const normalizedEmail = email.trim().toLowerCase();
@@ -177,7 +182,7 @@ router.post('/register', authLimiter, async (req, res) => {
         .maybeSingle();
 
     if (existing) {
-        return res.status(400).json({ message: 'An account with that email already exists' });
+        return res.status(400).json({ code: AUTH_DUPLICATE_EMAIL, message: 'An account with that email already exists' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -207,7 +212,7 @@ router.post('/register', authLimiter, async (req, res) => {
 
     if (error) {
         console.error('[ERROR] Failed to create user:', error.message);
-        return res.status(500).json({ message: 'Failed to create account. Please try again.' });
+        return res.status(500).json({ code: AUTH_CREATE_FAILED, message: 'Failed to create account: database insert rejected' });
     }
 
     const token = jwt.sign({ id: newUser.id, email: newUser.email }, SECRET_KEY, { expiresIn: '24h' });
@@ -222,7 +227,7 @@ router.get('/me', authenticateToken, async (req, res) => {
         .eq('id', req.user.id)
         .single();
 
-    if (!user) return res.sendStatus(404);
+    if (!user) return res.status(404).json({ code: AUTH_USER_NOT_FOUND, message: 'User not found' });
 
     const updatedUser = await updateLoginStreak(user.id, user);
     res.json(toPublicUser(updatedUser));

@@ -1,6 +1,13 @@
 const express = require('express');
 const supabase = require('../supabase');
 const { authenticateToken, loadUserProfile, extractUserId } = require('./auth');
+const {
+    COMMUNITY_FETCH_FAILED, COMMUNITY_NOT_FOUND, COMMUNITY_CREATE_FAILED,
+    COMMUNITY_DUPLICATE_NAME, COMMUNITY_JOIN_FAILED, COMMUNITY_LEAVE_FAILED,
+    COMMUNITY_FOUNDER_LEAVE, COMMUNITY_MEMBERS_FAILED,
+    COMMUNITY_CHAT_FETCH_FAILED, COMMUNITY_CHAT_SEND_FAILED,
+    COMMUNITY_INVALID_INPUT,
+} = require('../errors');
 
 const router = express.Router();
 
@@ -21,7 +28,7 @@ router.get('/', async (req, res) => {
     const { data: communities, error } = await query;
     if (error) {
         console.error('[communities GET]', error);
-        return res.status(500).json({ message: 'Failed to fetch communities' });
+        return res.status(500).json({ code: COMMUNITY_FETCH_FAILED, message: 'Failed to fetch communities: database query failed' });
     }
 
     // Enrich with isJoined for the requesting user
@@ -42,7 +49,7 @@ router.get('/', async (req, res) => {
 // --- GET /api/communities/:id ---
 router.get('/:id', async (req, res) => {
     const { data, error } = await supabase.from('communities').select('*').eq('id', req.params.id).single();
-    if (error || !data) return res.status(404).json({ message: 'Community not found' });
+    if (error || !data) return res.status(404).json({ code: COMMUNITY_NOT_FOUND, message: 'Community not found' });
 
     // Get recent member avatars (first 4) — fetch actual user avatars from users table
     const { data: members } = await supabase
@@ -75,14 +82,14 @@ router.get('/:id', async (req, res) => {
 router.post('/', authenticateToken, loadUserProfile, async (req, res) => {
     const { name, description, avatar, category } = req.body;
 
-    if (!name?.trim()) return res.status(400).json({ message: 'Name is required' });
+    if (!name?.trim()) return res.status(400).json({ code: COMMUNITY_INVALID_INPUT, message: 'Name is required' });
 
     const { data, error } = await supabase
         .from('communities')
         .insert({
             name: name.trim(),
             description: description?.trim() || '',
-            avatar: avatar || '🌟',
+            avatar: avatar || '',
             category: category || 'General',
             created_by: req.user.id,
             member_count: 1,
@@ -91,9 +98,9 @@ router.post('/', authenticateToken, loadUserProfile, async (req, res) => {
         .single();
 
     if (error) {
-        if (error.code === '23505') return res.status(400).json({ message: 'A community with that name already exists' });
+        if (error.code === '23505') return res.status(400).json({ code: COMMUNITY_DUPLICATE_NAME, message: 'A community with that name already exists' });
         console.error('[communities POST]', error);
-        return res.status(500).json({ message: 'Failed to create community' });
+        return res.status(500).json({ code: COMMUNITY_CREATE_FAILED, message: 'Failed to create community: database insert rejected' });
     }
 
     // Auto-join creator
@@ -105,13 +112,13 @@ router.post('/', authenticateToken, loadUserProfile, async (req, res) => {
 // --- POST /api/communities/:id/join ---
 router.post('/:id/join', authenticateToken, async (req, res) => {
     const { data: community } = await supabase.from('communities').select('id, member_count').eq('id', req.params.id).single();
-    if (!community) return res.status(404).json({ message: 'Community not found' });
+    if (!community) return res.status(404).json({ code: COMMUNITY_NOT_FOUND, message: 'Community not found' });
 
     const { error } = await supabase
         .from('community_members')
         .upsert({ community_id: req.params.id, user_id: req.user.id }, { onConflict: 'community_id,user_id' });
 
-    if (error) return res.status(500).json({ message: 'Failed to join community' });
+    if (error) return res.status(500).json({ code: COMMUNITY_JOIN_FAILED, message: 'Failed to join community: database upsert rejected' });
 
     // Update denormalised count
     await supabase.from('communities').update({ member_count: community.member_count + 1 }).eq('id', req.params.id);
@@ -122,8 +129,8 @@ router.post('/:id/join', authenticateToken, async (req, res) => {
 // --- POST /api/communities/:id/leave ---
 router.post('/:id/leave', authenticateToken, async (req, res) => {
     const { data: community } = await supabase.from('communities').select('id, member_count, created_by').eq('id', req.params.id).single();
-    if (!community) return res.status(404).json({ message: 'Community not found' });
-    if (community.created_by === req.user.id) return res.status(400).json({ message: 'Founders cannot leave their own community' });
+    if (!community) return res.status(404).json({ code: COMMUNITY_NOT_FOUND, message: 'Community not found' });
+    if (community.created_by === req.user.id) return res.status(400).json({ code: COMMUNITY_FOUNDER_LEAVE, message: 'Founders cannot leave their own community' });
 
     const { error } = await supabase
         .from('community_members')
@@ -131,7 +138,7 @@ router.post('/:id/leave', authenticateToken, async (req, res) => {
         .eq('community_id', req.params.id)
         .eq('user_id', req.user.id);
 
-    if (error) return res.status(500).json({ message: 'Failed to leave community' });
+    if (error) return res.status(500).json({ code: COMMUNITY_LEAVE_FAILED, message: 'Failed to leave community: database delete rejected' });
 
     const newCount = Math.max(0, community.member_count - 1);
     await supabase.from('communities').update({ member_count: newCount }).eq('id', req.params.id);
@@ -149,7 +156,7 @@ router.get('/:id/members', async (req, res) => {
         .order('joined_at', { ascending: false })
         .range(Number(offset), Number(offset) + Number(limit) - 1);
 
-    if (error) return res.status(500).json({ message: 'Failed to fetch members' });
+    if (error) return res.status(500).json({ code: COMMUNITY_MEMBERS_FAILED, message: 'Failed to fetch members: database query failed' });
     res.json(data || []);
 });
 
@@ -163,14 +170,14 @@ router.get('/:id/chat', async (req, res) => {
         .order('created_at', { ascending: true })
         .range(Number(offset), Number(offset) + Number(limit) - 1);
 
-    if (error) return res.status(500).json({ message: 'Failed to fetch messages' });
+    if (error) return res.status(500).json({ code: COMMUNITY_CHAT_FETCH_FAILED, message: 'Failed to fetch messages: database query failed' });
     res.json(data || []);
 });
 
 // --- POST /api/communities/:id/chat ---
 router.post('/:id/chat', authenticateToken, loadUserProfile, async (req, res) => {
     const { message } = req.body;
-    if (!message?.trim()) return res.status(400).json({ message: 'Message cannot be empty' });
+    if (!message?.trim()) return res.status(400).json({ code: COMMUNITY_INVALID_INPUT, message: 'Message cannot be empty' });
 
     const { data, error } = await supabase
         .from('community_messages')
@@ -184,7 +191,7 @@ router.post('/:id/chat', authenticateToken, loadUserProfile, async (req, res) =>
         .select()
         .single();
 
-    if (error) return res.status(500).json({ message: 'Failed to send message' });
+    if (error) return res.status(500).json({ code: COMMUNITY_CHAT_SEND_FAILED, message: 'Failed to send message: database insert rejected' });
     res.status(201).json(data);
 });
 

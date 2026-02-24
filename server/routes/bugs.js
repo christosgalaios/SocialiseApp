@@ -1,6 +1,10 @@
 const express = require('express');
 const { authenticateToken } = require('./auth');
 const supabase = require('../supabase');
+const {
+    BUG_INSERT_FAILED, BUG_FETCH_FAILED, BUG_UPDATE_FAILED,
+    BUG_NOT_FOUND, BUG_INVALID_INPUT,
+} = require('../errors');
 
 const router = express.Router();
 
@@ -52,15 +56,15 @@ router.post('/', authenticateToken, async (req, res) => {
     const { description, app_version, platform } = req.body;
 
     if (!description?.trim()) {
-        return res.status(400).json({ message: 'Bug description is required' });
+        return res.status(400).json({ code: BUG_INVALID_INPUT, message: 'Bug description is required' });
     }
 
     if (description.trim().length < 10) {
-        return res.status(400).json({ message: 'Please provide more detail (at least 10 characters)' });
+        return res.status(400).json({ code: BUG_INVALID_INPUT, message: 'Please provide more detail (at least 10 characters)' });
     }
 
     if (description.trim().length > 2000) {
-        return res.status(400).json({ message: 'Description too long (max 2000 characters)' });
+        return res.status(400).json({ code: BUG_INVALID_INPUT, message: 'Description too long (max 2000 characters)' });
     }
 
     const bugId = `BUG-${Date.now()}`;
@@ -92,7 +96,7 @@ router.post('/', authenticateToken, async (req, res) => {
 
         if (error) {
             console.error('[bugs POST] Supabase error:', error);
-            return res.status(500).json({ message: 'Failed to log bug report' });
+            return res.status(500).json({ code: BUG_INSERT_FAILED, message: 'Failed to log bug report: database insert rejected' });
         }
 
         // Sync to Google Sheet (non-blocking — Supabase is source of truth)
@@ -104,7 +108,7 @@ router.post('/', authenticateToken, async (req, res) => {
         });
     } catch (err) {
         console.error('[bugs POST] Error storing bug report:', err);
-        res.status(500).json({ message: 'Failed to log bug report' });
+        res.status(500).json({ code: BUG_INSERT_FAILED, message: 'Failed to log bug report: unexpected server error' });
     }
 });
 
@@ -126,13 +130,13 @@ router.get('/', authenticateToken, async (req, res) => {
 
         if (error) {
             console.error('[bugs GET] Supabase error:', error);
-            return res.status(500).json({ message: 'Failed to fetch bug reports' });
+            return res.status(500).json({ code: BUG_FETCH_FAILED, message: 'Failed to fetch bug reports: database query failed' });
         }
 
         res.json(data);
     } catch (err) {
         console.error('[bugs GET] Error fetching bug reports:', err);
-        res.status(500).json({ message: 'Failed to fetch bug reports' });
+        res.status(500).json({ code: BUG_FETCH_FAILED, message: 'Failed to fetch bug reports: unexpected server error' });
     }
 });
 
@@ -142,7 +146,7 @@ router.put('/:bugId', authenticateToken, async (req, res) => {
     const { status, priority } = req.body;
 
     if (!status && !priority) {
-        return res.status(400).json({ message: 'Provide status or priority to update' });
+        return res.status(400).json({ code: BUG_INVALID_INPUT, message: 'Provide status or priority to update' });
     }
 
     const updates = {};
@@ -159,11 +163,11 @@ router.put('/:bugId', authenticateToken, async (req, res) => {
 
         if (error) {
             console.error('[bugs PUT] Supabase error:', error);
-            return res.status(500).json({ message: 'Failed to update bug report' });
+            return res.status(500).json({ code: BUG_UPDATE_FAILED, message: 'Failed to update bug report: database update rejected' });
         }
 
         if (!data) {
-            return res.status(404).json({ message: 'Bug report not found' });
+            return res.status(404).json({ code: BUG_NOT_FOUND, message: 'Bug report not found' });
         }
 
         // Sync status/priority update to Google Sheet (non-blocking)
@@ -172,7 +176,7 @@ router.put('/:bugId', authenticateToken, async (req, res) => {
         res.json(data);
     } catch (err) {
         console.error('[bugs PUT] Error updating bug report:', err);
-        res.status(500).json({ message: 'Failed to update bug report' });
+        res.status(500).json({ code: BUG_UPDATE_FAILED, message: 'Failed to update bug report: unexpected server error' });
     }
 });
 

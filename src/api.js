@@ -1,12 +1,28 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
+/**
+ * Custom error class that carries a machine-readable error code from the server.
+ * Every API error thrown by this module is an ApiError (or has .code set).
+ * Frontend components can read `err.code` to decide what to show.
+ */
+class ApiError extends Error {
+    constructor(message, code) {
+        super(message);
+        this.name = 'ApiError';
+        this.code = code || 'ERR_UNKNOWN';
+    }
+}
+
 async function parseJson(response) {
     const text = await response.text();
     if (!text.trim()) return null;
     try {
         return JSON.parse(text);
     } catch {
-        throw new Error(response.ok ? 'Invalid response from server' : 'Server error');
+        throw new ApiError(
+            response.ok ? 'Invalid response from server' : 'Server error',
+            'ERR_PARSE_FAILED',
+        );
     }
 }
 
@@ -27,12 +43,15 @@ async function fetchWithAuth(endpoint, { method = 'GET', body, headers = {} } = 
             body: body !== undefined ? JSON.stringify(body) : undefined,
         });
     } catch (e) {
-        throw new Error(e.message || 'Network error');
+        throw new ApiError(e.message || 'Network error', 'ERR_NETWORK');
     }
 
     const data = await parseJson(response);
     if (!response.ok) {
-        throw new Error(data?.message || 'Request failed');
+        throw new ApiError(
+            data?.message || `Request failed (${response.status})`,
+            data?.code || `ERR_HTTP_${response.status}`,
+        );
     }
     return data;
 }
@@ -49,10 +68,10 @@ const api = {
                 body: JSON.stringify({ email, password }),
             });
         } catch (e) {
-            throw new Error(e.message || 'Network error');
+            throw new ApiError(e.message || 'Network error', 'ERR_NETWORK');
         }
         const data = await parseJson(response);
-        if (!response.ok) throw new Error(data?.message || 'Login failed');
+        if (!response.ok) throw new ApiError(data?.message || 'Login failed', data?.code || `ERR_HTTP_${response.status}`);
         return data;
     },
 
@@ -65,10 +84,10 @@ const api = {
                 body: JSON.stringify({ email, password, firstName, lastName }),
             });
         } catch (e) {
-            throw new Error(e.message || 'Network error');
+            throw new ApiError(e.message || 'Network error', 'ERR_NETWORK');
         }
         const data = await parseJson(response);
-        if (!response.ok) throw new Error(data?.message || 'Registration failed');
+        if (!response.ok) throw new ApiError(data?.message || 'Registration failed', data?.code || `ERR_HTTP_${response.status}`);
         return data;
     },
 
@@ -83,12 +102,12 @@ const api = {
             });
         } catch (e) {
             clearTimeout(timeoutId);
-            if (e.name === 'AbortError') throw new Error('Network timeout');
-            throw new Error(e.message || 'Network error');
+            if (e.name === 'AbortError') throw new ApiError('Network timeout', 'ERR_TIMEOUT');
+            throw new ApiError(e.message || 'Network error', 'ERR_NETWORK');
         }
         clearTimeout(timeoutId);
         const data = await parseJson(response);
-        if (!response.ok) throw new Error('Session expired');
+        if (!response.ok) throw new ApiError(data?.message || 'Session expired', data?.code || 'ERR_SESSION_EXPIRED');
         return data;
     },
 
@@ -229,4 +248,5 @@ const api = {
     },
 };
 
+export { ApiError };
 export default api;

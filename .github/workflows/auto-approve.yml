@@ -26,23 +26,28 @@ jobs:
         id: check-mergeable
         with:
           script: |
-            // GitHub needs a moment to compute mergeability after PR events
+            // GitHub needs a moment to compute mergeability after PR events.
+            // Transient API failures (fetch errors, 500s) are also retried.
             let mergeable = null;
             let attempts = 0;
             const maxAttempts = 10;
 
             while (mergeable === null && attempts < maxAttempts) {
-              const { data: pr } = await github.rest.pulls.get({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: context.payload.pull_request.number,
-              });
+              try {
+                const { data: pr } = await github.rest.pulls.get({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: context.payload.pull_request.number,
+                });
 
-              mergeable = pr.mergeable;
+                mergeable = pr.mergeable;
+              } catch (error) {
+                core.warning(`API request failed: ${error.message}`);
+              }
 
               if (mergeable === null) {
                 attempts++;
-                core.info(`Mergeability not yet computed, retrying (${attempts}/${maxAttempts})...`);
+                core.info(`Mergeability not yet determined, retrying (${attempts}/${maxAttempts})...`);
                 await new Promise(r => setTimeout(r, 3000));
               }
             }
