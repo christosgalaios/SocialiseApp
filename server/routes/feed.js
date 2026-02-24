@@ -1,6 +1,10 @@
 const express = require('express');
 const supabase = require('../supabase');
 const { authenticateToken, loadUserProfile, extractUserId } = require('./auth');
+const {
+    FEED_FETCH_FAILED, FEED_CREATE_FAILED, FEED_DELETE_FAILED,
+    FEED_REACT_FAILED, FEED_NOT_FOUND, FEED_FORBIDDEN, FEED_INVALID_INPUT,
+} = require('../errors');
 
 const router = express.Router();
 
@@ -52,7 +56,7 @@ router.get('/', async (req, res) => {
     const { data, error } = await query;
     if (error) {
         console.error('[feed GET]', error);
-        return res.status(500).json({ message: 'Failed to fetch feed' });
+        return res.status(500).json({ code: FEED_FETCH_FAILED, message: 'Failed to fetch feed: database query failed' });
     }
 
     const enriched = await enrichPosts(data || [], userId);
@@ -63,8 +67,8 @@ router.get('/', async (req, res) => {
 router.post('/', authenticateToken, loadUserProfile, async (req, res) => {
     const { content, community_id, event_id, image_url } = req.body;
 
-    if (!content?.trim()) return res.status(400).json({ message: 'Post content cannot be empty' });
-    if (content.trim().length > 1000) return res.status(400).json({ message: 'Post too long (max 1000 characters)' });
+    if (!content?.trim()) return res.status(400).json({ code: FEED_INVALID_INPUT, message: 'Post content cannot be empty' });
+    if (content.trim().length > 1000) return res.status(400).json({ code: FEED_INVALID_INPUT, message: 'Post too long (max 1000 characters)' });
 
     // Look up community name if provided
     let communityName = '';
@@ -90,7 +94,7 @@ router.post('/', authenticateToken, loadUserProfile, async (req, res) => {
 
     if (error) {
         console.error('[feed POST]', error);
-        return res.status(500).json({ message: 'Failed to create post' });
+        return res.status(500).json({ code: FEED_CREATE_FAILED, message: 'Failed to create post: database insert rejected' });
     }
 
     res.status(201).json({ ...data, reactions: {}, myReactions: [] });
@@ -99,18 +103,18 @@ router.post('/', authenticateToken, loadUserProfile, async (req, res) => {
 // --- DELETE /api/feed/:id --- (delete own post)
 router.delete('/:id', authenticateToken, async (req, res) => {
     const { data: post } = await supabase.from('feed_posts').select('user_id').eq('id', req.params.id).single();
-    if (!post) return res.status(404).json({ message: 'Post not found' });
-    if (post.user_id !== req.user.id) return res.status(403).json({ message: 'Not authorised' });
+    if (!post) return res.status(404).json({ code: FEED_NOT_FOUND, message: 'Post not found' });
+    if (post.user_id !== req.user.id) return res.status(403).json({ code: FEED_FORBIDDEN, message: 'Not authorised' });
 
     const { error } = await supabase.from('feed_posts').delete().eq('id', req.params.id);
-    if (error) return res.status(500).json({ message: 'Failed to delete post' });
+    if (error) return res.status(500).json({ code: FEED_DELETE_FAILED, message: 'Failed to delete post: database delete rejected' });
     res.json({ message: 'Post deleted' });
 });
 
 // --- POST /api/feed/:id/react --- (toggle emoji reaction)
 router.post('/:id/react', authenticateToken, async (req, res) => {
     const { emoji } = req.body;
-    if (!emoji) return res.status(400).json({ message: 'Emoji is required' });
+    if (!emoji) return res.status(400).json({ code: FEED_INVALID_INPUT, message: 'Emoji is required' });
 
     const { data: existing } = await supabase
         .from('post_reactions')
@@ -127,7 +131,7 @@ router.post('/:id/react', authenticateToken, async (req, res) => {
     }
 
     const { error } = await supabase.from('post_reactions').insert({ post_id: req.params.id, user_id: req.user.id, emoji });
-    if (error) return res.status(500).json({ message: 'Failed to react' });
+    if (error) return res.status(500).json({ code: FEED_REACT_FAILED, message: 'Failed to react: database insert rejected' });
     res.json({ added: true });
 });
 

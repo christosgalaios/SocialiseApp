@@ -2,6 +2,10 @@ const express = require('express');
 const sharp = require('sharp');
 const supabase = require('../supabase');
 const { authenticateToken, toPublicUser } = require('./auth');
+const {
+    USER_NOT_FOUND, USER_UPDATE_FAILED, USER_XP_UPDATE_FAILED,
+    USER_DELETE_FAILED, USER_AVATAR_FAILED, USER_INVALID_INPUT,
+} = require('../errors');
 
 const router = express.Router();
 
@@ -42,13 +46,13 @@ router.put('/me', authenticateToken, async (req, res) => {
 
     // Validate
     if (updates.name !== undefined && (!updates.name?.trim() || updates.name.trim().length > 100)) {
-        return res.status(400).json({ message: 'Invalid name' });
+        return res.status(400).json({ code: USER_INVALID_INPUT, message: 'Invalid name' });
     }
     if (updates.bio !== undefined && updates.bio.length > 300) {
-        return res.status(400).json({ message: 'Bio too long (max 300 characters)' });
+        return res.status(400).json({ code: USER_INVALID_INPUT, message: 'Bio too long (max 300 characters)' });
     }
     if (updates.interests !== undefined && !Array.isArray(updates.interests)) {
-        return res.status(400).json({ message: 'Interests must be an array' });
+        return res.status(400).json({ code: USER_INVALID_INPUT, message: 'Interests must be an array' });
     }
 
     // Server-side avatar downscaling — shrink data-URL images before storing
@@ -56,7 +60,7 @@ router.put('/me', authenticateToken, async (req, res) => {
         try {
             updates.avatar = await processAvatar(updates.avatar);
         } catch {
-            return res.status(400).json({ message: 'Failed to process avatar image' });
+            return res.status(400).json({ code: USER_AVATAR_FAILED, message: 'Failed to process avatar image' });
         }
     }
 
@@ -67,8 +71,8 @@ router.put('/me', authenticateToken, async (req, res) => {
         .select()
         .single();
 
-    if (!updated) return res.status(404).json({ message: 'User not found' });
-    if (error) return res.status(500).json({ message: 'Failed to update profile' });
+    if (!updated) return res.status(404).json({ code: USER_NOT_FOUND, message: 'User not found' });
+    if (error) return res.status(500).json({ code: USER_UPDATE_FAILED, message: 'Failed to update profile: database update rejected' });
 
     res.json(toPublicUser(updated));
 });
@@ -80,19 +84,19 @@ router.put('/me/xp', authenticateToken, async (req, res) => {
     const updates = {};
     if (xp != null) {
         if (typeof xp !== 'number' || xp < 0 || !Number.isInteger(xp)) {
-            return res.status(400).json({ message: 'XP must be a non-negative integer' });
+            return res.status(400).json({ code: USER_INVALID_INPUT, message: 'XP must be a non-negative integer' });
         }
         updates.xp = xp;
     }
     if (unlockedTitles != null) {
         if (!Array.isArray(unlockedTitles) || !unlockedTitles.every(t => typeof t === 'string')) {
-            return res.status(400).json({ message: 'Unlocked titles must be an array of strings' });
+            return res.status(400).json({ code: USER_INVALID_INPUT, message: 'Unlocked titles must be an array of strings' });
         }
         updates.unlocked_titles = unlockedTitles;
     }
 
     if (Object.keys(updates).length === 0) {
-        return res.status(400).json({ message: 'Nothing to update' });
+        return res.status(400).json({ code: USER_INVALID_INPUT, message: 'Nothing to update' });
     }
 
     const { data: updated, error } = await supabase
@@ -102,8 +106,8 @@ router.put('/me/xp', authenticateToken, async (req, res) => {
         .select()
         .single();
 
-    if (!updated) return res.status(404).json({ message: 'User not found' });
-    if (error) return res.status(500).json({ message: 'Failed to update XP' });
+    if (!updated) return res.status(404).json({ code: USER_NOT_FOUND, message: 'User not found' });
+    if (error) return res.status(500).json({ code: USER_XP_UPDATE_FAILED, message: 'Failed to update XP: database update rejected' });
 
     res.json(toPublicUser(updated));
 });
@@ -203,7 +207,7 @@ router.delete('/me', authenticateToken, async (req, res) => {
         const { error } = await supabase.from(table).delete().eq(column, userId);
         if (error) {
             console.error(`[ERROR] Failed to delete from ${table}:`, error.message);
-            return res.status(500).json({ message: 'Failed to delete account. Please try again.' });
+            return res.status(500).json({ code: USER_DELETE_FAILED, message: `Failed to delete account: could not clear ${table}` });
         }
     }
 
@@ -211,14 +215,14 @@ router.delete('/me', authenticateToken, async (req, res) => {
     const { error: eventsError } = await supabase.from('events').delete().eq('host_id', userId);
     if (eventsError) {
         console.error('[ERROR] Failed to delete hosted events:', eventsError.message);
-        return res.status(500).json({ message: 'Failed to delete account. Please try again.' });
+        return res.status(500).json({ code: USER_DELETE_FAILED, message: 'Failed to delete account: could not remove hosted events' });
     }
 
     // Finally delete the user record
     const { error: userError } = await supabase.from('users').delete().eq('id', userId);
     if (userError) {
         console.error('[ERROR] Failed to delete user:', userError.message);
-        return res.status(500).json({ message: 'Failed to delete account. Please try again.' });
+        return res.status(500).json({ code: USER_DELETE_FAILED, message: 'Failed to delete account: could not remove user record' });
     }
 
     res.json({ message: 'Account deleted successfully' });

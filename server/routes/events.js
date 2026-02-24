@@ -2,6 +2,13 @@ const express = require('express');
 const supabase = require('../supabase');
 const { authenticateToken, loadUserProfile, extractUserId } = require('./auth');
 const { enrichEventsWithMatches } = require('../matching');
+const {
+    EVENT_FETCH_FAILED, EVENT_NOT_FOUND, EVENT_CREATE_FAILED,
+    EVENT_UPDATE_FAILED, EVENT_DELETE_FAILED, EVENT_JOIN_FAILED,
+    EVENT_LEAVE_FAILED, EVENT_SAVE_FAILED, EVENT_UNSAVE_FAILED,
+    EVENT_CHAT_FETCH_FAILED, EVENT_CHAT_SEND_FAILED, EVENT_FULL,
+    EVENT_INACTIVE, EVENT_FORBIDDEN, EVENT_INVALID_INPUT, EVENT_RECS_FAILED,
+} = require('../errors');
 
 const router = express.Router();
 
@@ -91,7 +98,7 @@ router.get('/', async (req, res) => {
     const { data, error } = await query;
     if (error) {
         console.error('[events GET]', error);
-        return res.status(500).json({ message: 'Failed to fetch events' });
+        return res.status(500).json({ code: EVENT_FETCH_FAILED, message: 'Failed to fetch events: database query failed' });
     }
 
     const enriched = await enrichEvents(data || [], userId);
@@ -108,7 +115,7 @@ router.get('/:id', async (req, res) => {
         .eq('id', req.params.id)
         .single();
 
-    if (error || !data) return res.status(404).json({ message: 'Event not found' });
+    if (error || !data) return res.status(404).json({ code: EVENT_NOT_FOUND, message: 'Event not found' });
 
     const [enriched] = await enrichEvents([data], userId);
     res.json(enriched);
@@ -118,10 +125,10 @@ router.get('/:id', async (req, res) => {
 router.post('/', authenticateToken, loadUserProfile, async (req, res) => {
     const { title, description, category, location, lat, lng, date, time, price, max_spots, image, category_attrs, inclusivity_tags, is_micro_meet } = req.body;
 
-    if (!title?.trim()) return res.status(400).json({ message: 'Title is required' });
-    if (!location?.trim()) return res.status(400).json({ message: 'Location is required' });
-    if (!date) return res.status(400).json({ message: 'Date is required' });
-    if (!time) return res.status(400).json({ message: 'Time is required' });
+    if (!title?.trim()) return res.status(400).json({ code: EVENT_INVALID_INPUT, message: 'Title is required' });
+    if (!location?.trim()) return res.status(400).json({ code: EVENT_INVALID_INPUT, message: 'Location is required' });
+    if (!date) return res.status(400).json({ code: EVENT_INVALID_INPUT, message: 'Date is required' });
+    if (!time) return res.status(400).json({ code: EVENT_INVALID_INPUT, message: 'Time is required' });
 
     const { data, error } = await supabase
         .from('events')
@@ -148,7 +155,7 @@ router.post('/', authenticateToken, loadUserProfile, async (req, res) => {
 
     if (error) {
         console.error('[events POST]', error);
-        return res.status(500).json({ message: 'Failed to create event' });
+        return res.status(500).json({ code: EVENT_CREATE_FAILED, message: 'Failed to create event: database insert rejected' });
     }
 
     res.status(201).json({ ...data, attendees: 0, spots: data.max_spots, image: data.image_url, host: data.host_name, isJoined: false, isSaved: false });
@@ -157,62 +164,62 @@ router.post('/', authenticateToken, loadUserProfile, async (req, res) => {
 // --- PUT /api/events/:id --- (update — host only)
 router.put('/:id', authenticateToken, async (req, res) => {
     const { data: existing } = await supabase.from('events').select('host_id').eq('id', req.params.id).single();
-    if (!existing) return res.status(404).json({ message: 'Event not found' });
-    if (existing.host_id !== req.user.id) return res.status(403).json({ message: 'Not authorised' });
+    if (!existing) return res.status(404).json({ code: EVENT_NOT_FOUND, message: 'Event not found' });
+    if (existing.host_id !== req.user.id) return res.status(403).json({ code: EVENT_FORBIDDEN, message: 'Not authorised' });
 
     const allowed = ['title', 'description', 'category', 'location', 'lat', 'lng', 'date', 'time', 'price', 'max_spots', 'image_url', 'category_attrs', 'inclusivity_tags'];
     const updates = {};
     allowed.forEach(k => { if (req.body[k] !== undefined) updates[k] = req.body[k]; });
 
     const { data, error } = await supabase.from('events').update(updates).eq('id', req.params.id).select().single();
-    if (error) return res.status(500).json({ message: 'Failed to update event' });
+    if (error) return res.status(500).json({ code: EVENT_UPDATE_FAILED, message: 'Failed to update event: database update rejected' });
     res.json(data);
 });
 
 // --- DELETE /api/events/:id --- (cancel — host only)
 router.delete('/:id', authenticateToken, async (req, res) => {
     const { data: existing } = await supabase.from('events').select('host_id').eq('id', req.params.id).single();
-    if (!existing) return res.status(404).json({ message: 'Event not found' });
-    if (existing.host_id !== req.user.id) return res.status(403).json({ message: 'Not authorised' });
+    if (!existing) return res.status(404).json({ code: EVENT_NOT_FOUND, message: 'Event not found' });
+    if (existing.host_id !== req.user.id) return res.status(403).json({ code: EVENT_FORBIDDEN, message: 'Not authorised' });
 
     const { error } = await supabase.from('events').update({ status: 'cancelled' }).eq('id', req.params.id);
-    if (error) return res.status(500).json({ message: 'Failed to cancel event' });
+    if (error) return res.status(500).json({ code: EVENT_DELETE_FAILED, message: 'Failed to cancel event: database update rejected' });
     res.json({ message: 'Event cancelled' });
 });
 
 // --- POST /api/events/:id/join --- (RSVP — payment bypassed for now)
 router.post('/:id/join', authenticateToken, async (req, res) => {
     const { data: event } = await supabase.from('events').select('id, max_spots, status').eq('id', req.params.id).single();
-    if (!event) return res.status(404).json({ message: 'Event not found' });
-    if (event.status !== 'active') return res.status(400).json({ message: 'Event is no longer active' });
+    if (!event) return res.status(404).json({ code: EVENT_NOT_FOUND, message: 'Event not found' });
+    if (event.status !== 'active') return res.status(400).json({ code: EVENT_INACTIVE, message: 'Event is no longer active' });
 
     // Check capacity
     const { count } = await supabase.from('event_rsvps').select('*', { count: 'exact', head: true }).eq('event_id', req.params.id);
-    if (count >= event.max_spots) return res.status(400).json({ message: 'Event is full' });
+    if (count >= event.max_spots) return res.status(400).json({ code: EVENT_FULL, message: 'Event is full' });
 
     const { error } = await supabase.from('event_rsvps').upsert({ event_id: req.params.id, user_id: req.user.id, status: 'going' }, { onConflict: 'event_id,user_id' });
-    if (error) return res.status(500).json({ message: 'Failed to join event' });
+    if (error) return res.status(500).json({ code: EVENT_JOIN_FAILED, message: 'Failed to join event: database upsert rejected' });
     res.json({ message: 'Joined event' });
 });
 
 // --- POST /api/events/:id/leave ---
 router.post('/:id/leave', authenticateToken, async (req, res) => {
     const { error } = await supabase.from('event_rsvps').delete().eq('event_id', req.params.id).eq('user_id', req.user.id);
-    if (error) return res.status(500).json({ message: 'Failed to leave event' });
+    if (error) return res.status(500).json({ code: EVENT_LEAVE_FAILED, message: 'Failed to leave event: database delete rejected' });
     res.json({ message: 'Left event' });
 });
 
 // --- POST /api/events/:id/save ---
 router.post('/:id/save', authenticateToken, async (req, res) => {
     const { error } = await supabase.from('saved_events').upsert({ event_id: req.params.id, user_id: req.user.id }, { onConflict: 'event_id,user_id' });
-    if (error) return res.status(500).json({ message: 'Failed to save event' });
+    if (error) return res.status(500).json({ code: EVENT_SAVE_FAILED, message: 'Failed to save event: database upsert rejected' });
     res.json({ message: 'Event saved' });
 });
 
 // --- POST /api/events/:id/unsave ---
 router.post('/:id/unsave', authenticateToken, async (req, res) => {
     const { error } = await supabase.from('saved_events').delete().eq('event_id', req.params.id).eq('user_id', req.user.id);
-    if (error) return res.status(500).json({ message: 'Failed to unsave event' });
+    if (error) return res.status(500).json({ code: EVENT_UNSAVE_FAILED, message: 'Failed to unsave event: database delete rejected' });
     res.json({ message: 'Event unsaved' });
 });
 
@@ -226,17 +233,17 @@ router.get('/:id/chat', async (req, res) => {
         .order('created_at', { ascending: true })
         .range(Number(offset), Number(offset) + Number(limit) - 1);
 
-    if (error) return res.status(500).json({ message: 'Failed to fetch messages' });
+    if (error) return res.status(500).json({ code: EVENT_CHAT_FETCH_FAILED, message: 'Failed to fetch messages: database query failed' });
     res.json(data || []);
 });
 
 // --- POST /api/events/:id/chat ---
 router.post('/:id/chat', authenticateToken, loadUserProfile, async (req, res) => {
     const { message } = req.body;
-    if (!message?.trim()) return res.status(400).json({ message: 'Message cannot be empty' });
+    if (!message?.trim()) return res.status(400).json({ code: EVENT_INVALID_INPUT, message: 'Message cannot be empty' });
 
     const { data: event } = await supabase.from('events').select('host_id').eq('id', req.params.id).single();
-    if (!event) return res.status(404).json({ message: 'Event not found' });
+    if (!event) return res.status(404).json({ code: EVENT_NOT_FOUND, message: 'Event not found' });
 
     const { data, error } = await supabase
         .from('chat_messages')
@@ -251,7 +258,7 @@ router.post('/:id/chat', authenticateToken, loadUserProfile, async (req, res) =>
         .select()
         .single();
 
-    if (error) return res.status(500).json({ message: 'Failed to send message' });
+    if (error) return res.status(500).json({ code: EVENT_CHAT_SEND_FAILED, message: 'Failed to send message: database insert rejected' });
     res.status(201).json(data);
 });
 
@@ -270,7 +277,7 @@ router.get('/recommendations/for-you', authenticateToken, loadUserProfile, async
 
     if (error) {
         console.error('[events recommendations GET]', error);
-        return res.status(500).json({ message: 'Failed to fetch recommendations' });
+        return res.status(500).json({ code: EVENT_RECS_FAILED, message: 'Failed to fetch recommendations: database query failed' });
     }
 
     // Enrich with match scores

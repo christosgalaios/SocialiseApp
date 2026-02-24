@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Crown, ChevronLeft, ChevronRight, Quote, Mail, Lock, User, AlertCircle } from 'lucide-react';
+import { formatError } from '../errorUtils';
 
 const TESTIMONIALS = [
   {
@@ -74,7 +75,7 @@ const AuthScreen = ({ onLogin }) => {
         { email: email.trim(), password, firstName: firstName.trim(), lastName: lastName.trim() }
       );
     } catch (err) {
-      setError(err.message || 'Something went wrong');
+      setError(formatError(err, 'Something went wrong'));
     } finally {
       setLoading(false);
     }

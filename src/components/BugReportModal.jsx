@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { Bug, X, Send, AlertCircle, Monitor } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEscapeKey, useFocusTrap } from '../hooks/useAccessibility';
+import { formatError } from '../errorUtils';
 
 function detectPlatform() {
   const ua = navigator.userAgent || '';
@@ -76,7 +77,7 @@ export default function BugReportModal({ isOpen, onClose, onSubmit }) {
       setDescription('');
       onClose();
     } catch (err) {
-      setError(err.message || 'Failed to submit bug report');
+      setError(formatError(err, 'Failed to submit bug report'));
     } finally {
       setSubmitting(false);
     }

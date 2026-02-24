@@ -84,72 +84,63 @@ describe('auth.js utilities', () => {
   });
 
   describe('authenticateToken middleware', () => {
+    // Helper to create a mock response with status().json() chain
+    const mockRes = () => {
+      const res = {};
+      res.json = vi.fn().mockReturnValue(res);
+      res.status = vi.fn().mockReturnValue(res);
+      return res;
+    };
+
     it('should return 401 if no token provided', () => {
-      const req = {
-        headers: {},
-      };
-      const res = {
-        sendStatus: vi.fn(),
-      };
+      const req = { headers: {} };
+      const res = mockRes();
       const next = vi.fn();
 
       authenticateToken(req, res, next);
 
-      expect(res.sendStatus).toHaveBeenCalledWith(401);
+      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ code: 'ERR_AUTH_TOKEN_MISSING' }));
       expect(next).not.toHaveBeenCalled();
     });
 
     it('should return 401 if authorization header invalid', () => {
-      const req = {
-        headers: {
-          authorization: 'InvalidToken',
-        },
-      };
-      const res = {
-        sendStatus: vi.fn(),
-      };
+      const req = { headers: { authorization: 'InvalidToken' } };
+      const res = mockRes();
       const next = vi.fn();
 
       authenticateToken(req, res, next);
 
-      expect(res.sendStatus).toHaveBeenCalledWith(401);
+      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ code: 'ERR_AUTH_TOKEN_MISSING' }));
     });
 
     it('should return 403 if token signature invalid', () => {
-      const req = {
-        headers: {
-          authorization: 'Bearer invalid.token.here',
-        },
-      };
-      const res = {
-        sendStatus: vi.fn(),
-      };
+      const req = { headers: { authorization: 'Bearer invalid.token.here' } };
+      const res = mockRes();
       const next = vi.fn();
 
       authenticateToken(req, res, next);
 
-      expect(res.sendStatus).toHaveBeenCalledWith(403);
+      expect(res.status).toHaveBeenCalledWith(403);
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ code: 'ERR_AUTH_TOKEN_INVALID' }));
     });
 
-    it('should call next and set req.user for valid token', () => {
+    it('should return 403 for token signed with wrong secret', () => {
+      // The module uses its own SECRET_KEY (random per server start),
+      // so a token signed with our test key will fail verification.
       const payload = { id: '123', email: 'test@example.com' };
       const token = jwt.sign(payload, SECRET_KEY);
 
-      const req = {
-        headers: {
-          authorization: `Bearer ${token}`,
-        },
-      };
-      const res = {
-        sendStatus: vi.fn(),
-      };
+      const req = { headers: { authorization: `Bearer ${token}` } };
+      const res = mockRes();
       const next = vi.fn();
 
       authenticateToken(req, res, next);
 
-      // In actual implementation, would verify the token
-      // For now, we're testing the middleware structure
-      expect(typeof next).toBe('function');
+      expect(res.status).toHaveBeenCalledWith(403);
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ code: 'ERR_AUTH_TOKEN_INVALID' }));
+      expect(next).not.toHaveBeenCalled();
     });
   });
 
