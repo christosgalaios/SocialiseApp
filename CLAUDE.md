@@ -715,3 +715,13 @@ Updating bug statuses directly via the Supabase REST API (`PATCH /rest/v1/bug_re
    ```
 
 Also update Supabase directly (`PATCH /rest/v1/bug_reports`) as a belt-and-suspenders measure — but the production API call is what syncs the sheet and is the required step. Never skip it.
+
+### 10. Always verify Google Sheet state after updates — never assume success
+
+After updating bug statuses via the production API or webhook, always verify the changes landed on the Google Sheet by fetching the CSV export and checking the relevant rows. Don't claim an update worked without verification — the API may accept fields it doesn't forward to the sheet (e.g. the `PUT /api/bugs/:bugId` endpoint originally only forwarded `status` and `priority` to the webhook, silently ignoring `environment`, `description`, `reports`, and `app_version`).
+
+**Rule:** After every sheet-affecting operation (status update, consolidation, deletion), fetch the CSV and `grep` for the bug ID to confirm the change is visible:
+```bash
+curl -s -L "https://docs.google.com/spreadsheets/d/1WcsoRjbQbDp9B6HHBzCtksh1SH8jH_0sGY6a7Z9xHMA/gviz/tq?tqx=out:csv" | grep "BUG-ID"
+```
+If the field didn't update, fall back to the Apps Script webhook directly (`POST` with `action: 'update'`). The webhook supports all fields: `status`, `priority`, `environment`, `reports`, `app_version`, `fixed_at`.
