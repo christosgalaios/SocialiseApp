@@ -725,3 +725,27 @@ After updating bug statuses via the production API or webhook, always verify the
 curl -s -L "https://docs.google.com/spreadsheets/d/1WcsoRjbQbDp9B6HHBzCtksh1SH8jH_0sGY6a7Z9xHMA/gviz/tq?tqx=out:csv" | grep "BUG-ID"
 ```
 If the field didn't update, fall back to the Apps Script webhook directly (`POST` with `action: 'update'`). The webhook supports all fields: `status`, `priority`, `environment`, `reports`, `app_version`, `fixed_at`.
+
+### 11. Always rebase onto development before pushing — prevents merge conflicts from squash-merged PRs
+
+When auto-approve squash-merges a PR into `development`, the squashed commit has different history than the original commits on the feature branch. If you keep committing on the same branch and push again, the next PR will always conflict — Git sees the squashed version and the original commits as unrelated changes to the same files.
+
+**Rule:** Before every `git push`, always rebase onto the latest `origin/development`:
+```bash
+git fetch origin development && git rebase origin/development
+```
+If the rebase drops commits (because they were already squash-merged), that's correct — Git recognizes the patches are already upstream. If there are conflicts, resolve them during the rebase. Then force-push with `--force-with-lease` (safe — only affects the feature branch, not development or other branches).
+
+This must happen **every time** before pushing, not just when conflicts are detected. It's a 2-second operation when there's nothing to rebase, and it prevents the conflict entirely.
+
+### 12. Identify lesson-learned opportunities proactively in every conversation
+
+At the end of each task or conversation, proactively review what happened and surface any lesson-learned opportunities — don't wait for the user to point out mistakes. Look for:
+
+- **Assumptions that turned out wrong** (e.g., claiming an update worked without verifying)
+- **Workflow gaps that caused rework** (e.g., an endpoint silently ignoring fields)
+- **Duplicate detection failures** (e.g., missing that two bugs describe the same symptom)
+- **Process improvements worth encoding** into CLAUDE.md, skill files, or agent definitions
+- **Verification steps that were skipped** (e.g., not checking the Google Sheet after an update)
+
+When a lesson is identified, propose updating the relevant documentation (CLAUDE.md, skill definitions, agent definitions) to make it permanent. Don't just note it — encode it so it can't happen again.
