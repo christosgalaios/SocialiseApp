@@ -365,7 +365,7 @@ These bugs from the original issue list have been resolved in the codebase:
 - `PUT /api/bugs/:bugId` now syncs status/priority updates to Google Sheet via Apps Script webhook (fire-and-forget, same as `POST /bugs`) ✓
 - Bug report environment detection uses short uppercase values: `PROD` (from `/prod/` page), `DEV` (from `/dev/` page), `LOCAL` (localhost) — consistent with Google Sheet dropdown options ✓
 - Google Sheet Apps Script uses header-based column lookup (`getColumnMap_`) instead of hardcoded indices — columns can be reordered freely without breaking create/update logic ✓
-- `/fix-bugs` skill now shows a tidy bug summary table first and asks what to fix (all open / P1 only / specific bug) before processing — no longer auto-processes everything immediately ✓
+- `/fix-bugs` skill fetches from Google Sheet (single source), auto-prioritizes and updates the sheet first, then shows summary table and asks what to fix (all open / P1 only / specific bug) ✓
 
 ---
 
@@ -524,7 +524,7 @@ Configuration lives in `.claude/`. Full docs: `.claude/AUTOMATION_SETUP.md` and 
 | Hook | `block-env` | Prevents editing `.env` files |
 | Skill | `/gen-test` | Generate unit tests (Vitest + React Testing Library) |
 | Skill | `/create-migration` | Create Supabase migration files |
-| Skill | `/fix-bugs` | Process bug reports from Supabase — validate, fix, and commit |
+| Skill | `/fix-bugs` | Process bug reports from Google Sheet — validate, fix, and commit |
 | Subagent | `code-reviewer` | Security, quality, design system compliance review |
 | Subagent | `test-coverage-analyzer` | Identify untested code and coverage gaps |
 | Subagent | `bug-fixer` | Validates bug reports and creates minimal fixes (bug-only, no features) |

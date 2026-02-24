@@ -1,13 +1,13 @@
 ---
 name: fix-bugs
-description: Process bug reports from Supabase — validate, fix, and push to development
+description: Process bug reports from Google Sheet — validate, fix, and push to development
 disable-model-invocation: false
 context: fork
 ---
 
-# Bug Fixer — Process Bug Reports from Supabase
+# Bug Fixer — Process Bug Reports from Google Sheet
 
-Fetches bug reports from the Supabase `bug_reports` table via the API, presents them in a tidy dashboard, lets the user choose what to fix, then processes each selected bug.
+Fetches bug reports from the Google Sheet (the human-readable bug dashboard), auto-prioritizes and tidies them, presents a summary, lets the user choose what to fix, then processes each selected bug.
 
 ## Usage
 
@@ -18,26 +18,32 @@ Fetches bug reports from the Supabase `bug_reports` table via the API, presents 
 
 ## How It Works
 
-### Phase 1: Fetch & Present (always runs first)
+### Phase 1: Fetch, Auto-Prioritize, & Present (always runs first)
 
-1. **Fetch** all bug reports (not just open — fetch everything to show full picture):
-   - **Primary (API):** `GET /api/bugs` via the backend at `VITE_API_URL` or `http://localhost:3001/api`. Requires a JWT token — check `localStorage` for `socialise_token`, or login via `POST /api/auth/login` with `{"email": "ben@demo.com", "password": "password"}` (dev only)
-   - **Fallback (Supabase REST):** If the backend is unreachable (DNS failure, not running), query Supabase directly: `GET ${SUPABASE_URL}/rest/v1/bug_reports?order=created_at.desc&apikey=${SUPABASE_SERVICE_ROLE_KEY}` with header `Authorization: Bearer ${SUPABASE_SERVICE_ROLE_KEY}`
-   - **Fallback (Google Sheet):** If Supabase is also unreachable, fetch from the Google Sheet CSV export: `https://docs.google.com/spreadsheets/d/1WcsoRjbQbDp9B6HHBzCtksh1SH8jH_0sGY6a7Z9xHMA/gviz/tq?tqx=out:csv` — parse the CSV
+1. **Fetch** all bug reports from the **Google Sheet CSV export** (the single source for this skill):
+   - URL: `https://docs.google.com/spreadsheets/d/1WcsoRjbQbDp9B6HHBzCtksh1SH8jH_0sGY6a7Z9xHMA/gviz/tq?tqx=out:csv`
+   - Parse the CSV — columns are: `Bug ID`, `Description`, `Status`, `Priority`, `Environment`, `Created At`, `App Version`
+   - Skip empty rows and header row
+   - This is the only data source — do NOT fall back to the API or Supabase REST
 
-2. **Tidy up** the data — clean and normalize before displaying:
-   - Deduplicate: find reports describing the same underlying issue, mark extras as `duplicate of {BUG-ID}` via `PUT /api/bugs/:bugId`
-   - Normalize environment values: `production` → `PROD`, `development` → `DEV`, `local` → `LOCAL` (update via PUT if needed)
-   - Auto-prioritize any `auto` priority bugs based on description analysis (update via PUT)
-   - Update all changes to Supabase via the API (which auto-syncs to Google Sheet)
+2. **Auto-prioritize and update the sheet** — this happens automatically before showing anything to the user:
+   - **Prioritize** any bugs with `auto` or empty priority based on description analysis:
+     - **P1 (Critical):** Data loss, auth broken, app crashes, API errors affecting core flows, keywords like "crash", "can't log in", "data lost", "blank screen"
+     - **P2 (Major):** Feature broken, wrong data displayed, state management bugs, broken interactions
+     - **P3 (Minor):** Visual glitches, typos, edge cases, styling inconsistencies
+     - **Boost:** Bugs from `PROD` get priority bumped, multiple reports of same issue = higher priority
+   - **Deduplicate:** Find reports describing the same underlying issue, mark extras as `duplicate of {BUG-ID}`
+   - **Normalize** environment values: `production` → `PROD`, `development` → `DEV`, `local` → `LOCAL`
+   - **Push all changes** to both Supabase and Google Sheet via `PUT /api/bugs/:bugId` (which auto-syncs to the sheet). If the backend is unreachable, update the sheet directly via the Apps Script webhook: `POST https://script.google.com/macros/s/AKfycbzNTlbwhCHCBjBBfIAlIo9jycgSjQKTc5DGymDsCnNdaf_ljAzfCj1IhGgINXfkl6f29A/exec` with body `{"action": "update", "bug_id": "{BUG-ID}", "status": "...", "priority": "..."}`
+   - Log each update as it happens so the user sees progress (e.g. "Set BUG-123 → P2", "Marked BUG-456 as duplicate of BUG-123")
 
-3. **Display** a summary table of ALL bugs (open, fixed, rejected, etc.):
+3. **Display** a summary table of ALL bugs (open, fixed, rejected, etc.) with the now-updated priorities:
    ```
    | Bug ID              | Status     | Priority | Env   | Description (truncated)                    |
    |---------------------|------------|----------|-------|--------------------------------------------|
    | BUG-1771870610374   | open       | P2       | LOCAL | App not responsive, create events hardlock |
    | BUG-1771870680693   | fixed      | P2       | LOCAL | Swiping can get frozen                     |
-   | BUG-1771870492212   | rejected   | auto     | LOCAL | Test of the api                            |
+   | BUG-1771870492212   | rejected   | P3       | LOCAL | Test of the api                            |
    ```
 
 4. **Ask the user** what they want to fix using AskUserQuestion:
@@ -48,19 +54,10 @@ Fetches bug reports from the Supabase `bug_reports` table via the API, presents 
 
 ### Phase 2: Process Selected Bugs
 
-5. **Deduplicate** selected bugs — group reports that describe the same underlying bug:
-   - Compare descriptions semantically (not just string matching)
-   - Reports from different environments (PROD/DEV/LOCAL) about the same issue are duplicates
-   - Multiple users reporting the same symptom are duplicates
-   - When duplicates are found: keep the earliest report as primary, mark others via `PUT /api/bugs/:bugId` with `{"status": "duplicate of {BUG-ID}"}`
-   - More reports of the same bug = higher priority signal
-6. **Prioritize** each unique bug automatically based on its description and codebase context:
-   - **P1 (Critical):** Data loss, auth broken, app crashes, API errors affecting core flows
-   - **P2 (Major):** Feature broken, wrong data displayed, state management bugs, broken interactions
-   - **P3 (Minor):** Visual glitches, typos, edge cases, styling inconsistencies
-   - **Boost:** Bugs reported by multiple users or from PROD get priority bumped
-7. **Process** bugs in priority order: P1 → P2 → P3
-8. **For each unique bug:**
+Deduplication and prioritization already happened in Phase 1. Bugs are ready to process.
+
+5. **Process** bugs in priority order: P1 → P2 → P3
+6. **For each unique bug:**
    a. Read the bug-fixer agent definition at `.claude/agents/bug-fixer.md` for full rules
    b. Analyze the description to identify the affected area and component
    c. Validate: is this a real bug in existing behavior, or a feature request / invalid report?
@@ -69,18 +66,16 @@ Fetches bug reports from the Supabase `bug_reports` table via the API, presents 
    f. Run `npm run lint` and `npm test -- --run` to verify
    g. If fix works: update bug via `PUT /api/bugs/:bugId` with `{"status": "fixed", "priority": "{inferred}"}`, commit
    h. If fix fails or is out of scope: update status to `needs-triage` with reason
-9. **Update** bug status — use the API if backend is running, otherwise update Supabase directly and sync the Google Sheet:
-   - **Primary (API):** `PUT /api/bugs/:bugId` — automatically syncs Supabase + Google Sheet
-   - **Fallback (Supabase + Sheet):** If the backend is down, update Supabase directly via REST: `PATCH ${SUPABASE_URL}/rest/v1/bug_reports?bug_id=eq.{BUG-ID}&apikey=${SUPABASE_SERVICE_ROLE_KEY}` with body `{"status": "fixed", "priority": "P2"}`, then sync the Google Sheet via the Apps Script webhook: `POST https://script.google.com/macros/s/AKfycbzNTlbwhCHCBjBBfIAlIo9jycgSjQKTc5DGymDsCnNdaf_ljAzfCj1IhGgINXfkl6f29A/exec` with body `{"action": "update", "bug_id": "{BUG-ID}", "status": "fixed", "priority": "P2"}`
-10. **Push** all fix commits to `development` branch
+7. **Update** bug status via the API (which auto-syncs to both Supabase and Google Sheet):
+   - **Primary:** `PUT /api/bugs/:bugId` — automatically syncs Supabase + Google Sheet
+   - **Fallback (Sheet only):** If the backend is unreachable, update the Google Sheet directly via the Apps Script webhook: `POST https://script.google.com/macros/s/AKfycbzNTlbwhCHCBjBBfIAlIo9jycgSjQKTc5DGymDsCnNdaf_ljAzfCj1IhGgINXfkl6f29A/exec` with body `{"action": "update", "bug_id": "{BUG-ID}", "status": "fixed", "priority": "P2"}`
+8. **Push** all fix commits to `development` branch
 
-## API Endpoints for Bug Reports
+## API Endpoints (for updates only — fetching is from Google Sheet)
 
 | Method | Endpoint | Purpose |
 |--------|----------|---------|
-| GET | `/api/bugs?status=open` | Fetch all open bug reports |
-| GET | `/api/bugs` | Fetch all bug reports (any status) |
-| PUT | `/api/bugs/:bugId` | Update status and/or priority (auto-syncs Google Sheet) |
+| PUT | `/api/bugs/:bugId` | Update status and/or priority (auto-syncs Supabase + Google Sheet) |
 
 ### Bug report object shape
 
@@ -156,15 +151,17 @@ Each fix gets its own commit:
 fix: {description} ({BUG-ID})
 ```
 
-## Google Sheet Sync
+## Google Sheet (Primary Data Source)
 
-Bug reports are tracked in both Supabase (source of truth) and a Google Sheet (human-readable dashboard):
+The Google Sheet is the single source for fetching bugs in this skill. Updates flow back to both Supabase and the sheet.
+
 - **Sheet URL:** `https://docs.google.com/spreadsheets/d/1WcsoRjbQbDp9B6HHBzCtksh1SH8jH_0sGY6a7Z9xHMA`
-- **Apps Script webhook:** `https://script.google.com/macros/s/AKfycbzNTlbwhCHCBjBBfIAlIo9jycgSjQKTc5DGymDsCnNdaf_ljAzfCj1IhGgINXfkl6f29A/exec`
+- **CSV export URL (for fetching):** `https://docs.google.com/spreadsheets/d/1WcsoRjbQbDp9B6HHBzCtksh1SH8jH_0sGY6a7Z9xHMA/gviz/tq?tqx=out:csv`
+- **Apps Script webhook (for updates):** `https://script.google.com/macros/s/AKfycbzNTlbwhCHCBjBBfIAlIo9jycgSjQKTc5DGymDsCnNdaf_ljAzfCj1IhGgINXfkl6f29A/exec`
 - The webhook supports two actions:
   - **Create** (no `action` field): appends a new row with `{ bug_id, description, status, priority, environment, created_at, app_version }`
   - **Update** (`action: 'update'`): finds row by `bug_id` and updates `status` and/or `priority` in place. Returns `updated`, `not_found`, or `ok`.
-- The backend's `PUT /api/bugs/:bugId` automatically syncs to the sheet. When using the Supabase REST fallback, you must sync the sheet manually via the webhook.
+- The backend's `PUT /api/bugs/:bugId` automatically syncs to the sheet. When the backend is unreachable, update the sheet directly via the webhook.
 
 ### Google Sheet column mapping
 
@@ -199,4 +196,4 @@ The Apps Script uses header-based column lookup (not hardcoded indices). Columns
 
 ## After Processing
 
-The skill updates bug statuses in Supabase (via API or REST fallback) and the Google Sheet (via API auto-sync or manual webhook call). Fixed, rejected, and triaged bugs remain in both systems as a record.
+The skill updates bug statuses via the API (which syncs both Supabase and Google Sheet). If the backend is unreachable, updates go directly to the Google Sheet via the Apps Script webhook. Fixed, rejected, and triaged bugs remain in both systems as a record.

@@ -15,7 +15,7 @@ This document explains all the automations configured for Socialise development.
 | **create-migration skill** | Skill | ✅ Ready | `/create-migration "description"` |
 | **code-reviewer** | Subagent | ✅ Ready | Use before merging to production |
 | **test-coverage-analyzer** | Subagent | ✅ Ready | Use after test infrastructure setup |
-| **fix-bugs skill** | Skill | ✅ Ready | `/fix-bugs` to process bug reports from Supabase |
+| **fix-bugs skill** | Skill | ✅ Ready | `/fix-bugs` to process bug reports from Google Sheet |
 | **bug-fixer** | Subagent | ✅ Ready | Used by `/fix-bugs` skill |
 
 ---
@@ -104,7 +104,7 @@ Set these environment variables in your Claude Code web environment settings:
 
 **Script:** `.claude/hooks/session-start.sh`
 
-**Why it exists:** The `/fix-bugs` skill needs a running backend to fetch bug reports from Supabase. Without this hook, you'd need to manually set up credentials every session.
+**Why it exists:** The `/fix-bugs` skill needs a running backend to push status/priority updates to Supabase (which auto-syncs to the Google Sheet). Without this hook, you'd need to manually set up credentials every session.
 
 ### Block .env Hook (PreToolUse)
 **When it runs:** Before you try to edit `.env`, `.env.*.local`, or `server/.env*`
@@ -277,16 +277,18 @@ Recommendations:
 
 ### bug-fixer — Bug Validation and Repair
 
-**Purpose:** Validates bug reports from Supabase and produces minimal, focused fixes
+**Purpose:** Validates bug reports from the Google Sheet and produces minimal, focused fixes
 
 **How it works:**
 
-1. Users report bugs via the in-app bug button → reports are stored in Supabase `bug_reports` table
+1. Users report bugs via the in-app bug button → reports are stored in Supabase + synced to Google Sheet
 2. Developer runs `/fix-bugs` when ready to process reports
-3. The skill fetches open bugs via `GET /api/bugs?status=open`, sorts by severity (P1 → P2 → P3)
-4. For each `open` bug: validates against codebase, fixes if valid, adds regression test
-5. Updates bug status via `PUT /api/bugs/:bugId`: `fixed`, `rejected`, or `needs-triage`
-6. Each fix is committed separately
+3. The skill fetches all bugs from the Google Sheet CSV export (single data source)
+4. Auto-prioritizes any `auto` priority bugs, deduplicates, and pushes updates to the sheet — before asking the user anything
+5. Displays summary table, then asks user what to fix (all open / P1 only / specific bug)
+6. For each selected bug: validates against codebase, fixes if valid, adds regression test
+7. Updates bug status via `PUT /api/bugs/:bugId`: `fixed`, `rejected`, or `needs-triage`
+8. Each fix is committed separately
 
 **Safety guardrails:**
 - **Bug-only scope:** Cannot add new features, endpoints, or components. Only fixes existing broken behavior.
@@ -350,9 +352,9 @@ Once set up, paste the sheet's view URL to any Claude session and ask it to read
 ### Bug Fix Workflow
 
 **Via /fix-bugs (recommended):**
-1. Users report bugs via the in-app bug icon → stored in Supabase `bug_reports` table
-2. Run `/fix-bugs` to process all open reports (or `/fix-bugs BUG-123` for a specific bug)
-3. Agent validates each bug, fixes, adds regression test, commits
+1. Users report bugs via the in-app bug icon → stored in Supabase + synced to Google Sheet
+2. Run `/fix-bugs` — fetches from Google Sheet, auto-prioritizes, updates sheet, then asks what to fix
+3. Agent validates each selected bug, fixes, adds regression test, commits
 4. Push to development → auto-approve (lint + test + build) → merge
 
 **Manual (for complex bugs or `needs-triage` items):**
@@ -491,7 +493,7 @@ Tell me how to query Supabase
 - **Claude Code help**: Type `/help`
 - **Project questions**: Read CLAUDE.md (project brain)
 - **Design system**: See CLAUDE.md (Design System section)
-- **Bug tracking**: Supabase `bug_reports` table (in-app reports) + `/fix-bugs` skill
+- **Bug tracking**: Google Sheet dashboard (read by `/fix-bugs`) + Supabase `bug_reports` table (storage) + `/fix-bugs` skill
 
 ---
 
