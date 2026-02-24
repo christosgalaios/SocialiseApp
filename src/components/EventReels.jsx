@@ -175,15 +175,20 @@ const EventReels = ({ events, onClose, onSelectEvent }) => {
   const [likedEvents, setLikedEvents] = useState([]);
   const containerRef = useRef(null);
   const touchStartY = useRef(0);
+  const isAnimating = useRef(false);
 
   const handleNext = () => {
+    if (isAnimating.current) return;
     if (currentIndex < events.length - 1) {
+      isAnimating.current = true;
       setCurrentIndex(prev => prev + 1);
     }
   };
 
   const handlePrev = () => {
+    if (isAnimating.current) return;
     if (currentIndex > 0) {
+      isAnimating.current = true;
       setCurrentIndex(prev => prev - 1);
     }
   };
@@ -194,10 +199,15 @@ const EventReels = ({ events, onClose, onSelectEvent }) => {
 
   const handleTouchEnd = (e) => {
     const deltaY = touchStartY.current - e.changedTouches[0].clientY;
+    touchStartY.current = 0;
     if (Math.abs(deltaY) > 50) {
       if (deltaY > 0) handleNext();
       else handlePrev();
     }
+  };
+
+  const handleTouchCancel = () => {
+    touchStartY.current = 0;
   };
 
   useEffect(() => {
@@ -244,6 +254,7 @@ const EventReels = ({ events, onClose, onSelectEvent }) => {
         className="flex-1 relative overflow-hidden px-4 pb-4"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
+        onTouchCancel={handleTouchCancel}
       >
         {/* Nav buttons */}
         <button
@@ -268,6 +279,7 @@ const EventReels = ({ events, onClose, onSelectEvent }) => {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: -50, opacity: 0 }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            onAnimationComplete={() => { isAnimating.current = false; }}
             className="w-full h-full"
           >
             {events[currentIndex] && (
