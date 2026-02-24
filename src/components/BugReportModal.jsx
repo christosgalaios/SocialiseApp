@@ -67,7 +67,7 @@ export default function BugReportModal({ isOpen, onClose, onSubmit }) {
 
   const handleSubmit = async () => {
     if (!description.trim()) return setError('Please describe the bug');
-    if (description.trim().length < 10) return setError('Please provide a bit more detail');
+    if (description.trim().length < 30) return setError('Please provide a bit more detail — a couple of sentences helps a lot');
 
     setSubmitting(true);
     setError('');
@@ -127,8 +127,8 @@ export default function BugReportModal({ isOpen, onClose, onSubmit }) {
             <textarea
               value={description}
               onChange={e => { setDescription(e.target.value); if (error) setError(''); }}
-              placeholder={"Describe the bug and when it happens...\n\ne.g. \"Chat messages disappear after sending in the event detail page\" or \"Profile photo doesn't save when I crop and confirm\""}
-              rows={5}
+              placeholder={"Describe the bug in 2–3 sentences. Try to cover:\n• What were you doing when it happened?\n• What did you expect vs. what actually occurred?\n• Where in the app did it happen?\n\ne.g. \"I tapped 'Join' on an event and the button spun forever — the RSVP never confirmed. Happened on the Explore tab, second event in the list.\""}
+              rows={6}
               maxLength={2000}
               className="w-full bg-white border border-secondary/10 rounded-2xl px-4 py-3 text-sm text-[var(--text)] placeholder:text-secondary/30 font-medium focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 resize-none"
             />
@@ -176,7 +176,7 @@ export default function BugReportModal({ isOpen, onClose, onSubmit }) {
           </button>
 
           <p className="text-[9px] text-secondary/40 text-center leading-relaxed">
-            Priority is determined automatically. Only existing broken behavior will be addressed.
+            The more detail you give (what, where, when), the faster it gets fixed. Priority is determined automatically.
           </p>
         </div>
       </motion.div>
