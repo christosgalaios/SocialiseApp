@@ -86,11 +86,27 @@ describe('CreateEventModal', () => {
       expect(screen.getByText('Cover Image')).toBeInTheDocument();
     });
 
-    it('should render close button', () => {
+    it('should render close button with accessible label', () => {
       render(<CreateEventModal onClose={mockOnClose} onSubmit={mockOnSubmit} />);
-      // Close button (the X at the top-right)
-      const buttons = screen.getAllByRole('button');
-      expect(buttons.length).toBeGreaterThan(0);
+      expect(screen.getByRole('button', { name: 'Close' })).toBeInTheDocument();
+    });
+  });
+
+  describe('Close button (BUG-1771938439942)', () => {
+    it('should call onClose when close button is clicked', async () => {
+      const user = userEvent.setup({ delay: null });
+      render(<CreateEventModal onClose={mockOnClose} onSubmit={mockOnSubmit} />);
+
+      const closeButton = screen.getByRole('button', { name: 'Close' });
+      await user.click(closeButton);
+      expect(mockOnClose).toHaveBeenCalledTimes(1);
+    });
+
+    it('should have a minimum 40x40 touch target for the close button', () => {
+      render(<CreateEventModal onClose={mockOnClose} onSubmit={mockOnSubmit} />);
+
+      const closeButton = screen.getByRole('button', { name: 'Close' });
+      expect(closeButton).toHaveClass('w-10', 'h-10');
     });
   });
 

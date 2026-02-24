@@ -1,7 +1,61 @@
-import { useState } from 'react';
-import { Bug, X, Send, AlertCircle } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { Bug, X, Send, AlertCircle, Monitor } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEscapeKey, useFocusTrap } from '../hooks/useAccessibility';
+
+function detectPlatform() {
+  const ua = navigator.userAgent || '';
+  const platform = navigator.platform || '';
+
+  // Detect OS
+  let os = 'Unknown OS';
+  if (/Android\s?([\d.]+)?/i.test(ua)) {
+    os = 'Android ' + (RegExp.$1 || '').split('.').slice(0, 2).join('.');
+  } else if (/iPhone|iPad|iPod/.test(ua)) {
+    const ver = ua.match(/OS\s([\d_]+)/);
+    os = 'iOS ' + (ver ? ver[1].replace(/_/g, '.').split('.').slice(0, 2).join('.') : '');
+  } else if (/Mac OS X\s?([\d_.]+)?/.test(ua)) {
+    os = 'macOS ' + (RegExp.$1 || '').replace(/_/g, '.').split('.').slice(0, 2).join('.');
+  } else if (/Windows NT\s?([\d.]+)?/.test(ua)) {
+    const winMap = { '10.0': '10/11', '6.3': '8.1', '6.2': '8', '6.1': '7' };
+    os = 'Windows ' + (winMap[RegExp.$1] || RegExp.$1 || '');
+  } else if (/CrOS/.test(ua)) {
+    os = 'ChromeOS';
+  } else if (/Linux/.test(ua)) {
+    os = 'Linux';
+  }
+
+  // Detect browser
+  let browser = 'Unknown Browser';
+  if (/EdgA?\/([\d.]+)/.test(ua)) {
+    browser = 'Edge ' + RegExp.$1.split('.').slice(0, 2).join('.');
+  } else if (/SamsungBrowser\/([\d.]+)/.test(ua)) {
+    browser = 'Samsung Browser ' + RegExp.$1.split('.')[0];
+  } else if (/OPR\/([\d.]+)|Opera\/([\d.]+)/.test(ua)) {
+    browser = 'Opera ' + (RegExp.$1 || RegExp.$2).split('.')[0];
+  } else if (/CriOS\/([\d.]+)/.test(ua)) {
+    browser = 'Chrome ' + RegExp.$1.split('.')[0];
+  } else if (/FxiOS\/([\d.]+)/.test(ua)) {
+    browser = 'Firefox ' + RegExp.$1.split('.')[0];
+  } else if (/Chrome\/([\d.]+)/.test(ua) && !/Chromium/.test(ua)) {
+    browser = 'Chrome ' + RegExp.$1.split('.')[0];
+  } else if (/Safari\/([\d.]+)/.test(ua) && !/Chrome/.test(ua)) {
+    const safVer = ua.match(/Version\/([\d.]+)/);
+    browser = 'Safari ' + (safVer ? safVer[1].split('.').slice(0, 2).join('.') : '');
+  } else if (/Firefox\/([\d.]+)/.test(ua)) {
+    browser = 'Firefox ' + RegExp.$1.split('.')[0];
+  }
+
+  // Detect device type
+  let device = 'Desktop';
+  if (/Mobi|Android.*Mobile|iPhone|iPod/i.test(ua)) {
+    device = 'Mobile';
+  } else if (/iPad|Android(?!.*Mobile)|Tablet/i.test(ua) || (platform === 'MacIntel' && navigator.maxTouchPoints > 1)) {
+    device = 'Tablet';
+  }
+
+  return `${os.trim()} / ${browser.trim()} / ${device}`;
+}
 
 export default function BugReportModal({ isOpen, onClose, onSubmit }) {
   const [description, setDescription] = useState('');
@@ -9,15 +63,16 @@ export default function BugReportModal({ isOpen, onClose, onSubmit }) {
   const [error, setError] = useState('');
   const focusTrapRef = useFocusTrap(isOpen);
   useEscapeKey(onClose, isOpen);
+  const platformInfo = useMemo(() => detectPlatform(), []);
 
   const handleSubmit = async () => {
     if (!description.trim()) return setError('Please describe the bug');
-    if (description.trim().length < 10) return setError('Please provide a bit more detail');
+    if (description.trim().length < 30) return setError('Please provide a bit more detail — a couple of sentences helps a lot');
 
     setSubmitting(true);
     setError('');
     try {
-      await onSubmit({ description: description.trim() });
+      await onSubmit({ description: description.trim(), platform: platformInfo });
       setDescription('');
       onClose();
     } catch (err) {
@@ -72,12 +127,21 @@ export default function BugReportModal({ isOpen, onClose, onSubmit }) {
             <textarea
               value={description}
               onChange={e => { setDescription(e.target.value); if (error) setError(''); }}
-              placeholder={"Describe the bug and when it happens...\n\ne.g. \"Chat messages disappear after sending in the event detail page\" or \"Profile photo doesn't save when I crop and confirm\""}
-              rows={5}
+              placeholder={"Describe the bug in 2–3 sentences. Try to cover:\n• What were you doing when it happened?\n• What did you expect vs. what actually occurred?\n• Where in the app did it happen?\n\ne.g. \"I tapped 'Join' on an event and the button spun forever — the RSVP never confirmed. Happened on the Explore tab, second event in the list.\""}
+              rows={6}
               maxLength={2000}
               className="w-full bg-white border border-secondary/10 rounded-2xl px-4 py-3 text-sm text-[var(--text)] placeholder:text-secondary/30 font-medium focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 resize-none"
             />
             <p className="text-[10px] text-secondary/30 mt-1 text-right">{description.length}/2000</p>
+          </div>
+
+          {/* Auto-detected platform */}
+          <div className="flex items-center gap-2 bg-secondary/5 border border-secondary/10 rounded-xl px-3 py-2.5">
+            <Monitor size={14} className="text-secondary/40 shrink-0" />
+            <div className="min-w-0">
+              <p className="text-[10px] font-bold text-secondary/50 uppercase tracking-wider">Platform</p>
+              <p className="text-xs font-medium text-secondary/70 truncate">{platformInfo}</p>
+            </div>
           </div>
 
           {/* Error message */}
@@ -112,7 +176,7 @@ export default function BugReportModal({ isOpen, onClose, onSubmit }) {
           </button>
 
           <p className="text-[9px] text-secondary/40 text-center leading-relaxed">
-            Priority is determined automatically. Only existing broken behavior will be addressed.
+            The more detail you give (what, where, when), the faster it gets fixed. Priority is determined automatically.
           </p>
         </div>
       </motion.div>

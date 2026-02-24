@@ -710,8 +710,22 @@ const Mango = ({
     const xVelocity = useVelocity(x);
     const wiggleRotation = useTransform(xVelocity, [-1000, 0, 1000], [-25, 0, 25]);
 
+    // Track window dimensions for drag bounds
+    const [windowSize, setWindowSize] = useState({
+        width: typeof window !== 'undefined' ? window.innerWidth : 1024,
+        height: typeof window !== 'undefined' ? window.innerHeight : 768,
+    });
+
+    useEffect(() => {
+        const handleResize = () => {
+            setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     // Ground level - 100px from bottom (above bottom nav ~80px + some margin)
-    const GROUND_LEVEL = typeof window !== 'undefined' ? window.innerHeight - 100 - size : 600;
+    const GROUND_LEVEL = windowSize.height - 100 - size;
 
     const positionClasses = {
         'bottom-right': 'fixed bottom-28 right-4',
@@ -882,10 +896,10 @@ const Mango = ({
             // Constrain: can't go below ground (positive Y from start = going down)
             // Can go up freely (negative Y)
             dragConstraints={{
-                top: -1000,      // Can go way up
-                bottom: 0,      // Can't go below starting position (which is bottom-20)
-                left: -1000,
-                right: 1000
+                top: -(windowSize.height - size),
+                bottom: 0,
+                left: -(windowSize.width - size),
+                right: windowSize.width - size
             }}
             onPointerDown={handlePointerDown}
             onPointerUp={handlePointerUp}

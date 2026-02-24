@@ -49,7 +49,7 @@ function syncToSheet(row) {
 
 // POST /api/bugs — Store a bug report in Supabase + sync to Google Sheet
 router.post('/', authenticateToken, async (req, res) => {
-    const { description, app_version } = req.body;
+    const { description, app_version, platform } = req.body;
 
     if (!description?.trim()) {
         return res.status(400).json({ message: 'Bug description is required' });
@@ -86,6 +86,7 @@ router.post('/', authenticateToken, async (req, res) => {
                 reporter_id: req.user.id,
                 environment: env,
                 app_version: app_version || null,
+                platform: platform || null,
                 created_at: createdAt,
             });
 
@@ -95,7 +96,7 @@ router.post('/', authenticateToken, async (req, res) => {
         }
 
         // Sync to Google Sheet (non-blocking — Supabase is source of truth)
-        syncToSheet({ bug_id: bugId, description: sanitized, status: 'open', priority: 'auto', environment: env, app_version: app_version || null, created_at: createdAt });
+        syncToSheet({ bug_id: bugId, description: sanitized, status: 'open', priority: 'auto', environment: env, app_version: app_version || null, platform: platform || null, created_at: createdAt });
 
         res.status(201).json({
             message: 'Bug report logged',

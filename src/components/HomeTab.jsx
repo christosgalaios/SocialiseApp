@@ -34,7 +34,7 @@ const itemVariants = {
   show: { opacity: 1, y: 0, transition: { type: 'spring', damping: 25, stiffness: 400 } },
 };
 
-export default function HomeTab({ onProfileClick, filteredEvents, fetchAllData }) {
+export default function HomeTab({ onProfileClick, fetchAllData }) {
   const user = useAuthStore((s) => s.user);
   const events = useEventStore((s) => s.events);
   const joinedEvents = useEventStore((s) => s.joinedEvents);
@@ -53,7 +53,7 @@ export default function HomeTab({ onProfileClick, filteredEvents, fetchAllData }
       .catch(() => showToast('Failed to refresh', 'error'));
   }, [fetchAllData, setRecommendedLimit, showToast]);
 
-  const recommended = filteredEvents.filter(e => !e.isMicroMeet).sort((a, b) => {
+  const recommended = events.filter(e => !e.isMicroMeet).sort((a, b) => {
     const interests = userPreferences?.interests || user?.interests || [];
     const scoreEvent = (ev) => {
       let score = 0;

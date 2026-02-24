@@ -59,12 +59,12 @@ const CreateEventModal = ({ onClose, onSubmit }) => {
       />
       <motion.div
         initial={{ y: 50, opacity: 0, scale: 0.9 }} animate={{ y: 0, opacity: 1, scale: 1 }} exit={{ y: 50, opacity: 0, scale: 0.9 }}
-        className="bg-paper w-full max-w-md rounded-[32px] overflow-hidden border border-secondary/10 shadow-2xl relative z-50 max-h-[90vh] overflow-y-auto"
+        className="bg-paper w-full max-w-md rounded-[32px] overflow-x-hidden overflow-y-auto border border-secondary/10 shadow-2xl relative z-50 max-h-[90vh]"
       >
         {/* Header */}
-        <div className="sticky top-0 bg-paper p-6 pb-4 border-b border-secondary/10 z-10">
-          <button onClick={onClose} className="absolute top-6 right-6 text-secondary/30 hover:text-secondary transition-colors active:scale-90" aria-label="Close">
-            <X size={24} strokeWidth={2.5} />
+        <div className="sticky top-0 bg-paper p-6 pb-4 border-b border-secondary/10 z-20">
+          <button onClick={onClose} className="absolute top-4 right-4 z-30 w-10 h-10 flex items-center justify-center rounded-xl bg-paper text-secondary/50 hover:text-secondary hover:bg-secondary/10 transition-colors active:scale-90" aria-label="Close">
+            <X size={20} strokeWidth={2.5} />
           </button>
           <h2 className="text-2xl font-black tracking-tight text-secondary">Create Event<span className="text-accent">.</span></h2>
           <p className="text-xs text-secondary/50 font-medium mt-1">Share your vibe with the community</p>
