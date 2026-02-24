@@ -688,7 +688,7 @@ When processing bugs via `/fix-bugs`, the full lifecycle is: **mark `in-progress
 
 In this sandbox environment, DNS resolution for some hosts fails (`EAI_AGAIN`), but the Supabase REST API resolves fine via its IP. The local Express server can't connect to Supabase (DNS failure), but direct `curl` to `$SUPABASE_URL/rest/v1/` works. The production Railway backend (`socialise-app-production.up.railway.app`) is reachable but blocks demo login. The development Railway backend may not be running.
 
-**Rule:** When you need to update Supabase data and the local server can't start, go directly to the Supabase REST API with the service role key. Don't waste time trying to start the local server, logging in for a JWT, or retrying DNS failures. Use `printenv` to get env vars into shell variables (avoids quoting issues with `$VAR` in curl commands).
+**Rule:** When you need to update Supabase data and the local server can't start, go directly to the Supabase REST API with the service role key. Don't waste time trying to start the local server, logging in for a JWT, or retrying DNS failures. Use `printenv` to get env vars into shell variables (avoids quoting issues with `$VAR` in curl commands). For running raw SQL (migrations, schema changes, ad-hoc queries), use the Supabase Management API — see lesson #13.
 
 ### 9. Google Sheet sync requires the production API — Supabase REST alone is not enough
 
@@ -760,3 +760,33 @@ At the end of each task or conversation, proactively review what happened and su
 - **Verification steps that were skipped** (e.g., not checking the Google Sheet after an update)
 
 When a lesson is identified, propose updating the relevant documentation (CLAUDE.md, skill definitions, agent definitions) to make it permanent. Don't just note it — encode it so it can't happen again.
+
+### 13. Running Supabase migrations in the sandbox — use the Management API, not the JS client
+
+The Supabase JS client (`@supabase/supabase-js`) relies on DNS resolution for `*.supabase.co` hostnames, which fails in this sandbox environment (`EAI_AGAIN` / `fetch failed`). This means `node server/migrate.js` will always fail — it uses `supabase.rpc('exec', ...)` under the hood. Don't waste time installing deps, creating `.env`, and retrying the migration runner.
+
+**Rule:** To execute raw SQL against Supabase from the sandbox, use the **Supabase Management API** database query endpoint with the `SUPABASE_ACCESS_TOKEN`:
+
+```bash
+SUPABASE_ACCESS_TOKEN=$(printenv SUPABASE_ACCESS_TOKEN | tr -d ' ')
+PROJECT_REF=$(printenv SUPABASE_URL | sed 's|https://||' | sed 's|\.supabase\.co||')
+
+SQL=$(cat server/migrations/001_initial_schema.sql)
+
+curl -s -X POST "https://api.supabase.com/v1/projects/$PROJECT_REF/database/query" \
+  -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d "$(jq -n --arg q "$SQL" '{query: $q}')"
+```
+
+Key details:
+- The endpoint is `POST https://api.supabase.com/v1/projects/{ref}/database/query` (NOT `/sql` — that doesn't exist)
+- Auth uses `SUPABASE_ACCESS_TOKEN` (management token), NOT `SUPABASE_SERVICE_ROLE_KEY`
+- Trim whitespace from the token: `tr -d ' '` — the env var may have a leading space
+- Extract the project ref from `SUPABASE_URL` by stripping `https://` and `.supabase.co`
+- Use `jq -n --arg q "$SQL" '{query: $q}'` to safely JSON-encode the SQL (handles quotes, newlines, dollar signs in PL/pgSQL)
+- HTTP 201 = success, HTTP 400 = SQL error (check the `message` field)
+- Migrations with `IF NOT EXISTS` / `CREATE OR REPLACE` are safe to re-run; seed data INSERTs will fail with duplicate key errors if data already exists — skip and continue
+- Existing triggers will fail with `42710: trigger already exists` — non-critical if the table itself was created successfully
+
+This also applies to any ad-hoc SQL you need to run (schema inspection, data fixes, etc.) — always prefer the Management API over trying to start the local Express server or use the JS client.
