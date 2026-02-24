@@ -104,6 +104,16 @@ function App() {
   const hasVibratedRef = useRef(false);
   const dataFetchedForUser = useRef(null);
 
+  // Splash screen coordination: wait for both animation and session check
+  const sessionTargetRef = useRef(null); // 'app' | 'auth' | null
+  const splashDoneRef = useRef(false);
+
+  const tryTransition = useCallback(() => {
+    if (splashDoneRef.current && sessionTargetRef.current) {
+      setAppState(sessionTargetRef.current);
+    }
+  }, [setAppState]);
+
   // Reset explore limit when filters change
   useEffect(() => {
     setExploreLimit(6);
@@ -193,25 +203,34 @@ function App() {
     });
   }, [setEvents, setJoinedEvents, setSavedEvents, setCommunities, setFeedPosts, showToast]);
 
-  // Session check on mount
+  // Session check on mount — stores result without changing appState directly.
+  // The actual transition happens in tryTransition once the splash animation also finishes.
   useEffect(() => {
     let cancelled = false;
     const checkSession = async () => {
       const token = localStorage.getItem('socialise_token');
       if (!token) {
-        setAppState('auth');
+        sessionTargetRef.current = 'auth';
+        tryTransition();
         return;
       }
       try {
         const userData = await api.getMe(token);
         if (!cancelled) {
           useAuthStore.getState().setUser(userData);
-          setAppState('app');
           dataFetchedForUser.current = null;
+          sessionTargetRef.current = 'app';
+          tryTransition();
         }
       } catch (err) {
         console.error('Session invalid', err);
-        if (!cancelled) handleLogout();
+        if (!cancelled) {
+          localStorage.removeItem('socialise_token');
+          localStorage.removeItem('socialise_user');
+          useAuthStore.getState().setUser(null);
+          sessionTargetRef.current = 'auth';
+          tryTransition();
+        }
       }
     };
     const t = setTimeout(checkSession, 100);
@@ -219,7 +238,7 @@ function App() {
       cancelled = true;
       clearTimeout(t);
     };
-  }, [handleLogout, setAppState]);
+  }, [tryTransition]);
 
   // Fetch chat messages when event detail opens
   const selectedEventId = selectedEvent?.id;
@@ -429,11 +448,10 @@ function App() {
     }
   }, [activeTab, setActiveTab, mango]);
 
-  const userRef = useRef(user);
-  useEffect(() => { userRef.current = user; }, [user]);
   const handleSplashFinish = useCallback(() => {
-    setAppState(userRef.current ? 'app' : 'auth');
-  }, [setAppState]);
+    splashDoneRef.current = true;
+    tryTransition();
+  }, [tryTransition]);
 
   return (
     <div className="h-[100dvh] w-full flex flex-col bg-paper font-sans overflow-hidden">
