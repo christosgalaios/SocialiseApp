@@ -61,6 +61,7 @@
     006_login_streak.sql              # Login streak columns
     007_user_xp.sql                   # XP and unlocked titles columns
     008_bug_reports.sql                # Bug reports table (replaces BUGS.md file)
+    009_bug_report_version.sql         # Add app_version column to bug_reports
   /routes
     auth.js            # Login/register/me — Supabase
     events.js          # CRUD + RSVP/save/chat — Supabase
@@ -76,7 +77,6 @@
 /public                # PWA icons, logos
 /docs                  # QA notes, dev task docs
 package.json           # Frontend deps (ESM) — v0.1.0
-ANTIGRAVITY_BRAIN.md   # Design philosophy doc (read before UI changes)
 ```
 
 ---
@@ -99,24 +99,32 @@ ANTIGRAVITY_BRAIN.md   # Design philosophy doc (read before UI changes)
 
 ## Design System — "Warm Hearth"
 
-**Full doc:** `ANTIGRAVITY_BRAIN.md` — read it before any UI changes.
+**Philosophy:** Prioritize human connection over cold "tech" aesthetics. The app should feel tactile, grounded, and inviting.
 
-| Token | Value | Usage |
-|---|---|---|
-| `--primary` | `#E2725B` | Terracotta — actions, CTAs |
-| `--secondary` | `#2D5F5D` | Teal — nav, text, calm sections |
-| `--accent` | `#F4B942` | Gold — highlights, delight |
-| `--bg-paper` | `#F9F7F2` | Background (never pure white) |
-| `--text` | `#1A1C1C` | Main text |
-| `--text-muted` | `#5C6363` | Secondary text |
+| Token | Value | Name | Usage |
+|---|---|---|---|
+| `--primary` | `#E2725B` | Community Terracotta | Warm, inviting — actions, CTAs, interactions |
+| `--secondary` | `#2D5F5D` | Open Door Teal | Grounded, calm — nav, text, secondary gradients |
+| `--accent` | `#F4B942` | Latecomer Gold | Highlights, sparks, "delight" moments |
+| `--bg-paper` | `#F9F7F2` | Paper White | Background (never pure `#FFFFFF`) |
+| `--text` | `#1A1C1C` | Soft Charcoal | Main text (high contrast but softer than pure black) |
+| `--text-muted` | `#5C6363` | — | Secondary text, placeholders |
+
+**Typography:** `Outfit` for headings (bold, rounded, friendly). `Quicksand` for body (rounded sans-serif, high readability).
 
 **Critical rules:**
 - Light mode only. Dark mode CSS vars exist but are unused.
 - Never white text on light background.
 - Inputs must use `text-[var(--text)]` — not Tailwind text utilities.
-- Heavy roundness: `rounded-[24px]` / `rounded-[32px]` for cards/modals.
+- Heavy roundness: `rounded-[24px]` / `rounded-[32px]` for cards/modals. `rounded-2xl` for inner elements.
 - Scrollbars hidden globally (`no-scrollbar`).
 - Card class: `.premium-card`. Frosted glass: `.glass-2`. Glow: `.glow-primary`.
+
+**Component patterns:**
+- **Modals:** Centered, `fixed inset-0`, backdrop blur (`bg-secondary/60 backdrop-blur-sm`). Paper-colored content box.
+- **Sheets:** Slide-up from bottom (mobile style). Used for bookings, saved, help, etc.
+- **Feed:** Threaded comments with hard max-depth of 1 (comment → reply, no deeper nesting). Emoji toggles (one per person).
+- **Maps:** `LocationPicker.jsx` handles autocomplete + pin. Graceful failure: shows "Key missing" UI if `VITE_GOOGLE_MAPS_API_KEY` is absent.
 
 ---
 
@@ -453,6 +461,23 @@ These bugs from the original issue list have been resolved in the codebase:
 - [x] Delete orphaned hooks (`src/hooks/` — replaced by Zustand stores)
 - [x] Delete orphaned `EmailVerificationModal.jsx` (email verification intentionally removed)
 
+### Phase 7: TikTok Integration
+
+**Why:** Allow event hosts to connect their TikTok account and embed TikTok videos directly into event listings — richer event previews, better engagement, and leverages content creators already promoting events on TikTok.
+
+- [ ] Add TikTok OAuth flow (connect/disconnect TikTok account in Profile settings)
+- [ ] Store TikTok connection tokens securely in Supabase `users` table (new columns: `tiktok_user_id`, `tiktok_access_token`, `tiktok_username`)
+- [ ] Create migration for TikTok user fields
+- [ ] Add TikTok video URL field to event creation form (`CreateEventModal`)
+- [ ] Build `TikTokEmbed` component — renders TikTok oEmbed player for event detail pages
+- [ ] Add TikTok video display to `EventDetailSheet` (show embedded video in event info tab)
+- [ ] Add backend routes: `POST /api/auth/tiktok/connect`, `POST /api/auth/tiktok/disconnect`, `GET /api/auth/tiktok/callback`
+- [ ] Add TikTok oEmbed proxy endpoint (`GET /api/tiktok/oembed?url=...`) to avoid CORS issues
+- [ ] Validate TikTok URLs server-side before storing (must match `tiktok.com/@user/video/...` pattern)
+- [ ] Show connected TikTok username badge on host profiles
+- [ ] Allow hosts to browse/select from their own TikTok videos when creating events (TikTok Display API)
+- [ ] Add TikTok video previews to event cards in feed/explore views (thumbnail + play icon)
+
 ### ESLint
 
 ESLint passes clean (0 errors, 0 warnings). The config (`eslint.config.js`) has four blocks:
@@ -487,6 +512,7 @@ Configuration lives in `.claude/`. Full docs: `.claude/AUTOMATION_SETUP.md` and 
 |---|---|---|
 | MCP Server | GitHub | PR, issue, workflow management |
 | MCP Server | Supabase | Direct database queries and schema inspection |
+| Hook | `session-start` | Creates `server/.env` from env vars + starts backend on session start |
 | Hook | `auto-lint` | Runs `npm run lint -- --fix` on `.jsx`/`.js` edits |
 | Hook | `block-env` | Prevents editing `.env` files |
 | Skill | `/gen-test` | Generate unit tests (Vitest + React Testing Library) |

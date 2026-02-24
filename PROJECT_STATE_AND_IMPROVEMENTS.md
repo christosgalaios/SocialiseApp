@@ -27,7 +27,7 @@
 | **Delight** | Confetti, RealtimePing, Toast, IOSInstallPrompt. |
 
 ### Design
-- Antigravity Brain applied: Warm Hearth palette, Outfit/Quicksand, contrast/input rules, roundness, light-only. See `.cursor/rules/antigravity-brain.mdc` and `ANTIGRAVITY_BRAIN.md`.
+- Warm Hearth design system applied: palette, Outfit/Quicksand, contrast/input rules, roundness, light-only. See `.cursor/rules/antigravity-brain.mdc` and `CLAUDE.md`.
 
 ---
 

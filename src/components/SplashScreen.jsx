@@ -28,6 +28,9 @@ const SplashScreen = ({ onFinish }) => {
             timeoutsRef.current.forEach(clearTimeout);
             timeoutsRef.current = [];
             setPhase('together');
+            // Auto-finish after showing the final phase briefly
+            const id = setTimeout(onFinish, 1500);
+            timeoutsRef.current.push(id);
         } else {
             onFinish();
         }

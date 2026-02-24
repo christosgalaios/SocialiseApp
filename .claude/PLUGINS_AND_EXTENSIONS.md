@@ -161,8 +161,7 @@ claude mcp add supabase-realtime
 ### Skills Documentation
 - `/help` — Built-in Claude Code help
 - `AUTOMATION_SETUP.md` — This setup guide
-- `CLAUDE.md` — Project brain (conventions, architecture)
-- `ANTIGRAVITY_BRAIN.md` — Design system philosophy
+- `CLAUDE.md` — Project brain (conventions, architecture, design system)
 
 ### Official Docs
 - [Claude Code Documentation](https://claude.com/claude-code)
@@ -272,4 +271,4 @@ All plugins respect your project's security rules:
 - Plugin issues: `/help` → search "plugin installation"
 - Feature questions: Ask in AUTOMATION_SETUP.md
 - Project questions: See CLAUDE.md
-- Design questions: See ANTIGRAVITY_BRAIN.md
+- Design questions: See CLAUDE.md (Design System section)
