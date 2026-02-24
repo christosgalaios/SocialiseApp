@@ -386,6 +386,8 @@ These bugs from the original issue list have been resolved in the codebase:
 - Main content scroll freeze after closing sheets fixed — CSS `:has()` rule locks `#main-content` overflow when any `role="dialog"` or `role="alertdialog"` exists in the DOM. When the dialog unmounts, overflow restores and iOS re-engages the parent scroll context automatically. Works across all 14+ modals/sheets (BUG-1771954483248) ✓
 - Pull-to-refresh no longer triggers on horizontal swipes — tracks both X and Y touch coordinates with direction locking after 10px of movement. VideoWall carousel scrolling no longer conflicts with pull-to-refresh (BUG-1771954280752) ✓
 - Explore tab first-load animation glitch fixed — `transition={{ duration: 0.15 }}` on ExploreTab motion.div reduces the visible gap from `AnimatePresence mode="wait"` sequential transitions (BUG-1771954315641) ✓
+- ChangelogSheet scroll fixed — replaced `maxHeight` calc with flex layout (`flex-1 min-h-0`) + `overscroll-contain` so the "What's New" sheet scrolls properly on iOS Safari (BUG-1771957626306) ✓
+- VideoWall press-and-hold drag glitch fixed — replaced Framer Motion `whileTap` with manual press tracking via `onPointerDown` + global `pointerup` listener so cards stay scaled down until touch is fully released, even when finger drags off the card (BUG-1771957730622) ✓
 
 ---
 
