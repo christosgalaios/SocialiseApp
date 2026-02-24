@@ -466,6 +466,7 @@ These bugs from the original issue list have been resolved in the codebase:
 - [ ] Enforce Pro features on backend (`isPro` check on premium endpoints)
 - [ ] Add service worker for offline support / PWA install prompt
 - [ ] Implement Google OAuth (currently simulated with DEMO_USER)
+- [ ] During signup, ask users whether they are primarily here to attend events or host events — store as a `role` preference (`attendee` | `host`) and use it to personalise the default tab, recommendations, and onboarding tips
 - [ ] Add error boundary components for graceful crash recovery
 - [x] Performance audit: bundle splitting (736kb → 389kb main chunk), lazy-load heavy components (MangoChat, MangoAssistant, OnboardingFlow, CreateEventModal, EventReels), vendor chunks for framer-motion and Google Maps
 - [x] Delete orphaned `MangoSVG.jsx` (74kb, not imported — SVG defined inline in `Mango.jsx`)
