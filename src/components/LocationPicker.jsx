@@ -43,6 +43,25 @@ const mapOptions = {
     ]
 };
 
+const FallbackInput = ({ value, onChange }) => (
+    <div className="space-y-2">
+        <div className="relative">
+            <MapPin size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary/40" aria-hidden="true" />
+            <input
+                type="text"
+                placeholder="Type a location..."
+                value={typeof value === 'string' ? value : value?.address || ''}
+                onChange={(e) => onChange(e.target.value)}
+                className="w-full bg-secondary/5 border border-secondary/10 rounded-2xl pl-12 pr-4 py-3 text-sm font-bold focus:outline-none focus:border-primary transition-all placeholder:text-secondary/30 text-[var(--text)]"
+            />
+        </div>
+        <p className="text-[10px] text-secondary/40 ml-3 flex items-center gap-1">
+            <AlertCircle size={10} />
+            Map preview unavailable — enter address manually
+        </p>
+    </div>
+);
+
 const LocationPicker = ({ value, onChange, apiKey }) => {
     const { isLoaded, loadError } = useJsApiLoader({
         id: 'google-map-script',
@@ -50,22 +69,8 @@ const LocationPicker = ({ value, onChange, apiKey }) => {
         libraries: libraries,
     });
 
-    if (!apiKey) {
-        return (
-            <div className="w-full bg-secondary/5 border border-secondary/10 rounded-2xl p-4 flex items-center justify-center gap-2 text-secondary/50 text-sm">
-                <AlertCircle size={16} />
-                <span>Map API Key missing</span>
-            </div>
-        );
-    }
-
-    if (loadError) {
-        return (
-            <div className="w-full bg-secondary/5 border border-secondary/10 rounded-2xl p-4 flex items-center justify-center gap-2 text-red-500 text-sm">
-                <AlertCircle size={16} />
-                <span>Error loading maps</span>
-            </div>
-        );
+    if (!apiKey || loadError) {
+        return <FallbackInput value={value} onChange={onChange} />;
     }
 
     if (!isLoaded) {

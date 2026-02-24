@@ -7,6 +7,12 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: './src/test/setup.js',
+    pool: 'forks',
+    poolOptions: {
+      forks: {
+        maxForks: 2,
+      },
+    },
     exclude: [
       'node_modules/**',
       'dist/**',
