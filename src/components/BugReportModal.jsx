@@ -98,7 +98,7 @@ export default function BugReportModal({ isOpen, onClose, onSubmit }) {
     >
       <motion.div
         ref={focusTrapRef}
-        className="w-full max-w-md bg-paper rounded-t-[32px] sm:rounded-[32px] p-6 pb-8 border-t sm:border border-secondary/10 shadow-2xl"
+        className="w-full max-w-md max-h-[85dvh] overflow-y-auto bg-paper rounded-t-[32px] sm:rounded-[32px] p-6 pb-8 border-t sm:border border-secondary/10 shadow-2xl"
         initial={{ y: '100%' }}
         animate={{ y: 0 }}
         exit={{ y: '100%' }}
@@ -128,8 +128,8 @@ export default function BugReportModal({ isOpen, onClose, onSubmit }) {
             <textarea
               value={description}
               onChange={e => { setDescription(e.target.value); if (error) setError(''); }}
-              placeholder={"Describe the bug in 2–3 sentences. Try to cover:\n• What were you doing when it happened?\n• What did you expect vs. what actually occurred?\n• Where in the app did it happen?\n\ne.g. \"I tapped 'Join' on an event and the button spun forever — the RSVP never confirmed. Happened on the Explore tab, second event in the list.\""}
-              rows={6}
+              placeholder={"What happened? What did you expect instead?\n\ne.g. \"I tapped 'Join' on an event and the button spun forever — the RSVP never confirmed.\""}
+              rows={4}
               maxLength={2000}
               className="w-full bg-white border border-secondary/10 rounded-2xl px-4 py-3 text-sm text-[var(--text)] placeholder:text-secondary/30 font-medium focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 resize-none"
             />

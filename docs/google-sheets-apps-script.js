@@ -15,7 +15,7 @@
 //   7. Configure dropdown colors manually (see DROPDOWN SETUP below)
 //
 // FUNCTIONS:
-//   doPost(e)    — Webhook handler for backend create/update calls
+//   doPost(e)    — Webhook handler for backend create/update/delete calls
 //   tidySheet()  — Cleanup: consolidate duplicates, normalize env values, init reports counts
 //
 // DROPDOWN SETUP (Smart Table column type settings):
@@ -81,12 +81,13 @@ function getColumnMap_(sheet) {
 }
 
 /**
- * POST handler — creates new rows or updates existing ones.
+ * POST handler — creates new rows, updates existing ones, or deletes rows.
  * Called by the Express backend (server/routes/bugs.js).
  *
  * Payloads:
  *   Create: { bug_id, description, status, priority, environment, created_at, app_version, platform }
  *   Update: { action: 'update', bug_id, status?, priority?, reports?, environment?, app_version?, fixed_at? }
+ *   Delete: { action: 'delete', bug_id }
  *
  * Duplicate detection (CREATE mode):
  *   If a bug with an identical description (case-insensitive, trimmed) already exists,
@@ -101,6 +102,21 @@ function doPost(e) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   var cols = getColumnMap_(sheet);
   var data = JSON.parse(e.postData.contents);
+
+  // --- DELETE mode: remove row by bug_id ---
+  if (data.action === 'delete') {
+    var delBugIdCol = cols[COL_BUG_ID];
+    if (!delBugIdCol) return ContentService.createTextOutput('error: Bug ID column not found');
+
+    var delData = sheet.getDataRange().getValues();
+    for (var d = 1; d < delData.length; d++) {
+      if (String(delData[d][delBugIdCol - 1]).trim() === String(data.bug_id).trim()) {
+        sheet.deleteRow(d + 1);
+        return ContentService.createTextOutput('deleted');
+      }
+    }
+    return ContentService.createTextOutput('not_found');
+  }
 
   // --- UPDATE mode: find row by bug_id, update fields ---
   if (data.action === 'update') {
