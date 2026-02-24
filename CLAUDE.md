@@ -62,6 +62,7 @@
     007_user_xp.sql                   # XP and unlocked titles columns
     008_bug_reports.sql                # Bug reports table (replaces BUGS.md file)
     009_bug_report_version.sql         # Add app_version column to bug_reports
+    010_bug_report_platform.sql         # Add platform column to bug_reports
   /routes
     auth.js            # Login/register/me — Supabase
     events.js          # CRUD + RSVP/save/chat — Supabase
@@ -283,7 +284,7 @@ Base (production): `https://socialise-app-production.up.railway.app/api`
 - Duplicate JWT verification in communities.js replaced with shared `extractUserId` helper
 - Micro-Meet matching algorithm (`server/matching.js`)
 - Seed data script (`server/seed.js`)
-- Migration runner (`server/migrate.js`) + 7 migration files in `server/migrations/`
+- Migration runner (`server/migrate.js`) + 10 migration files in `server/migrations/`
 - Railway deployment configured for production + development environments
 - API URL now reads from `VITE_API_URL` env var (not hardcoded)
 - GitHub Pages deploys to `/dev/` and `/prod/` subfolders via separate workflows
@@ -370,6 +371,9 @@ These bugs from the original issue list have been resolved in the codebase:
 - `/fix-bugs` workflow processes bugs ONE AT A TIME: mark `in-progress` → fix → mark `fixed` with timestamp → commit + push → next bug. No automatic pickup of new bugs after completing the agreed list ✓
 - LocationPicker shows fallback text input when Google Maps API key is missing or fails to load (BUG-1771938422741) ✓
 - CreateEventModal close button enlarged to 40x40 touch target, z-index stacking fixed, overflow-x-hidden for reliable scrolling (BUG-1771938439942) ✓
+- Explore filters (category, search, size, date, tags) no longer affect HomeTab — `filteredEvents` scoped to ExploreTab only; HomeTab uses full unfiltered events from store; Sidebar "Discover" category section only renders on explore tab (BUG-1771942366608) ✓
+- CreateEventModal close button given explicit `z-30` and `bg-paper` to prevent occlusion during scroll on mobile (BUG-1771942525165) ✓
+- Bug reports now capture platform info (OS, browser, device type) — auto-detected from `navigator.userAgent` in `BugReportModal`, stored in `bug_reports.platform` column (migration 010), synced to Google Sheet ✓
 
 ---
 
@@ -511,7 +515,7 @@ ESLint passes clean (0 errors, 0 warnings). The config (`eslint.config.js`) has 
 - No direct INSERT/UPDATE/DELETE on `users` table from frontend roles
 - All data mutation goes through Express API → service role client
 
-**Migrations:** Run via `node server/migrate.js`. Files in `server/migrations/` are executed in order (001–008). See Directory Layout above for details.
+**Migrations:** Run via `node server/migrate.js`. Files in `server/migrations/` are executed in order (001–010). See Directory Layout above for details.
 
 ---
 

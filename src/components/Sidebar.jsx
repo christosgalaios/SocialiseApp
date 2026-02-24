@@ -54,9 +54,11 @@ const Sidebar = ({ activeCategory, onSelect, experimentalFeatures, activeTab, se
                 </div>
             </div>
 
+            {activeTab === 'explore' && (
+            <>
             <div className="border-t border-secondary/10 mb-6" />
 
-            {/* Category Filter */}
+            {/* Category Filter — only visible on Explore tab */}
             <div className="mb-8">
                 <h3 className="text-xs font-heading font-black text-secondary/70 uppercase tracking-widest mb-4 px-2" id="sidebar-heading">Discover</h3>
                 <div className="space-y-2" role="listbox" aria-labelledby="sidebar-heading" aria-activedescendant={`sidebar-cat-${activeCategory}`}>
@@ -85,6 +87,8 @@ const Sidebar = ({ activeCategory, onSelect, experimentalFeatures, activeTab, se
                     })}
                 </div>
             </div>
+            </>
+            )}
 
 
             <div className="mt-4 px-2 mb-8">

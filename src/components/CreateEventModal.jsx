@@ -63,7 +63,7 @@ const CreateEventModal = ({ onClose, onSubmit }) => {
       >
         {/* Header */}
         <div className="sticky top-0 bg-paper p-6 pb-4 border-b border-secondary/10 z-20">
-          <button onClick={onClose} className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-xl text-secondary/50 hover:text-secondary hover:bg-secondary/10 transition-colors active:scale-90" aria-label="Close">
+          <button onClick={onClose} className="absolute top-4 right-4 z-30 w-10 h-10 flex items-center justify-center rounded-xl bg-paper text-secondary/50 hover:text-secondary hover:bg-secondary/10 transition-colors active:scale-90" aria-label="Close">
             <X size={20} strokeWidth={2.5} />
           </button>
           <h2 className="text-2xl font-black tracking-tight text-secondary">Create Event<span className="text-accent">.</span></h2>
