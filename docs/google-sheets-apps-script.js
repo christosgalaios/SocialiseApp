@@ -8,11 +8,11 @@
 //   1. Open your Google Sheet > Extensions > Apps Script
 //   2. Replace all existing code with this file
 //   3. Save (Ctrl+S)
-//   4. Add a column named 'Reports' to your sheet (numeric, no dropdown needed)
-//   5. Run tidySheet() from the function dropdown > Run
-//   6. Grant permissions when prompted
-//   7. Deploy > Manage deployments > Edit > New version > Deploy
-//   8. Configure dropdown colors manually (see DROPDOWN SETUP below)
+//   4. Run tidySheet() from the function dropdown > Run
+//      (this auto-adds any missing columns: Platform, Reports, Fixed At, etc.)
+//   5. Grant permissions when prompted
+//   6. Deploy > Manage deployments > Edit > New version > Deploy
+//   7. Configure dropdown colors manually (see DROPDOWN SETUP below)
 //
 // FUNCTIONS:
 //   doPost(e)    — Webhook handler for backend create/update calls
@@ -282,6 +282,7 @@ function mergeVersions_(existing, incoming) {
 
 /**
  * Run this to:
+ * - Add any missing columns (Platform, Reports, Fixed At, etc.) to the header row
  * - Remove duplicate/partial rows (same bug_id, empty description)
  * - Consolidate rows with identical descriptions into the earliest occurrence:
  *     - Sums Reports counts across all duplicates
@@ -294,12 +295,11 @@ function mergeVersions_(existing, incoming) {
  *
  * Safe to run multiple times. Does NOT touch Smart Table column types,
  * dropdowns, or conditional formatting — those are managed by the table itself.
- *
- * NOTE: Add a 'Reports' column to the sheet before running if it doesn't exist yet.
  */
 function tidySheet() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
 
+  ensureColumns_(sheet);
   cleanDuplicates_(sheet);
   consolidateDuplicateDescriptions_(sheet);
   normalizeExistingEnvValues_(sheet);
@@ -311,6 +311,31 @@ function tidySheet() {
 // ==========================================
 // HELPER FUNCTIONS
 // ==========================================
+
+/**
+ * Ensure all expected columns exist in the header row.
+ * Appends any missing columns from HEADERS to the right of the last existing column.
+ * Existing columns (by name) are never moved or modified.
+ * Call this before any other tidy operation so column lookups work correctly.
+ */
+function ensureColumns_(sheet) {
+  var headerRow = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  var existingNames = headerRow.map(function(h) { return String(h).trim(); });
+
+  var added = [];
+  for (var i = 0; i < HEADERS.length; i++) {
+    if (indexOf_(existingNames, HEADERS[i]) === -1) {
+      var newColIndex = sheet.getLastColumn() + 1;
+      sheet.getRange(1, newColIndex).setValue(HEADERS[i]);
+      existingNames.push(HEADERS[i]); // keep in sync for subsequent iterations
+      added.push(HEADERS[i]);
+    }
+  }
+
+  if (added.length > 0) {
+    Logger.log('ensureColumns_: added missing columns: ' + added.join(', '));
+  }
+}
 
 /**
  * Remove duplicate/partial rows — keeps the first occurrence of each bug_id
