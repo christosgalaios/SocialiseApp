@@ -66,10 +66,11 @@ router.post('/', authenticateToken, async (req, res) => {
     const bugId = `BUG-${Date.now()}`;
     const createdAt = new Date().toISOString();
 
-    // Detect environment from request origin
+    // Detect environment from request referer/origin
     // GitHub Pages deploys to /SocialiseApp/prod/ and /SocialiseApp/dev/
-    const origin = req.headers.origin || req.headers.referer || '';
-    const env = origin.includes('/prod') ? 'PROD' : origin.includes('/dev') ? 'DEV' : 'LOCAL';
+    // referer includes the full URL path (/dev/, /prod/); origin is just scheme+host
+    const referer = req.headers.referer || req.headers.origin || '';
+    const env = referer.includes('/prod') ? 'PROD' : referer.includes('/dev') ? 'DEV' : 'LOCAL';
 
     // Sanitize user input before storing
     const sanitized = sanitizeDescription(description);
