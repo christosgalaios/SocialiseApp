@@ -511,6 +511,7 @@ Configuration lives in `.claude/`. Full docs: `.claude/AUTOMATION_SETUP.md` and 
 |---|---|---|
 | MCP Server | GitHub | PR, issue, workflow management |
 | MCP Server | Supabase | Direct database queries and schema inspection |
+| Hook | `session-start` | Creates `server/.env` from env vars + starts backend on session start |
 | Hook | `auto-lint` | Runs `npm run lint -- --fix` on `.jsx`/`.js` edits |
 | Hook | `block-env` | Prevents editing `.env` files |
 | Skill | `/gen-test` | Generate unit tests (Vitest + React Testing Library) |
