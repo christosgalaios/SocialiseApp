@@ -521,7 +521,6 @@ function App() {
                       contentReady ? (
                         <HomeTab
                           onProfileClick={() => setActiveTabWithEffects('profile')}
-                          filteredEvents={filteredEvents}
                           fetchAllData={fetchAllData}
                         />
                       ) : (<HomeSkeleton />)
