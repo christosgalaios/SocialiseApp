@@ -20,9 +20,10 @@ Fetches bug reports from the Google Sheet (the human-readable bug dashboard), au
 
 ### Phase 1: Fetch, Display, & Ask (no network writes — show results fast)
 
-1. **Fetch** all bug reports from the **Google Sheet CSV export** (the single source for this skill):
+1. **Fetch** all bug reports and feature requests from the **Google Sheet CSV export** (the single source for this skill):
    - URL: `https://docs.google.com/spreadsheets/d/1WcsoRjbQbDp9B6HHBzCtksh1SH8jH_0sGY6a7Z9xHMA/gviz/tq?tqx=out:csv`
-   - Parse the CSV — columns are: `Bug ID`, `Description`, `Status`, `Priority`, `Environment`, `Created At`, `App Version`, `Fixed At`, `Reports`
+   - Parse the CSV — columns are: `Bug ID`, `Description`, `Status`, `Priority`, `Environment`, `Created At`, `App Version`, `Fixed At`, `Reports`, `Type`
+   - The `Type` column distinguishes between `bug` and `feature` entries. Rows without a `Type` value default to `bug`. Feature requests have IDs prefixed with `FEAT-` instead of `BUG-`.
    - Skip empty rows and header row
    - This is the only data source — do NOT fall back to the API or Supabase REST
 
@@ -36,13 +37,13 @@ Fetches bug reports from the Google Sheet (the human-readable bug dashboard), au
    - **Normalize** environment values in memory: `production` → `PROD`, `development` → `DEV`, `local` → `LOCAL`
    - **No sheet or API writes happen in this phase.** All changes are computed locally. Sheet updates happen lazily in Phase 2 when bugs are actually processed.
 
-3. **Display** a summary table of ALL bugs (open, fixed, rejected, etc.) with the computed priorities:
+3. **Display** a summary table of ALL entries (open, fixed, rejected, etc.) with the computed priorities:
    ```
-   | Bug ID              | Reports | Status     | Priority | Env   | Description (truncated)                    |
-   |---------------------|---------|------------|----------|-------|--------------------------------------------|
-   | BUG-1771870610374   | 3       | open       | P1       | BOTH  | App not responsive, create events hardlock |
-   | BUG-1771870680693   | 1       | fixed      | P2       | LOCAL | Swiping can get frozen                     |
-   | BUG-1771870492212   | 1       | rejected   | P3       | LOCAL | Test of the api                            |
+   | Bug ID              | Type    | Reports | Status     | Priority | Env   | Description (truncated)                    |
+   |---------------------|---------|---------|------------|----------|-------|--------------------------------------------|
+   | BUG-1771870610374   | bug     | 3       | open       | P1       | BOTH  | App not responsive, create events hardlock |
+   | FEAT-1771870680693  | feature | 1       | open       | P2       | LOCAL | Add distance filter to explore             |
+   | BUG-1771870492212   | bug     | 1       | rejected   | P3       | LOCAL | Test of the api                            |
    ```
    Indicate with a note if any priorities were inferred (e.g. "* = inferred priority, not yet written to sheet").
 
@@ -112,13 +113,14 @@ Process bugs ONE AT A TIME in priority order (P1 → P2 → P3). Never work on m
    ```
    Check that the `Status` column shows the expected value. If it doesn't, fall back to the Apps Script webhook directly.
 
-   **Step 3 — Fix the bug:**
+   **Step 3 — Fix the bug (or triage the feature request):**
    a. Read the bug-fixer agent definition at `.claude/agents/bug-fixer.md` for full rules
    b. Analyze the description to identify the affected area and component
-   c. Validate: is this a real bug in existing behavior, or a feature request / invalid report?
-   d. If invalid: update status to `rejected` (see Step 4), skip to next bug
-   e. If valid: locate the root cause, apply the minimal fix, add a regression test
-   f. Run `npm run lint` and `npm test -- --run` to verify
+   c. Validate: is this a real bug in existing behavior, a feature request, or invalid?
+   d. If the report is actually a **feature request** submitted as a bug: **re-categorize it** instead of rejecting it — update the entry via `PUT /api/bugs/:bugId` with `{"type":"feature"}` to change its type, then skip to next entry. Do NOT reject it.
+   e. If invalid for other reasons (can't reproduce, spam, etc.): update status to `rejected` (see Step 4), skip to next bug
+   f. If valid bug: locate the root cause, apply the minimal fix, add a regression test
+   g. Run `npm run lint` and `npm test -- --run` to verify
 
    **Step 4 — Mark as fixed (or rejected/needs-triage) (Supabase + Sheet):**
    Update via the **production API**:
@@ -161,7 +163,7 @@ Process bugs ONE AT A TIME in priority order (P1 → P2 → P3). Never work on m
 
 | Method | Endpoint | Purpose |
 |--------|----------|---------|
-| PUT | `/api/bugs/:bugId` | Update status, priority, environment, description, app_version (auto-syncs Supabase + Google Sheet) |
+| PUT | `/api/bugs/:bugId` | Update status, priority, environment, description, app_version, type (auto-syncs Supabase + Google Sheet) |
 | DELETE | `/api/bugs/:bugId` | Delete bug report from Supabase + Google Sheet (used for duplicate consolidation) |
 
 ### Bug report object shape
@@ -211,7 +213,7 @@ Read `.claude/agents/bug-fixer.md` for the full constraint set. Key rules:
 - **Minimal changes** — max 5 files, max 100 lines per bug (excluding tests)
 - **Forbidden files** — no touching workflows, .env, migrations, package.json, config files
 - **Auth escalation** — bugs in auth/security code get marked `needs-triage`, not fixed
-- **Feature request detection** — if the "bug" describes desired new behavior, mark as `rejected`
+- **Feature request re-categorization** — if a "bug" actually describes desired new behavior, re-categorize it by updating `type` to `feature` via `PUT /api/bugs/:bugId` instead of rejecting it
 - **Test required** — every fix must include a regression test
 - **Lint + tests must pass** — run both before committing each fix
 
@@ -250,7 +252,7 @@ The Google Sheet is the single source for fetching bugs in this skill. Updates f
 - **CSV export URL (for fetching):** `https://docs.google.com/spreadsheets/d/1WcsoRjbQbDp9B6HHBzCtksh1SH8jH_0sGY6a7Z9xHMA/gviz/tq?tqx=out:csv`
 - **Apps Script webhook (for updates):** `https://script.google.com/macros/s/AKfycbzNTlbwhCHCBjBBfIAlIo9jycgSjQKTc5DGymDsCnNdaf_ljAzfCj1IhGgINXfkl6f29A/exec`
 - The webhook supports two actions:
-  - **Create** (no `action` field): appends a new row with `{ bug_id, description, status, priority, environment, created_at, app_version }`. If a row with the same description already exists, the incoming report is **consolidated** into that row (reports incremented, environment merged, version appended, re-opened if fixed). Returns `ok`, `consolidated`, or an error.
+  - **Create** (no `action` field): appends a new row with `{ bug_id, description, status, priority, environment, created_at, app_version, type }`. If a row with the same description and type already exists, the incoming report is **consolidated** into that row (reports incremented, environment merged, version appended, re-opened if fixed). Returns `ok`, `consolidated`, or an error.
   - **Update** (`action: 'update'`): finds row by `bug_id` and updates fields in place. Supported update fields:
     - `status` — new status value; setting `fixed` auto-populates Fixed At; setting `open` clears Fixed At
     - `priority` — new priority value
@@ -258,6 +260,7 @@ The Google Sheet is the single source for fetching bugs in this skill. Updates f
     - `environment` — merged environment value (e.g. `BOTH`)
     - `app_version` — merged app version string (e.g. `0.1.104, 0.1.107`)
     - `fixed_at` — ISO timestamp (pass `''` to clear when re-opening)
+    - `type` — report type (`bug` or `feature`)
     Return `updated`, `not_found`, or `ok`.
 - The backend's `PUT /api/bugs/:bugId` automatically syncs to the sheet. When the backend is unreachable, update the sheet directly via the webhook.
 
@@ -276,6 +279,7 @@ The Apps Script uses header-based column lookup (not hardcoded indices). Columns
 | App Version | Text | Comma-separated if multiple versions (e.g. `0.1.104, 0.1.107`) |
 | Fixed At | Timestamp | Auto-populated by Apps Script when status is set to `fixed`; cleared when re-opened |
 | Reports | Number | How many times this bug has been reported; auto-set to 1 on create, incremented on consolidation |
+| Type | Dropdown | `bug`, `feature` — distinguishes bug reports from feature requests. Defaults to `bug` for rows without a value. |
 
 ### Conditional formatting (automatic via Apps Script `formatSheet()`)
 
