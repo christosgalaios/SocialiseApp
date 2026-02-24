@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { Heart, Zap, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { formatError } from '../errorUtils';
@@ -46,13 +46,17 @@ export default function HomeTab({ onProfileClick, fetchAllData }) {
   const setRecommendedLimit = useUIStore((s) => s.setRecommendedLimit);
   const userPreferences = useUIStore((s) => s.userPreferences);
   const showToast = useUIStore((s) => s.showToast);
+  const [isRefreshingRecs, setIsRefreshingRecs] = useState(false);
 
   const refreshRecommendations = useCallback(() => {
+    if (isRefreshingRecs) return;
+    setIsRefreshingRecs(true);
     setRecommendedLimit(3);
     fetchAllData()
       .then(() => showToast('Recommendations refreshed', 'success'))
-      .catch((err) => showToast(formatError(err, 'Failed to refresh'), 'error'));
-  }, [fetchAllData, setRecommendedLimit, showToast]);
+      .catch((err) => showToast(formatError(err, 'Failed to refresh'), 'error'))
+      .finally(() => setIsRefreshingRecs(false));
+  }, [fetchAllData, setRecommendedLimit, showToast, isRefreshingRecs]);
 
   const recommended = events.filter(e => !e.isMicroMeet).sort((a, b) => {
     const interests = userPreferences?.interests || user?.interests || [];
@@ -162,10 +166,11 @@ export default function HomeTab({ onProfileClick, fetchAllData }) {
           </div>
           <button
             onClick={refreshRecommendations}
-            className="w-8 h-8 rounded-full bg-secondary/10 border border-secondary/15 flex items-center justify-center text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all"
+            disabled={isRefreshingRecs}
+            className="w-8 h-8 rounded-full bg-secondary/10 border border-secondary/15 flex items-center justify-center text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             title="Refresh recommendations"
           >
-            <RefreshCw size={14} strokeWidth={2.5} />
+            <RefreshCw size={14} strokeWidth={2.5} className={isRefreshingRecs ? 'animate-spin' : ''} />
           </button>
         </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

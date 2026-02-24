@@ -53,7 +53,7 @@ function syncToSheet(row) {
 
 // POST /api/bugs — Store a bug report in Supabase + sync to Google Sheet
 router.post('/', authenticateToken, async (req, res) => {
-    const { description, app_version, platform } = req.body;
+    const { description, app_version, platform, environment } = req.body;
 
     if (!description?.trim()) {
         return res.status(400).json({ code: BUG_INVALID_INPUT, message: 'Bug description is required' });
@@ -70,11 +70,16 @@ router.post('/', authenticateToken, async (req, res) => {
     const bugId = `BUG-${Date.now()}`;
     const createdAt = new Date().toISOString();
 
-    // Detect environment from request referer/origin
-    // GitHub Pages deploys to /SocialiseApp/prod/ and /SocialiseApp/dev/
-    // referer includes the full URL path (/dev/, /prod/); origin is just scheme+host
-    const referer = req.headers.referer || req.headers.origin || '';
-    const env = referer.includes('/prod') ? 'PROD' : referer.includes('/dev') ? 'DEV' : 'LOCAL';
+    // Prefer client-sent environment (detected from window.location.pathname on frontend)
+    // Fall back to referer header detection for older clients
+    const validEnvs = ['PROD', 'DEV', 'LOCAL'];
+    let env;
+    if (environment && validEnvs.includes(environment)) {
+        env = environment;
+    } else {
+        const referer = req.headers.referer || req.headers.origin || '';
+        env = referer.includes('/prod') ? 'PROD' : referer.includes('/dev') ? 'DEV' : 'LOCAL';
+    }
 
     // Sanitize user input before storing
     const sanitized = sanitizeDescription(description);

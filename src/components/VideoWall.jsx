@@ -157,6 +157,7 @@ const VideoCard = ({ ad, onSelect, muted, onToggleMute, isSponsored = true }) =>
 const VideoWall = ({ onEventSelect, userName = "You" }) => {
     const scrollRef = useRef(null);
     const interactionTimeoutRef = useRef(null);
+    const touchStartRef = useRef(null);
     const [isInteracting, setIsInteracting] = useState(false);
     const [activeIndex, setActiveIndex] = useState(0);
     const [muted, setMuted] = useState(true);
@@ -254,8 +255,22 @@ const VideoWall = ({ onEventSelect, userName = "You" }) => {
             <div
                 ref={scrollRef}
                 onScroll={handleScroll}
-                onTouchStart={() => setIsInteracting(true)}
-                onTouchEnd={handleInteractionEnd}
+                onTouchStart={(e) => {
+                    touchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                }}
+                onTouchEnd={(e) => {
+                    if (touchStartRef.current) {
+                        const touch = e.changedTouches[0];
+                        const dx = Math.abs(touch.clientX - touchStartRef.current.x);
+                        const dy = Math.abs(touch.clientY - touchStartRef.current.y);
+                        // Only treat as horizontal interaction if swipe was mostly horizontal
+                        if (dx > dy && dx > 10) {
+                            setIsInteracting(true);
+                            handleInteractionEnd();
+                        }
+                        touchStartRef.current = null;
+                    }
+                }}
                 onMouseEnter={() => setIsInteracting(true)}
                 onMouseLeave={handleInteractionEnd}
                 className="flex gap-4 overflow-x-auto snap-x snap-mandatory no-scrollbar -mx-5 px-5 md:mx-0 md:px-0 pb-4"
