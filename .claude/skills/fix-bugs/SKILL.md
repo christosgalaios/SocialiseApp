@@ -52,24 +52,47 @@ Fetches bug reports from the Google Sheet (the human-readable bug dashboard), au
    - **A specific bug** — let the user type a bug ID
    - If `/fix-bugs BUG-123` was invoked with an ID, skip the prompt and process that bug directly
 
-### Phase 2: Process Selected Bugs
+### Phase 2: Process Selected Bugs (ONE AT A TIME)
 
 Deduplication and prioritization already happened in Phase 1. Bugs are ready to process.
 
+**CRITICAL: Sequential One-Bug-At-A-Time Workflow**
+
+Process bugs ONE AT A TIME in priority order (P1 → P2 → P3). Never work on multiple bugs concurrently or touch files for different bugs at the same time. For each bug, complete the FULL lifecycle before moving to the next.
+
 5. **Process** bugs in priority order: P1 → P2 → P3
-6. **For each unique bug:**
+6. **For each unique bug, follow this EXACT sequence:**
+
+   **Step 1 — Mark as in-progress:**
+   Update the Google Sheet to set the bug's status to `in-progress` via the Apps Script webhook:
+   `POST` to the webhook with `{"action": "update", "bug_id": "{BUG-ID}", "status": "in-progress"}`
+
+   **Step 2 — Fix the bug:**
    a. Read the bug-fixer agent definition at `.claude/agents/bug-fixer.md` for full rules
    b. Analyze the description to identify the affected area and component
    c. Validate: is this a real bug in existing behavior, or a feature request / invalid report?
-   d. If invalid: update status via `PUT /api/bugs/:bugId` with `{"status": "rejected", "priority": "P3"}`, skip
+   d. If invalid: update status to `rejected` (see Step 3), skip to next bug
    e. If valid: locate the root cause, apply the minimal fix, add a regression test
    f. Run `npm run lint` and `npm test -- --run` to verify
-   g. If fix works: update bug via `PUT /api/bugs/:bugId` with `{"status": "fixed", "priority": "{inferred}"}`, commit
-   h. If fix fails or is out of scope: update status to `needs-triage` with reason
+
+   **Step 3 — Mark as fixed (or rejected/needs-triage) with timestamp:**
+   Update the Google Sheet via the Apps Script webhook with the final status AND a `fixed_at` timestamp:
+   - **Fixed:** `{"action": "update", "bug_id": "{BUG-ID}", "status": "fixed", "priority": "{inferred}", "fixed_at": "{ISO timestamp}"}`
+   - **Rejected:** `{"action": "update", "bug_id": "{BUG-ID}", "status": "rejected", "priority": "P3"}`
+   - **Needs triage:** `{"action": "update", "bug_id": "{BUG-ID}", "status": "needs-triage"}`
+   The Apps Script auto-populates the "Fixed At" column when status is set to "fixed".
+
+   **Step 4 — Commit and push this bug's fix:**
+   Commit with message `fix: {description} ({BUG-ID})` and push to the branch.
+
+   **Step 5 — Move to next bug:**
+   Only after Step 4 is complete, go back to Step 1 for the next bug.
+
 7. **Update** bug status via the API (which auto-syncs to both Supabase and Google Sheet):
    - **Primary:** `PUT /api/bugs/:bugId` — automatically syncs Supabase + Google Sheet
    - **Fallback (Sheet only):** If the backend is unreachable, update the Google Sheet directly via the Apps Script webhook: `POST https://script.google.com/macros/s/AKfycbzNTlbwhCHCBjBBfIAlIo9jycgSjQKTc5DGymDsCnNdaf_ljAzfCj1IhGgINXfkl6f29A/exec` with body `{"action": "update", "bug_id": "{BUG-ID}", "status": "fixed", "priority": "P2"}`
-8. **Push** all fix commits to `development` branch
+
+**IMPORTANT: Do NOT pick up new bugs automatically.** Only process the bugs the user has agreed to fix in Phase 1. When all selected bugs are processed, stop and report completion — do not fetch new bugs or start another cycle.
 
 ## API Endpoints (for updates only — fetching is from Google Sheet)
 
@@ -139,6 +162,7 @@ Read `.claude/agents/bug-fixer.md` for the full constraint set. Key rules:
 | Status | Meaning |
 |--------|---------|
 | `open` | Not yet processed — ready for fixing |
+| `in-progress` | Currently being worked on (set before starting each bug) |
 | `fixed` | Bug validated and fix committed |
 | `rejected` | Not a bug (feature request, invalid, or cannot reproduce) |
 | `needs-triage` | Valid bug but out of scope for automated fixing (auth, migrations, etc.) |
@@ -171,17 +195,19 @@ The Apps Script uses header-based column lookup (not hardcoded indices). Columns
 |--------|------|-----------------|
 | Bug ID | Text (monospace) | — |
 | Description | Text (wrapped) | — |
-| Status | Dropdown | `open`, `fixed`, `rejected`, `needs-triage`, `duplicate` |
+| Status | Dropdown | `open`, `in-progress`, `fixed`, `rejected`, `needs-triage`, `duplicate` |
 | Priority | Dropdown | `auto`, `P1`, `P2`, `P3` |
 | Environment | Dropdown | `PROD`, `DEV`, `LOCAL` |
 | Created At | Timestamp | — |
 | App Version | Text | — |
+| Fixed At | Timestamp | — (auto-populated by Apps Script when status is set to `fixed`) |
 
 ### Conditional formatting (automatic via Apps Script `formatSheet()`)
 
 | Column | Value | Background | Text |
 |--------|-------|-----------|------|
 | Status | `open` | Orange `#FFF3E0` | `#E65100` |
+| Status | `in-progress` | Yellow `#FFFDE7` | `#F57F17` |
 | Status | `fixed` | Green `#E8F5E9` | `#2E7D32` |
 | Status | `rejected` | Red `#FFEBEE` | `#C62828` |
 | Status | `needs-triage` | Blue `#E3F2FD` | `#1565C0` |
@@ -197,3 +223,5 @@ The Apps Script uses header-based column lookup (not hardcoded indices). Columns
 ## After Processing
 
 The skill updates bug statuses via the API (which syncs both Supabase and Google Sheet). If the backend is unreachable, updates go directly to the Google Sheet via the Apps Script webhook. Fixed, rejected, and triaged bugs remain in both systems as a record.
+
+**STOP after processing all selected bugs.** Report a summary of what was fixed, rejected, or triaged. Do NOT automatically fetch new bugs or start another cycle. The user decides when to run `/fix-bugs` again.

@@ -242,7 +242,7 @@ Base (production): `https://socialise-app-production.up.railway.app/api`
 - `ALLOWED_ORIGINS` — Comma-separated CORS origins. Defaults to localhost dev origins.
 - `SUPABASE_URL` — Supabase project URL. Required.
 - `SUPABASE_SERVICE_ROLE_KEY` — Supabase service role key (server-side only, bypasses RLS). Required.
-- `BUGS_SHEET_WEBHOOK_URL` — Optional. Google Apps Script web app URL. When set, bug reports are synced to a Google Sheet in real time (fire-and-forget — failures don't affect the API response). Supports two modes: new bug creation (appends row) and status updates via `PUT /bugs/:bugId` (updates existing row by `bug_id`). The Apps Script uses header-based column lookup (not hardcoded indices) so columns can be reordered freely. Environment values are `PROD` (from `/prod/` page), `DEV` (from `/dev/` page), or `LOCAL` (localhost). The Apps Script source is in `docs/google-sheets-apps-script.js`.
+- `BUGS_SHEET_WEBHOOK_URL` — Optional. Google Apps Script web app URL. When set, bug reports are synced to a Google Sheet in real time (fire-and-forget — failures don't affect the API response). Supports two modes: new bug creation (appends row) and status updates via `PUT /bugs/:bugId` (updates existing row by `bug_id`). The Apps Script uses header-based column lookup (not hardcoded indices) so columns can be reordered freely. Environment values are `PROD` (from `/prod/` page), `DEV` (from `/dev/` page), or `LOCAL` (localhost). The "Fixed At" column is auto-populated by the Apps Script when a bug's status is set to `fixed`. The Apps Script source is in `docs/google-sheets-apps-script.js`.
 
 ---
 
@@ -366,6 +366,10 @@ These bugs from the original issue list have been resolved in the codebase:
 - Bug report environment detection uses short uppercase values: `PROD` (from `/prod/` page), `DEV` (from `/dev/` page), `LOCAL` (localhost) — consistent with Google Sheet dropdown options ✓
 - Google Sheet Apps Script uses header-based column lookup (`getColumnMap_`) instead of hardcoded indices — columns can be reordered freely without breaking create/update logic ✓
 - `/fix-bugs` skill fetches from Google Sheet (single source), auto-prioritizes and updates the sheet first, then shows summary table and asks what to fix (all open / P1 only / specific bug) ✓
+- Google Sheet "Fixed At" column auto-populated by Apps Script when status is set to `fixed` — timestamps when each bug was resolved ✓
+- `/fix-bugs` workflow processes bugs ONE AT A TIME: mark `in-progress` → fix → mark `fixed` with timestamp → commit + push → next bug. No automatic pickup of new bugs after completing the agreed list ✓
+- LocationPicker shows fallback text input when Google Maps API key is missing or fails to load (BUG-1771938422741) ✓
+- CreateEventModal close button enlarged to 40x40 touch target, z-index stacking fixed, overflow-x-hidden for reliable scrolling (BUG-1771938439942) ✓
 
 ---
 
