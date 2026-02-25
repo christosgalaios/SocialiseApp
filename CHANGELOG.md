@@ -19,6 +19,13 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Branch cleanup safety** — branch deletion in `auto-approve` no longer fails the workflow if the branch was already deleted
 
 ### Added
+- **Full-sync endpoint** — `POST /api/bugs/full-sync` rebuilds the Google Sheet from Supabase in one call, useful after direct database edits or to fix sync drift
+- **Full bi-directional Google Sheet sync** — editing any column in the bug tracker sheet (Description, Environment, Component, Fix Notes, etc.) now syncs back to Supabase automatically, not just Status/Priority/Type
+
+### Changed
+- **Bug tracker cleanup** — consolidated 31 tickets down to 20 by merging duplicate reports and deleting test submissions; all merged entries preserve original debugging context
+
+### Added
 - **Bug fix process improvements** — bug reports are now fetched from a structured JSON API instead of Google Sheet CSV, service key authentication replaces throwaway user registration, batch updates for bulk operations, fix notes and component columns for better traceability, age-based priority boosting for old bugs, and fuzzy duplicate matching
 
 ### Added
