@@ -230,6 +230,52 @@ async function applyBugUpdate(bugId, fields) {
     return { data, error: null, sheetSynced };
 }
 
+// POST /api/bugs/full-sync — Push all Supabase bug reports to Google Sheet.
+// Clears the sheet and rebuilds it from Supabase (source of truth → sheet).
+// Use this after direct Supabase edits or to recover from sync drift.
+// IMPORTANT: This route MUST be registered before /:bugId to avoid "full-sync" matching as a bugId param.
+router.post('/full-sync', authenticateTokenOrServiceKey, async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('bug_reports')
+            .select('*')
+            .order('created_at', { ascending: true });
+
+        if (error) {
+            console.error('[bugs FULL-SYNC] Supabase error:', error);
+            return res.status(500).json({ code: BUG_FETCH_FAILED, message: 'Failed to fetch bug reports for sync' });
+        }
+
+        if (!data || data.length === 0) {
+            return res.json({ synced: 0, sheetSynced: false, message: 'No bugs to sync' });
+        }
+
+        // Map Supabase rows to sheet-friendly format
+        const bugs = data.map(bug => ({
+            bug_id: bug.bug_id,
+            description: bug.description,
+            status: bug.status,
+            priority: bug.priority,
+            environment: bug.environment,
+            created_at: bug.created_at,
+            app_version: bug.app_version || '',
+            platform: bug.platform || '',
+            type: bug.type || 'bug',
+            reporter: bug.reporter_id || '',
+            fix_notes: bug.fix_notes || '',
+            component: bug.component || '',
+            reports: 1,
+        }));
+
+        const sheetSynced = await syncToSheet({ action: 'full-sync', bugs });
+
+        res.json({ synced: bugs.length, sheetSynced });
+    } catch (err) {
+        console.error('[bugs FULL-SYNC] Error:', err);
+        res.status(500).json({ code: BUG_FETCH_FAILED, message: 'Failed to perform full sync' });
+    }
+});
+
 // PUT /api/bugs/batch — Batch update and/or delete multiple bug reports in one call.
 // IMPORTANT: This route MUST be registered before /:bugId to avoid "batch" matching as a bugId param.
 // Accepts { updates: [{ bugId, ...fields }], deletions: ["BUG-123", ...] }
