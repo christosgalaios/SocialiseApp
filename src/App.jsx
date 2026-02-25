@@ -16,7 +16,13 @@ import useFeedStore from './stores/feedStore';
 import useUIStore from './stores/uiStore';
 
 // --- DATA & CONSTANTS ---
-import { XP_LEVELS } from './data/constants';
+import {
+  SKILL_XP_ACTIONS,
+  CATEGORY_TO_ACTION,
+  SKILLS,
+  getFameLevel,
+  getSkillLevel,
+} from './data/constants';
 
 // --- COMPONENTS ---
 import SplashScreen from './components/SplashScreen';
@@ -96,6 +102,7 @@ function App() {
   const userPreferences = useUIStore((s) => s.userPreferences);
   const setUserPreferences = useUIStore((s) => s.setUserPreferences);
   const setUserXP = useUIStore((s) => s.setUserXP);
+  const addSkillXP = useUIStore((s) => s.addSkillXP);
   const setLevelUpData = useUIStore((s) => s.setLevelUpData);
   const setShowLevelUp = useUIStore((s) => s.setShowLevelUp);
   const experimentalFeatures = useUIStore((s) => s.experimentalFeatures);
@@ -308,19 +315,56 @@ function App() {
       hapticSuccess();
       showToast("You're going! Added to your calendar.", 'success');
 
-      // Award XP — read fresh from store to avoid stale closure on rapid joins
-      const xpGain = 50;
-      const currentXP = useUIStore.getState().userXP;
-      const newXP = currentXP + xpGain;
-      const currentLevel = XP_LEVELS.filter(l => l.xpRequired <= currentXP).pop();
-      const newLevel = XP_LEVELS.filter(l => l.xpRequired <= newXP).pop();
-      setUserXP(newXP);
-      // Persist XP to backend (fire-and-forget — localStorage is source of truth for optimistic UI)
-      api.updateXP({ xp: newXP }).catch(() => {});
-      if (newLevel && currentLevel && newLevel.level > currentLevel.level) {
+      // Award skill XP based on event category — read fresh from store to avoid stale closures
+      const event = useEventStore.getState().events.find(e => e.id === id);
+      const category = event?.category ?? '';
+      const actionKey = CATEGORY_TO_ACTION[category] ?? 'join_event_social';
+      const gains = SKILL_XP_ACTIONS[actionKey] ?? { social_spark: 20 };
+
+      // Snapshot state before mutation for possible rollback
+      const prevSkillXP = { ...useUIStore.getState().skillXP };
+      const prevTotalXP = Object.values(prevSkillXP).reduce((sum, v) => sum + (v || 0), 0);
+      const prevFameLevel = getFameLevel(prevTotalXP);
+
+      // Capture per-skill levels before
+      const prevSkillLevels = {};
+      SKILLS.forEach(s => { prevSkillLevels[s.key] = getSkillLevel(prevSkillXP[s.key] ?? 0); });
+
+      // Apply gains optimistically
+      addSkillXP(gains);
+
+      // Read updated state
+      const newSkillXP = useUIStore.getState().skillXP;
+      const newTotalXP = Object.values(newSkillXP).reduce((sum, v) => sum + (v || 0), 0);
+      const newFameLevel = getFameLevel(newTotalXP);
+
+      // Sync total XP to backend (fire-and-forget)
+      setUserXP(newTotalXP);
+      api.updateXP({ xp: newTotalXP }).catch(() => {});
+
+      // Detect skill level-ups and fame level-up
+      const skillLevelUps = [];
+      SKILLS.forEach(skill => {
+        const newLevel = getSkillLevel(newSkillXP[skill.key] ?? 0);
+        if (newLevel > prevSkillLevels[skill.key]) {
+          const unlockedBadge = skill.badges.find(b => b.level === newLevel) ?? null;
+          skillLevelUps.push({ skillKey: skill.key, newSkillLevel: newLevel, unlockedBadge });
+        }
+      });
+      const fameLeveledUp = newFameLevel.level > prevFameLevel.level;
+
+      if (skillLevelUps.length > 0 || fameLeveledUp) {
+        const first = skillLevelUps[0];
         setTimeout(() => {
           playLevelUp();
-          setLevelUpData({ newLevel, unlockedTitle: null });
+          setLevelUpData({
+            type: first ? 'skill' : 'fame',
+            skillKey: first?.skillKey,
+            newSkillLevel: first?.newSkillLevel,
+            unlockedBadge: first?.unlockedBadge ?? null,
+            fameLeveledUp,
+            newFameLevel: fameLeveledUp ? newFameLevel : null,
+          });
           setShowLevelUp(true);
         }, 1500);
       }
@@ -333,13 +377,14 @@ function App() {
         await api.joinEvent(id);
       } catch (err) {
         setJoinedEvents(prev => prev.filter(e => e !== id));
-        // Rollback XP on join failure
-        setUserXP(useUIStore.getState().userXP - xpGain);
-        api.updateXP({ xp: useUIStore.getState().userXP }).catch(() => {});
+        // Rollback skill XP on join failure
+        useUIStore.getState().setSkillXP(prevSkillXP);
+        setUserXP(prevTotalXP);
+        api.updateXP({ xp: prevTotalXP }).catch(() => {});
         showToast(formatError(err), 'error');
       }
     }
-  }, [setJoinedEvents, showToast, setUserXP, setLevelUpData, setShowLevelUp, setShowConfetti, mango]);
+  }, [setJoinedEvents, showToast, setUserXP, addSkillXP, setLevelUpData, setShowLevelUp, setShowConfetti, mango]);
 
   const sendMessage = useCallback(async (eventId, text) => {
     if (!text.trim()) return;
