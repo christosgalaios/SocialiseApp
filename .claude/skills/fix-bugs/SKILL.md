@@ -122,23 +122,23 @@ Process bugs ONE AT A TIME in priority order (P1 → P2 → P3). Never work on m
    f. If valid bug: locate the root cause, apply the minimal fix, add a regression test
    g. Run `npm run lint` and `npm test -- --run` to verify
 
-   **Step 4 — Mark as fixed (or rejected/needs-triage) (Supabase + Sheet):**
+   **Step 4 — Mark as claim-fixed (or rejected/needs-triage) (Supabase + Sheet):**
    Update via the **production API**:
    ```bash
    curl -s -X PUT "https://socialise-app-production.up.railway.app/api/bugs/$BUG_ID" \
      -H "Content-Type: application/json" \
      -H "Authorization: Bearer $TOKEN" \
-     -d '{"status":"fixed"}'
+     -d '{"status":"claim-fixed"}'
    ```
    Also update Supabase directly:
    ```bash
    curl -s -X PATCH "$SUPABASE_URL/rest/v1/bug_reports?bug_id=eq.$BUG_ID" \
      -H "apikey: $SUPABASE_KEY" -H "Authorization: Bearer $SUPABASE_KEY" \
      -H "Content-Type: application/json" -H "Prefer: return=minimal" \
-     -d '{"status":"fixed"}'
+     -d '{"status":"claim-fixed"}'
    ```
    For rejected: `{"status":"rejected"}`. For needs-triage: `{"status":"needs-triage"}`.
-   The Apps Script auto-populates the "Fixed At" column when status is set to "fixed".
+   **IMPORTANT:** Use `claim-fixed`, NOT `fixed`. The user manually verifies each fix and changes it to `fixed` after confirming. The Apps Script auto-populates the "Fixed At" column only when the user changes status to `fixed`.
 
    **Step 4b — Verify the sheet update:**
    Always confirm the status change is visible on the Google Sheet:
@@ -232,7 +232,8 @@ Read `.claude/agents/bug-fixer.md` for the full constraint set. Key rules:
 |--------|---------|
 | `open` | Not yet processed — ready for fixing |
 | `in-progress` | Currently being worked on (set before starting each bug) |
-| `fixed` | Bug validated and fix committed |
+| `claim-fixed` | Bug fix committed by Claude — awaiting user verification before marking as `fixed` |
+| `fixed` | User-verified fix confirmed working (set manually by user, not by Claude) |
 | `rejected` | Not a bug (feature request, invalid, or cannot reproduce) |
 | `needs-triage` | Valid bug but out of scope for automated fixing (auth, migrations, etc.) |
 | `duplicate of {ID}` | Legacy status — duplicates are now DELETED via `DELETE /api/bugs/:bugId` instead of marked. The primary report carries the consolidated data. |
@@ -252,9 +253,9 @@ The Google Sheet is the single source for fetching bugs in this skill. Updates f
 - **CSV export URL (for fetching):** `https://docs.google.com/spreadsheets/d/1WcsoRjbQbDp9B6HHBzCtksh1SH8jH_0sGY6a7Z9xHMA/gviz/tq?tqx=out:csv`
 - **Apps Script webhook (for updates):** `https://script.google.com/macros/s/AKfycbzNTlbwhCHCBjBBfIAlIo9jycgSjQKTc5DGymDsCnNdaf_ljAzfCj1IhGgINXfkl6f29A/exec`
 - The webhook supports two actions:
-  - **Create** (no `action` field): appends a new row with `{ bug_id, description, status, priority, environment, created_at, app_version, type }`. If a row with the same description and type already exists, the incoming report is **consolidated** into that row (reports incremented, environment merged, version appended, re-opened if fixed). Returns `ok`, `consolidated`, or an error.
+  - **Create** (no `action` field): appends a new row with `{ bug_id, description, status, priority, environment, created_at, app_version, type }`. If a row with the same description and type already exists, the incoming report is **consolidated** into that row (reports incremented, environment merged, version appended, re-opened if fixed/claim-fixed). Returns `ok`, `consolidated`, or an error.
   - **Update** (`action: 'update'`): finds row by `bug_id` and updates fields in place. Supported update fields:
-    - `status` — new status value; setting `fixed` auto-populates Fixed At; setting `open` clears Fixed At
+    - `status` — new status value; setting `fixed` auto-populates Fixed At; setting `open` clears Fixed At. Claude sets `claim-fixed` (not `fixed`) — user manually verifies and changes to `fixed`
     - `priority` — new priority value
     - `reports` — reports count (number)
     - `environment` — merged environment value (e.g. `BOTH`)
@@ -272,12 +273,12 @@ The Apps Script uses header-based column lookup (not hardcoded indices). Columns
 |--------|------|-------|
 | Bug ID | Text (monospace) | — |
 | Description | Text (wrapped) | — |
-| Status | Dropdown | `open`, `in-progress`, `fixed`, `rejected`, `needs-triage`, `duplicate of {ID}` |
+| Status | Dropdown | `open`, `in-progress`, `claim-fixed`, `fixed`, `rejected`, `needs-triage`, `duplicate of {ID}` |
 | Priority | Dropdown | `auto`, `P1`, `P2`, `P3` |
 | Environment | Dropdown | `PROD`, `DEV`, `LOCAL`, `BOTH` |
 | Created At | Timestamp | — |
 | App Version | Text | Comma-separated if multiple versions (e.g. `0.1.104, 0.1.107`) |
-| Fixed At | Timestamp | Auto-populated by Apps Script when status is set to `fixed`; cleared when re-opened |
+| Fixed At | Timestamp | Auto-populated by Apps Script when status is set to `fixed` (not `claim-fixed`); cleared when re-opened |
 | Reports | Number | How many times this bug has been reported; auto-set to 1 on create, incremented on consolidation |
 | Type | Dropdown | `bug`, `feature` — distinguishes bug reports from feature requests. Defaults to `bug` for rows without a value. |
 
@@ -287,6 +288,7 @@ The Apps Script uses header-based column lookup (not hardcoded indices). Columns
 |--------|-------|-----------|------|
 | Status | `open` | Orange `#FFF3E0` | `#E65100` |
 | Status | `in-progress` | Yellow `#FFFDE7` | `#F57F17` |
+| Status | `claim-fixed` | Teal `#E0F2F1` | `#00695C` |
 | Status | `fixed` | Green `#E8F5E9` | `#2E7D32` |
 | Status | `rejected` | Red `#FFEBEE` | `#C62828` |
 | Status | `needs-triage` | Blue `#E3F2FD` | `#1565C0` |
@@ -304,4 +306,6 @@ The Apps Script uses header-based column lookup (not hardcoded indices). Columns
 
 The skill updates bug statuses via the **production API** (`PUT /api/bugs/:bugId`) which syncs both Supabase and the Google Sheet in one call. Also updates Supabase directly as belt-and-suspenders. After all bugs are processed, clean up the temp user created in Phase 1.5.
 
-**STOP after processing all selected bugs.** Report a summary of what was fixed, rejected, or triaged. Do NOT automatically fetch new bugs or start another cycle. The user decides when to run `/fix-bugs` again.
+**IMPORTANT:** Claude marks resolved bugs as `claim-fixed` (not `fixed`). The user manually verifies each fix and changes the status to `fixed` after confirming. The "Fixed At" timestamp is only populated when the user confirms by setting `fixed`.
+
+**STOP after processing all selected bugs.** Report a summary of what was claim-fixed, rejected, or triaged. Do NOT automatically fetch new bugs or start another cycle. The user decides when to run `/fix-bugs` again.

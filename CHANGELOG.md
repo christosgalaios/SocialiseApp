@@ -13,16 +13,24 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 ## [Unreleased]
 
 ### Added
+- Submit feature requests directly from the app — new Lightbulb button alongside the bug report button
 - Swipe down on the handle bar of any bottom sheet or modal to dismiss it — works across all 12 sheets
-- Feature request button repositioned with clear spacing from the bug report button
+- Feature request and bug report buttons repositioned with clear spacing to prevent accidental taps
 
 ### Fixed
+- Main page scroll no longer freezes after closing a modal or sheet on iOS
+- Profile page no longer freezes when scrolling on iOS Safari
+- "Create event" close button and backdrop now respond reliably on iOS — no more stuck modals
+- Community hub page no longer locks your scroll when switching tabs quickly on iOS Safari
+- Pull-to-refresh no longer double-fires when triggered rapidly
+- Pull-to-refresh no longer triggers when swiping horizontally through video carousels
 - "What's New" changelog sheet is now scrollable on iOS Safari
 - Video cards stay pressed when dragging after a long press — no more visual snap-back glitch
-- Community hub page no longer locks your scroll when switching tabs quickly on iOS Safari
-- "Create event" close button and backdrop now respond reliably on iOS — no more stuck modals
+- VideoWall horizontal scrolling no longer conflicts with vertical page scroll on diagonal swipes
 - Events on the Explore tab no longer wobble when the page first loads
+- Bug report text no longer overflows on smaller screens
 - Feature request box text no longer overflows on smaller screens
+- Bug reports now correctly detect which environment (production, development, local) they were submitted from
 - Event reels screen reader support — all icon-only buttons now announce their purpose correctly
 - Chat messages that fail to send are now removed instead of showing as ghost "sent" messages
 - Joining multiple events rapidly now correctly accumulates XP instead of repeating the same amount

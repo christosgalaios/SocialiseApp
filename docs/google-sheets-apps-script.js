@@ -31,7 +31,9 @@
 //
 //   STATUS column:
 //     open          → Orange
-//     fixed         → Green
+//     in-progress   → Yellow
+//     claim-fixed   → Teal (fix committed by Claude, awaiting user verification)
+//     fixed         → Green (user-verified fix confirmed working)
 //     rejected      → Red
 //     needs-triage  → Blue
 //     duplicate     → Purple
@@ -232,10 +234,10 @@ function doPost(e) {
         }
       }
 
-      // Re-open if the existing bug was 'fixed'
+      // Re-open if the existing bug was 'fixed' or 'claim-fixed'
       if (statusCol) {
         var existingStatus = String(existingData[j][statusCol - 1]).trim();
-        if (existingStatus === 'fixed') {
+        if (existingStatus === 'fixed' || existingStatus === 'claim-fixed') {
           sheet.getRange(rowNum, statusCol).setValue('open');
           if (fixedAtCol) {
             sheet.getRange(rowNum, fixedAtCol).setValue('');
@@ -640,10 +642,10 @@ function consolidateDuplicateDescriptions_(sheet) {
         sheet.getRange(primaryRowNum, versionColIdx + 1).setValue(mergedVersion);
       }
 
-      // Re-open the primary if it was 'fixed' and a newer open report exists
+      // Re-open the primary if it was 'fixed' or 'claim-fixed' and a newer open report exists
       var primaryStatus = String(data[primaryDataIdx][statusColIdx]).trim();
       var dupStatus     = String(data[i][statusColIdx]).trim();
-      if (primaryStatus === 'fixed' && dupStatus === 'open') {
+      if ((primaryStatus === 'fixed' || primaryStatus === 'claim-fixed') && dupStatus === 'open') {
         data[primaryDataIdx][statusColIdx] = 'open';
         sheet.getRange(primaryRowNum, statusColIdx + 1).setValue('open');
         sheet.getRange(primaryRowNum, fixedAtColIdx + 1).setValue('');
