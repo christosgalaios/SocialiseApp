@@ -100,7 +100,7 @@ export default function FeatureRequestModal({ isOpen, onClose, onSubmit }) {
     >
       <motion.div
         ref={focusTrapRef}
-        className="w-full max-w-md max-h-[85dvh] overflow-y-auto overscroll-contain bg-paper rounded-t-[32px] sm:rounded-[32px] p-5 pb-6 border-t sm:border border-secondary/10 shadow-2xl"
+        className="w-full max-w-md max-h-[85dvh] overflow-y-auto overscroll-contain bg-paper rounded-t-[32px] sm:rounded-[32px] p-6 pb-8 border-t sm:border border-secondary/10 shadow-2xl"
         initial={{ y: '100%' }}
         animate={{ y: 0 }}
         exit={{ y: '100%' }}
