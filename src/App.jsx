@@ -587,7 +587,7 @@ function App() {
 
             {/* Floating Navigation - Mobile Only */}
             <div className="md:hidden">
-              <BottomNav activeTab={activeTab} setActiveTab={setActiveTabWithEffects} />
+              <BottomNav activeTab={activeTab} setActiveTab={setActiveTabWithEffects} onReelsClick={() => useUIStore.getState().setShowReels(true)} />
             </div>
 
             {/* Modals & Sheets */}
