@@ -68,7 +68,6 @@ function App() {
   const activeTab = useUIStore((s) => s.activeTab);
   const setActiveTab = useUIStore((s) => s.setActiveTab);
   const activeCategory = useUIStore((s) => s.activeCategory);
-  const setActiveCategory = useUIStore((s) => s.setActiveCategory);
   const searchQuery = useUIStore((s) => s.searchQuery);
   const sizeFilter = useUIStore((s) => s.sizeFilter);
   const dateRange = useUIStore((s) => s.dateRange);
