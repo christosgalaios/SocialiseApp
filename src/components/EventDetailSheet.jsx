@@ -8,6 +8,7 @@ import {
 import { INCLUSIVITY_TAGS, CATEGORY_ATTRIBUTES, DEFAULT_AVATAR } from '../data/constants';
 import { useEscapeKey, useFocusTrap, useSwipeToClose } from '../hooks/useAccessibility';
 import { playTap, playSuccess, playSwooshClose, hapticTap } from '../utils/feedback';
+import useUIStore from '../stores/uiStore';
 
 const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMessage, onOpenProfile }) => {
   const [activeTab, setActiveTab] = useState('info');
@@ -103,6 +104,31 @@ const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMe
                   <p className="text-xl font-extrabold mb-2 tracking-tight text-secondary group-hover:text-primary transition-colors">{event.location}</p>
                   <button className="text-primary text-xs font-black flex items-center gap-2 hover:translate-x-1 transition-transform">Get Directions <ChevronRight size={14} /></button>
                 </div>
+
+                {/* Hosted By */}
+                {event.host && (
+                  <div className="mb-10 px-2">
+                    <h4 className="text-secondary/40 text-[10px] font-black uppercase tracking-widest mb-4">Hosted By</h4>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (event.host_id) {
+                          useUIStore.getState().setShowOrganiserProfile(event.host_id);
+                        }
+                      }}
+                      className="flex items-center gap-3 group/host w-full text-left"
+                    >
+                      <div className="w-10 h-10 rounded-xl overflow-hidden bg-secondary/10 border border-secondary/10 shrink-0">
+                        <img src={event.hostAvatar || DEFAULT_AVATAR} className="w-full h-full object-cover" alt="" loading="lazy" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-secondary group-hover/host:text-primary transition-colors truncate">{event.host}</p>
+                        <p className="text-[10px] text-secondary/40 font-medium">Tap to view profile</p>
+                      </div>
+                      <ChevronRight size={14} className="text-secondary/30 shrink-0" />
+                    </button>
+                  </div>
+                )}
 
                 <div className="mb-10 px-2">
                   <h4 className="text-secondary/40 text-[10px] font-black uppercase tracking-widest mb-4">Meeting Description</h4>
