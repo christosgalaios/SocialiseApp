@@ -3,7 +3,7 @@ const APP_VERSION = import.meta.env.VITE_APP_VERSION || '0.1.dev';
 import {
   Mail, ShieldCheck, Zap, Check, Heart, Crown, ChevronRight, LogOut, Camera, Users, Settings, MessageCircle, ArrowLeft, Volume2,
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import useAuthStore from '../stores/authStore';
 import { playTap, playToggle, playClick, hapticTap } from '../utils/feedback';
 import useEventStore from '../stores/eventStore';
