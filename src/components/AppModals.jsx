@@ -1,4 +1,3 @@
-import { lazy, Suspense } from 'react';
 import { Zap, Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import useAuthStore from '../stores/authStore';
@@ -24,8 +23,6 @@ import BugReportModal from './BugReportModal';
 import FeatureRequestModal from './FeatureRequestModal';
 import ChangelogSheet from './ChangelogSheet';
 
-const EventReels = lazy(() => import('./EventReels'));
-
 // Match Analysis Modal (inline component)
 const MatchAnalysisModal = ({ event, onConfirm, onCancel }) => (
   <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-secondary/80 backdrop-blur-xl" role="alertdialog" aria-modal="true" aria-label="Match analysis">
@@ -50,7 +47,7 @@ const MatchAnalysisModal = ({ event, onConfirm, onCancel }) => (
   </div>
 );
 
-export default function AppModals({ handleJoin, sendMessage, filteredEvents }) {
+export default function AppModals({ handleJoin, sendMessage }) {
   const user = useAuthStore((s) => s.user);
   const handleLogoutAuth = useAuthStore((s) => s.handleLogout);
 
@@ -94,8 +91,6 @@ export default function AppModals({ handleJoin, sendMessage, filteredEvents }) {
   const levelUpData = useUIStore((s) => s.levelUpData);
   const showLevelDetail = useUIStore((s) => s.showLevelDetail);
   const setShowLevelDetail = useUIStore((s) => s.setShowLevelDetail);
-  const showReels = useUIStore((s) => s.showReels);
-  const setShowReels = useUIStore((s) => s.setShowReels);
   const setShowConfetti = useUIStore((s) => s.setShowConfetti);
   const setProEnabled = useUIStore((s) => s.setProEnabled);
   const showToast = useUIStore((s) => s.showToast);
@@ -354,18 +349,6 @@ export default function AppModals({ handleJoin, sendMessage, filteredEvents }) {
         newLevel={levelUpData?.newLevel}
         unlockedTitle={levelUpData?.unlockedTitle}
       />
-      {showReels && (
-        <Suspense fallback={null}>
-          <EventReels
-            events={filteredEvents}
-            onClose={() => setShowReels(false)}
-            onSelectEvent={(event) => {
-              setShowReels(false);
-              setSelectedEvent(event);
-            }}
-          />
-        </Suspense>
-      )}
       <AvatarCropModal
         imageUrl={avatarCropImage}
         isOpen={!!avatarCropImage}

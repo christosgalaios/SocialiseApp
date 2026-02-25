@@ -1,10 +1,11 @@
 import { useRef } from 'react';
 const APP_VERSION = import.meta.env.VITE_APP_VERSION || '0.1.dev';
 import {
-  Mail, ShieldCheck, Zap, Check, Heart, Crown, ChevronRight, LogOut, Camera, Users, Settings, MessageCircle, ArrowLeft,
+  Mail, ShieldCheck, Zap, Check, Heart, Crown, ChevronRight, LogOut, Camera, Users, Settings, MessageCircle, ArrowLeft, Volume2,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import useAuthStore from '../stores/authStore';
+import { playTap, playToggle, playClick, hapticTap } from '../utils/feedback';
 import useEventStore from '../stores/eventStore';
 import useUIStore from '../stores/uiStore';
 import {
@@ -37,6 +38,8 @@ export default function ProfileTab({ onLogout }) {
   const setProfileSubTab = useUIStore((s) => s.setProfileSubTab);
   const experimentalFeatures = useUIStore((s) => s.experimentalFeatures);
   const setExperimentalFeatures = useUIStore((s) => s.setExperimentalFeatures);
+  const soundEnabled = useUIStore((s) => s.soundEnabled);
+  const setSoundEnabled = useUIStore((s) => s.setSoundEnabled);
   const proEnabled = useUIStore((s) => s.proEnabled);
   const setShowBookings = useUIStore((s) => s.setShowBookings);
   const setShowSaved = useUIStore((s) => s.setShowSaved);
@@ -87,12 +90,41 @@ export default function ProfileTab({ onLogout }) {
           className="space-y-6"
         >
           <button
-            onClick={() => setProfileSubTab('profile')}
+            onClick={() => { playTap(); setProfileSubTab('profile'); }}
             className="flex items-center gap-2 text-secondary/60 hover:text-secondary font-bold text-sm mb-2 transition-colors"
           >
             <ArrowLeft size={18} />
             Back to Profile
           </button>
+          {/* Sound toggle */}
+          <div className="premium-card rounded-[32px] overflow-hidden border border-secondary/10">
+            <div className="p-4 border-b border-secondary/10">
+              <h2 className="font-black text-secondary text-lg">Sound &amp; feedback</h2>
+              <p className="text-xs text-secondary/60 mt-1">Warm interaction sounds across the app.</p>
+            </div>
+            <div className="p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20">
+                  <Volume2 size={20} className="text-primary" />
+                </div>
+                <span className="font-bold text-secondary">Enable sounds</span>
+              </div>
+              <button
+                role="switch"
+                aria-checked={soundEnabled}
+                onClick={() => { playToggle(!soundEnabled); setSoundEnabled(!soundEnabled); }}
+                className={`relative w-12 h-7 rounded-full transition-colors ${soundEnabled ? 'bg-primary' : 'bg-secondary/20'}`}
+              >
+                <motion.div
+                  className="absolute top-1 w-5 h-5 rounded-full bg-white shadow"
+                  animate={{ x: soundEnabled ? 24 : 0 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                  style={{ left: 4 }}
+                />
+              </button>
+            </div>
+          </div>
+
           <div className="premium-card rounded-[32px] overflow-hidden border border-secondary/10">
             <div className="p-4 border-b border-secondary/10">
               <h2 className="font-black text-secondary text-lg">Experimental features</h2>
@@ -103,7 +135,7 @@ export default function ProfileTab({ onLogout }) {
               <button
                 role="switch"
                 aria-checked={experimentalFeatures}
-                onClick={() => setExperimentalFeatures(!experimentalFeatures)}
+                onClick={() => { playToggle(!experimentalFeatures); setExperimentalFeatures(!experimentalFeatures); }}
                 className={`relative w-12 h-7 rounded-full transition-colors ${experimentalFeatures ? 'bg-primary' : 'bg-secondary/20'}`}
               >
                 <motion.div
@@ -208,7 +240,7 @@ export default function ProfileTab({ onLogout }) {
         <motion.div
           variants={itemVariants}
           className="premium-card p-6 overflow-hidden relative cursor-pointer active:scale-[0.98] transition-transform"
-          onClick={() => setShowLevelDetail(true)}
+          onClick={() => { playClick(); setShowLevelDetail(true); }}
         >
           <div className="absolute -right-10 -top-10 w-40 h-40 bg-accent/5 rounded-full blur-3xl" />
           <div className="flex items-center justify-between mb-4">
@@ -313,11 +345,11 @@ export default function ProfileTab({ onLogout }) {
 
       <motion.div variants={itemVariants} className="premium-card overflow-hidden mt-6 rounded-[32px] bg-secondary/5 border border-secondary/10">
         {[
-          { label: 'My Bookings', icon: Check, action: () => setShowBookings(true), badge: joinedEvents.length },
-          { label: 'Saved Experiences', icon: Heart, action: () => setShowSaved(true), badge: savedEvents.length },
-          ...(experimentalFeatures ? [{ label: 'Socialise Pass', icon: Zap, action: () => setShowProModal(true) }] : []),
-          { label: 'Settings', icon: Settings, action: () => setProfileSubTab('settings') },
-          { label: 'Help & Privacy', icon: ShieldCheck, action: () => setShowHelp(true) },
+          { label: 'My Bookings', icon: Check, action: () => { playTap(); hapticTap(); setShowBookings(true); }, badge: joinedEvents.length },
+          { label: 'Saved Experiences', icon: Heart, action: () => { playTap(); hapticTap(); setShowSaved(true); }, badge: savedEvents.length },
+          ...(experimentalFeatures ? [{ label: 'Socialise Pass', icon: Zap, action: () => { playTap(); setShowProModal(true); } }] : []),
+          { label: 'Settings', icon: Settings, action: () => { playTap(); hapticTap(); setProfileSubTab('settings'); } },
+          { label: 'Help & Privacy', icon: ShieldCheck, action: () => { playTap(); hapticTap(); setShowHelp(true); } },
         ].map((item) => (
           <button
             key={item.label}
@@ -344,7 +376,7 @@ export default function ProfileTab({ onLogout }) {
 
       <motion.button
         variants={itemVariants}
-        onClick={onLogout}
+        onClick={() => { playTap(); onLogout(); }}
         className="w-full p-6 mt-6 rounded-[32px] bg-red-500/10 border border-red-500/20 flex items-center justify-center gap-3 text-red-500 font-black uppercase tracking-widest hover:bg-red-500/20 transition-all active:scale-95"
       >
         <LogOut size={18} />

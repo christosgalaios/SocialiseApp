@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Heart, MessageCircle, Send, Smile, Reply, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DEFAULT_AVATAR } from '../data/constants';
+import { playLike, playUnlike, playClick, playSend, hapticTap } from '../utils/feedback';
 
 const EMOJI_OPTIONS = ['❤️', '😂', '🔥', '👏', '😮', '😢'];
 
@@ -54,6 +55,7 @@ const CommentItem = ({ comment, onReact, onReply, isReply = false, currentUser, 
 
   const submitReply = () => {
     if (replyText.trim()) {
+      playSend();
       onReply(comment.id, replyText.trim());
       setReplyText('');
       setShowReplyInput(false);
@@ -111,6 +113,7 @@ const CommentItem = ({ comment, onReact, onReply, isReply = false, currentUser, 
                     <button
                       key={emoji}
                       onClick={() => {
+                        playClick();
                         onReact(comment.id, emoji, isReply);
                         setShowEmojiPicker(false);
                       }}
@@ -234,11 +237,13 @@ const FeedItem = ({ post, currentUser = { name: 'Ben B.', avatar: '/ben-avatar.p
   const [comments, setComments] = useState(INITIAL_COMMENTS[post.id] || []);
 
   const handleLike = () => {
+    if (liked) { playUnlike(); } else { playLike(); hapticTap(); }
     setLiked(!liked);
     setLikeCount(liked ? likeCount - 1 : likeCount + 1);
   };
 
   const toggleComments = () => {
+    playClick();
     setShowComments(!showComments);
   };
 
@@ -309,6 +314,7 @@ const FeedItem = ({ post, currentUser = { name: 'Ben B.', avatar: '/ben-avatar.p
 
   const submitComment = () => {
     if (comment.trim()) {
+      playSend();
       const newComment = {
         id: Date.now(),
         user: currentUser?.name ?? 'Guest',

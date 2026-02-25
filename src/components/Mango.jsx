@@ -1,6 +1,14 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { useMango } from '../contexts/MangoContext';
 import { motion, useMotionValue, useTransform, AnimatePresence, useVelocity, useDragControls } from 'framer-motion';
+import {
+  playMangoChirp,
+  playMangoPurr,
+  playMangoPickup,
+  playMangoDrop,
+  playMangoSleep,
+  playMangoWake,
+} from '../utils/feedback';
 
 /**
  * MangoSVG - A playful orange tabby kitten with interactive poses
@@ -762,6 +770,7 @@ const Mango = ({
             idleTimerRef.current = setTimeout(() => {
                 // After 30s total (10+20) -> sleep
                 updatePose('sleep');
+                playMangoSleep();
             }, 20000);
         }, 10000);
     }, [isDragging, updatePose]);
@@ -778,6 +787,9 @@ const Mango = ({
     const handlePointerDown = useCallback(() => {
         if (!interactive) return;
 
+        // Play wake sound if sleeping
+        if (currentPose === 'sleep') playMangoWake();
+
         resetIdleTimer();
         tapStartTimeRef.current = Date.now();
         hasDraggedRef.current = false;
@@ -788,9 +800,10 @@ const Mango = ({
             if (!hasDraggedRef.current) {
                 setIsHolding(true);
                 setCurrentPose('purr');
+                playMangoPurr();
             }
         }, 300);
-    }, [interactive, resetIdleTimer]);
+    }, [interactive, resetIdleTimer, currentPose]);
 
     // Handle tap end (pointer up)
     const handlePointerUp = useCallback(() => {
@@ -813,6 +826,7 @@ const Mango = ({
 
         // Quick tap = open chat
         if (tapDuration < 300 && !hasDraggedRef.current && !isDragging) {
+            playMangoChirp();
             toggleChat();
         }
     }, [interactive, isDragging, isHolding, initialPose, toggleChat]);
@@ -834,6 +848,7 @@ const Mango = ({
         setIsHolding(false);
         setIsDragging(true);
         setCurrentPose('carried');
+        playMangoPickup();
     }, [interactive]);
 
     // Handle drag end - drop with gravity + save position
@@ -841,6 +856,7 @@ const Mango = ({
     const handleDragEnd = useCallback((_event, _info) => {
         setIsDragging(false);
         resetIdleTimer();
+        playMangoDrop();
 
         // Get current position
         const currentY = y.get();

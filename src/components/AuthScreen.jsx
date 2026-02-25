@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Crown, ChevronLeft, ChevronRight, Quote, Mail, Lock, User, AlertCircle } from 'lucide-react';
 import { formatError } from '../errorUtils';
+import { playTap, playError as playErrorSound } from '../utils/feedback';
 
 const TESTIMONIALS = [
   {
@@ -47,6 +48,7 @@ const AuthScreen = ({ onLogin }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    playTap();
     setError('');
     if (isRegister && !firstName.trim()) {
       setError('Please enter your first name');
@@ -75,6 +77,7 @@ const AuthScreen = ({ onLogin }) => {
         { email: email.trim(), password, firstName: firstName.trim(), lastName: lastName.trim() }
       );
     } catch (err) {
+      playErrorSound();
       setError(formatError(err, 'Something went wrong'));
     } finally {
       setLoading(false);

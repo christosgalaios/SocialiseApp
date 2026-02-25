@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Sparkles, Bug, Shield, Trash2, RefreshCw } from 'lucide-react';
 import { useEscapeKey, useFocusTrap, useSwipeToClose } from '../hooks/useAccessibility';
+import changelogRaw from '../../CHANGELOG.md?raw';
 
 const CATEGORY_CONFIG = {
   Added: { icon: Sparkles, color: 'text-primary', bg: 'bg-primary/10' },
@@ -10,215 +11,59 @@ const CATEGORY_CONFIG = {
   Security: { icon: Shield, color: 'text-secondary', bg: 'bg-secondary/10' },
 };
 
-const CHANGELOG = [
-  {
-    version: '0.1.164',
-    date: '2026-02-24',
-    sections: [
-      {
-        category: 'Added',
-        items: ['Bug reports now auto-detect your platform, OS, and browser'],
-      },
-      {
-        category: 'Fixed',
-        items: [
-          'Duplicate bug entries are automatically merged',
-          'Bug report form now includes guided prompts',
-          'Explore filters no longer bleed into the Home tab',
-          'Create event close button reliably tappable on mobile',
-          'Location picker shows text fallback when maps unavailable',
-          'Desktop sidebar navigation routes correctly',
-          'Mango drag bounds update on window resize',
-        ],
-      },
-    ],
-  },
-  {
-    version: '0.1.150',
-    date: '2026-02-24',
-    sections: [
-      {
-        category: 'Fixed',
-        items: [
-          'Event reels no longer freeze mid-swipe',
-          'Creating an event prevents accidental double-submission',
-          'Video wall no longer accumulates background timers',
-        ],
-      },
-    ],
-  },
-  {
-    version: '0.1.147',
-    date: '2026-02-24',
-    sections: [
-      {
-        category: 'Fixed',
-        items: [
-          'Splash screen no longer skips too early',
-          'Bug reports include the current app version',
-        ],
-      },
-    ],
-  },
-  {
-    version: '0.1.142',
-    date: '2026-02-23',
-    sections: [
-      {
-        category: 'Added',
-        items: ['Bug reports stored permanently and synced to tracking sheet'],
-      },
-    ],
-  },
-  {
-    version: '0.1.134',
-    date: '2026-02-22',
-    sections: [
-      {
-        category: 'Added',
-        items: ['XP and titles save to your account across devices'],
-      },
-      {
-        category: 'Fixed',
-        items: ['XP and achievements consistent between environments'],
-      },
-    ],
-  },
-  {
-    version: '0.1.123',
-    date: '2026-02-22',
-    sections: [
-      {
-        category: 'Added',
-        items: [
-          'Login streak tracking on your profile',
-          'In-app bug reporting from Profile settings',
-        ],
-      },
-      {
-        category: 'Fixed',
-        items: ['New accounts start with 0 XP and no phantom achievements'],
-      },
-    ],
-  },
-  {
-    version: '0.1.96',
-    date: '2026-02-22',
-    sections: [
-      {
-        category: 'Changed',
-        items: ['Profile pictures optimised server-side for faster uploads'],
-      },
-      {
-        category: 'Fixed',
-        items: ['New profiles no longer inherit leftover avatars'],
-      },
-    ],
-  },
-  {
-    version: '0.1.95',
-    date: '2026-02-22',
-    sections: [
-      {
-        category: 'Added',
-        items: [
-          'Password confirmation on registration',
-          'Escape key closes all modals and sheets',
-          'Full keyboard navigation for tabs and categories',
-          'Screen reader support with ARIA roles and live regions',
-          'Community chat loads real messages from the server',
-        ],
-      },
-      {
-        category: 'Changed',
-        items: [
-          'App loads ~47% faster (736 kb → 389 kb)',
-          'Maps, animations, and video load on demand',
-          'Smoother navigation and state updates',
-        ],
-      },
-      {
-        category: 'Fixed',
-        items: [
-          'Mobile tab switch scrolls to top correctly',
-          'Cancelling a booking now syncs with the server',
-        ],
-      },
-    ],
-  },
-  {
-    version: '0.1.79',
-    date: '2026-02-21',
-    sections: [
-      {
-        category: 'Added',
-        items: ['Delete your account from Profile → Settings'],
-      },
-    ],
-  },
-  {
-    version: '0.1.67',
-    date: '2026-02-21',
-    sections: [
-      {
-        category: 'Added',
-        items: ['Separate first and last name on registration'],
-      },
-      {
-        category: 'Changed',
-        items: ['Images load lazily for less data usage'],
-      },
-      {
-        category: 'Security',
-        items: [
-          'Row Level Security on all database tables',
-          'Login and registration rate-limited',
-          'JWT tokens hardened in production',
-          'CORS locked to known origins only',
-        ],
-      },
-    ],
-  },
-  {
-    version: '0.1.52',
-    date: '2026-02-21',
-    sections: [
-      {
-        category: 'Removed',
-        items: ['Email verification on registration (was blocking sign-up)'],
-      },
-      {
-        category: 'Fixed',
-        items: ['Server crash when no users have registered yet'],
-      },
-    ],
-  },
-  {
-    version: '0.1.0',
-    date: '2026-02-21',
-    sections: [
-      {
-        category: 'Added',
-        items: [
-          'Browse, join, and save local social events',
-          'Micro-Meets — AI-matched small group dinners',
-          'Communities (Tribes) with group chat and feed',
-          'Global social feed with emoji reactions',
-          'Mango — interactive kitten assistant',
-          'Customisable profile with XP progression',
-          'Secure email + password authentication',
-        ],
-      },
-    ],
-  },
-];
+function parseChangelog(raw) {
+  const releases = [];
+  // Split on h2 headings — each chunk starts with the text after "## "
+  const chunks = raw.split(/^## /m).slice(1);
+
+  for (const chunk of chunks) {
+    const lines = chunk.split('\n');
+    const header = lines[0].trim();
+
+    const isUnreleased = /^\[Unreleased\]/i.test(header);
+    const releaseMatch = header.match(/^\[([^\]]+)\]\s*[—–-]+\s*(\d{4}-\d{2}-\d{2})/);
+
+    if (!isUnreleased && !releaseMatch) continue;
+
+    const version = isUnreleased ? 'Unreleased' : releaseMatch[1];
+    const date = releaseMatch ? releaseMatch[2] : null;
+
+    // Split body into category blocks (### heading)
+    const body = lines.slice(1).join('\n');
+    const sections = [];
+
+    for (const catChunk of body.split(/^### /m).slice(1)) {
+      const catLines = catChunk.split('\n');
+      const category = catLines[0].trim();
+      const items = catLines
+        .slice(1)
+        .filter((l) => l.startsWith('- '))
+        .map((l) => l.slice(2).trim());
+
+      if (items.length > 0) {
+        sections.push({ category, items });
+      }
+    }
+
+    if (sections.length > 0) {
+      releases.push({ version, date, sections });
+    }
+  }
+
+  return releases;
+}
+
+const CHANGELOG = parseChangelog(changelogRaw);
 
 const ChangelogSheet = ({ isOpen, onClose }) => {
   useEscapeKey(isOpen, onClose);
   const focusTrapRef = useFocusTrap(isOpen);
   const { sheetY, handleProps } = useSwipeToClose(onClose);
 
-  const currentVersion = import.meta.env.VITE_APP_VERSION || CHANGELOG[0]?.version || '0.1.dev';
+  const currentVersion =
+    import.meta.env.VITE_APP_VERSION ||
+    CHANGELOG.find((r) => r.version !== 'Unreleased')?.version ||
+    '0.1.dev';
 
   return (
     <AnimatePresence>
@@ -278,9 +123,11 @@ const ChangelogSheet = ({ isOpen, onClose }) => {
                         v{release.version}
                       </span>
                       <div className="flex-1 h-px bg-secondary/10" />
-                      <span className="text-[10px] font-bold text-secondary/30">
-                        {release.date}
-                      </span>
+                      {release.date && (
+                        <span className="text-[10px] font-bold text-secondary/30">
+                          {release.date}
+                        </span>
+                      )}
                     </div>
 
                     {/* Sections */}

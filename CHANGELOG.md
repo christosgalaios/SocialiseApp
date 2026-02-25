@@ -12,8 +12,29 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 
 ## [Unreleased]
 
+### Added
+- Interactive sound feedback across the entire app — warm, on-brand audio cues using the Web Audio API (no external files)
+- Splash screen sounds: each animation phase (host letter, members arriving, huddle, latecomer, welcome, together) has its own warm tone
+- Mango AI kitten sounds: chirp on tap, purr on hold, pickup/drop sounds when dragged, sleep/wake tones, celebrate cascade, and chat toggle chimes
+- Navigation tap sounds on BottomNav and Sidebar tab switches
+- Event card and micro-meet card press sounds with haptic feedback
+- Feed interaction sounds: like pop, unlike, emoji reactions, comment/reply send
+- Action sounds: join event success chime with confetti sparkle, level-up fanfare, pull-to-refresh complete, chat message send
+- Modal/sheet close swoosh sound on EventDetailSheet dismiss
+- Onboarding flow sounds: interest selection clicks, step navigation taps, completion chime
+- Sound toggle in Settings (Profile > Settings > Sound & feedback) — persisted to localStorage, respects `prefers-reduced-motion`
+- Login success and auth error sounds
+- Haptic feedback (vibration) on key mobile interactions: navigation, cards, joins, buttons
+
+### Changed
+- Bug report floating button now uses terracotta theme to match the bug report modal
+- Feature request floating button now uses gold theme to match the feature request modal
+- Reels are now embedded directly in the Explore page as a horizontal carousel instead of opening as a full-screen overlay
+- Reels button removed from the mobile bottom navigation bar — reels are always visible on Explore
+
 ### Removed
 - Category filter ("Discover") section removed from the desktop sidebar on the Explore tab — filters are handled inline in the Explore tab itself
+- Full-screen EventReels modal removed — replaced by the inline reels carousel on the Explore tab
 
 ---
 

@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { isSoundEnabled, setSoundEnabled as persistSoundEnabled } from '../utils/feedback';
 
 const useUIStore = create((set) => ({
   // Navigation
@@ -48,8 +49,6 @@ const useUIStore = create((set) => ({
       set({ realtimePing: updater });
     }
   },
-  showReels: false,
-  setShowReels: (show) => set({ showReels: show }),
   showLevelUp: false,
   setShowLevelUp: (show) => set({ showLevelUp: show }),
   levelUpData: null,
@@ -172,6 +171,13 @@ const useUIStore = create((set) => ({
   setProEnabled: (enabled) => {
     set({ proEnabled: enabled });
     localStorage.setItem('socialise_pro', JSON.stringify(enabled));
+  },
+
+  // Sound enabled
+  soundEnabled: isSoundEnabled(),
+  setSoundEnabled: (enabled) => {
+    set({ soundEnabled: enabled });
+    persistSoundEnabled(enabled);
   },
 
   // Experimental features

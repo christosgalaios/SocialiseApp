@@ -3,6 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import api from './api';
 import { formatError } from './errorUtils';
 import './index.css';
+import {
+  playSuccess, playConfetti, playLevelUp,
+  playRefresh, playSend, playTap, hapticSuccess,
+} from './utils/feedback';
 
 // --- STORES ---
 import useAuthStore from './stores/authStore';
@@ -193,6 +197,7 @@ function App() {
     try {
       await useAuthStore.getState().handleLogin(type, credentials, {
         onSuccess: (loginUser) => {
+          playSuccess();
           showToast(`Welcome${type === 'register' ? '' : ' back'}, ${loginUser.name?.split(' ')[0] || 'there'}!`, 'success');
           dataFetchedForUser.current = null;
         },
@@ -288,6 +293,7 @@ function App() {
     if (currentJoined.includes(id)) {
       // Leave
       setJoinedEvents(prev => prev.filter(e => e !== id));
+      playTap();
       showToast('You left the event.', 'info');
       try {
         await api.leaveEvent(id);
@@ -298,6 +304,8 @@ function App() {
     } else {
       // Join
       setJoinedEvents(prev => [...prev, id]);
+      playSuccess();
+      hapticSuccess();
       showToast("You're going! Added to your calendar.", 'success');
 
       // Award XP — read fresh from store to avoid stale closure on rapid joins
@@ -311,11 +319,13 @@ function App() {
       api.updateXP({ xp: newXP }).catch(() => {});
       if (newLevel && currentLevel && newLevel.level > currentLevel.level) {
         setTimeout(() => {
+          playLevelUp();
           setLevelUpData({ newLevel, unlockedTitle: null });
           setShowLevelUp(true);
         }, 1500);
       }
 
+      playConfetti();
       setShowConfetti(true);
       mango.celebrate("You're in! 🎉");
 
@@ -333,6 +343,7 @@ function App() {
 
   const sendMessage = useCallback(async (eventId, text) => {
     if (!text.trim()) return;
+    playSend();
     const name = user?.name ?? 'Guest';
     const parts = name.split(' ');
     const optimisticId = 'temp-' + Date.now();
@@ -446,6 +457,7 @@ function App() {
         setIsRefreshing(false);
         setPullY(0);
         setRecommendedLimit(3);
+        playRefresh();
         showToast('Feed refreshed', 'success');
       }).catch(() => {
         setIsRefreshing(false);
@@ -584,14 +596,13 @@ function App() {
 
             {/* Floating Navigation - Mobile Only */}
             <div className="md:hidden">
-              <BottomNav activeTab={activeTab} setActiveTab={setActiveTabWithEffects} onReelsClick={() => useUIStore.getState().setShowReels(true)} />
+              <BottomNav activeTab={activeTab} setActiveTab={setActiveTabWithEffects} />
             </div>
 
             {/* Modals & Sheets */}
             <AppModals
               handleJoin={handleJoin}
               sendMessage={sendMessage}
-              filteredEvents={filteredEvents}
             />
 
             {/* Onboarding Flow */}
@@ -629,10 +640,10 @@ function App() {
 
             {/* Feature Request Button (above bug button) */}
             <motion.button
-              className="fixed bottom-[168px] right-4 z-50 w-11 h-11 rounded-full bg-secondary/90 text-white shadow-lg flex items-center justify-center backdrop-blur-sm border border-white/10 md:bottom-[60px]"
+              className="fixed bottom-[168px] right-4 z-50 w-11 h-11 rounded-full bg-accent/90 text-white shadow-lg flex items-center justify-center backdrop-blur-sm border border-white/10 md:bottom-[60px]"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              onClick={() => useUIStore.getState().setShowFeatureRequest(true)}
+              onClick={() => { playTap(); useUIStore.getState().setShowFeatureRequest(true); }}
               aria-label="Request a feature"
             >
               <Lightbulb size={18} />
@@ -640,10 +651,10 @@ function App() {
 
             {/* Bug Report Button */}
             <motion.button
-              className="fixed bottom-[120px] right-4 z-50 w-11 h-11 rounded-full bg-secondary/90 text-white shadow-lg flex items-center justify-center backdrop-blur-sm border border-white/10 md:bottom-6"
+              className="fixed bottom-[120px] right-4 z-50 w-11 h-11 rounded-full bg-primary/90 text-white shadow-lg flex items-center justify-center backdrop-blur-sm border border-white/10 md:bottom-6"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              onClick={() => useUIStore.getState().setShowBugReport(true)}
+              onClick={() => { playTap(); useUIStore.getState().setShowBugReport(true); }}
               aria-label="Report a bug"
             >
               <Bug size={18} />
