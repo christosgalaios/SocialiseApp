@@ -288,6 +288,15 @@
   border-radius: inherit;
 }
 
+/* Prevent iOS Safari scroll-context confusion on the main scrollable area.
+   overscroll-behavior-y: contain stops rubber-band propagation to the parent,
+   which is a common cause of scroll lock on iOS Safari when content height
+   changes (e.g. during tab transitions). */
+#main-content {
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
 /* Lock main content scroll when any dialog overlay is open.
    Prevents iOS scroll-freeze when sheets/modals close — the browser
    re-engages the scroll context automatically when overflow is restored. */

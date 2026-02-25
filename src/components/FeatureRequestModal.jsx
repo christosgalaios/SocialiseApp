@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Lightbulb, X, Send, AlertCircle, Monitor } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useEscapeKey, useFocusTrap } from '../hooks/useAccessibility';
+import { useEscapeKey, useFocusTrap, useSwipeToClose } from '../hooks/useAccessibility';
 import { formatError } from '../errorUtils';
 
 function detectPlatform() {
@@ -64,6 +64,7 @@ export default function FeatureRequestModal({ isOpen, onClose, onSubmit }) {
   const [error, setError] = useState('');
   const focusTrapRef = useFocusTrap(isOpen);
   useEscapeKey(onClose, isOpen);
+  const { sheetY, handleProps } = useSwipeToClose(onClose);
   const platformInfo = useMemo(() => detectPlatform(), []);
 
   const handleSubmit = async () => {
@@ -98,13 +99,17 @@ export default function FeatureRequestModal({ isOpen, onClose, onSubmit }) {
     >
       <motion.div
         ref={focusTrapRef}
-        className="w-full max-w-md max-h-[85dvh] overflow-y-auto bg-paper rounded-t-[32px] sm:rounded-[32px] p-6 pb-8 border-t sm:border border-secondary/10 shadow-2xl"
+        className="w-full max-w-md max-h-[85dvh] overflow-y-auto overscroll-contain bg-paper rounded-t-[32px] sm:rounded-[32px] p-5 pb-6 border-t sm:border border-secondary/10 shadow-2xl"
         initial={{ y: '100%' }}
         animate={{ y: 0 }}
         exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
         onClick={e => e.stopPropagation()}
+        style={{ y: sheetY }}
       >
+        {/* Handle bar (mobile only) */}
+        <div {...handleProps} className="flex justify-center pt-2 pb-1 sm:hidden"><div className="w-10 h-1 rounded-full bg-secondary/20" /></div>
+
         {/* Header */}
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-3">
@@ -116,7 +121,7 @@ export default function FeatureRequestModal({ isOpen, onClose, onSubmit }) {
               <p className="text-[10px] text-secondary/50 font-medium">Got an idea? Share it with us</p>
             </div>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center" aria-label="Close feature request">
+          <button onPointerDown={(e) => { e.stopPropagation(); onClose(); }} className="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center" aria-label="Close feature request" style={{ touchAction: 'manipulation' }}>
             <X size={16} className="text-secondary/60" />
           </button>
         </div>
@@ -131,7 +136,8 @@ export default function FeatureRequestModal({ isOpen, onClose, onSubmit }) {
               placeholder={"Describe the feature you'd like and why it would be useful.\n\ne.g. \"It would be great to filter events by distance so I can find things close to me without scrolling through everything.\""}
               rows={4}
               maxLength={2000}
-              className="w-full bg-white border border-secondary/10 rounded-2xl px-4 py-3 text-sm text-[var(--text)] placeholder:text-secondary/30 font-medium focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent/30 resize-none"
+              className="w-full bg-paper border border-secondary/10 rounded-2xl px-4 py-3 text-sm text-[var(--text)] placeholder:text-secondary/30 font-medium focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent/30 resize-none break-words"
+              style={{ overflowWrap: 'break-word', wordBreak: 'break-word' }}
             />
             <p className="text-[10px] text-secondary/30 mt-1 text-right">{description.length}/2000</p>
           </div>

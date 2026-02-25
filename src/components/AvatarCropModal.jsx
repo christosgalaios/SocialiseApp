@@ -94,17 +94,30 @@ const AvatarCropModal = ({ imageUrl, isOpen, onSave, onCancel }) => {
   }, [dragging, handlePointerMove, handlePointerUp]);
 
   // --- Zoom ---
-  const handleZoomChange = (newZoom) => {
+  const handleZoomChange = useCallback((newZoom) => {
     const z = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, newZoom));
     setZoom(z);
     setOffset(prev => clampOffset(prev.x, prev.y, z));
-  };
+  }, [clampOffset]);
 
-  const handleWheel = (e) => {
+  const handleWheel = useCallback((e) => {
     e.preventDefault();
     const delta = -e.deltaY * 0.002;
-    handleZoomChange(zoom + delta);
-  };
+    setZoom(prev => {
+      const z = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, prev + delta));
+      setOffset(o => clampOffset(o.x, o.y, z));
+      return z;
+    });
+  }, [clampOffset]);
+
+  // Attach wheel listener with { passive: false } to avoid Chrome passive event warning
+  // React's onWheel attaches as passive by default, making preventDefault() a no-op with a console warning
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || !isOpen) return;
+    el.addEventListener('wheel', handleWheel, { passive: false });
+    return () => el.removeEventListener('wheel', handleWheel);
+  }, [handleWheel, isOpen]);
 
   // --- Reset ---
   const handleReset = () => {
@@ -197,7 +210,6 @@ const AvatarCropModal = ({ imageUrl, isOpen, onSave, onCancel }) => {
               <div
                 ref={containerRef}
                 onPointerDown={handlePointerDown}
-                onWheel={handleWheel}
                 className="relative w-full aspect-square rounded-[28px] overflow-hidden bg-secondary/5 cursor-grab active:cursor-grabbing touch-none select-none"
               >
                 {/* Guide overlay — subtle rounded-square outline */}

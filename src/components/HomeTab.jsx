@@ -126,6 +126,7 @@ export default function HomeTab({ onProfileClick, fetchAllData }) {
                 if (el) el.scrollBy({ left: -316, behavior: 'smooth' });
               }}
               className="w-8 h-8 rounded-full bg-secondary/10 border border-secondary/15 flex items-center justify-center text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all"
+              aria-label="Scroll left"
             >
               <ChevronLeft size={16} strokeWidth={2.5} />
             </button>
@@ -135,6 +136,7 @@ export default function HomeTab({ onProfileClick, fetchAllData }) {
                 if (el) el.scrollBy({ left: 316, behavior: 'smooth' });
               }}
               className="w-8 h-8 rounded-full bg-secondary/10 border border-secondary/15 flex items-center justify-center text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all"
+              aria-label="Scroll right"
             >
               <ChevronRight size={16} strokeWidth={2.5} />
             </button>

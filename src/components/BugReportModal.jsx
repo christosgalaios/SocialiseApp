@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Bug, X, Send, AlertCircle, Monitor } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useEscapeKey, useFocusTrap } from '../hooks/useAccessibility';
+import { useEscapeKey, useFocusTrap, useSwipeToClose } from '../hooks/useAccessibility';
 import { formatError } from '../errorUtils';
 
 function detectPlatform() {
@@ -64,6 +64,7 @@ export default function BugReportModal({ isOpen, onClose, onSubmit }) {
   const [error, setError] = useState('');
   const focusTrapRef = useFocusTrap(isOpen);
   useEscapeKey(onClose, isOpen);
+  const { sheetY, handleProps } = useSwipeToClose(onClose);
   const platformInfo = useMemo(() => detectPlatform(), []);
 
   const handleSubmit = async () => {
@@ -104,7 +105,11 @@ export default function BugReportModal({ isOpen, onClose, onSubmit }) {
         exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
         onClick={e => e.stopPropagation()}
+        style={{ y: sheetY }}
       >
+        {/* Handle bar (mobile only) */}
+        <div {...handleProps} className="flex justify-center pt-2 pb-1 sm:hidden"><div className="w-10 h-1 rounded-full bg-secondary/20" /></div>
+
         {/* Header */}
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-3">
@@ -116,7 +121,7 @@ export default function BugReportModal({ isOpen, onClose, onSubmit }) {
               <p className="text-[10px] text-secondary/50 font-medium">Something broken? Let us know</p>
             </div>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center" aria-label="Close bug report">
+          <button onPointerDown={(e) => { e.stopPropagation(); onClose(); }} className="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center" aria-label="Close bug report" style={{ touchAction: 'manipulation' }}>
             <X size={16} className="text-secondary/60" />
           </button>
         </div>
@@ -131,7 +136,7 @@ export default function BugReportModal({ isOpen, onClose, onSubmit }) {
               placeholder={"What happened? What did you expect instead?\n\ne.g. \"I tapped 'Join' on an event and the button spun forever — the RSVP never confirmed.\""}
               rows={4}
               maxLength={2000}
-              className="w-full bg-white border border-secondary/10 rounded-2xl px-4 py-3 text-sm text-[var(--text)] placeholder:text-secondary/30 font-medium focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 resize-none"
+              className="w-full bg-paper border border-secondary/10 rounded-2xl px-4 py-3 text-sm text-[var(--text)] placeholder:text-secondary/30 font-medium focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 resize-none"
             />
             <p className="text-[10px] text-secondary/30 mt-1 text-right">{description.length}/2000</p>
           </div>

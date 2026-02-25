@@ -4,7 +4,6 @@ import { INCLUSIVITY_TAGS } from '../data/constants';
 
 const EventCard = ({ event, onClick, compact = false, isJoined = false }) => (
   <motion.div
-    layoutId={`event-${event.id}`}
     whileTap={{ scale: 0.96 }}
     className={`premium-card overflow-hidden group ${compact ? 'flex gap-4 p-4' : 'mb-6 shadow-2xl'}`}
     onClick={() => onClick(event)}

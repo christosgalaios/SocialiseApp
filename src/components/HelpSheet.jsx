@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, HelpCircle, ChevronDown, Mail, Shield, FileText, MessageCircle, Trash2, AlertTriangle } from 'lucide-react';
-import { useEscapeKey, useFocusTrap } from '../hooks/useAccessibility';
+import { useEscapeKey, useFocusTrap, useSwipeToClose } from '../hooks/useAccessibility';
 
 const HelpSheet = ({ isOpen, onClose, onDeleteAccount }) => {
     useEscapeKey(isOpen, onClose);
     const focusTrapRef = useFocusTrap(isOpen);
+    const { sheetY, handleProps } = useSwipeToClose(onClose);
     const [openFaq, setOpenFaq] = useState(null);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [deleting, setDeleting] = useState(false);
@@ -56,9 +57,10 @@ const HelpSheet = ({ isOpen, onClose, onDeleteAccount }) => {
                         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
                         className="absolute inset-x-0 bottom-0 top-20 bg-paper rounded-t-[32px] overflow-hidden shadow-2xl"
                         onClick={(e) => e.stopPropagation()}
+                        style={{ y: sheetY }}
                     >
                         {/* Handle */}
-                        <div className="flex justify-center pt-3 pb-2">
+                        <div {...handleProps} className="flex justify-center pt-3 pb-2">
                             <div className="w-12 h-1 rounded-full bg-secondary/20" />
                         </div>
 

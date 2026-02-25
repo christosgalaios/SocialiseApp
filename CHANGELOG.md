@@ -12,9 +12,27 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 
 ## [Unreleased]
 
+### Added
+- Swipe down on the handle bar of any bottom sheet or modal to dismiss it — works across all 12 sheets
+- Feature request button repositioned with clear spacing from the bug report button
+
 ### Fixed
 - "What's New" changelog sheet is now scrollable on iOS Safari
 - Video cards stay pressed when dragging after a long press — no more visual snap-back glitch
+- Community hub page no longer locks your scroll when switching tabs quickly on iOS Safari
+- "Create event" close button and backdrop now respond reliably on iOS — no more stuck modals
+- Events on the Explore tab no longer wobble when the page first loads
+- Feature request box text no longer overflows on smaller screens
+- Event reels screen reader support — all icon-only buttons now announce their purpose correctly
+- Chat messages that fail to send are now removed instead of showing as ghost "sent" messages
+- Joining multiple events rapidly now correctly accumulates XP instead of repeating the same amount
+- XP is now rolled back when an event join fails on the server
+- Zoom wheel on the avatar crop tool no longer triggers Chrome passive event warnings
+- App now shows an error message when initial data fails to load instead of silently showing nothing
+- Mango kitten no longer causes memory warnings when navigating away quickly after dragging
+- Bug report and feature request close buttons now respond reliably on iOS (same fix as create event modal)
+- Fixed a potential crash when filtering events with missing titles
+- Home tab and onboarding screen reader improvements — scroll and back buttons now announce their purpose
 
 ---
 

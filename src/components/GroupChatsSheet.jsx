@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, ArrowLeft, Image, Smile, Mic, Users, Pin, Search, Phone, Video } from 'lucide-react';
 import api from '../api';
 import useAuthStore from '../stores/authStore';
-import { useEscapeKey, useFocusTrap } from '../hooks/useAccessibility';
+import { useEscapeKey, useFocusTrap, useSwipeToClose } from '../hooks/useAccessibility';
 import { DEFAULT_AVATAR } from '../data/constants';
 
 const QUICK_REACTIONS = ['❤️', '😂', '🔥', '👏', '😮', '👍'];
@@ -25,7 +25,7 @@ const MessageBubble = ({ msg }) => {
           className={`rounded-2xl px-4 py-3 relative ${
             msg.isMe
               ? 'bg-primary text-white rounded-br-sm'
-              : 'bg-white border border-secondary/10 text-secondary rounded-bl-sm shadow-sm'
+              : 'bg-paper border border-secondary/10 text-secondary rounded-bl-sm shadow-sm'
           }`}
           onDoubleClick={() => setShowReactions(!showReactions)}
         >
@@ -39,7 +39,7 @@ const MessageBubble = ({ msg }) => {
             {msg.isMe && <span className="text-[10px] text-white/50 ml-2">✓✓</span>}
           </div>
           {reaction && (
-            <span className="absolute -bottom-2 right-2 text-sm bg-white rounded-full px-1 shadow-sm border border-secondary/10">{reaction}</span>
+            <span className="absolute -bottom-2 right-2 text-sm bg-paper rounded-full px-1 shadow-sm border border-secondary/10">{reaction}</span>
           )}
         </div>
 
@@ -50,7 +50,7 @@ const MessageBubble = ({ msg }) => {
               initial={{ opacity: 0, scale: 0.8, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.8, y: 10 }}
-              className="absolute bottom-full mb-2 left-0 bg-white rounded-full shadow-xl border border-secondary/10 flex gap-1 px-2 py-1.5 z-10"
+              className="absolute bottom-full mb-2 left-0 bg-paper rounded-full shadow-xl border border-secondary/10 flex gap-1 px-2 py-1.5 z-10"
             >
               {QUICK_REACTIONS.map(emoji => (
                 <button
@@ -73,6 +73,7 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
   const user = useAuthStore((s) => s.user);
   useEscapeKey(isOpen, onClose);
   const focusTrapRef = useFocusTrap(isOpen);
+  const { sheetY, handleProps } = useSwipeToClose(onClose);
   const [selectedCommunity, setSelectedCommunity] = useState(null);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
@@ -171,8 +172,9 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
           transition={{ type: 'spring', damping: 30, stiffness: 300 }}
           className="absolute inset-x-0 bottom-0 top-12 bg-paper rounded-t-[32px] overflow-hidden shadow-2xl flex flex-col"
           onClick={(e) => e.stopPropagation()}
+          style={{ y: sheetY }}
         >
-          <div className="flex justify-center pt-3 pb-2 shrink-0">
+          <div {...handleProps} className="flex justify-center pt-3 pb-2 shrink-0">
             <div className="w-12 h-1 rounded-full bg-secondary/20" />
           </div>
 
@@ -295,12 +297,14 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
                     <button
                       onClick={() => setShowSearch(!showSearch)}
                       className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
+                      aria-label={showSearch ? 'Close search' : 'Search chats'}
                     >
                       <Search size={18} className="text-secondary" />
                     </button>
                     <button
                       onClick={onClose}
                       className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
+                      aria-label="Close chats"
                     >
                       <X size={18} className="text-secondary" />
                     </button>

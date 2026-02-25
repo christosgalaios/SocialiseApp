@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const MotionDiv = motion.div;
 import { X, MessageCircle, UserPlus, UserCheck } from 'lucide-react';
-import { useEscapeKey, useFocusTrap } from '../hooks/useAccessibility';
+import { useEscapeKey, useFocusTrap, useSwipeToClose } from '../hooks/useAccessibility';
 import { DEFAULT_AVATAR } from '../data/constants';
 
 /**
@@ -14,6 +14,7 @@ const UserProfileSheet = ({ profile, isOpen, onClose, onMessage }) => {
     const [isFollowing, setIsFollowing] = useState(false);
     useEscapeKey(isOpen, onClose);
     const focusTrapRef = useFocusTrap(isOpen);
+    const { sheetY, handleProps } = useSwipeToClose(onClose);
 
     if (!profile) return null;
 
@@ -43,8 +44,9 @@ const UserProfileSheet = ({ profile, isOpen, onClose, onMessage }) => {
                         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
                         className="absolute inset-x-0 bottom-0 top-[20%] bg-paper rounded-t-[32px] overflow-hidden shadow-2xl border-t border-secondary/10"
                         onClick={(e) => e.stopPropagation()}
+                        style={{ y: sheetY }}
                     >
-                        <div className="flex justify-center pt-3 pb-2">
+                        <div {...handleProps} className="flex justify-center pt-3 pb-2">
                             <div className="w-12 h-1.5 rounded-full bg-secondary/20" />
                         </div>
                         <div className="px-6 pb-8">

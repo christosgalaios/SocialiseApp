@@ -6,13 +6,14 @@ import {
   MessageCircle, Check, Send, Mountain, Ruler, TrendingUp, Footprints
 } from 'lucide-react';
 import { INCLUSIVITY_TAGS, CATEGORY_ATTRIBUTES, DEFAULT_AVATAR } from '../data/constants';
-import { useEscapeKey, useFocusTrap } from '../hooks/useAccessibility';
+import { useEscapeKey, useFocusTrap, useSwipeToClose } from '../hooks/useAccessibility';
 
 const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMessage, onOpenProfile }) => {
   const [activeTab, setActiveTab] = useState('info');
   const [inputText, setInputText] = useState('');
   useEscapeKey(!!event, onClose);
   const focusTrapRef = useFocusTrap(!!event);
+  const { sheetY, handleProps } = useSwipeToClose(onClose);
 
   return (
     <div className="fixed inset-0 z-[100] flex items-end justify-center" role="dialog" aria-modal="true" aria-label={event?.title || 'Event details'} ref={focusTrapRef}>
@@ -26,9 +27,10 @@ const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMe
         animate={{ y: 0 }}
         exit={{ y: "100%" }}
         transition={{ type: "spring", damping: 32, stiffness: 300, mass: 1 }}
+        style={{ y: sheetY }}
         className="bg-paper w-full max-w-xl rounded-t-[48px] overflow-hidden flex flex-col relative z-50 max-h-[94vh] border-t border-secondary/10 shadow-[0_-25px_50px_-12px_rgba(45,95,93,0.15)]"
       >
-        <div className="w-16 h-1.5 bg-secondary/10 rounded-full mx-auto my-5 shrink-0" />
+        <div {...handleProps} className="w-16 h-1.5 bg-secondary/10 rounded-full mx-auto my-5 shrink-0" />
 
         {/* Scrollable area: image scrolls up, tabs + content get more space */}
         <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
