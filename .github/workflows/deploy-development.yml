@@ -4,24 +4,20 @@ on:
   push:
     branches: [development]
   workflow_dispatch:
-    inputs:
-      ref:
-        description: 'Branch to deploy'
-        default: 'development'
 
 permissions:
   contents: write
 
-# Only one preview deploy at a time. Never cancel in-progress; queue instead.
+# Shared concurrency group with deploy-production to prevent race conditions
+# on the gh-pages branch. Both workflows push to the same branch (different
+# subfolders), and concurrent force-pushes can overwrite each other's changes.
 concurrency:
-  group: deploy-preview
+  group: deploy-gh-pages
   cancel-in-progress: false
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    env:
-      VITE_API_URL: ${{ secrets.VITE_API_URL }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -81,3 +77,25 @@ jobs:
           # Deploys into /dev/ without touching the root production build.
           target-folder: dev
           clean: true
+          # Preserve .nojekyll at the gh-pages root across deploys
+          clean-exclude: |
+            .nojekyll
+
+      # Ensure .nojekyll exists at gh-pages root to disable Jekyll processing.
+      # Without this, GitHub Pages runs Jekyll which adds latency and can
+      # interfere with Vite's build output.
+      - name: Ensure .nojekyll at gh-pages root
+        run: |
+          git fetch origin gh-pages:gh-pages 2>/dev/null || true
+          git checkout gh-pages
+          if [ ! -f .nojekyll ]; then
+            touch .nojekyll
+            git add .nojekyll
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git commit -m "chore: add .nojekyll to disable Jekyll processing"
+            git push origin gh-pages
+            echo "Created .nojekyll at gh-pages root"
+          else
+            echo ".nojekyll already exists at gh-pages root"
+          fi
