@@ -814,3 +814,15 @@ Key details:
 - Existing triggers will fail with `42710: trigger already exists` — non-critical if the table itself was created successfully
 
 This also applies to any ad-hoc SQL you need to run (schema inspection, data fixes, etc.) — always prefer the Management API over trying to start the local Express server or use the JS client.
+
+### 14. Commit after every QA round — never leave fixes uncommitted across context boundaries
+
+During a deep QA session, round 3 fixes (3 files modified) were left uncommitted when the context window ran out. If the session hadn't been continued, those fixes would have been silently lost — no error, no warning, just gone. Rounds 1 and 2 had been committed and pushed; round 3 had not.
+
+**Rule:** When running multi-round QA or fix sessions, commit and push after **every** round — not at the end. A small incremental commit takes seconds and guarantees work survives context compaction, session timeouts, or crashes. Never accumulate uncommitted changes across rounds "because there might be more coming." There always might be more coming. Commit anyway.
+
+### 15. Verify tool availability before composing complex arguments
+
+Attempted `gh pr create` with a detailed multi-paragraph PR body, only to discover `gh` isn't installed in the sandbox. The entire body composition was wasted effort. CLAUDE.md Lesson #8 already warns about sandbox limitations, but this is a more specific anti-pattern: building elaborate arguments for a command you haven't confirmed exists.
+
+**Rule:** Before composing a command with complex arguments (heredocs, multi-line bodies, JSON payloads), run a quick `which <tool>` or `<tool> --version` first. If it fails, skip the composition entirely and note the limitation. This applies to `gh`, `jq`, `docker`, and any non-standard CLI tool.
