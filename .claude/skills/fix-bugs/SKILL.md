@@ -147,11 +147,20 @@ Process bugs ONE AT A TIME in priority order (P1 → P2 → P3). Never work on m
    ```
    Check that the `Status` column shows the expected value. If it doesn't, fall back to the Apps Script webhook directly.
 
-   **Step 5 — Commit and push this bug's fix:**
-   Commit with message `fix: {description} ({BUG-ID})` and push to the branch.
+   **Step 5 — Update CHANGELOG.md:**
+   Before committing, open `CHANGELOG.md` and add a one-line entry under `[Unreleased]` → `### Fixed` describing the fix from the **user's perspective** — what no longer breaks, not the implementation detail.
+   Example: `- Event join button no longer shows an error when tapping rapidly`
+   Do NOT include the Bug ID in the changelog entry. This step is mandatory — every bug fix must be reflected in the changelog.
 
-   **Step 6 — Move to next bug:**
-   Only after Step 5 is complete, go back to Step 1 for the next bug.
+   **Step 6 — Commit and push this bug's fix:**
+   Stage both the changed source files **and** `CHANGELOG.md`, then commit:
+   ```
+   fix: {description} ({BUG-ID})
+   ```
+   Verify `CHANGELOG.md` appears in `git diff --staged` before committing. Push to the branch.
+
+   **Step 7 — Move to next bug:**
+   Only after Step 6 is complete, go back to Step 1 for the next bug.
 
 7. **After all bugs are processed**, clean up the temp user (see Phase 1.5 step 2).
 

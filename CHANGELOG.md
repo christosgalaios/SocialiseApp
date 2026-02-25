@@ -12,6 +12,10 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 
 ## [Unreleased]
 
+---
+
+## [0.1.188] — 2026-02-25
+
 ### Added
 - Submit feature requests directly from the app — new Lightbulb button alongside the bug report button
 - Swipe down on the handle bar of any bottom sheet or modal to dismiss it — works across all 12 sheets
@@ -32,6 +36,7 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - Feature request box text no longer overflows on smaller screens
 - Bug reports now correctly detect which environment (production, development, local) they were submitted from
 - Event reels screen reader support — all icon-only buttons now announce their purpose correctly
+- Community group chat screen reader improvements — search and close buttons in the chat list header now announce their purpose correctly
 - Chat messages that fail to send are now removed instead of showing as ghost "sent" messages
 - Joining multiple events rapidly now correctly accumulates XP instead of repeating the same amount
 - XP is now rolled back when an event join fails on the server
@@ -189,7 +194,8 @@ Initial release of **Socialise** — a community-driven social event discovery a
 - Customisable profile with avatar, bio, interests, XP points, and unlockable achievement titles
 - Secure email and password sign-up and login, backed by Supabase
 
-[0.1.164]: https://github.com/christosgalaios/SocialiseApp/compare/0.1.150...HEAD
+[0.1.188]: https://github.com/christosgalaios/SocialiseApp/compare/0.1.164...HEAD
+[0.1.164]: https://github.com/christosgalaios/SocialiseApp/compare/0.1.150...0.1.164
 [0.1.150]: https://github.com/christosgalaios/SocialiseApp/compare/0.1.147...0.1.150
 [0.1.147]: https://github.com/christosgalaios/SocialiseApp/compare/0.1.142...0.1.147
 [0.1.142]: https://github.com/christosgalaios/SocialiseApp/compare/0.1.134...0.1.142
