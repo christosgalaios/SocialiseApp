@@ -191,7 +191,7 @@ describe('EventDetailSheet', () => {
         <EventDetailSheet event={mockEvent} onClose={mockOnClose} isJoined={false} onJoin={mockOnJoin} messages={mockMessages} onSendMessage={mockOnSendMessage} />
       );
       expect(screen.getByText('The Experience')).toBeInTheDocument();
-      expect(screen.getByText(/Community Hub/)).toBeInTheDocument();
+      expect(screen.getByText(/Event Hub/)).toBeInTheDocument();
     });
 
     it('should show message count on chat tab', () => {
@@ -207,7 +207,7 @@ describe('EventDetailSheet', () => {
         <EventDetailSheet event={mockEvent} onClose={mockOnClose} isJoined={false} onJoin={mockOnJoin} messages={mockMessages} onSendMessage={mockOnSendMessage} />
       );
 
-      await user.click(screen.getByText(/Community Hub/));
+      await user.click(screen.getByText(/Event Hub/));
       // After switching to chat tab, chat input should appear
       expect(screen.getByPlaceholderText('Message the hub...')).toBeInTheDocument();
     });
@@ -218,7 +218,7 @@ describe('EventDetailSheet', () => {
         <EventDetailSheet event={mockEvent} onClose={mockOnClose} isJoined={false} onJoin={mockOnJoin} messages={mockMessages} onSendMessage={mockOnSendMessage} />
       );
 
-      await user.click(screen.getByText(/Community Hub/));
+      await user.click(screen.getByText(/Event Hub/));
       expect(screen.getByText('Looking forward to this!')).toBeInTheDocument();
       expect(screen.getByText('Count me in!')).toBeInTheDocument();
     });
@@ -229,7 +229,7 @@ describe('EventDetailSheet', () => {
         <EventDetailSheet event={mockEvent} onClose={mockOnClose} isJoined={false} onJoin={mockOnJoin} messages={[]} onSendMessage={mockOnSendMessage} />
       );
 
-      await user.click(screen.getByText(/Community Hub/));
+      await user.click(screen.getByText(/Event Hub/));
       expect(screen.getByText('Pre-Event Hub')).toBeInTheDocument();
     });
   });
@@ -241,7 +241,7 @@ describe('EventDetailSheet', () => {
         <EventDetailSheet event={mockEvent} onClose={mockOnClose} isJoined={false} onJoin={mockOnJoin} messages={mockMessages} onSendMessage={mockOnSendMessage} />
       );
 
-      await user.click(screen.getByText(/Community Hub/));
+      await user.click(screen.getByText(/Event Hub/));
       expect(screen.getByPlaceholderText('Message the hub...')).toBeInTheDocument();
     });
 
@@ -251,7 +251,7 @@ describe('EventDetailSheet', () => {
         <EventDetailSheet event={mockEvent} onClose={mockOnClose} isJoined={false} onJoin={mockOnJoin} messages={mockMessages} onSendMessage={mockOnSendMessage} />
       );
 
-      await user.click(screen.getByText(/Community Hub/));
+      await user.click(screen.getByText(/Event Hub/));
       const input = screen.getByPlaceholderText('Message the hub...');
       await user.type(input, 'Hello everyone!');
 
@@ -268,7 +268,7 @@ describe('EventDetailSheet', () => {
         <EventDetailSheet event={mockEvent} onClose={mockOnClose} isJoined={false} onJoin={mockOnJoin} messages={mockMessages} onSendMessage={mockOnSendMessage} />
       );
 
-      await user.click(screen.getByText(/Community Hub/));
+      await user.click(screen.getByText(/Event Hub/));
       const input = screen.getByPlaceholderText('Message the hub...');
       await user.type(input, 'Hello!');
 
@@ -346,7 +346,7 @@ describe('EventDetailSheet', () => {
         <EventDetailSheet event={mockEvent} onClose={mockOnClose} isJoined={false} onJoin={mockOnJoin} messages={mockMessages} onSendMessage={mockOnSendMessage} onOpenProfile={mockOnOpenProfile} />
       );
 
-      await user.click(screen.getByText(/Community Hub/));
+      await user.click(screen.getByText(/Event Hub/));
 
       // Click on Alice's name (she's not isMe)
       // The text content is 'Alice' (uppercase is CSS styling, not text)

@@ -65,7 +65,7 @@ const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMe
                     onClick={() => { playTap(); setActiveTab(tab); }}
                     className={`flex-1 py-4 text-[12px] font-black uppercase tracking-[0.2em] transition-all relative border-b-2 -mb-px ${activeTab === tab ? 'border-primary text-secondary' : 'border-transparent text-secondary/40'}`}
                   >
-                    {tab === 'info' ? 'The Experience' : 'Community Hub'}
+                    {tab === 'info' ? 'The Experience' : 'Event Hub'}
                     {tab === 'chat' && messages.length > 0 && (
                       <span className="ml-3 bg-primary/10 text-primary px-2 py-0.5 rounded-md text-[10px]">{messages.length}</span>
                     )}
