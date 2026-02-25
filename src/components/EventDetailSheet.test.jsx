@@ -25,6 +25,7 @@ vi.mock('../data/constants', () => ({
       { key: 'distance', label: 'Distance', unit: 'km' },
     ],
   },
+  DEFAULT_AVATAR: 'https://example.com/default-avatar.svg',
 }));
 
 describe('EventDetailSheet', () => {
