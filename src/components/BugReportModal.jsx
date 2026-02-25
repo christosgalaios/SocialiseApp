@@ -64,7 +64,7 @@ export default function BugReportModal({ isOpen, onClose, onSubmit }) {
   const [error, setError] = useState('');
   const focusTrapRef = useFocusTrap(isOpen);
   useEscapeKey(onClose, isOpen);
-  const { sheetY, handleProps } = useSwipeToClose(onClose);
+  const { sheetY, dragZoneProps } = useSwipeToClose(onClose);
   const platformInfo = useMemo(() => detectPlatform(), []);
 
   const handleSubmit = async () => {
@@ -107,8 +107,10 @@ export default function BugReportModal({ isOpen, onClose, onSubmit }) {
         onClick={e => e.stopPropagation()}
         style={{ y: sheetY }}
       >
+        {/* Drag zone — handle + header */}
+        <div {...dragZoneProps}>
         {/* Handle bar (mobile only) */}
-        <div {...handleProps} className="flex justify-center pt-2 pb-1 sm:hidden"><div className="w-10 h-1 rounded-full bg-secondary/20" /></div>
+        <div className="flex justify-center pt-2 pb-1 sm:hidden"><div className="w-10 h-1 rounded-full bg-secondary/20" /></div>
 
         {/* Header */}
         <div className="flex items-center justify-between mb-5">
@@ -124,6 +126,7 @@ export default function BugReportModal({ isOpen, onClose, onSubmit }) {
           <button onPointerDown={(e) => { e.stopPropagation(); onClose(); }} className="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center" aria-label="Close bug report" style={{ touchAction: 'manipulation' }}>
             <X size={16} className="text-secondary/60" />
           </button>
+        </div>
         </div>
 
         <div className="space-y-4">

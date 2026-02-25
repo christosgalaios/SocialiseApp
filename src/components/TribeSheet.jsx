@@ -12,7 +12,7 @@ const TribeSheet = ({ tribe, isOpen, onClose, onLeave }) => {
     const [activeSection, setActiveSection] = useState('activity'); // 'activity' | 'reviews'
     useEscapeKey(isOpen, onClose);
     const focusTrapRef = useFocusTrap(isOpen);
-    const { sheetY, handleProps } = useSwipeToClose(onClose);
+    const { sheetY, dragZoneProps } = useSwipeToClose(onClose);
     const [tribePosts, setTribePosts] = useState([]);
     const reviews = [];
 
@@ -50,13 +50,12 @@ const TribeSheet = ({ tribe, isOpen, onClose, onLeave }) => {
                         onClick={(e) => e.stopPropagation()}
                         style={{ y: sheetY }}
                     >
-                        {/* Handle bar */}
-                        <div {...handleProps} className="flex justify-center pt-3 pb-2">
+                        {/* Drag zone — handle + header title row */}
+                        <div {...dragZoneProps}>
+                        <div className="flex justify-center pt-3 pb-2">
                             <div className="w-12 h-1 rounded-full bg-white/20" />
                         </div>
-
-                        {/* Header */}
-                        <div className="px-6 pb-6 border-b border-white/5">
+                        <div className="px-6">
                             <div className="flex items-start justify-between mb-4">
                                 <div className="flex items-center gap-4">
                                     <div className="w-16 h-16 rounded-2xl bg-secondary/10 flex items-center justify-center text-4xl border border-secondary/20">
@@ -78,6 +77,11 @@ const TribeSheet = ({ tribe, isOpen, onClose, onLeave }) => {
                                     <X size={20} />
                                 </button>
                             </div>
+                        </div>
+                        </div>
+
+                        {/* Header details */}
+                        <div className="px-6 pb-6 border-b border-white/5">
 
                             {/* Curated badge + rating */}
                             <div className="flex items-center gap-3 mb-3">

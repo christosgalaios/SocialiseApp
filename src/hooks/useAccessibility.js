@@ -90,15 +90,15 @@ export function useFocusTrap(isOpen) {
  * Drag is initiated from the handle element; the entire sheet translates.
  *
  * Usage:
- *   const { sheetY, handleProps } = useSwipeToClose(onClose);
+ *   const { sheetY, dragZoneProps } = useSwipeToClose(onClose);
  *   <motion.div style={{ y: sheetY }}>
- *     <div {...handleProps}>{handle bar}</div>
+ *     <div {...dragZoneProps}>{handle bar + header}</div>
  *     {content}
  *   </motion.div>
  *
  * @param {Function} onClose - Callback to close the sheet
  * @param {{ threshold?: number }} options - Dismiss threshold in px (default 100)
- * @returns {{ sheetY: MotionValue, handleProps: object }}
+ * @returns {{ sheetY: MotionValue, handleProps: object, dragZoneProps: object }}
  */
 export function useSwipeToClose(onClose, { threshold = 100 } = {}) {
   const sheetY = useMotionValue(0);
@@ -158,13 +158,22 @@ export function useSwipeToClose(onClose, { threshold = 100 } = {}) {
     };
   }, [handlePointerUp]);
 
+  const pointerHandlers = {
+    onPointerDown: handlePointerDown,
+    onPointerMove: handlePointerMove,
+    onPointerUp: handlePointerUp,
+  };
+
   return {
     sheetY,
     handleProps: {
-      onPointerDown: handlePointerDown,
-      onPointerMove: handlePointerMove,
-      onPointerUp: handlePointerUp,
+      ...pointerHandlers,
       style: { touchAction: 'none', cursor: 'grab' },
+    },
+    // Apply to a wider zone (handle + header) — same gesture, no cursor change
+    dragZoneProps: {
+      ...pointerHandlers,
+      style: { touchAction: 'none' },
     },
   };
 }

@@ -26,6 +26,9 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - Login success and auth error sounds
 - Haptic feedback (vibration) on key mobile interactions: navigation, cards, joins, buttons
 
+### Fixed
+- Swipe-to-close on bottom sheets and modals now responds when starting the drag from anywhere on the top bar (handle + header area), not just the tiny visual handle pill
+
 ### Changed
 - Bug report floating button now uses terracotta theme to match the bug report modal
 - Feature request floating button now uses gold theme to match the feature request modal

@@ -14,7 +14,7 @@ const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMe
   const [inputText, setInputText] = useState('');
   useEscapeKey(!!event, onClose);
   const focusTrapRef = useFocusTrap(!!event);
-  const { sheetY, handleProps } = useSwipeToClose(onClose);
+  const { sheetY, dragZoneProps } = useSwipeToClose(onClose);
 
   return (
     <div className="fixed inset-0 z-[100] flex items-end justify-center" role="dialog" aria-modal="true" aria-label={event?.title || 'Event details'} ref={focusTrapRef}>
@@ -31,7 +31,9 @@ const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMe
         style={{ y: sheetY }}
         className="bg-paper w-full max-w-xl rounded-t-[48px] overflow-hidden flex flex-col relative z-50 max-h-[94vh] border-t border-secondary/10 shadow-[0_-25px_50px_-12px_rgba(45,95,93,0.15)]"
       >
-        <div {...handleProps} className="w-16 h-1.5 bg-secondary/10 rounded-full mx-auto my-5 shrink-0" />
+        <div {...dragZoneProps} className="flex justify-center pt-4 pb-4 shrink-0">
+          <div className="w-16 h-1.5 bg-secondary/10 rounded-full" />
+        </div>
 
         {/* Scrollable area: image scrolls up, tabs + content get more space */}
         <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
