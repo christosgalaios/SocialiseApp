@@ -1,11 +1,12 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Calendar, MapPin, Clock, Ticket, Trash2 } from 'lucide-react';
 import { useEscapeKey, useFocusTrap, useSwipeToClose } from '../hooks/useAccessibility';
+import { playSwooshClose, hapticTap } from '../utils/feedback';
 
 const MyBookingsSheet = ({ isOpen, onClose, bookings = [], onCancel }) => {
     useEscapeKey(isOpen, onClose);
     const focusTrapRef = useFocusTrap(isOpen);
-    const { sheetY, handleProps } = useSwipeToClose(onClose);
+    const { sheetY, dragZoneProps } = useSwipeToClose(onClose);
 
     return (
         <AnimatePresence>
@@ -30,8 +31,9 @@ const MyBookingsSheet = ({ isOpen, onClose, bookings = [], onCancel }) => {
                         className="absolute inset-x-0 bottom-0 top-20 bg-paper rounded-t-[32px] overflow-hidden shadow-2xl"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        {/* Handle — drag to dismiss */}
-                        <div {...handleProps} className="flex justify-center pt-3 pb-2">
+                        {/* Drag zone — handle + header */}
+                        <div {...dragZoneProps}>
+                        <div className="flex justify-center pt-3 pb-2">
                             <div className="w-12 h-1 rounded-full bg-secondary/20" />
                         </div>
 
@@ -41,12 +43,13 @@ const MyBookingsSheet = ({ isOpen, onClose, bookings = [], onCancel }) => {
                                 My Bookings<span className="text-accent">.</span>
                             </h2>
                             <button
-                                onClick={onClose}
+                                onClick={() => { playSwooshClose(); hapticTap(); onClose(); }}
                                 className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
                                 aria-label="Close"
                             >
                                 <X size={20} className="text-secondary" />
                             </button>
+                        </div>
                         </div>
 
                         {/* Bookings List */}

@@ -20,11 +20,16 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - Event card and micro-meet card press sounds with haptic feedback
 - Feed interaction sounds: like pop, unlike, emoji reactions, comment/reply send
 - Action sounds: join event success chime with confetti sparkle, level-up fanfare, pull-to-refresh complete, chat message send
-- Modal/sheet close swoosh sound on EventDetailSheet dismiss
+- Modal/sheet close swoosh sound on all close (X) buttons — EventDetailSheet, MyBookingsSheet, SavedEventsSheet, HelpSheet, GroupChatsSheet, ChangelogSheet, BugReportModal, FeatureRequestModal, AvatarCropModal, ProUpgradeModal, TribeDiscovery, TribeSheet, LevelUpModal, UserProfileSheet
+- Tap sound and haptic feedback on all arrow/scroll buttons — HomeTab micro-meets carousel, ExploreTab reels carousel, AuthScreen testimonial arrows, GroupChatsSheet back arrow
+- Click sound on HelpSheet FAQ expand/collapse chevrons
 - Onboarding flow sounds: interest selection clicks, step navigation taps, completion chime
 - Sound toggle in Settings (Profile > Settings > Sound & feedback) — persisted to localStorage, respects `prefers-reduced-motion`
 - Login success and auth error sounds
 - Haptic feedback (vibration) on key mobile interactions: navigation, cards, joins, buttons
+
+### Fixed
+- Swipe-to-close on bottom sheets and modals now responds when starting the drag from anywhere on the top bar (handle + header area), not just the tiny visual handle pill
 
 ### Changed
 - Bug report floating button now uses terracotta theme to match the bug report modal

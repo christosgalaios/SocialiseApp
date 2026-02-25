@@ -5,6 +5,7 @@ import api from '../api';
 import useAuthStore from '../stores/authStore';
 import { useEscapeKey, useFocusTrap, useSwipeToClose } from '../hooks/useAccessibility';
 import { DEFAULT_AVATAR } from '../data/constants';
+import { playSwooshClose, playTap, hapticTap } from '../utils/feedback';
 
 const QUICK_REACTIONS = ['❤️', '😂', '🔥', '👏', '😮', '👍'];
 
@@ -73,7 +74,7 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
   const user = useAuthStore((s) => s.user);
   useEscapeKey(isOpen, onClose);
   const focusTrapRef = useFocusTrap(isOpen);
-  const { sheetY, handleProps } = useSwipeToClose(onClose);
+  const { sheetY, dragZoneProps } = useSwipeToClose(onClose);
   const [selectedCommunity, setSelectedCommunity] = useState(null);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
@@ -174,17 +175,17 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
           onClick={(e) => e.stopPropagation()}
           style={{ y: sheetY }}
         >
-          <div {...handleProps} className="flex justify-center pt-3 pb-2 shrink-0">
-            <div className="w-12 h-1 rounded-full bg-secondary/20" />
-          </div>
-
           {selectedCommunity ? (
             <>
-              {/* Chat header */}
-              <div className="px-4 py-3 border-b border-secondary/10 shrink-0">
+              {/* Drag zone — handle + chat header */}
+              <div {...dragZoneProps} className="shrink-0">
+              <div className="flex justify-center pt-3 pb-2">
+                <div className="w-12 h-1 rounded-full bg-secondary/20" />
+              </div>
+              <div className="px-4 py-3 border-b border-secondary/10">
                 <div className="flex items-center gap-3">
                   <button
-                    onClick={closeCommunity}
+                    onClick={() => { playTap(); hapticTap(); closeCommunity(); }}
                     className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
                     aria-label="Back to communities"
                   >
@@ -207,7 +208,7 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
                       <Video size={16} />
                     </button>
                     <button
-                      onClick={onClose}
+                      onClick={() => { playSwooshClose(); hapticTap(); onClose(); }}
                       className="w-9 h-9 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
                       aria-label="Close"
                     >
@@ -215,6 +216,7 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
                     </button>
                   </div>
                 </div>
+              </div>
               </div>
 
               {/* Pinned message */}
@@ -284,8 +286,12 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
             </>
           ) : (
             <>
-              {/* Community list header */}
-              <div className="px-6 pb-4 border-b border-secondary/10 shrink-0">
+              {/* Drag zone — handle + community list header */}
+              <div {...dragZoneProps} className="shrink-0">
+              <div className="flex justify-center pt-3 pb-2">
+                <div className="w-12 h-1 rounded-full bg-secondary/20" />
+              </div>
+              <div className="px-6 pb-4 border-b border-secondary/10">
                 <div className="flex items-center justify-between mb-3">
                   <div>
                     <h2 className="text-xl font-black tracking-tight text-primary">
@@ -302,7 +308,7 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
                       <Search size={18} className="text-secondary" />
                     </button>
                     <button
-                      onClick={onClose}
+                      onClick={() => { playSwooshClose(); hapticTap(); onClose(); }}
                       className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
                       aria-label="Close chats"
                     >
@@ -321,6 +327,7 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
                     className="w-full bg-secondary/10 border border-secondary/15 rounded-2xl px-4 py-3 text-sm text-[var(--text)] placeholder:text-secondary/40 focus:outline-none focus:ring-2 focus:ring-primary/30 font-medium"
                   />
                 )}
+              </div>
               </div>
 
               {/* Community list */}

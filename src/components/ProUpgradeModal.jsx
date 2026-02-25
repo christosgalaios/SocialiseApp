@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Crown, Check, Zap, Users, BarChart3, Wand2, Shield } from 'lucide-react';
 import { useEscapeKey, useFocusTrap } from '../hooks/useAccessibility';
+import { playSwooshClose, hapticTap } from '../utils/feedback';
 
 const ProUpgradeModal = ({ isOpen, onClose, onUpgrade }) => {
     useEscapeKey(isOpen, onClose);
@@ -62,7 +63,7 @@ const ProUpgradeModal = ({ isOpen, onClose, onUpgrade }) => {
 
                             {/* Close button */}
                             <button
-                                onClick={onClose}
+                                onClick={() => { playSwooshClose(); hapticTap(); onClose(); }}
                                 className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
                                 aria-label="Close"
                             >
