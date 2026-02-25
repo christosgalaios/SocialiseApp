@@ -39,8 +39,31 @@ const isValidName = (name) =>
 
 const toPublicUser = (row) => {
     if (!row) return null;
-    const { password: _password, is_pro, is_email_verified: _verified, verification_code: _code, verification_code_expiry: _expiry, login_streak, last_login_date, unlocked_titles, ...rest } = row;
-    return { ...rest, isPro: is_pro, loginStreak: login_streak ?? 0, lastLoginDate: last_login_date ?? null, xp: rest.xp ?? 0, unlockedTitles: unlocked_titles ?? [] };
+    const {
+        password: _password, is_pro, is_email_verified: _verified,
+        verification_code: _code, verification_code_expiry: _expiry,
+        login_streak, last_login_date, unlocked_titles,
+        organiser_bio, organiser_display_name, organiser_categories,
+        organiser_social_links, organiser_cover_photo, organiser_verified,
+        organiser_setup_complete,
+        ...rest
+    } = row;
+    return {
+        ...rest,
+        isPro: is_pro,
+        loginStreak: login_streak ?? 0,
+        lastLoginDate: last_login_date ?? null,
+        xp: rest.xp ?? 0,
+        unlockedTitles: unlocked_titles ?? [],
+        role: rest.role ?? 'attendee',
+        organiserBio: organiser_bio ?? '',
+        organiserDisplayName: organiser_display_name ?? '',
+        organiserCategories: organiser_categories ?? [],
+        organiserSocialLinks: organiser_social_links ?? {},
+        organiserCoverPhoto: organiser_cover_photo ?? '',
+        organiserVerified: organiser_verified ?? false,
+        organiserSetupComplete: organiser_setup_complete ?? false,
+    };
 };
 
 // --- Login streak calculation ---

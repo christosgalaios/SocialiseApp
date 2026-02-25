@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 const APP_VERSION = import.meta.env.VITE_APP_VERSION || '0.1.dev';
 import {
-  Mail, ShieldCheck, Zap, Check, Heart, Crown, ChevronRight, LogOut, Camera, Users, Settings, MessageCircle, ArrowLeft, Volume2,
+  Mail, ShieldCheck, Zap, Check, Heart, Crown, ChevronRight, LogOut, Camera, Users, Settings, MessageCircle, ArrowLeft, Volume2, Megaphone,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import useAuthStore from '../stores/authStore';
@@ -20,6 +20,8 @@ import {
   SKILL_LEVEL_THRESHOLDS,
 } from '../data/constants';
 import WarmthScore from './WarmthScore';
+import OrganiserDashboard from './OrganiserDashboard';
+import api from '../api';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -114,8 +116,9 @@ function SkillCard({ skill, xp = 0, unlockedBadgeIds = [] }) {
   );
 }
 
-export default function ProfileTab({ onLogout }) {
+export default function ProfileTab({ onLogout, onCreateEvent }) {
   const user = useAuthStore((s) => s.user);
+  const setUser = useAuthStore((s) => s.setUser);
   const joinedEvents = useEventStore((s) => s.joinedEvents);
   const savedEvents = useEventStore((s) => s.savedEvents);
 
@@ -137,6 +140,20 @@ export default function ProfileTab({ onLogout }) {
   const loginStreak = useUIStore((s) => s.loginStreak);
   const skillXP = useUIStore((s) => s.skillXP);
   const userUnlockedTitles = useUIStore((s) => s.userUnlockedTitles);
+  const setShowOrganiserSetup = useUIStore((s) => s.setShowOrganiserSetup);
+  const showToast = useUIStore((s) => s.showToast);
+
+  const isOrganiser = user?.role === 'organiser' && user?.organiserSetupComplete;
+
+  const handleSwitchToAttendee = async () => {
+    try {
+      const updated = await api.switchRole('attendee');
+      setUser(updated);
+      showToast('Switched to attendee view', 'info');
+    } catch (err) {
+      showToast(err.message || 'Failed to switch role', 'error');
+    }
+  };
 
   const fileInputRef = useRef(null);
 
@@ -168,6 +185,78 @@ export default function ProfileTab({ onLogout }) {
         .map(b => b.id)
     ),
   ];
+
+  // Organiser dashboard view
+  if (profileSubTab === 'profile' && isOrganiser) {
+    return (
+      <motion.div
+        key="organiser-dashboard"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="p-5 md:p-10 max-w-4xl mx-auto pb-32 relative"
+        style={{ overscrollBehavior: 'contain' }}
+      >
+        <OrganiserDashboard
+          onSwitchToAttendee={handleSwitchToAttendee}
+          onCreateEvent={onCreateEvent}
+        />
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="premium-card overflow-hidden mt-6 rounded-[32px] bg-secondary/5 border border-secondary/10"
+        >
+          {[
+            { label: 'My Bookings', icon: Check, action: () => { playTap(); hapticTap(); setShowBookings(true); }, badge: joinedEvents.length },
+            { label: 'Saved Experiences', icon: Heart, action: () => { playTap(); hapticTap(); setShowSaved(true); }, badge: savedEvents.length },
+            { label: 'Settings', icon: Settings, action: () => { playTap(); hapticTap(); setProfileSubTab('settings'); } },
+            { label: 'Help & Privacy', icon: ShieldCheck, action: () => { playTap(); hapticTap(); setShowHelp(true); } },
+          ].map((item) => (
+            <button
+              key={item.label}
+              onClick={item.action}
+              className="w-full flex items-center justify-between p-6 border-b border-secondary/10 last:border-0 hover:bg-secondary/5 transition-all active:pl-8"
+            >
+              <div className="flex items-center gap-5">
+                <div className="w-10 h-10 rounded-2xl bg-secondary/10 flex items-center justify-center border border-secondary/10">
+                  <item.icon size={20} className="text-primary" />
+                </div>
+                <span className="font-extrabold text-[15px] tracking-tight text-secondary">{item.label}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {item.badge > 0 && (
+                  <span className="bg-primary text-white text-[10px] font-black px-2 py-0.5 rounded-full">
+                    {item.badge}
+                  </span>
+                )}
+                <ChevronRight className="text-secondary/40" size={20} />
+              </div>
+            </button>
+          ))}
+        </motion.div>
+
+        <motion.button
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          onClick={() => { playTap(); onLogout(); }}
+          className="w-full p-6 mt-6 rounded-[32px] bg-red-500/10 border border-red-500/20 flex items-center justify-center gap-3 text-red-500 font-black uppercase tracking-widest hover:bg-red-500/20 transition-all active:scale-95"
+        >
+          <LogOut size={18} />
+          Log Out
+        </motion.button>
+
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-center text-[11px] tracking-widest mt-6 pb-2"
+          style={{ color: 'var(--muted)', opacity: 0.45 }}
+        >
+          v{APP_VERSION}
+        </motion.p>
+      </motion.div>
+    );
+  }
 
   if (profileSubTab === 'settings') {
     return (
@@ -461,6 +550,27 @@ export default function ProfileTab({ onLogout }) {
             <p className="text-[10px] font-black uppercase tracking-widest text-secondary/60 mt-1">Connections</p>
           </div>
         </motion.div>
+
+        {/* Become an Organiser CTA */}
+        {!isOrganiser && (
+          <motion.div
+            variants={itemVariants}
+            className="premium-card p-6 relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform group"
+            onClick={() => { playClick(); hapticTap(); setShowOrganiserSetup(true); }}
+          >
+            <div className="absolute -left-8 -bottom-8 w-36 h-36 bg-accent/10 rounded-full blur-3xl group-hover:bg-accent/20 transition-colors" />
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-accent/10 flex items-center justify-center border border-accent/20 shrink-0">
+                <Megaphone size={26} className="text-accent" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-black text-secondary text-base">Become an Organiser</h3>
+                <p className="text-[11px] text-secondary/50 font-medium mt-0.5">Host events, build communities & track your impact</p>
+              </div>
+              <ChevronRight size={20} className="text-accent/60 shrink-0" />
+            </div>
+          </motion.div>
+        )}
 
         {experimentalFeatures && !proEnabled && (
           <motion.div variants={itemVariants} className="mt-8 pt-8 border-t border-secondary/10 text-center">

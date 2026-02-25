@@ -62,6 +62,14 @@ const useUIStore = create((set) => ({
   showChangelog: false,
   setShowChangelog: (show) => set({ showChangelog: show }),
 
+  // Organiser modals
+  showOrganiserSetup: false,
+  setShowOrganiserSetup: (show) => set({ showOrganiserSetup: show }),
+  showOrganiserProfile: null, // userId or null
+  setShowOrganiserProfile: (userId) => set({ showOrganiserProfile: userId }),
+  organiserDashboardTab: 'overview',
+  setOrganiserDashboardTab: (tab) => set({ organiserDashboardTab: tab }),
+
   // Explore filters
   searchQuery: '',
   setSearchQuery: (query) => set({ searchQuery: query }),

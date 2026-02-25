@@ -5,6 +5,7 @@ const { authenticateToken, toPublicUser } = require('./auth');
 const {
     USER_NOT_FOUND, USER_UPDATE_FAILED, USER_XP_UPDATE_FAILED,
     USER_DELETE_FAILED, USER_AVATAR_FAILED, USER_INVALID_INPUT,
+    USER_ROLE_UPDATE_FAILED, USER_STATS_FAILED,
 } = require('../errors');
 
 const router = express.Router();
@@ -41,8 +42,20 @@ async function processAvatar(dataUrl) {
 // --- PUT /api/users/me --- (update own profile)
 router.put('/me', authenticateToken, async (req, res) => {
     const allowed = ['name', 'bio', 'location', 'avatar', 'interests'];
+    // Organiser fields use camelCase in request body, snake_case in DB
+    const organiserFieldMap = {
+        organiserBio: 'organiser_bio',
+        organiserDisplayName: 'organiser_display_name',
+        organiserCategories: 'organiser_categories',
+        organiserSocialLinks: 'organiser_social_links',
+        organiserCoverPhoto: 'organiser_cover_photo',
+        organiserSetupComplete: 'organiser_setup_complete',
+    };
     const updates = {};
     allowed.forEach(k => { if (req.body[k] !== undefined) updates[k] = req.body[k]; });
+    Object.entries(organiserFieldMap).forEach(([camel, snake]) => {
+        if (req.body[camel] !== undefined) updates[snake] = req.body[camel];
+    });
 
     // Validate
     if (updates.name !== undefined && (!updates.name?.trim() || updates.name.trim().length > 100)) {
@@ -186,6 +199,156 @@ router.get('/me/communities', authenticateToken, async (req, res) => {
         .in('id', communityIds);
 
     res.json((communities || []).map(c => ({ ...c, isJoined: true, members: c.member_count })));
+});
+
+// --- PUT /api/users/me/role --- (switch between attendee and organiser)
+router.put('/me/role', authenticateToken, async (req, res) => {
+    const { role } = req.body;
+    if (!role || !['attendee', 'organiser'].includes(role)) {
+        return res.status(400).json({ code: USER_INVALID_INPUT, message: 'Role must be "attendee" or "organiser"' });
+    }
+
+    const { data: updated, error } = await supabase
+        .from('users')
+        .update({ role })
+        .eq('id', req.user.id)
+        .select()
+        .single();
+
+    if (!updated) return res.status(404).json({ code: USER_NOT_FOUND, message: 'User not found' });
+    if (error) return res.status(500).json({ code: USER_ROLE_UPDATE_FAILED, message: 'Failed to update role' });
+
+    res.json(toPublicUser(updated));
+});
+
+// --- GET /api/users/me/organiser-stats --- (dashboard analytics)
+router.get('/me/organiser-stats', authenticateToken, async (req, res) => {
+    const userId = req.user.id;
+
+    try {
+        // Events hosted by this user
+        const { data: hosted } = await supabase
+            .from('events')
+            .select('id, title, date, time, max_spots, image_url, host_name, category, status, created_at')
+            .eq('host_id', userId)
+            .order('created_at', { ascending: false });
+
+        const hostedEvents = hosted || [];
+        const activeEvents = hostedEvents.filter(e => e.status === 'active');
+        const eventIds = hostedEvents.map(e => e.id);
+
+        // Total RSVPs across all hosted events
+        let totalAttendees = 0;
+        let rsvpsByEvent = {};
+        if (eventIds.length) {
+            const { data: rsvps } = await supabase
+                .from('event_rsvps')
+                .select('event_id')
+                .in('event_id', eventIds);
+
+            (rsvps || []).forEach(r => {
+                rsvpsByEvent[r.event_id] = (rsvpsByEvent[r.event_id] || 0) + 1;
+                totalAttendees++;
+            });
+        }
+
+        // Communities created by this user
+        const { data: communities } = await supabase
+            .from('communities')
+            .select('id, name, member_count, avatar, category, created_at')
+            .eq('created_by', userId)
+            .order('created_at', { ascending: false });
+
+        const ownedCommunities = communities || [];
+        const totalCommunityMembers = ownedCommunities.reduce((sum, c) => sum + (c.member_count || 0), 0);
+
+        // Enrich events with attendee count
+        const enrichedEvents = activeEvents.map(e => ({
+            ...e,
+            spots: e.max_spots,
+            image: e.image_url,
+            host: e.host_name,
+            attendees: rsvpsByEvent[e.id] || 0,
+        }));
+
+        res.json({
+            stats: {
+                eventsHosted: hostedEvents.length,
+                activeEvents: activeEvents.length,
+                totalAttendees,
+                communitiesCreated: ownedCommunities.length,
+                totalCommunityMembers,
+            },
+            events: enrichedEvents,
+            communities: ownedCommunities.map(c => ({ ...c, members: c.member_count })),
+        });
+    } catch (err) {
+        console.error('[ERROR] Failed to fetch organiser stats:', err.message);
+        res.status(500).json({ code: USER_STATS_FAILED, message: 'Failed to fetch organiser stats' });
+    }
+});
+
+// --- GET /api/users/:id/organiser-profile --- (public organiser profile)
+router.get('/:id/organiser-profile', async (req, res) => {
+    const { id } = req.params;
+
+    const { data: user } = await supabase
+        .from('users')
+        .select('id, name, avatar, bio, role, organiser_bio, organiser_display_name, organiser_categories, organiser_social_links, organiser_cover_photo, organiser_verified, organiser_setup_complete')
+        .eq('id', id)
+        .single();
+
+    if (!user) return res.status(404).json({ code: USER_NOT_FOUND, message: 'User not found' });
+
+    // Get their hosted events
+    const { data: events } = await supabase
+        .from('events')
+        .select('id, title, date, time, max_spots, image_url, host_name, category, status')
+        .eq('host_id', id)
+        .eq('status', 'active')
+        .order('date', { ascending: true });
+
+    // Get attendee counts for these events
+    const eventIds = (events || []).map(e => e.id);
+    let rsvpsByEvent = {};
+    if (eventIds.length) {
+        const { data: rsvps } = await supabase
+            .from('event_rsvps')
+            .select('event_id')
+            .in('event_id', eventIds);
+        (rsvps || []).forEach(r => {
+            rsvpsByEvent[r.event_id] = (rsvpsByEvent[r.event_id] || 0) + 1;
+        });
+    }
+
+    // Get their communities
+    const { data: communities } = await supabase
+        .from('communities')
+        .select('id, name, member_count, avatar, category')
+        .eq('created_by', id);
+
+    res.json({
+        id: user.id,
+        name: user.name,
+        avatar: user.avatar,
+        bio: user.bio,
+        role: user.role ?? 'attendee',
+        organiserBio: user.organiser_bio ?? '',
+        organiserDisplayName: user.organiser_display_name ?? '',
+        organiserCategories: user.organiser_categories ?? [],
+        organiserSocialLinks: user.organiser_social_links ?? {},
+        organiserCoverPhoto: user.organiser_cover_photo ?? '',
+        organiserVerified: user.organiser_verified ?? false,
+        organiserSetupComplete: user.organiser_setup_complete ?? false,
+        events: (events || []).map(e => ({
+            ...e,
+            spots: e.max_spots,
+            image: e.image_url,
+            host: e.host_name,
+            attendees: rsvpsByEvent[e.id] || 0,
+        })),
+        communities: (communities || []).map(c => ({ ...c, members: c.member_count })),
+    });
 });
 
 // --- DELETE /api/users/me --- (delete own account and all associated data)
