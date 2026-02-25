@@ -247,7 +247,7 @@ Base (production): `https://socialise-app-production.up.railway.app/api`
 - `ALLOWED_ORIGINS` — Comma-separated CORS origins. Defaults to localhost dev origins.
 - `SUPABASE_URL` — Supabase project URL. Required.
 - `SUPABASE_SERVICE_ROLE_KEY` — Supabase service role key (server-side only, bypasses RLS). Required.
-- `BUGS_SHEET_WEBHOOK_URL` — Optional. Google Apps Script web app URL. When set, bug reports are synced to a Google Sheet in real time (fire-and-forget — failures don't affect the API response). Supports two modes: new bug creation (appends row) and status updates via `PUT /bugs/:bugId` (updates existing row by `bug_id`). The Apps Script uses header-based column lookup (not hardcoded indices) so columns can be reordered freely. Environment values are `PROD` (from `/prod/` page), `DEV` (from `/dev/` page), or `LOCAL` (localhost). The "Fixed At" column is auto-populated by the Apps Script when a bug's status is set to `fixed`. The Apps Script source is in `docs/google-sheets-apps-script.js`.
+- `BUGS_SHEET_WEBHOOK_URL` — Optional. Google Apps Script web app URL. When set, bug reports are synced to a Google Sheet in real time (fire-and-forget — failures don't affect the API response). Supports three modes: new bug creation (appends row), status updates via `PUT /bugs/:bugId` (updates existing row), and deletion via `DELETE /bugs/:bugId` (removes row). The Apps Script uses header-based column lookup (not hardcoded indices) so columns can be reordered freely. Environment values are `PROD` (from `/prod/` page), `DEV` (from `/dev/` page), or `LOCAL` (localhost). The "Fixed At" column is auto-populated by the Apps Script when a bug's status is set to `fixed`. Bi-directional sync: the `onSheetEdit` installable trigger syncs manual Status/Priority/Type edits from the sheet back to Supabase (requires one-time `setupSupabaseCredentials()` in Apps Script — stores `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` in Google Script Properties). The Apps Script source is in `docs/google-sheets-apps-script.js`.
 
 ---
 
@@ -392,6 +392,9 @@ These bugs from the original issue list have been resolved in the codebase:
 - ChangelogSheet scroll fixed — replaced `maxHeight` calc with flex layout (`flex-1 min-h-0`) + `overscroll-contain` so the "What's New" sheet scrolls properly on iOS Safari (BUG-1771957626306) ✓
 - VideoWall press-and-hold drag glitch fixed — replaced Framer Motion `whileTap` with manual press tracking via `onPointerDown` + global `pointerup` listener so cards stay scaled down until touch is fully released, even when finger drags off the card (BUG-1771957730622) ✓
 - Feature request submission added — `FeatureRequestModal` component (mirrors `BugReportModal`), Lightbulb button above Bug button, `type` column in `bug_reports` table (migration 011), `FEAT-` ID prefix for feature requests, Google Sheet `Type` column, `/fix-bugs` skill re-categorizes bug-as-feature instead of rejecting ✓
+- Apps Script update handler now syncs `description`, `platform`, and `reporter` fields (previously only synced status/priority/environment/app_version/reports/type) ✓
+- Reporter column added to Google Sheet — auto-populated from JWT email on bug/feature submission, visible in sheet for triage ✓
+- Bi-directional sync added — `onSheetEdit` installable trigger syncs manual Status/Priority/Type edits from Google Sheet back to Supabase via REST API. Auto-populates/clears "Fixed At" on status changes. Requires one-time `setupSupabaseCredentials()` setup ✓
 
 ---
 
