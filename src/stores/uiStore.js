@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { isSoundEnabled, setSoundEnabled as persistSoundEnabled } from '../utils/feedback';
 
 const useUIStore = create((set) => ({
   // Navigation
@@ -170,6 +171,13 @@ const useUIStore = create((set) => ({
   setProEnabled: (enabled) => {
     set({ proEnabled: enabled });
     localStorage.setItem('socialise_pro', JSON.stringify(enabled));
+  },
+
+  // Sound enabled
+  soundEnabled: isSoundEnabled(),
+  setSoundEnabled: (enabled) => {
+    set({ soundEnabled: enabled });
+    persistSoundEnabled(enabled);
   },
 
   // Experimental features

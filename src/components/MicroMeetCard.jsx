@@ -1,12 +1,13 @@
 import { motion } from 'framer-motion';
 import { Wand2 } from 'lucide-react';
 import { DEFAULT_AVATAR } from '../data/constants';
+import { playCardPress, hapticTap } from '../utils/feedback';
 
 const MicroMeetCard = ({ meet, onClick }) => (
   <motion.div
     whileTap={{ scale: 0.95 }}
     className="min-w-[300px] premium-card p-6 mr-4 relative overflow-hidden group shadow-2xl"
-    onClick={() => onClick(meet)}
+    onClick={() => { playCardPress(); hapticTap(); onClick(meet); }}
   >
     <div className="absolute -right-8 -top-8 w-32 h-32 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/20 transition-all duration-700" />
     {meet.matchScore !== undefined && (

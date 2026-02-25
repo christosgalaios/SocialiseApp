@@ -1,12 +1,13 @@
 import { motion } from 'framer-motion';
 import { Check, Clock, Users, Calendar, MapPin } from 'lucide-react';
 import { INCLUSIVITY_TAGS } from '../data/constants';
+import { playCardPress, hapticTap } from '../utils/feedback';
 
 const EventCard = ({ event, onClick, compact = false, isJoined = false }) => (
   <motion.div
     whileTap={{ scale: 0.96 }}
     className={`premium-card overflow-hidden group ${compact ? 'flex gap-4 p-4' : 'mb-6 shadow-2xl'}`}
-    onClick={() => onClick(event)}
+    onClick={() => { playCardPress(); hapticTap(); onClick(event); }}
   >
     {compact ? (
       <>

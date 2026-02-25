@@ -1,5 +1,14 @@
 import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import {
+  playSplashHost,
+  playSplashMembers,
+  playSplashHuddle,
+  playSplashLatecomer,
+  playSplashWelcome,
+  playSplashTogether,
+  playTap,
+} from '../utils/feedback';
 
 const SplashScreen = ({ onFinish }) => {
     const [phase, setPhase] = useState('host');
@@ -11,11 +20,13 @@ const SplashScreen = ({ onFinish }) => {
             timeoutsRef.current.push(id);
             return id;
         };
-        add(() => setPhase('members'), 1200);
-        add(() => setPhase('huddle'), 2800);
-        add(() => setPhase('latecomer'), 4200);
-        add(() => setPhase('welcome'), 5000);
-        add(() => setPhase('together'), 6200);
+        // Host letter appears
+        add(() => playSplashHost(), 200);
+        add(() => { setPhase('members'); playSplashMembers(); }, 1200);
+        add(() => { setPhase('huddle'); playSplashHuddle(); }, 2800);
+        add(() => { setPhase('latecomer'); playSplashLatecomer(); }, 4200);
+        add(() => { setPhase('welcome'); playSplashWelcome(); }, 5000);
+        add(() => { setPhase('together'); playSplashTogether(); }, 6200);
         add(onFinish, 8000);
         return () => {
             timeoutsRef.current.forEach(clearTimeout);
@@ -24,10 +35,12 @@ const SplashScreen = ({ onFinish }) => {
     }, [onFinish]);
 
     const handleTap = () => {
+        playTap();
         if (phase !== 'together') {
             timeoutsRef.current.forEach(clearTimeout);
             timeoutsRef.current = [];
             setPhase('together');
+            playSplashTogether();
             // Auto-finish after showing the final phase briefly
             const id = setTimeout(onFinish, 1500);
             timeoutsRef.current.push(id);

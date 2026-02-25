@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronLeft, Check, MapPin, Heart, Users, Zap } from 'lucide-react';
 import { CATEGORIES } from '../data/constants';
+import { playClick, playTap, playSuccess } from '../utils/feedback';
 
 const OnboardingFlow = ({ onComplete, userName = 'there' }) => {
     const [step, setStep] = useState(0);
@@ -16,6 +17,7 @@ const OnboardingFlow = ({ onComplete, userName = 'there' }) => {
     }));
 
     const toggleInterest = (id) => {
+        playClick();
         setSelectedInterests(prev =>
             prev.includes(id)
                 ? prev.filter(i => i !== id)
@@ -24,6 +26,7 @@ const OnboardingFlow = ({ onComplete, userName = 'there' }) => {
     };
 
     const handleComplete = () => {
+        playSuccess();
         onComplete({
             interests: selectedInterests,
             location,
@@ -223,7 +226,7 @@ const OnboardingFlow = ({ onComplete, userName = 'there' }) => {
             <div className="p-6 pb-10 flex gap-3">
                 {step > 0 && (
                     <button
-                        onClick={() => setStep(step - 1)}
+                        onClick={() => { playTap(); setStep(step - 1); }}
                         className="w-14 h-14 rounded-2xl bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
                         aria-label="Go back"
                     >
@@ -231,7 +234,7 @@ const OnboardingFlow = ({ onComplete, userName = 'there' }) => {
                     </button>
                 )}
                 <button
-                    onClick={() => step < 2 ? setStep(step + 1) : handleComplete()}
+                    onClick={() => { playTap(); step < 2 ? setStep(step + 1) : handleComplete(); }}
                     disabled={!canProceed()}
                     className="flex-1 h-14 rounded-2xl bg-gradient-to-r from-primary to-accent text-white font-black uppercase tracking-widest flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] transition-transform"
                 >
