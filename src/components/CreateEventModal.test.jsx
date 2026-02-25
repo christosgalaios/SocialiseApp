@@ -9,6 +9,9 @@ vi.mock('framer-motion', () => ({
     div: ({ children, ...props }) => <div data-testid="motion-div" {...props}>{children}</div>,
   },
   AnimatePresence: ({ children }) => <>{children}</>,
+  useMotionValue: (initial) => ({ get: () => initial, set: () => {} }),
+  useTransform: () => ({ get: () => 1, set: () => {} }),
+  animate: vi.fn(),
 }));
 
 // Mock LocationPicker

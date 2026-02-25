@@ -152,6 +152,7 @@ package.json           # Frontend deps (ESM) — v0.1.0
 | BugReportModal | `src/components/BugReportModal.jsx` | Bug report submission form. |
 | FeatureRequestModal | `src/components/FeatureRequestModal.jsx` | Feature request submission form (mirrors BugReportModal). |
 | Skeleton | `src/components/Skeleton.jsx` | Loading skeletons for each tab. |
+| useSwipeToClose | `src/hooks/useAccessibility.js` | Hook for swipe-down-to-close on bottom sheets. Returns `sheetY` motion value + `handleProps` for drag handle. |
 
 ---
 
@@ -360,7 +361,7 @@ These bugs from the original issue list have been resolved in the codebase:
 - Blob URL memory leak in ProfileTab `handleAvatarUpload` fixed — revokes previous URL before creating new one ✓
 - `EventReels` slideshow images have `onError` fallback (skip to next image on load failure) ✓
 - `loading="lazy"` added to all remaining img tags: HomeTab, ProfileTab, AuthScreen, IOSInstallPrompt, RealtimePing ✓
-- Component test coverage expanded: 409 frontend tests across 18 test files (useAccessibility 16, BottomNav 16, Toast 10, Sidebar 16, ErrorBoundary 11) ✓
+- Component test coverage expanded: 409 frontend tests across 18 test files (useAccessibility 16, BottomNav 16, Toast 10, Sidebar 16, ErrorBoundary 11); `useSwipeToClose` hook adds 10 more tests (total 448 across 20 test files) ✓
 - `auto-approve.yml` blocks feature branch PRs from targeting `production` — only `development` → `production` PRs are allowed ✓
 - `deploy-production.yml` back-merges production into development after deploy — keeps branches in sync (merge commits from development→production PRs no longer cause "behind" drift) ✓
 - XP and unlocked titles persisted to Supabase `users` table (migration 007) — fixes level mismatch between prod and dev environments. Auth responses include `xp` and `unlockedTitles`, synced to uiStore on login/session check. `PUT /api/users/me/xp` endpoint for updates. ✓
@@ -395,6 +396,12 @@ These bugs from the original issue list have been resolved in the codebase:
 - Apps Script update handler now syncs `description`, `platform`, and `reporter` fields (previously only synced status/priority/environment/app_version/reports/type) ✓
 - Reporter column added to Google Sheet — auto-populated from JWT email on bug/feature submission, visible in sheet for triage ✓
 - Bi-directional sync added — `onSheetEdit` installable trigger syncs manual Status/Priority/Type edits from Google Sheet back to Supabase via REST API. Auto-populates/clears "Fixed At" on status changes. Requires one-time `setupSupabaseCredentials()` setup ✓
+- Community hub scroll lock fixed — `overscroll-behavior-y: contain` on `#main-content` prevents iOS Safari scroll context confusion during tab transitions; pull-to-refresh touch refs cleaned up on tab switch; instant scroll reset instead of smooth (races with AnimatePresence); `requestAnimationFrame` forces iOS to recalculate scroll context (BUG-1771959452079 + BUG-1771959505810) ✓
+- CreateEventModal stuck fixed — close button uses `onPointerDown` instead of `onClick` for immediate response on iOS; backdrop uses `onPointerDown`; `touch-action: manipulation` on header/close button prevents iOS gesture recognizer interference; swipe-down-to-close via Framer Motion `drag="y"` on modal container (BUG-1771966783965) ✓
+- Explore page wobble animation fixed — removed `layoutId` from `EventCard` that caused unintended cross-tab layout animations during `AnimatePresence mode="wait"` transitions (BUG-1771959632614) ✓
+- Feature request box text overflow fixed — `break-words` and `overflow-wrap: break-word` on description textarea; `overscroll-contain` on modal scroll area (BUG-1771992727908) ✓
+- Feature request/bug report buttons overlap fixed — increased vertical spacing between floating buttons (bottom-[120px] and bottom-[168px] on mobile) to prevent touch target overlap (BUG-1771992911027) ✓
+- Swipe-to-close added to all 12 bottom sheets/modals — `useSwipeToClose` hook in `useAccessibility.js` tracks pointer drag on handle bars and dismisses when threshold or velocity exceeded. Applied to: EventDetailSheet, MyBookingsSheet, SavedEventsSheet, HelpSheet, GroupChatsSheet, TribeSheet, ChangelogSheet, UserProfileSheet, BugReportModal, FeatureRequestModal, CreateEventModal. 10 new tests for the hook (BUG-1771992986881) ✓
 
 ---
 
@@ -466,6 +473,7 @@ These bugs from the original issue list have been resolved in the codebase:
 - [x] Add `aria-hidden="true"` to decorative elements (glow rings, active indicators, chevron icons)
 - [x] BottomNav uses `<nav>` landmark with `aria-label="Main navigation"`
 - [x] Sidebar uses `<nav>` landmark with `aria-label="Category filter"`
+- [x] Swipe-down-to-close on all 12 bottom sheets/modals via `useSwipeToClose` hook — drag handle bars dismiss on threshold or velocity
 - [ ] Test with screen reader (VoiceOver/NVDA) and keyboard-only navigation
 
 ### Phase 5: Security Hardening (Pre-Launch)

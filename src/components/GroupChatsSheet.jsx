@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, ArrowLeft, Image, Smile, Mic, Users, Pin, Search, Phone, Video } from 'lucide-react';
 import api from '../api';
 import useAuthStore from '../stores/authStore';
-import { useEscapeKey, useFocusTrap } from '../hooks/useAccessibility';
+import { useEscapeKey, useFocusTrap, useSwipeToClose } from '../hooks/useAccessibility';
 import { DEFAULT_AVATAR } from '../data/constants';
 
 const QUICK_REACTIONS = ['❤️', '😂', '🔥', '👏', '😮', '👍'];
@@ -73,6 +73,7 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
   const user = useAuthStore((s) => s.user);
   useEscapeKey(isOpen, onClose);
   const focusTrapRef = useFocusTrap(isOpen);
+  const { sheetY, handleProps } = useSwipeToClose(onClose);
   const [selectedCommunity, setSelectedCommunity] = useState(null);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
@@ -171,8 +172,9 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
           transition={{ type: 'spring', damping: 30, stiffness: 300 }}
           className="absolute inset-x-0 bottom-0 top-12 bg-paper rounded-t-[32px] overflow-hidden shadow-2xl flex flex-col"
           onClick={(e) => e.stopPropagation()}
+          style={{ y: sheetY }}
         >
-          <div className="flex justify-center pt-3 pb-2 shrink-0">
+          <div {...handleProps} className="flex justify-center pt-3 pb-2 shrink-0">
             <div className="w-12 h-1 rounded-full bg-secondary/20" />
           </div>
 

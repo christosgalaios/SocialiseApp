@@ -1,7 +1,15 @@
 import { describe, it, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { render, screen } from '@testing-library/react';
-import { useEscapeKey, useFocusTrap } from './useAccessibility';
+import { useEscapeKey, useFocusTrap, useSwipeToClose } from './useAccessibility';
+
+// Mock framer-motion's useMotionValue and animate
+const mockMotionValue = { get: vi.fn(() => 0), set: vi.fn() };
+const mockAnimate = vi.fn();
+vi.mock('framer-motion', () => ({
+  useMotionValue: () => mockMotionValue,
+  animate: (...args) => mockAnimate(...args),
+}));
 
 // jsdom doesn't implement offsetParent (always null), which causes
 // getFocusableElements to filter out all elements. Mock it to return
@@ -341,5 +349,186 @@ describe('useFocusTrap', () => {
     rerender(<OuterComponent isOpen={false} />);
 
     expect(document.activeElement).toBe(screen.getByTestId('trigger-button'));
+  });
+});
+
+describe('useSwipeToClose', () => {
+  let onClose;
+
+  beforeEach(() => {
+    onClose = vi.fn();
+    mockMotionValue.get.mockReturnValue(0);
+    mockMotionValue.set.mockClear();
+    mockAnimate.mockClear();
+    // By default, simulate animate completing immediately when it has onComplete
+    mockAnimate.mockImplementation((_target, _to, opts) => {
+      if (opts?.onComplete) opts.onComplete();
+    });
+  });
+
+  it('should return sheetY motion value and handleProps', () => {
+    const { result } = renderHook(() => useSwipeToClose(onClose));
+
+    expect(result.current).toHaveProperty('sheetY');
+    expect(result.current).toHaveProperty('handleProps');
+    expect(result.current.handleProps).toHaveProperty('onPointerDown');
+    expect(result.current.handleProps).toHaveProperty('onPointerMove');
+    expect(result.current.handleProps).toHaveProperty('onPointerUp');
+    expect(result.current.handleProps.style).toEqual({ touchAction: 'none', cursor: 'grab' });
+  });
+
+  it('should track downward drag and update sheetY', () => {
+    const { result } = renderHook(() => useSwipeToClose(onClose));
+
+    act(() => {
+      result.current.handleProps.onPointerDown({ clientY: 100 });
+    });
+
+    act(() => {
+      result.current.handleProps.onPointerMove({ clientY: 150 });
+    });
+
+    // Should set sheetY to delta (50px down)
+    expect(mockMotionValue.set).toHaveBeenCalledWith(50);
+  });
+
+  it('should not track upward drag (negative delta)', () => {
+    const { result } = renderHook(() => useSwipeToClose(onClose));
+
+    act(() => {
+      result.current.handleProps.onPointerDown({ clientY: 100 });
+    });
+
+    act(() => {
+      result.current.handleProps.onPointerMove({ clientY: 50 });
+    });
+
+    // sheetY.set should NOT be called for upward movement
+    expect(mockMotionValue.set).not.toHaveBeenCalled();
+  });
+
+  it('should not move when not dragging', () => {
+    const { result } = renderHook(() => useSwipeToClose(onClose));
+
+    // Move without starting drag
+    act(() => {
+      result.current.handleProps.onPointerMove({ clientY: 200 });
+    });
+
+    expect(mockMotionValue.set).not.toHaveBeenCalled();
+  });
+
+  it('should close when dragged past threshold', () => {
+    const { result } = renderHook(() => useSwipeToClose(onClose));
+
+    act(() => {
+      result.current.handleProps.onPointerDown({ clientY: 100 });
+    });
+
+    // Simulate dragging past default threshold (100px)
+    mockMotionValue.get.mockReturnValue(150);
+
+    act(() => {
+      result.current.handleProps.onPointerUp();
+    });
+
+    // onClose should be called (via animate's onComplete)
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('should spring back when drag distance and velocity are both low', () => {
+    const { result } = renderHook(() => useSwipeToClose(onClose));
+
+    act(() => {
+      result.current.handleProps.onPointerDown({ clientY: 100 });
+    });
+
+    // No movement at all (distance=0, velocity=0)
+    mockMotionValue.get.mockReturnValue(0);
+
+    act(() => {
+      result.current.handleProps.onPointerUp();
+    });
+
+    // distance=0 and velocity=0, should spring back (animate to 0, no onComplete)
+    expect(onClose).not.toHaveBeenCalled();
+    expect(mockAnimate).toHaveBeenCalledWith(
+      expect.anything(),
+      0,
+      expect.objectContaining({ type: 'spring' })
+    );
+  });
+
+  it('should accept custom threshold', () => {
+    const { result } = renderHook(() => useSwipeToClose(onClose, { threshold: 50 }));
+
+    act(() => {
+      result.current.handleProps.onPointerDown({ clientY: 100 });
+    });
+
+    // Drag past custom threshold (50px)
+    mockMotionValue.get.mockReturnValue(60);
+
+    act(() => {
+      result.current.handleProps.onPointerUp();
+    });
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('should close on fast swipe (high velocity) even below threshold', () => {
+    const { result } = renderHook(() => useSwipeToClose(onClose));
+
+    // Start pointer
+    act(() => {
+      result.current.handleProps.onPointerDown({ clientY: 100 });
+    });
+
+    // Simulate a quick swipe: small distance but fast
+    // velocity = distance / elapsed * 1000 > 800
+    // e.g. 50px in 50ms = 1000px/s
+    mockMotionValue.get.mockReturnValue(50);
+
+    // We can't directly mock Date.now in the hook, but the velocity calc
+    // uses Date.now() - startTime.  Since the pointerDown and pointerUp
+    // happen almost instantly in tests (elapsed ~0ms), velocity will be
+    // very high (50 / ~1 * 1000 = 50000). This should exceed 800.
+    act(() => {
+      result.current.handleProps.onPointerUp();
+    });
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('should handle global pointerup to catch drags that end off-element', () => {
+    const { result } = renderHook(() => useSwipeToClose(onClose));
+
+    // Start drag
+    act(() => {
+      result.current.handleProps.onPointerDown({ clientY: 100 });
+    });
+
+    // Simulate finger moving off the handle and releasing
+    mockMotionValue.get.mockReturnValue(200);
+
+    act(() => {
+      window.dispatchEvent(new PointerEvent('pointerup'));
+    });
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('should clean up global listeners on unmount', () => {
+    const removeEventSpy = vi.spyOn(window, 'removeEventListener');
+
+    const { unmount } = renderHook(() => useSwipeToClose(onClose));
+    unmount();
+
+    // Should have removed pointerup and pointercancel listeners
+    const removedEvents = removeEventSpy.mock.calls.map(([event]) => event);
+    expect(removedEvents).toContain('pointerup');
+    expect(removedEvents).toContain('pointercancel');
+
+    removeEventSpy.mockRestore();
   });
 });

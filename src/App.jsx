@@ -463,7 +463,11 @@ function App() {
   // Enhanced setActiveTab with mango effects
   const setActiveTabWithEffects = useCallback((id, direction = 0) => {
     if (activeTab === 'home' && id !== 'home') {
-      // Exiting home tab
+      // Exiting home tab — clean up pull-to-refresh touch state
+      touchStartY.current = 0;
+      touchStartX.current = 0;
+      touchDirectionLocked.current = null;
+      hasVibratedRef.current = false;
     } else if (activeTab !== 'home' && id === 'home') {
       mango.setMessage('Welcome back!');
       mango.setCoords({ x: 0, y: 0 });
@@ -473,9 +477,19 @@ function App() {
     }
     setPullY(0);
     setActiveTab(id, direction);
+    // Instant scroll reset — smooth scroll can race with AnimatePresence transitions
+    // and cause iOS Safari to lock the scroll context
     if (mainContentRef.current) {
-      mainContentRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+      mainContentRef.current.scrollTop = 0;
     }
+    // Force iOS Safari to recalculate the scroll context after the tab
+    // transition completes. Without this, the browser may "decide" the area
+    // isn't scrollable during the AnimatePresence exit/enter gap.
+    requestAnimationFrame(() => {
+      if (mainContentRef.current) {
+        void mainContentRef.current.offsetHeight;
+      }
+    });
   }, [activeTab, setActiveTab, mango, setPullY]);
 
   const handleSplashFinish = useCallback(() => {
@@ -622,7 +636,7 @@ function App() {
 
             {/* Feature Request Button (above bug button) */}
             <motion.button
-              className="fixed bottom-[140px] right-4 z-50 w-11 h-11 rounded-full bg-secondary/90 text-white shadow-lg flex items-center justify-center backdrop-blur-sm border border-white/10 md:bottom-[60px]"
+              className="fixed bottom-[168px] right-4 z-50 w-11 h-11 rounded-full bg-secondary/90 text-white shadow-lg flex items-center justify-center backdrop-blur-sm border border-white/10 md:bottom-[60px]"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={() => useUIStore.getState().setShowFeatureRequest(true)}
@@ -633,7 +647,7 @@ function App() {
 
             {/* Bug Report Button */}
             <motion.button
-              className="fixed bottom-28 right-4 z-50 w-11 h-11 rounded-full bg-secondary/90 text-white shadow-lg flex items-center justify-center backdrop-blur-sm border border-white/10 md:bottom-6"
+              className="fixed bottom-[120px] right-4 z-50 w-11 h-11 rounded-full bg-secondary/90 text-white shadow-lg flex items-center justify-center backdrop-blur-sm border border-white/10 md:bottom-6"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={() => useUIStore.getState().setShowBugReport(true)}

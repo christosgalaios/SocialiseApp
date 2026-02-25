@@ -1,4 +1,5 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
+import { useMotionValue, animate } from 'framer-motion';
 
 /**
  * Closes a modal/sheet when the Escape key is pressed.
@@ -81,6 +82,91 @@ export function useFocusTrap(isOpen) {
   }, [isOpen]);
 
   return containerRef;
+}
+
+/**
+ * Enables swipe-down-to-close on a bottom sheet.
+ * Returns a motion value for the sheet's Y position and props for the drag handle.
+ * Drag is initiated from the handle element; the entire sheet translates.
+ *
+ * Usage:
+ *   const { sheetY, handleProps } = useSwipeToClose(onClose);
+ *   <motion.div style={{ y: sheetY }}>
+ *     <div {...handleProps}>{handle bar}</div>
+ *     {content}
+ *   </motion.div>
+ *
+ * @param {Function} onClose - Callback to close the sheet
+ * @param {{ threshold?: number }} options - Dismiss threshold in px (default 100)
+ * @returns {{ sheetY: MotionValue, handleProps: object }}
+ */
+export function useSwipeToClose(onClose, { threshold = 100 } = {}) {
+  const sheetY = useMotionValue(0);
+  const isDragging = useRef(false);
+  const startY = useRef(0);
+  const startTime = useRef(0);
+
+  const handlePointerDown = useCallback((e) => {
+    isDragging.current = true;
+    startY.current = e.clientY ?? e.touches?.[0]?.clientY ?? 0;
+    startTime.current = Date.now();
+  }, []);
+
+  const handlePointerMove = useCallback((e) => {
+    if (!isDragging.current) return;
+    const clientY = e.clientY ?? e.touches?.[0]?.clientY ?? 0;
+    const delta = clientY - startY.current;
+    // Only allow downward drag (positive delta)
+    if (delta > 0) {
+      sheetY.set(delta);
+    }
+  }, [sheetY]);
+
+  const handlePointerUp = useCallback(() => {
+    if (!isDragging.current) return;
+    isDragging.current = false;
+    const currentY = sheetY.get();
+    const elapsed = Date.now() - startTime.current;
+    const velocity = currentY / Math.max(elapsed, 1) * 1000; // px/sec
+
+    if (currentY > threshold || velocity > 800) {
+      // Animate off-screen then close
+      animate(sheetY, window.innerHeight, {
+        type: 'spring',
+        stiffness: 300,
+        damping: 30,
+        onComplete: onClose,
+      });
+    } else {
+      // Spring back
+      animate(sheetY, 0, { type: 'spring', stiffness: 300, damping: 30 });
+    }
+  }, [sheetY, threshold, onClose]);
+
+  // Clean up dangling pointer events (e.g. finger drags off-screen)
+  useEffect(() => {
+    const handleGlobalUp = () => {
+      if (isDragging.current) {
+        handlePointerUp();
+      }
+    };
+    window.addEventListener('pointerup', handleGlobalUp);
+    window.addEventListener('pointercancel', handleGlobalUp);
+    return () => {
+      window.removeEventListener('pointerup', handleGlobalUp);
+      window.removeEventListener('pointercancel', handleGlobalUp);
+    };
+  }, [handlePointerUp]);
+
+  return {
+    sheetY,
+    handleProps: {
+      onPointerDown: handlePointerDown,
+      onPointerMove: handlePointerMove,
+      onPointerUp: handlePointerUp,
+      style: { touchAction: 'none', cursor: 'grab' },
+    },
+  };
 }
 
 function getFocusableElements(container) {

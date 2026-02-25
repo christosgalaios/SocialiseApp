@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useCallback } from 'react';
+import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { X, Image, AlertCircle, Check } from 'lucide-react';
 import { CATEGORIES } from '../data/constants';
 import LocationPicker from './LocationPicker';
@@ -14,6 +14,15 @@ const CreateEventModal = ({ onClose, onSubmit }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   useEscapeKey(true, onClose);
   const focusTrapRef = useFocusTrap(true);
+
+  // Swipe-to-close: track drag on the modal container
+  const dragY = useMotionValue(0);
+  const backdropOpacity = useTransform(dragY, [0, 300], [1, 0]);
+  const handleDragEnd = useCallback((_e, info) => {
+    if (info.offset.y > 100 || info.velocity.y > 500) {
+      onClose();
+    }
+  }, [onClose]);
 
   const validate = () => {
     const newErrors = {};
@@ -54,16 +63,28 @@ const CreateEventModal = ({ onClose, onSubmit }) => {
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label="Create event" ref={focusTrapRef}>
       <motion.div
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        onClick={onClose}
+        style={{ opacity: backdropOpacity }}
+        onPointerDown={onClose}
         className="absolute inset-0 bg-secondary/60 backdrop-blur-sm"
+        role="presentation"
       />
       <motion.div
         initial={{ y: 50, opacity: 0, scale: 0.9 }} animate={{ y: 0, opacity: 1, scale: 1 }} exit={{ y: 50, opacity: 0, scale: 0.9 }}
+        drag="y"
+        dragConstraints={{ top: 0, bottom: 0 }}
+        dragElastic={{ top: 0, bottom: 0.6 }}
+        onDragEnd={handleDragEnd}
+        style={{ y: dragY }}
         className="bg-paper w-full max-w-md rounded-[32px] overflow-hidden border border-secondary/10 shadow-2xl relative z-50 max-h-[90vh] flex flex-col"
       >
+        {/* Handle bar — drag indicator for swipe-to-close */}
+        <div className="flex justify-center pt-3 pb-0 shrink-0">
+          <div className="w-10 h-1 rounded-full bg-secondary/20" />
+        </div>
+
         {/* Header — outside scroll area so close button is always reachable */}
-        <div className="bg-paper p-6 pb-4 border-b border-secondary/10 relative shrink-0">
-          <button onClick={onClose} className="absolute top-4 right-4 z-30 w-10 h-10 flex items-center justify-center rounded-xl bg-paper text-secondary/50 hover:text-secondary hover:bg-secondary/10 transition-colors active:scale-90" aria-label="Close">
+        <div className="bg-paper px-6 pt-3 pb-4 border-b border-secondary/10 relative shrink-0" style={{ touchAction: 'manipulation' }}>
+          <button onPointerDown={(e) => { e.stopPropagation(); onClose(); }} className="absolute top-4 right-4 z-30 w-10 h-10 flex items-center justify-center rounded-xl bg-paper text-secondary/50 hover:text-secondary hover:bg-secondary/10 transition-colors active:scale-90" aria-label="Close" style={{ touchAction: 'manipulation' }}>
             <X size={20} strokeWidth={2.5} />
           </button>
           <h2 className="text-2xl font-black tracking-tight text-secondary">Create Event<span className="text-accent">.</span></h2>

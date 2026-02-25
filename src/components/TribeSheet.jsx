@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Users, MessageCircle, LogOut, Bell, BellOff, Star, UserPlus, UserCheck, Shield, Heart } from 'lucide-react';
 import api from '../api';
 import FeedItem from './FeedItem';
-import { useEscapeKey, useFocusTrap } from '../hooks/useAccessibility';
+import { useEscapeKey, useFocusTrap, useSwipeToClose } from '../hooks/useAccessibility';
 import { DEFAULT_AVATAR } from '../data/constants';
 
 const TribeSheet = ({ tribe, isOpen, onClose, onLeave }) => {
@@ -12,6 +12,7 @@ const TribeSheet = ({ tribe, isOpen, onClose, onLeave }) => {
     const [activeSection, setActiveSection] = useState('activity'); // 'activity' | 'reviews'
     useEscapeKey(isOpen, onClose);
     const focusTrapRef = useFocusTrap(isOpen);
+    const { sheetY, handleProps } = useSwipeToClose(onClose);
     const [tribePosts, setTribePosts] = useState([]);
     const reviews = [];
 
@@ -47,9 +48,10 @@ const TribeSheet = ({ tribe, isOpen, onClose, onLeave }) => {
                         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
                         className="absolute inset-x-0 bottom-0 top-16 bg-paper rounded-t-[32px] overflow-hidden shadow-2xl"
                         onClick={(e) => e.stopPropagation()}
+                        style={{ y: sheetY }}
                     >
                         {/* Handle bar */}
-                        <div className="flex justify-center pt-3 pb-2">
+                        <div {...handleProps} className="flex justify-center pt-3 pb-2">
                             <div className="w-12 h-1 rounded-full bg-white/20" />
                         </div>
 

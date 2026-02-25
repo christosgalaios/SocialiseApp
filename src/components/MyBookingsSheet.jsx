@@ -1,10 +1,11 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Calendar, MapPin, Clock, Ticket, Trash2 } from 'lucide-react';
-import { useEscapeKey, useFocusTrap } from '../hooks/useAccessibility';
+import { useEscapeKey, useFocusTrap, useSwipeToClose } from '../hooks/useAccessibility';
 
 const MyBookingsSheet = ({ isOpen, onClose, bookings = [], onCancel }) => {
     useEscapeKey(isOpen, onClose);
     const focusTrapRef = useFocusTrap(isOpen);
+    const { sheetY, handleProps } = useSwipeToClose(onClose);
 
     return (
         <AnimatePresence>
@@ -25,11 +26,12 @@ const MyBookingsSheet = ({ isOpen, onClose, bookings = [], onCancel }) => {
                         animate={{ y: 0 }}
                         exit={{ y: '100%' }}
                         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+                        style={{ y: sheetY }}
                         className="absolute inset-x-0 bottom-0 top-20 bg-paper rounded-t-[32px] overflow-hidden shadow-2xl"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        {/* Handle */}
-                        <div className="flex justify-center pt-3 pb-2">
+                        {/* Handle — drag to dismiss */}
+                        <div {...handleProps} className="flex justify-center pt-3 pb-2">
                             <div className="w-12 h-1 rounded-full bg-secondary/20" />
                         </div>
 

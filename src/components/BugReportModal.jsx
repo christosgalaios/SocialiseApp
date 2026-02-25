@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Bug, X, Send, AlertCircle, Monitor } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useEscapeKey, useFocusTrap } from '../hooks/useAccessibility';
+import { useEscapeKey, useFocusTrap, useSwipeToClose } from '../hooks/useAccessibility';
 import { formatError } from '../errorUtils';
 
 function detectPlatform() {
@@ -64,6 +64,7 @@ export default function BugReportModal({ isOpen, onClose, onSubmit }) {
   const [error, setError] = useState('');
   const focusTrapRef = useFocusTrap(isOpen);
   useEscapeKey(onClose, isOpen);
+  const { sheetY, handleProps } = useSwipeToClose(onClose);
   const platformInfo = useMemo(() => detectPlatform(), []);
 
   const handleSubmit = async () => {
@@ -104,7 +105,11 @@ export default function BugReportModal({ isOpen, onClose, onSubmit }) {
         exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
         onClick={e => e.stopPropagation()}
+        style={{ y: sheetY }}
       >
+        {/* Handle bar (mobile only) */}
+        <div {...handleProps} className="flex justify-center pt-2 pb-1 sm:hidden"><div className="w-10 h-1 rounded-full bg-secondary/20" /></div>
+
         {/* Header */}
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-3">

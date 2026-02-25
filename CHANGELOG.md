@@ -12,9 +12,17 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 
 ## [Unreleased]
 
+### Added
+- Swipe down on the handle bar of any bottom sheet or modal to dismiss it — works across all 12 sheets
+- Feature request button repositioned with clear spacing from the bug report button
+
 ### Fixed
 - "What's New" changelog sheet is now scrollable on iOS Safari
 - Video cards stay pressed when dragging after a long press — no more visual snap-back glitch
+- Community hub page no longer locks your scroll when switching tabs quickly on iOS Safari
+- "Create event" close button and backdrop now respond reliably on iOS — no more stuck modals
+- Events on the Explore tab no longer wobble when the page first loads
+- Feature request box text no longer overflows on smaller screens
 
 ---
 
