@@ -697,6 +697,7 @@ const Mango = ({
     // Timers
     const holdTimerRef = useRef(null);
     const idleTimerRef = useRef(null);
+    const fallTimerRef = useRef(null);
     const tapStartTimeRef = useRef(0);
     const hasDraggedRef = useRef(false);
     const containerRef = useRef(null);
@@ -861,7 +862,9 @@ const Mango = ({
             // My previous code did: animate={isFalling ? { y: 0 } : undefined} which handles this.
         }
 
-        setTimeout(() => {
+        if (fallTimerRef.current) clearTimeout(fallTimerRef.current);
+        fallTimerRef.current = setTimeout(() => {
+            fallTimerRef.current = null;
             setIsFalling(false);
             setCurrentPose(initialPose);
             // After fall, update coords again to 0 y if we fell?
@@ -877,6 +880,15 @@ const Mango = ({
         x.set(initialCoords.x);
         y.set(initialCoords.y);
     }, [initialCoords.x, initialCoords.y, x, y]);
+
+    // Clean up all timers on unmount
+    useEffect(() => {
+        return () => {
+            if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
+            if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+            if (fallTimerRef.current) clearTimeout(fallTimerRef.current);
+        };
+    }, []);
 
     // Non-interactive mode
     if (!interactive) {

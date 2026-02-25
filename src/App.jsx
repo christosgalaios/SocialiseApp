@@ -178,8 +178,9 @@ function App() {
       setFeedPosts(feedData || []);
     } catch (err) {
       console.error('Failed to load data:', err);
+      showToast('Failed to load data. Pull down to retry.', 'error');
     }
-  }, [setEvents, setJoinedEvents, setSavedEvents, setCommunities, setFeedPosts]);
+  }, [setEvents, setJoinedEvents, setSavedEvents, setCommunities, setFeedPosts, showToast]);
 
   // Fetch data when app is ready
   useEffect(() => {

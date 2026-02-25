@@ -121,7 +121,7 @@ export default function BugReportModal({ isOpen, onClose, onSubmit }) {
               <p className="text-[10px] text-secondary/50 font-medium">Something broken? Let us know</p>
             </div>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center" aria-label="Close bug report">
+          <button onPointerDown={(e) => { e.stopPropagation(); onClose(); }} className="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center" aria-label="Close bug report" style={{ touchAction: 'manipulation' }}>
             <X size={16} className="text-secondary/60" />
           </button>
         </div>

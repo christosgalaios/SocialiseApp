@@ -28,6 +28,9 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - Joining multiple events rapidly now correctly accumulates XP instead of repeating the same amount
 - XP is now rolled back when an event join fails on the server
 - Zoom wheel on the avatar crop tool no longer triggers Chrome passive event warnings
+- App now shows an error message when initial data fails to load instead of silently showing nothing
+- Mango kitten no longer causes memory warnings when navigating away quickly after dragging
+- Bug report and feature request close buttons now respond reliably on iOS (same fix as create event modal)
 
 ---
 

@@ -409,6 +409,9 @@ These bugs from the original issue list have been resolved in the codebase:
 - `bg-white` replaced with `bg-paper` in 9 locations — AuthScreen form inputs (5), BugReportModal textarea (1), FeatureRequestModal textarea (1), GroupChatsSheet message bubble + reaction popup (2). Design system compliance: never hardcode `#ffffff` ✓
 - GroupChatsSheet missing aria-labels added — search and close buttons in community list header now have proper `aria-label` attributes ✓
 - Component test coverage expanded: 489 tests across 22 test files — added EventReels (27 tests: rendering, accessibility, navigation, interactions, touch, inclusivity tags) and AvatarCropModal (14 tests: rendering, interactions, zoom controls, wheel handler lifecycle) ✓
+- `fetchAllData` now shows error toast on failure — previously only logged to console, leaving users with an empty app and no explanation ✓
+- Mango `handleDragEnd` setTimeout now tracked via `fallTimerRef` and cleaned up on unmount — prevents state-update-on-unmounted-component warnings and memory leaks. All three Mango timers (hold, idle, fall) now have explicit unmount cleanup ✓
+- BugReportModal and FeatureRequestModal close buttons use `onPointerDown` instead of `onClick` — prevents iOS gesture recognizer from swallowing taps inside scrollable modal containers (same fix as CreateEventModal BUG-1771966783965) ✓
 
 ---
 
