@@ -12,6 +12,58 @@ const CATEGORY_CONFIG = {
 
 const CHANGELOG = [
   {
+    version: 'Unreleased',
+    date: null,
+    sections: [
+      {
+        category: 'Removed',
+        items: ['Category filter section removed from the desktop sidebar — filters are now inline on the Explore tab'],
+      },
+    ],
+  },
+  {
+    version: '0.1.188',
+    date: '2026-02-25',
+    sections: [
+      {
+        category: 'Added',
+        items: [
+          'Submit feature requests directly from the app — new Lightbulb button alongside the bug report button',
+          'Swipe down on the handle bar of any bottom sheet or modal to dismiss it — works across all 12 sheets',
+          'Feature request and bug report buttons repositioned with clear spacing to prevent accidental taps',
+        ],
+      },
+      {
+        category: 'Fixed',
+        items: [
+          'Main page scroll no longer freezes after closing a modal or sheet on iOS',
+          'Profile page no longer freezes when scrolling on iOS Safari',
+          '"Create event" close button and backdrop now respond reliably on iOS — no more stuck modals',
+          'Community hub page no longer locks your scroll when switching tabs quickly on iOS Safari',
+          'Pull-to-refresh no longer double-fires when triggered rapidly',
+          'Pull-to-refresh no longer triggers when swiping horizontally through video carousels',
+          '"What\'s New" changelog sheet is now scrollable on iOS Safari',
+          'Video cards stay pressed when dragging after a long press — no more visual snap-back glitch',
+          'VideoWall horizontal scrolling no longer conflicts with vertical page scroll on diagonal swipes',
+          'Events on the Explore tab no longer wobble when the page first loads',
+          'Bug report text no longer overflows on smaller screens',
+          'Feature request box text no longer overflows on smaller screens',
+          'Bug reports now correctly detect which environment they were submitted from',
+          'Event reels screen reader support — all icon-only buttons now announce their purpose correctly',
+          'Community group chat screen reader improvements — search and close buttons now announce correctly',
+          'Chat messages that fail to send are now removed instead of showing as ghost "sent" messages',
+          'Joining multiple events rapidly now correctly accumulates XP instead of repeating the same amount',
+          'XP is now rolled back when an event join fails on the server',
+          'App now shows an error message when initial data fails to load instead of silently showing nothing',
+          'Mango kitten no longer causes memory warnings when navigating away quickly after dragging',
+          'Bug report and feature request close buttons now respond reliably on iOS',
+          'Fixed a potential crash when filtering events with missing titles',
+          'Home tab and onboarding screen reader improvements — scroll and back buttons now announce their purpose',
+        ],
+      },
+    ],
+  },
+  {
     version: '0.1.164',
     date: '2026-02-24',
     sections: [
@@ -278,9 +330,11 @@ const ChangelogSheet = ({ isOpen, onClose }) => {
                         v{release.version}
                       </span>
                       <div className="flex-1 h-px bg-secondary/10" />
-                      <span className="text-[10px] font-bold text-secondary/30">
-                        {release.date}
-                      </span>
+                      {release.date && (
+                        <span className="text-[10px] font-bold text-secondary/30">
+                          {release.date}
+                        </span>
+                      )}
                     </div>
 
                     {/* Sections */}
