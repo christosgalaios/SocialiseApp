@@ -331,7 +331,6 @@ export default function ProfileTab({ onLogout }) {
               levelProgress={fameLevelProgress}
               levelIcon={fameLevel.icon}
               streak={loginStreak}
-              levelTitle={fameLevel.title}
             />
           </div>
         </motion.div>

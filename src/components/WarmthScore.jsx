@@ -13,7 +13,7 @@ const DAILY_REWARDS = [
 /**
  * WarmthScore - Fame Score circle with daily streak rewards
  */
-const WarmthScore = ({ level = 4, levelProgress = 75, levelIcon = '⭐', streak = 0, levelTitle = '' }) => {
+const WarmthScore = ({ level = 4, levelProgress = 75, levelIcon = '⭐', streak = 0 }) => {
     const circumference = 2 * Math.PI * 45; // radius = 45
     const strokeDashoffset = circumference - (levelProgress / 100) * circumference;
 

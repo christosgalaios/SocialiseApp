@@ -1,9 +1,9 @@
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Sparkles, ChevronRight, Star } from 'lucide-react';
 import { useEscapeKey, useFocusTrap } from '../hooks/useAccessibility';
 import { playSwooshClose, hapticTap } from '../utils/feedback';
-import { SKILLS, FAME_SCORE_LEVELS, SKILL_LEVEL_THRESHOLDS, getSkillLevel } from '../data/constants';
+import { SKILLS } from '../data/constants';
 
 /**
  * LevelUpScreen — Full-screen celebration overlay for skill level-ups and Fame Score level-ups.
@@ -41,16 +41,6 @@ const LevelUpScreen = ({ isOpen, onClose, levelUpData }) => {
   const skill = skillKey ? SKILLS.find(s => s.key === skillKey) : null;
   const isMilestone = !!unlockedBadge;
   const isFameOnly = type === 'fame';
-
-  // Progress bar data for skill
-  let skillProgressPct = 0;
-  if (skill && newSkillLevel != null) {
-    const thresholdIdx = newSkillLevel - 1; // 0-indexed
-    const prevThreshold = SKILL_LEVEL_THRESHOLDS[thresholdIdx] ?? 0;
-    const nextThreshold = SKILL_LEVEL_THRESHOLDS[thresholdIdx + 1] ?? prevThreshold;
-    const range = nextThreshold - prevThreshold;
-    skillProgressPct = range > 0 ? 0 : 100; // just leveled up, so start at 0
-  }
 
   // Decide accent color from skill
   const accentFrom = skill?.barFrom ?? 'from-primary';

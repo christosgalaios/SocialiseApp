@@ -11,7 +11,6 @@ import {
   FAME_SCORE_LEVELS,
   SKILLS,
   getFameLevel,
-  getFameLevelProgress,
   getSkillLevel,
   getSkillLevelProgress,
   SKILL_LEVEL_THRESHOLDS,
