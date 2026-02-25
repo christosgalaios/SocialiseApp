@@ -65,6 +65,16 @@
 //     Plain text — email of the user who submitted the report.
 //     Auto-populated from the JWT token on the backend.
 //
+//   FIX NOTES column:
+//     Plain text — brief description of the fix and commit hash.
+//     Written by /fix-bugs skill when marking a bug as claim-fixed.
+//     Example: "Added null check in EventCard.jsx:42 — commit abc123"
+//
+//   COMPONENT column:
+//     Plain text — auto-detected affected component/file area.
+//     Written by /fix-bugs skill during processing.
+//     Examples: "EventDetailSheet", "CreateEventModal", "auth", "feed", "api"
+//
 // ==========================================
 
 // ---- Column header constants ----
@@ -81,8 +91,10 @@ var COL_FIXED_AT    = 'Fixed At';
 var COL_REPORTS     = 'Reports';
 var COL_TYPE        = 'Type';
 var COL_REPORTER    = 'Reporter';
+var COL_FIX_NOTES   = 'Fix Notes';
+var COL_COMPONENT   = 'Component';
 
-var HEADERS = [COL_BUG_ID, COL_DESCRIPTION, COL_STATUS, COL_PRIORITY, COL_ENVIRONMENT, COL_CREATED_AT, COL_APP_VERSION, COL_PLATFORM, COL_FIXED_AT, COL_REPORTS, COL_TYPE, COL_REPORTER];
+var HEADERS = [COL_BUG_ID, COL_DESCRIPTION, COL_STATUS, COL_PRIORITY, COL_ENVIRONMENT, COL_CREATED_AT, COL_APP_VERSION, COL_PLATFORM, COL_FIXED_AT, COL_REPORTS, COL_TYPE, COL_REPORTER, COL_FIX_NOTES, COL_COMPONENT];
 
 /**
  * Returns a map of { headerName: columnIndex (1-based) } for the given sheet.
@@ -104,7 +116,7 @@ function getColumnMap_(sheet) {
  *
  * Payloads:
  *   Create: { bug_id, description, status, priority, environment, created_at, app_version, platform, type, reporter }
- *   Update: { action: 'update', bug_id, status?, priority?, description?, environment?, app_version?, platform?, reports?, type?, reporter?, fixed_at? }
+ *   Update: { action: 'update', bug_id, status?, priority?, description?, environment?, app_version?, platform?, reports?, type?, reporter?, fixed_at?, fix_notes?, component? }
  *   Delete: { action: 'delete', bug_id }
  *
  * Duplicate detection (CREATE mode):
@@ -162,6 +174,10 @@ function doPost(e) {
           sheet.getRange(i + 1, cols[COL_TYPE]).setValue(data.type);
         if (data.reporter && cols[COL_REPORTER])
           sheet.getRange(i + 1, cols[COL_REPORTER]).setValue(data.reporter);
+        if (data.fix_notes != null && cols[COL_FIX_NOTES])
+          sheet.getRange(i + 1, cols[COL_FIX_NOTES]).setValue(data.fix_notes);
+        if (data.component != null && cols[COL_COMPONENT])
+          sheet.getRange(i + 1, cols[COL_COMPONENT]).setValue(data.component);
 
         // Auto-populate "Fixed At" timestamp when status changes to "fixed"
         if (data.status === 'fixed' && cols[COL_FIXED_AT]) {

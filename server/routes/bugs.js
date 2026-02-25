@@ -4,9 +4,27 @@ const supabase = require('../supabase');
 const {
     BUG_INSERT_FAILED, BUG_FETCH_FAILED, BUG_UPDATE_FAILED,
     BUG_DELETE_FAILED, BUG_NOT_FOUND, BUG_INVALID_INPUT,
+    BUG_BATCH_FAILED, BUG_AUTH_FAILED,
 } = require('../errors');
 
 const router = express.Router();
+
+// --- Service token auth for /fix-bugs skill ---
+// Accepts either a JWT (Authorization: Bearer ...) or a service key (X-Service-Key: ...).
+// The service key is a shared secret set via BUGS_SERVICE_KEY env var.
+// This eliminates the need to register throwaway users for automated bug processing.
+function authenticateTokenOrServiceKey(req, res, next) {
+    const serviceKey = req.headers['x-service-key'];
+    const configuredKey = process.env.BUGS_SERVICE_KEY;
+
+    if (serviceKey && configuredKey && serviceKey === configuredKey) {
+        req.user = { id: 'service-bot', email: 'claude-bot@service.local' };
+        return next();
+    }
+
+    // Fall back to standard JWT auth
+    return authenticateToken(req, res, next);
+}
 
 // --- Input sanitization for bug descriptions ---
 // User descriptions are stored in Supabase and synced to Google Sheets.
@@ -34,22 +52,27 @@ function sanitizeDescription(raw) {
 
 // Fire-and-forget sync to Google Sheet via Apps Script webhook.
 // If BUGS_SHEET_WEBHOOK_URL is not set, silently skips — sheet sync is optional.
+// Returns a promise that resolves to true/false indicating sync success.
 // Supports three modes:
 //   - Create: sends full bug data (appends a new row)
 //   - Update: sends { action: 'update', bug_id, status?, priority? } (updates existing row)
 //   - Delete: sends { action: 'delete', bug_id } (removes the row from the sheet)
-function syncToSheet(row) {
+async function syncToSheet(row) {
     const webhookUrl = process.env.BUGS_SHEET_WEBHOOK_URL;
-    if (!webhookUrl) return;
+    if (!webhookUrl) return false;
 
-    fetch(webhookUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(row),
-    }).catch(err => {
+    try {
+        const resp = await fetch(webhookUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(row),
+        });
+        return resp.ok;
+    } catch (err) {
         // Non-fatal — Supabase is source of truth
         console.warn('[bugs] Sheet sync failed (non-fatal):', err.message);
-    });
+        return false;
+    }
 }
 
 // POST /api/bugs — Store a bug report or feature request in Supabase + sync to Google Sheet
@@ -141,8 +164,8 @@ router.post('/', authenticateToken, async (req, res) => {
     }
 });
 
-// GET /api/bugs — List bug reports and feature requests (for /fix-bugs skill)
-router.get('/', authenticateToken, async (req, res) => {
+// GET /api/bugs — List bug reports and feature requests (primary data source for /fix-bugs skill)
+router.get('/', authenticateTokenOrServiceKey, async (req, res) => {
     const { status, type } = req.query;
 
     try {
@@ -173,44 +196,127 @@ router.get('/', authenticateToken, async (req, res) => {
     }
 });
 
-// PUT /api/bugs/:bugId — Update bug report fields (used by /fix-bugs skill)
-router.put('/:bugId', authenticateToken, async (req, res) => {
-    const { bugId } = req.params;
-    const { status, priority, environment, description, app_version, type } = req.body;
+// Helper: apply a single bug update to Supabase + sheet.
+// Returns { data, error, sheetSynced } or throws.
+async function applyBugUpdate(bugId, fields) {
+    const updates = {};
+    if (fields.status) updates.status = fields.status;
+    if (fields.priority) updates.priority = fields.priority;
+    if (fields.environment) updates.environment = fields.environment;
+    if (fields.description) updates.description = fields.description;
+    if (fields.app_version) updates.app_version = fields.app_version;
+    if (fields.fix_notes !== undefined) updates.fix_notes = fields.fix_notes;
+    if (fields.component !== undefined) updates.component = fields.component;
+    if (fields.type && ['bug', 'feature'].includes(fields.type)) updates.type = fields.type;
 
-    if (!status && !priority && !environment && !description && !app_version && !type) {
+    if (Object.keys(updates).length === 0) {
+        return { data: null, error: 'No valid fields to update', sheetSynced: false };
+    }
+
+    const { data, error } = await supabase
+        .from('bug_reports')
+        .update(updates)
+        .eq('bug_id', bugId)
+        .select()
+        .single();
+
+    if (error || !data) {
+        return { data: null, error: error || 'Bug report not found', sheetSynced: false };
+    }
+
+    // Sync to Google Sheet (awaited to report sync status)
+    const sheetSynced = await syncToSheet({ action: 'update', bug_id: bugId, ...updates });
+
+    return { data, error: null, sheetSynced };
+}
+
+// PUT /api/bugs/batch — Batch update and/or delete multiple bug reports in one call.
+// IMPORTANT: This route MUST be registered before /:bugId to avoid "batch" matching as a bugId param.
+// Accepts { updates: [{ bugId, ...fields }], deletions: ["BUG-123", ...] }
+// Returns { results: [{ bugId, success, sheetSynced, error? }] }
+router.put('/batch', authenticateTokenOrServiceKey, async (req, res) => {
+    const { updates, deletions } = req.body;
+
+    if ((!updates || updates.length === 0) && (!deletions || deletions.length === 0)) {
+        return res.status(400).json({ code: BUG_INVALID_INPUT, message: 'Provide at least one update or deletion' });
+    }
+
+    const results = [];
+
+    try {
+        // Process updates
+        if (updates && Array.isArray(updates)) {
+            for (const entry of updates) {
+                const { bugId, ...fields } = entry;
+                if (!bugId) {
+                    results.push({ bugId: null, success: false, sheetSynced: false, error: 'Missing bugId' });
+                    continue;
+                }
+                try {
+                    const result = await applyBugUpdate(bugId, fields);
+                    if (result.error) {
+                        results.push({ bugId, success: false, sheetSynced: false, error: String(result.error) });
+                    } else {
+                        results.push({ bugId, success: true, sheetSynced: result.sheetSynced });
+                    }
+                } catch (err) {
+                    results.push({ bugId, success: false, sheetSynced: false, error: err.message });
+                }
+            }
+        }
+
+        // Process deletions
+        if (deletions && Array.isArray(deletions)) {
+            for (const bugId of deletions) {
+                try {
+                    const { data, error } = await supabase
+                        .from('bug_reports')
+                        .delete()
+                        .eq('bug_id', bugId)
+                        .select()
+                        .single();
+
+                    if (error || !data) {
+                        results.push({ bugId, success: false, sheetSynced: false, action: 'delete', error: error?.message || 'Not found' });
+                    } else {
+                        const sheetSynced = await syncToSheet({ action: 'delete', bug_id: bugId });
+                        results.push({ bugId, success: true, sheetSynced, action: 'delete' });
+                    }
+                } catch (err) {
+                    results.push({ bugId, success: false, sheetSynced: false, action: 'delete', error: err.message });
+                }
+            }
+        }
+
+        const allSucceeded = results.every(r => r.success);
+        res.status(allSucceeded ? 200 : 207).json({ results });
+    } catch (err) {
+        console.error('[bugs BATCH] Error processing batch:', err);
+        res.status(500).json({ code: BUG_BATCH_FAILED, message: 'Failed to process batch: unexpected server error' });
+    }
+});
+
+// PUT /api/bugs/:bugId — Update bug report fields (used by /fix-bugs skill)
+router.put('/:bugId', authenticateTokenOrServiceKey, async (req, res) => {
+    const { bugId } = req.params;
+    const { status, priority, environment, description, app_version, type, fix_notes, component } = req.body;
+
+    if (!status && !priority && !environment && !description && !app_version && !type && fix_notes === undefined && component === undefined) {
         return res.status(400).json({ code: BUG_INVALID_INPUT, message: 'Provide at least one field to update' });
     }
 
-    const updates = {};
-    if (status) updates.status = status;
-    if (priority) updates.priority = priority;
-    if (environment) updates.environment = environment;
-    if (description) updates.description = description;
-    if (app_version) updates.app_version = app_version;
-    if (type && ['bug', 'feature'].includes(type)) updates.type = type;
-
     try {
-        const { data, error } = await supabase
-            .from('bug_reports')
-            .update(updates)
-            .eq('bug_id', bugId)
-            .select()
-            .single();
+        const result = await applyBugUpdate(bugId, { status, priority, environment, description, app_version, type, fix_notes, component });
 
-        if (error) {
-            console.error('[bugs PUT] Supabase error:', error);
+        if (result.error) {
+            if (typeof result.error === 'string' && result.error === 'Bug report not found') {
+                return res.status(404).json({ code: BUG_NOT_FOUND, message: 'Bug report not found' });
+            }
+            console.error('[bugs PUT] Supabase error:', result.error);
             return res.status(500).json({ code: BUG_UPDATE_FAILED, message: 'Failed to update bug report: database update rejected' });
         }
 
-        if (!data) {
-            return res.status(404).json({ code: BUG_NOT_FOUND, message: 'Bug report not found' });
-        }
-
-        // Sync status/priority update to Google Sheet (non-blocking)
-        syncToSheet({ action: 'update', bug_id: bugId, ...updates });
-
-        res.json(data);
+        res.json({ ...result.data, sheetSynced: result.sheetSynced });
     } catch (err) {
         console.error('[bugs PUT] Error updating bug report:', err);
         res.status(500).json({ code: BUG_UPDATE_FAILED, message: 'Failed to update bug report: unexpected server error' });
@@ -218,7 +324,7 @@ router.put('/:bugId', authenticateToken, async (req, res) => {
 });
 
 // DELETE /api/bugs/:bugId — Delete a bug report (used for duplicate consolidation)
-router.delete('/:bugId', authenticateToken, async (req, res) => {
+router.delete('/:bugId', authenticateTokenOrServiceKey, async (req, res) => {
     const { bugId } = req.params;
 
     try {
@@ -238,10 +344,10 @@ router.delete('/:bugId', authenticateToken, async (req, res) => {
             return res.status(404).json({ code: BUG_NOT_FOUND, message: 'Bug report not found' });
         }
 
-        // Sync deletion to Google Sheet (non-blocking)
-        syncToSheet({ action: 'delete', bug_id: bugId });
+        // Sync deletion to Google Sheet
+        const sheetSynced = await syncToSheet({ action: 'delete', bug_id: bugId });
 
-        res.json({ deleted: true, bug_id: bugId });
+        res.json({ deleted: true, bug_id: bugId, sheetSynced });
     } catch (err) {
         console.error('[bugs DELETE] Error deleting bug report:', err);
         res.status(500).json({ code: BUG_DELETE_FAILED, message: 'Failed to delete bug report: unexpected server error' });

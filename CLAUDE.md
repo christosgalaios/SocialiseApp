@@ -65,6 +65,7 @@
     010_bug_report_platform.sql         # Add platform column to bug_reports
     011_report_type.sql                 # Add type column (bug/feature) to bug_reports
     012_organiser_profile.sql            # Organiser profile columns (role, bio, display name, categories, social links, etc.)
+    013_bug_report_fix_metadata.sql      # Add fix_notes and component columns to bug_reports
   /routes
     auth.js            # Login/register/me — Supabase
     events.js          # CRUD + RSVP/save/chat — Supabase
@@ -244,9 +245,10 @@ Base (production): `https://socialise-app-production.up.railway.app/api`
 | GET | `/users/:id/organiser-profile` | Optional | Public organiser profile + events + communities |
 | GET | `/events/recommendations/for-you` | Required | Micro-Meet recommendations (by match score) |
 | POST | `/bugs` | Required | Submit bug report or feature request (pass `type: 'feature'` for feature requests; stored in Supabase `bug_reports` table) |
-| GET | `/bugs` | Required | List bug reports/feature requests (filterable by `?status=open` and/or `?type=feature`) |
-| PUT | `/bugs/:bugId` | Required | Update report status/priority/type (used by `/fix-bugs` skill) |
-| DELETE | `/bugs/:bugId` | Required | Delete bug report (used for duplicate consolidation — syncs deletion to Google Sheet) |
+| GET | `/bugs` | Required or Service Key | List bug reports/feature requests (filterable by `?status=open` and/or `?type=feature`). Primary data source for `/fix-bugs` skill (structured JSON). |
+| PUT | `/bugs/batch` | Required or Service Key | Batch update + delete multiple bugs in one call. Accepts `{ updates: [{ bugId, ...fields }], deletions: ["BUG-123"] }`. Returns `{ results: [{ bugId, success, sheetSynced }] }`. |
+| PUT | `/bugs/:bugId` | Required or Service Key | Update report fields (status, priority, type, fix_notes, component, etc.) — auto-syncs Supabase + Google Sheet. Response includes `sheetSynced: true/false`. |
+| DELETE | `/bugs/:bugId` | Required or Service Key | Delete bug report (used for duplicate consolidation — syncs deletion to Google Sheet). Response includes `sheetSynced: true/false`. |
 
 **Demo credentials:** `ben@demo.com` / `password` (blocked in production — `NODE_ENV=production` returns 403)
 
@@ -258,7 +260,8 @@ Base (production): `https://socialise-app-production.up.railway.app/api`
 - `ALLOWED_ORIGINS` — Comma-separated CORS origins. Defaults to localhost dev origins.
 - `SUPABASE_URL` — Supabase project URL. Required.
 - `SUPABASE_SERVICE_ROLE_KEY` — Supabase service role key (server-side only, bypasses RLS). Required.
-- `BUGS_SHEET_WEBHOOK_URL` — Optional. Google Apps Script web app URL. When set, bug reports are synced to a Google Sheet in real time (fire-and-forget — failures don't affect the API response). Supports three modes: new bug creation (appends row), status updates via `PUT /bugs/:bugId` (updates existing row), and deletion via `DELETE /bugs/:bugId` (removes row). The Apps Script uses header-based column lookup (not hardcoded indices) so columns can be reordered freely. Environment values are `PROD` (from `/prod/` page), `DEV` (from `/dev/` page), or `LOCAL` (localhost). The "Fixed At" column is auto-populated by the Apps Script when a bug's status is set to `fixed`. Bi-directional sync: the `onSheetEdit` installable trigger syncs manual Status/Priority/Type edits from the sheet back to Supabase (requires one-time `setupSupabaseCredentials()` in Apps Script — stores `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` in Google Script Properties). The Apps Script source is in `docs/google-sheets-apps-script.js`.
+- `BUGS_SHEET_WEBHOOK_URL` — Optional. Google Apps Script web app URL. When set, bug reports are synced to a Google Sheet in real time. API responses include `sheetSynced: true/false` confirming sync status. Supports three modes: new bug creation (appends row), status updates via `PUT /bugs/:bugId` (updates existing row), and deletion via `DELETE /bugs/:bugId` (removes row). The Apps Script uses header-based column lookup (not hardcoded indices) so columns can be reordered freely. Environment values are `PROD` (from `/prod/` page), `DEV` (from `/dev/` page), or `LOCAL` (localhost). The "Fixed At" column is auto-populated by the Apps Script when a bug's status is set to `fixed`. Bi-directional sync: the `onSheetEdit` installable trigger syncs manual Status/Priority/Type edits from the sheet back to Supabase (requires one-time `setupSupabaseCredentials()` in Apps Script — stores `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` in Google Script Properties). The Apps Script source is in `docs/google-sheets-apps-script.js`.
+- `BUGS_SERVICE_KEY` — Optional. Shared secret for `/fix-bugs` skill to authenticate against bug endpoints without registering throwaway users. Pass via `X-Service-Key` header. When set, GET/PUT/DELETE on `/bugs` accept this header as an alternative to JWT Bearer tokens. Generate with `openssl rand -hex 32`.
 
 ---
 
@@ -381,9 +384,9 @@ These bugs from the original issue list have been resolved in the codebase:
 - `PUT /api/bugs/:bugId` now syncs status/priority updates to Google Sheet via Apps Script webhook (fire-and-forget, same as `POST /bugs`) ✓
 - Bug report environment detection uses short uppercase values: `PROD` (from `/prod/` page), `DEV` (from `/dev/` page), `LOCAL` (localhost) — consistent with Google Sheet dropdown options ✓
 - Google Sheet Apps Script uses header-based column lookup (`getColumnMap_`) instead of hardcoded indices — columns can be reordered freely without breaking create/update logic ✓
-- `/fix-bugs` skill fetches from Google Sheet (single source), auto-prioritizes and updates the sheet first, then shows summary table and asks what to fix (all open / P1 only / specific bug) ✓
+- `/fix-bugs` skill fetches from production API `GET /api/bugs` (structured JSON, always fresh — no CSV parsing), auto-prioritizes with age-based boosting, auto-detects components, uses fuzzy duplicate matching, shows summary table and asks what to fix (all open / P1 only / specific bug) ✓
 - Google Sheet "Fixed At" column auto-populated by Apps Script when status is set to `fixed` — timestamps when each bug was resolved ✓
-- `/fix-bugs` workflow processes bugs ONE AT A TIME: mark `in-progress` via production API (syncs Supabase + Sheet) → fix code → mark `claim-fixed` via production API → commit + push → next bug. User manually verifies each fix and changes to `fixed`. Uses temp user registration on production backend for auth (see Lesson #9). No automatic pickup of new bugs after completing the agreed list ✓
+- `/fix-bugs` workflow processes bugs ONE AT A TIME: mark `in-progress` via production API (syncs Supabase + Sheet) → fix code → mark `claim-fixed` with `fix_notes` + `component` via production API → commit + push → next bug. User manually verifies each fix and changes to `fixed`. Uses `X-Service-Key` header for auth (no throwaway user registration). Batch endpoint `PUT /api/bugs/batch` for priority/dedup writes. `sheetSynced` field in responses confirms sheet webhook success. No automatic pickup of new bugs after completing the agreed list ✓
 - LocationPicker shows fallback text input when Google Maps API key is missing or fails to load (BUG-1771938422741) ✓
 - CreateEventModal close button enlarged to 40x40 touch target, z-index stacking fixed, overflow-x-hidden for reliable scrolling (BUG-1771938439942) ✓
 - Explore filters (category, search, size, date, tags) no longer affect HomeTab — `filteredEvents` scoped to ExploreTab only; HomeTab uses full unfiltered events from store; Sidebar "Discover" category section only renders on explore tab (BUG-1771942366608) ✓
@@ -425,6 +428,7 @@ These bugs from the original issue list have been resolved in the codebase:
 - Null safety on `filteredEvents` — `e.title?.toLowerCase()` prevents crash when an event has a missing title ✓
 - HomeTab micro-meets scroll buttons have `aria-label="Scroll left"` / `aria-label="Scroll right"` for screen readers ✓
 - OnboardingFlow back button has `aria-label="Go back"` for screen readers ✓
+- `/fix-bugs` process overhauled — service token auth (`X-Service-Key` header, `BUGS_SERVICE_KEY` env var) replaces throwaway user registration; `GET /api/bugs` (structured JSON) replaces Google Sheet CSV export as primary data source; `PUT /api/bugs/batch` endpoint for bulk priority/dedup writes; `sheetSynced` field in API responses replaces CSV re-verification; `fix_notes` column for fix traceability; `component` column for affected area; age-based priority boosting; fuzzy duplicate matching ✓
 
 ---
 
@@ -585,7 +589,7 @@ Configuration lives in `.claude/`. Full docs: `.claude/AUTOMATION_SETUP.md` and 
 | Hook | `block-env` | Prevents editing `.env` files |
 | Skill | `/gen-test` | Generate unit tests (Vitest + React Testing Library) |
 | Skill | `/create-migration` | Create Supabase migration files |
-| Skill | `/fix-bugs` | Process bug reports from Google Sheet — validate, fix, and commit |
+| Skill | `/fix-bugs` | Process bug reports from API — validate, fix, and commit (service key auth, batch ops, fix metadata) |
 | Subagent | `code-reviewer` | Security, quality, design system compliance review |
 | Subagent | `test-coverage-analyzer` | Identify untested code and coverage gaps |
 | Subagent | `bug-fixer` | Validates bug reports and creates minimal fixes (bug-only, no features) |
@@ -715,11 +719,11 @@ When auto-approve merges `development → production` using a regular merge (not
 
 **Rule:** After deploying to production, back-merge `production` into `development` to bring in the merge commit metadata. The `deploy-production.yml` workflow does this automatically via `github.rest.repos.merge()` in the `sync-development` job. The `[skip ci]` tag in the commit message prevents the back-merge from triggering deploy-development.
 
-### 7. `/fix-bugs` must update bug statuses in BOTH Supabase and Google Sheet — not just fix code
+### 7. `/fix-bugs` must update bug statuses via the production API — which syncs both Supabase and Google Sheet
 
-When processing bugs via `/fix-bugs`, the full lifecycle is: **mark `in-progress` in Supabase + Sheet → fix the code → mark `claim-fixed` in Supabase + Sheet → commit + push**. The user then manually verifies each fix and changes the status to `fixed`. Fixing code and pushing without updating statuses means the bug sheet stays stale, the `/fix-bugs` skill will re-surface the same bugs next run, and there's no audit trail of when things were resolved.
+When processing bugs via `/fix-bugs`, the full lifecycle is: **mark `in-progress` via production API → fix the code → mark `claim-fixed` with `fix_notes` + `component` via production API → commit + push**. The user then manually verifies each fix and changes the status to `fixed`. The production API (`PUT /api/bugs/:bugId`) handles both Supabase and Google Sheet sync in one call — the `sheetSynced` field in the response confirms whether the sheet webhook succeeded.
 
-**Rule:** Every `/fix-bugs` run MUST update bug statuses in both Supabase and the Google Sheet. The production API (`PUT /api/bugs/:bugId`) handles both automatically — see lesson #9 for how to authenticate. Process bugs ONE AT A TIME: mark in-progress on the sheet → fix → mark `claim-fixed` on the sheet → commit + push → next bug. Never use `fixed` directly — only `claim-fixed`. The user changes `claim-fixed` → `fixed` after verifying. Never batch status updates or skip sheet sync.
+**Rule:** Every `/fix-bugs` run MUST update bug statuses via the production API. Authenticate with `X-Service-Key` header (see `BUGS_SERVICE_KEY` env var) — no throwaway user registration needed. Use `PUT /api/bugs/batch` for bulk priority/component/dedup writes at the start. Process bugs ONE AT A TIME: mark in-progress → fix → mark `claim-fixed` with `fix_notes` → commit + push → next bug. Never use `fixed` directly — only `claim-fixed`. The user changes `claim-fixed` → `fixed` after verifying. Always include `fix_notes` explaining what was fixed.
 
 ### 8. External services in sandboxed environments — know what's reachable
 
@@ -727,52 +731,25 @@ In this sandbox environment, DNS resolution for some hosts fails (`EAI_AGAIN`), 
 
 **Rule:** When you need to update Supabase data and the local server can't start, go directly to the Supabase REST API with the service role key. Don't waste time trying to start the local server, logging in for a JWT, or retrying DNS failures. Use `printenv` to get env vars into shell variables (avoids quoting issues with `$VAR` in curl commands). For running raw SQL (migrations, schema changes, ad-hoc queries), use the Supabase Management API — see lesson #13.
 
-### 9. Google Sheet sync requires the production API — Supabase REST alone is not enough
+### 9. Authenticate with service key — not throwaway users
 
-Updating bug statuses directly via the Supabase REST API (`PATCH /rest/v1/bug_reports`) only updates the database. The Google Sheet stays stale because the webhook (`BUGS_SHEET_WEBHOOK_URL`) is only configured on the Railway-deployed backends — it's not available in the sandbox environment. The user sees the sheet, not Supabase, so sheet sync is mandatory.
+The old approach registered a throwaway `claude-bot-{timestamp}@temp.dev` user on production for every `/fix-bugs` run, polluting the users table and requiring cleanup. This was fragile and wasteful.
 
-**Rule:** Always sync bug status changes to the Google Sheet via the **production API** (`PUT https://socialise-app-production.up.railway.app/api/bugs/:bugId`). This endpoint updates Supabase AND fires the Google Sheet webhook in one call. To authenticate:
-
-1. **Register a temp user** on the production backend:
-   ```bash
-   TEMP_EMAIL="claude-bot-$(date +%s)@temp.dev"
-   RESULT=$(curl -s -X POST https://socialise-app-production.up.railway.app/api/auth/register \
-     -H "Content-Type: application/json" \
-     -d "{\"email\":\"$TEMP_EMAIL\",\"password\":\"TempPass123!\",\"firstName\":\"Claude\",\"lastName\":\"Bot\"}")
-   TOKEN=$(echo "$RESULT" | grep -o '"token":"[^"]*"' | cut -d'"' -f4)
-   ```
-
-2. **Use the token** to update bugs:
-   ```bash
-   curl -s -X PUT "https://socialise-app-production.up.railway.app/api/bugs/$BUG_ID" \
-     -H "Content-Type: application/json" \
-     -H "Authorization: Bearer $TOKEN" \
-     -d '{"status":"claim-fixed"}'
-   ```
-
-3. **Clean up the temp user** after all updates:
-   ```bash
-   curl -s -X DELETE "$SUPABASE_URL/rest/v1/users?email=eq.$TEMP_EMAIL" \
-     -H "apikey: $SUPABASE_KEY" -H "Authorization: Bearer $SUPABASE_KEY" \
-     -H "Prefer: return=minimal"
-   ```
-
-Also update Supabase directly (`PATCH /rest/v1/bug_reports`) as a belt-and-suspenders measure. In practice, Supabase direct updates have been observed to trigger the Google Sheet sync on their own (likely via a Supabase database webhook or trigger). Don't assume this will always work — verify via CSV export (see lesson #10).
-
-### 10. Always verify Google Sheet state IMMEDIATELY after Supabase update — before trying fallbacks
-
-After updating bug statuses via **any method** (production API, Supabase REST, or webhook), **always check the CSV export first** before panicking or trying fallback approaches. The Supabase direct `PATCH` may be sufficient to trigger sheet sync (it has been observed to work). Don't waste time trying the production API registration, then the Apps Script webhook, then giving up — just verify the result.
-
-**Rule:** The FIRST thing to do after any Supabase update is verify the CSV:
+**Rule:** Use the `BUGS_SERVICE_KEY` env var with the `X-Service-Key` header to authenticate against bug endpoints. No user registration, no cleanup, no user table pollution:
 ```bash
-curl -s -L "https://docs.google.com/spreadsheets/d/1WcsoRjbQbDp9B6HHBzCtksh1SH8jH_0sGY6a7Z9xHMA/gviz/tq?tqx=out:csv" | grep "BUG-ID"
+SERVICE_KEY=$(printenv BUGS_SERVICE_KEY | tr -d ' ')
+curl -s -X PUT "https://socialise-app-production.up.railway.app/api/bugs/$BUG_ID" \
+  -H "Content-Type: application/json" \
+  -H "X-Service-Key: $SERVICE_KEY" \
+  -d '{"status":"claim-fixed","fix_notes":"Added null check in EventCard.jsx:42","component":"EventCard"}'
 ```
-**Only if** the CSV shows the status is stale should you try fallbacks in this order:
-1. Production API (`PUT /api/bugs/:bugId`) — requires temp user auth (see lesson #9)
-2. Apps Script webhook directly (`POST` with `action: 'update'`) — URL in `.claude/skills/fix-bugs/SKILL.md`
-3. If all fail, explicitly tell the user the sheet needs manual sync
+If `BUGS_SERVICE_KEY` is not set, fall back to the legacy temp user registration as a last resort.
 
-Never claim the sheet is out of sync without checking the CSV first.
+### 10. Trust the production API response — don't re-verify via CSV
+
+The old approach fetched the entire Google Sheet CSV export after every status update to verify the change landed. Google caches CSV exports for up to ~5 minutes, so this often saw stale data and wasted time. The production API now returns a `sheetSynced: true/false` field confirming whether the webhook succeeded.
+
+**Rule:** Trust the API response. If `PUT /api/bugs/:bugId` returns `200` with `sheetSynced: true`, both Supabase and the sheet are updated. If `sheetSynced: false`, Supabase is still updated (source of truth) — note the sheet sync failure but don't block. Only verify the sheet CSV as a manual debugging step, never as part of the automated workflow. Avoid dual writes (API + direct Supabase) — the API handles both in one call.
 
 ### 11. Always rebase onto development before pushing — prevents merge conflicts from squash-merged PRs
 

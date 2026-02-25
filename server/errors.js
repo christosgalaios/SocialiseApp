@@ -78,6 +78,8 @@ const BUG_UPDATE_FAILED    = 'ERR_BUG_UPDATE_FAILED';
 const BUG_DELETE_FAILED    = 'ERR_BUG_DELETE_FAILED';
 const BUG_NOT_FOUND        = 'ERR_BUG_NOT_FOUND';
 const BUG_INVALID_INPUT    = 'ERR_BUG_INVALID_INPUT';
+const BUG_BATCH_FAILED     = 'ERR_BUG_BATCH_FAILED';
+const BUG_AUTH_FAILED      = 'ERR_BUG_AUTH_FAILED';
 
 // ── Global / Middleware ────────────────────────────────────────────────
 const RATE_LIMITED         = 'ERR_RATE_LIMITED';
@@ -110,6 +112,7 @@ module.exports = {
     // Bugs
     BUG_INSERT_FAILED, BUG_FETCH_FAILED, BUG_UPDATE_FAILED,
     BUG_DELETE_FAILED, BUG_NOT_FOUND, BUG_INVALID_INPUT,
+    BUG_BATCH_FAILED, BUG_AUTH_FAILED,
     // Global
     RATE_LIMITED, CORS_BLOCKED,
 };
