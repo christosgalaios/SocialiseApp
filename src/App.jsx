@@ -629,7 +629,7 @@ function App() {
 
             {/* Feature Request Button (above bug button) */}
             <motion.button
-              className="fixed bottom-[168px] right-4 z-50 w-11 h-11 rounded-full bg-secondary/90 text-white shadow-lg flex items-center justify-center backdrop-blur-sm border border-white/10 md:bottom-[60px]"
+              className="fixed bottom-[168px] right-4 z-50 w-11 h-11 rounded-full bg-accent/90 text-white shadow-lg flex items-center justify-center backdrop-blur-sm border border-white/10 md:bottom-[60px]"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={() => useUIStore.getState().setShowFeatureRequest(true)}
@@ -640,7 +640,7 @@ function App() {
 
             {/* Bug Report Button */}
             <motion.button
-              className="fixed bottom-[120px] right-4 z-50 w-11 h-11 rounded-full bg-secondary/90 text-white shadow-lg flex items-center justify-center backdrop-blur-sm border border-white/10 md:bottom-6"
+              className="fixed bottom-[120px] right-4 z-50 w-11 h-11 rounded-full bg-primary/90 text-white shadow-lg flex items-center justify-center backdrop-blur-sm border border-white/10 md:bottom-6"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={() => useUIStore.getState().setShowBugReport(true)}
