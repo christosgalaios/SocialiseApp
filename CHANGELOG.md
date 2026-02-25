@@ -12,6 +12,9 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 
 ## [Unreleased]
 
+### Changed
+- Renamed "Community Hub" to "Event Hub" on event detail chat tab — better reflects that the hub is specific to each event
+
 ### Added
 - **Your Skills** progression system — 5 individual skills (Social Spark, Adventure Spirit, Creative Soul, Community Leader, Knowledge Seeker), each with 10 levels, their own XP track, and a full milestone badge ladder
 - **Skill badges & stamps** — 4 milestone rewards per skill (at levels 3, 5, 7, 10); level-5 and level-10 milestones award special profile stamps (e.g. Hiking Boots at Adventure Spirit Lv.5, Social Butterfly at Social Spark Lv.5)
@@ -44,6 +47,8 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 
 ### Fixed
 - Swipe-to-close on bottom sheets and modals now responds when starting the drag from anywhere on the top bar (handle + header area), not just the tiny visual handle pill
+- Explore page reels carousel no longer traps scroll on iOS — changed snap behaviour so users can scroll past the reels section naturally (BUG-1772022302002)
+- Feature request modal text no longer bleeds outside the box on mobile — padding now matches the bug report modal (BUG-1772022766344)
 
 ### Changed
 - Bug report floating button now uses terracotta theme to match the bug report modal

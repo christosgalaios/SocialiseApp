@@ -202,7 +202,7 @@ export default function ExploreTab({ filteredEvents }) {
           <div
             ref={scrollRef}
             onScroll={checkScroll}
-            className="flex gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory -mx-5 px-5 md:mx-0 md:px-0 touch-action-pan-x"
+            className="flex gap-3 overflow-x-auto no-scrollbar snap-x snap-proximity -mx-5 px-5 md:mx-0 md:px-0"
           >
             {filteredEvents.slice(0, 10).map(event => (
               <InlineReelCard key={event.id} event={event} onClick={setSelectedEvent} />
