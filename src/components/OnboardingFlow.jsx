@@ -225,6 +225,7 @@ const OnboardingFlow = ({ onComplete, userName = 'there' }) => {
                     <button
                         onClick={() => setStep(step - 1)}
                         className="w-14 h-14 rounded-2xl bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
+                        aria-label="Go back"
                     >
                         <ChevronLeft size={24} className="text-secondary" />
                     </button>

@@ -384,7 +384,7 @@ function App() {
   }, []);
 
   const filteredEvents = events.filter(e => {
-    const matchesSearch = e.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    const matchesSearch = e.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       e.location?.toLowerCase().includes(searchQuery.toLowerCase());
     if (!matchesSearch) return false;
     const matchesCategory = activeCategory === 'All' || e.category === activeCategory;

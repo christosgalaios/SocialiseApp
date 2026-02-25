@@ -31,6 +31,8 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - App now shows an error message when initial data fails to load instead of silently showing nothing
 - Mango kitten no longer causes memory warnings when navigating away quickly after dragging
 - Bug report and feature request close buttons now respond reliably on iOS (same fix as create event modal)
+- Fixed a potential crash when filtering events with missing titles
+- Home tab and onboarding screen reader improvements — scroll and back buttons now announce their purpose
 
 ---
 

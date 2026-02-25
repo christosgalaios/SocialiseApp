@@ -412,6 +412,9 @@ These bugs from the original issue list have been resolved in the codebase:
 - `fetchAllData` now shows error toast on failure — previously only logged to console, leaving users with an empty app and no explanation ✓
 - Mango `handleDragEnd` setTimeout now tracked via `fallTimerRef` and cleaned up on unmount — prevents state-update-on-unmounted-component warnings and memory leaks. All three Mango timers (hold, idle, fall) now have explicit unmount cleanup ✓
 - BugReportModal and FeatureRequestModal close buttons use `onPointerDown` instead of `onClick` — prevents iOS gesture recognizer from swallowing taps inside scrollable modal containers (same fix as CreateEventModal BUG-1771966783965) ✓
+- Null safety on `filteredEvents` — `e.title?.toLowerCase()` prevents crash when an event has a missing title ✓
+- HomeTab micro-meets scroll buttons have `aria-label="Scroll left"` / `aria-label="Scroll right"` for screen readers ✓
+- OnboardingFlow back button has `aria-label="Go back"` for screen readers ✓
 
 ---
 
