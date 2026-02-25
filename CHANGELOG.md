@@ -12,6 +12,9 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 
 ## [Unreleased]
 
+### Removed
+- Category filter ("Discover") section removed from the desktop sidebar on the Explore tab — filters are handled inline in the Explore tab itself
+
 ---
 
 ## [0.1.188] — 2026-02-25

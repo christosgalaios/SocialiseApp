@@ -539,8 +539,6 @@ function App() {
             <div className="flex h-full">
               {/* Desktop Sidebar */}
               <Sidebar
-                activeCategory={activeCategory}
-                onSelect={setActiveCategory}
                 experimentalFeatures={experimentalFeatures}
                 activeTab={activeTab}
                 setActiveTab={setActiveTabWithEffects}
