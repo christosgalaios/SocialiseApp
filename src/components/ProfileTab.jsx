@@ -3,16 +3,21 @@ const APP_VERSION = import.meta.env.VITE_APP_VERSION || '0.1.dev';
 import {
   Mail, ShieldCheck, Zap, Check, Heart, Crown, ChevronRight, LogOut, Camera, Users, Settings, MessageCircle, ArrowLeft, Volume2,
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import useAuthStore from '../stores/authStore';
 import { playTap, playToggle, playClick, hapticTap } from '../utils/feedback';
 import useEventStore from '../stores/eventStore';
 import useUIStore from '../stores/uiStore';
 import {
-  XP_LEVELS,
+  SKILLS,
   UNLOCKABLE_TITLES,
-  PROFILE_STATS,
   DEFAULT_AVATAR,
+  FAME_SCORE_LEVELS,
+  getFameLevel,
+  getFameLevelProgress,
+  getSkillLevel,
+  getSkillLevelProgress,
+  SKILL_LEVEL_THRESHOLDS,
 } from '../data/constants';
 import WarmthScore from './WarmthScore';
 
@@ -28,6 +33,86 @@ const itemVariants = {
   hidden: { opacity: 0, y: 20 },
   show: { opacity: 1, y: 0, transition: { type: 'spring', damping: 25, stiffness: 400 } },
 };
+
+/** Inline skill card showing level, progress bar, and milestone badges */
+function SkillCard({ skill, xp = 0, unlockedBadgeIds = [] }) {
+  const level = getSkillLevel(xp);
+  const progressPct = getSkillLevelProgress(xp);
+  const thresholdForLevel = SKILL_LEVEL_THRESHOLDS[level - 1] ?? 0;
+  const nextThreshold = SKILL_LEVEL_THRESHOLDS[level] ?? thresholdForLevel;
+  const xpInLevel = xp - thresholdForLevel;
+  const xpNeeded = nextThreshold - thresholdForLevel;
+
+  const milestones = skill.badges;
+
+  return (
+    <div className={`rounded-[24px] border p-4 ${skill.bgColor} ${skill.borderColor} relative overflow-hidden`}>
+      {/* Skill header */}
+      <div className="flex items-center gap-3 mb-3">
+        <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${skill.bgColor} border ${skill.borderColor}`}>
+          <span className="text-xl">{skill.icon}</span>
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between">
+            <h4 className={`font-black text-sm ${skill.color}`}>{skill.label}</h4>
+            <span className="text-[10px] font-black text-secondary/50 uppercase tracking-widest bg-secondary/5 px-2 py-0.5 rounded-full">
+              Lv. {level}
+            </span>
+          </div>
+          <p className="text-[10px] text-secondary/40 font-medium truncate">{skill.description}</p>
+        </div>
+      </div>
+
+      {/* XP progress bar */}
+      <div className="mb-1">
+        <div className="w-full h-2 bg-secondary/10 rounded-full overflow-hidden">
+          <motion.div
+            className={`h-full rounded-full bg-gradient-to-r ${skill.barFrom} ${skill.barTo}`}
+            initial={{ width: 0 }}
+            animate={{ width: `${progressPct}%` }}
+            transition={{ duration: 0.9, ease: 'easeOut', delay: 0.1 }}
+          />
+        </div>
+        <div className="flex justify-between mt-1">
+          <span className="text-[9px] text-secondary/40 font-bold">
+            {level < 10 ? `${xpInLevel} / ${xpNeeded} XP` : 'Max Level'}
+          </span>
+          {level < 10 && (
+            <span className="text-[9px] text-secondary/30 font-bold">Lv. {level + 1}</span>
+          )}
+        </div>
+      </div>
+
+      {/* Milestone badges */}
+      <div className="flex gap-2 mt-3 flex-wrap">
+        {milestones.map((badge) => {
+          const earned = unlockedBadgeIds.includes(badge.id) || level >= badge.level;
+          return (
+            <div
+              key={badge.id}
+              title={earned ? badge.description : `Reach Level ${badge.level} to unlock`}
+              className={`flex flex-col items-center gap-0.5 transition-all ${earned ? 'opacity-100' : 'opacity-25 grayscale'}`}
+            >
+              <div className={`w-9 h-9 rounded-xl flex items-center justify-center border text-base
+                ${earned
+                  ? badge.isStamp
+                    ? 'bg-accent/15 border-accent/30 ring-1 ring-accent/20'
+                    : `${skill.bgColor} ${skill.borderColor}`
+                  : 'bg-secondary/5 border-secondary/10'
+                }`}
+              >
+                {badge.icon}
+              </div>
+              <span className={`text-[8px] font-bold leading-tight text-center max-w-[36px] ${earned ? 'text-secondary/60' : 'text-secondary/30'}`}>
+                {badge.isStamp ? '★' : ''}{badge.name.split(' ').slice(0, 2).join(' ')}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 export default function ProfileTab({ onLogout }) {
   const user = useAuthStore((s) => s.user);
@@ -50,7 +135,7 @@ export default function ProfileTab({ onLogout }) {
   const avatarCropImage = useUIStore((s) => s.avatarCropImage);
   const setAvatarCropImage = useUIStore((s) => s.setAvatarCropImage);
   const loginStreak = useUIStore((s) => s.loginStreak);
-  const userXP = useUIStore((s) => s.userXP);
+  const skillXP = useUIStore((s) => s.skillXP);
   const userUnlockedTitles = useUIStore((s) => s.userUnlockedTitles);
 
   const fileInputRef = useRef(null);
@@ -58,7 +143,6 @@ export default function ProfileTab({ onLogout }) {
   const handleAvatarUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
-      // Revoke previous blob URL to prevent memory leak
       if (avatarCropImage && avatarCropImage.startsWith('blob:')) {
         URL.revokeObjectURL(avatarCropImage);
       }
@@ -68,12 +152,22 @@ export default function ProfileTab({ onLogout }) {
     event.target.value = '';
   };
 
-  // XP calculations
-  const currentLevel = XP_LEVELS.filter(l => l.xpRequired <= userXP).pop() || XP_LEVELS[0];
-  const nextLevel = XP_LEVELS.find(l => l.xpRequired > userXP) || XP_LEVELS[XP_LEVELS.length - 1];
-  const xpInLevel = userXP - currentLevel.xpRequired;
-  const xpNeeded = nextLevel.xpRequired - currentLevel.xpRequired;
-  const progress = xpNeeded > 0 ? Math.min((xpInLevel / xpNeeded) * 100, 100) : 100;
+  // Fame Score calculations (from total skill XP)
+  const totalXP = Object.values(skillXP || {}).reduce((sum, v) => sum + (v || 0), 0);
+  const fameLevel = getFameLevel(totalXP);
+  const fameLevelProgress = getFameLevelProgress(totalXP);
+  const nextFameLevel = FAME_SCORE_LEVELS.find(l => l.totalXpRequired > totalXP) || FAME_SCORE_LEVELS[FAME_SCORE_LEVELS.length - 1];
+  const xpToNextFame = nextFameLevel.totalXpRequired - totalXP;
+
+  // All badge IDs that are considered unlocked (via skill level)
+  const allUnlockedBadgeIds = [
+    ...userUnlockedTitles,
+    ...SKILLS.flatMap(skill =>
+      skill.badges
+        .filter(b => getSkillLevel(skillXP?.[skill.key] ?? 0) >= b.level)
+        .map(b => b.id)
+    ),
+  ];
 
   if (profileSubTab === 'settings') {
     return (
@@ -230,29 +324,35 @@ export default function ProfileTab({ onLogout }) {
             </div>
           </div>
 
-          {/* Level Circle */}
+          {/* Fame Score Circle */}
           <div className="flex-1 flex justify-center md:justify-end">
-            <WarmthScore level={currentLevel.level} levelProgress={progress} levelIcon={currentLevel.icon} streak={loginStreak} />
+            <WarmthScore
+              level={fameLevel.level}
+              levelProgress={fameLevelProgress}
+              levelIcon={fameLevel.icon}
+              streak={loginStreak}
+              levelTitle={fameLevel.title}
+            />
           </div>
         </motion.div>
 
-        {/* XP & Level Progress */}
+        {/* Fame Score Progress Card */}
         <motion.div
           variants={itemVariants}
           className="premium-card p-6 overflow-hidden relative cursor-pointer active:scale-[0.98] transition-transform"
           onClick={() => { playClick(); setShowLevelDetail(true); }}
         >
           <div className="absolute -right-10 -top-10 w-40 h-40 bg-accent/5 rounded-full blur-3xl" />
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
-              <span className="text-3xl">{currentLevel.icon}</span>
+              <span className="text-3xl">{fameLevel.icon}</span>
               <div>
-                <h3 className="font-black text-secondary text-lg">Level {currentLevel.level}</h3>
-                <p className={`text-xs font-bold ${currentLevel.color}`}>{currentLevel.title}</p>
+                <h3 className="font-black text-secondary text-base leading-tight">Fame Score</h3>
+                <p className={`text-sm font-black ${fameLevel.color}`}>{fameLevel.title}</p>
               </div>
             </div>
             <div className="text-right">
-              <span className="text-2xl font-black text-accent">{userXP}</span>
+              <span className="text-2xl font-black text-accent">{totalXP}</span>
               <p className="text-[9px] font-bold text-secondary/40 uppercase tracking-widest">Total XP</p>
               <p className="text-[8px] font-bold text-primary/50 uppercase tracking-widest mt-0.5">Tap for roadmap</p>
             </div>
@@ -261,45 +361,78 @@ export default function ProfileTab({ onLogout }) {
             <motion.div
               className="h-full bg-gradient-to-r from-primary to-accent rounded-full"
               initial={{ width: 0 }}
-              animate={{ width: `${progress}%` }}
+              animate={{ width: `${fameLevelProgress}%` }}
               transition={{ duration: 1, ease: 'easeOut', delay: 0.3 }}
             />
           </div>
-          <p className="text-[10px] text-secondary/40 font-bold">{xpInLevel} / {xpNeeded} XP to {nextLevel.title}</p>
+          {fameLevel.level < 10 ? (
+            <p className="text-[10px] text-secondary/40 font-bold">
+              {xpToNextFame} XP to {nextFameLevel.title}
+            </p>
+          ) : (
+            <p className="text-[10px] text-accent font-bold">Max Fame Score reached ✦</p>
+          )}
         </motion.div>
 
-        {/* Game-Like Stats */}
+        {/* Your Skills Section */}
         <motion.div variants={itemVariants} className="premium-card p-6">
-          <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-4">Your Stats<span className="text-accent">.</span></h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xs font-black text-primary uppercase tracking-widest">
+              Your Skills<span className="text-accent">.</span>
+            </h3>
+            <span className="text-[9px] font-bold text-secondary/30 uppercase tracking-widest">
+              {SKILLS.length} skills
+            </span>
+          </div>
           <div className="space-y-3">
-            {PROFILE_STATS.map(stat => {
-              const value = user?.stats?.[stat.key] ?? 0;
-              const percentage = (value / stat.maxLevel) * 100;
-              return (
-                <div key={stat.key} className="flex items-center gap-3">
-                  <span className="text-lg w-8 text-center">{stat.icon}</span>
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs font-bold text-secondary">{stat.label}</span>
-                      <span className="text-[10px] font-black text-secondary/40">{value}/{stat.maxLevel}</span>
-                    </div>
-                    <div className="w-full h-2 bg-secondary/10 rounded-full overflow-hidden">
-                      <motion.div
-                        className="h-full bg-gradient-to-r from-primary/80 to-primary rounded-full"
-                        initial={{ width: 0 }}
-                        animate={{ width: `${percentage}%` }}
-                        transition={{ duration: 0.8, delay: 0.1 }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {SKILLS.map((skill) => (
+              <SkillCard
+                key={skill.key}
+                skill={skill}
+                xp={skillXP?.[skill.key] ?? 0}
+                unlockedBadgeIds={allUnlockedBadgeIds}
+              />
+            ))}
           </div>
         </motion.div>
 
-        {/* Achievements */}
-        {userUnlockedTitles.length > 0 && (
+        {/* Badges/Stamps earned */}
+        {allUnlockedBadgeIds.filter(id => SKILLS.flatMap(s => s.badges).some(b => b.id === id)).length > 0 && (
+          <motion.div variants={itemVariants} className="premium-card p-6">
+            <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-4">
+              Earned Badges<span className="text-accent">.</span>
+            </h3>
+            <div className="flex flex-wrap gap-3">
+              {SKILLS.flatMap(skill =>
+                skill.badges.filter(badge => {
+                  const skillLvl = getSkillLevel(skillXP?.[skill.key] ?? 0);
+                  return skillLvl >= badge.level || allUnlockedBadgeIds.includes(badge.id);
+                }).map(badge => ({ ...badge, skill }))
+              ).map(badge => (
+                <div
+                  key={badge.id}
+                  className={`flex flex-col items-center gap-1 p-3 rounded-2xl border text-center ${
+                    badge.isStamp
+                      ? 'bg-accent/10 border-accent/30'
+                      : `${badge.skill.bgColor} ${badge.skill.borderColor}`
+                  }`}
+                  style={{ minWidth: 64 }}
+                >
+                  <span className="text-2xl">{badge.icon}</span>
+                  <span className={`text-[9px] font-black leading-tight ${badge.isStamp ? 'text-accent' : badge.skill.color}`}>
+                    {badge.name}
+                  </span>
+                  {badge.isStamp && (
+                    <span className="text-[8px] text-accent/60 font-bold uppercase tracking-widest">Stamp</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Legacy achievements (from old system) */}
+        {userUnlockedTitles.filter(id => UNLOCKABLE_TITLES.some(t => t.id === id)).length > 0 && (
           <motion.div variants={itemVariants} className="premium-card p-6">
             <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-4">Achievements<span className="text-accent">.</span></h3>
             <div className="grid grid-cols-2 gap-3">

@@ -7,7 +7,15 @@ import useFeedStore from '../stores/feedStore';
 import useUIStore from '../stores/uiStore';
 import api from '../api';
 import { formatError } from '../errorUtils';
-import { XP_LEVELS } from '../data/constants';
+import {
+  FAME_SCORE_LEVELS,
+  SKILLS,
+  getFameLevel,
+  getFameLevelProgress,
+  getSkillLevel,
+  getSkillLevelProgress,
+  SKILL_LEVEL_THRESHOLDS,
+} from '../data/constants';
 import EventDetailSheet from './EventDetailSheet';
 import TribeSheet from './TribeSheet';
 import TribeDiscovery from './TribeDiscovery';
@@ -17,7 +25,7 @@ import ProUpgradeModal from './ProUpgradeModal';
 import HelpSheet from './HelpSheet';
 import GroupChatsSheet from './GroupChatsSheet';
 import UserProfileSheet from './UserProfileSheet';
-import LevelUpModal from './LevelUpModal';
+import LevelUpScreen from './LevelUpScreen';
 import AvatarCropModal from './AvatarCropModal';
 import BugReportModal from './BugReportModal';
 import FeatureRequestModal from './FeatureRequestModal';
@@ -96,7 +104,8 @@ export default function AppModals({ handleJoin, sendMessage }) {
   const showToast = useUIStore((s) => s.showToast);
   const avatarCropImage = useUIStore((s) => s.avatarCropImage);
   const setAvatarCropImage = useUIStore((s) => s.setAvatarCropImage);
-  const userXP = useUIStore((s) => s.userXP);
+  const skillXP = useUIStore((s) => s.skillXP);
+  const totalXP = Object.values(skillXP || {}).reduce((sum, v) => sum + (v || 0), 0);
   const showBugReport = useUIStore((s) => s.showBugReport);
   const setShowBugReport = useUIStore((s) => s.setShowBugReport);
   const showFeatureRequest = useUIStore((s) => s.showFeatureRequest);
@@ -173,7 +182,7 @@ export default function AppModals({ handleJoin, sendMessage }) {
         onJoin={handleJoinTribe}
         joinedTribes={userTribes}
       />
-      {/* Level Detail Modal */}
+      {/* Level Roadmap Sheet */}
       {showLevelDetail && (
         <motion.div
           key="level-detail"
@@ -183,11 +192,11 @@ export default function AppModals({ handleJoin, sendMessage }) {
           exit={{ opacity: 0 }}
           role="dialog"
           aria-modal="true"
-          aria-label="Level roadmap"
+          aria-label="Fame Score roadmap"
           onClick={() => setShowLevelDetail(false)}
         >
           <motion.div
-            className="w-full max-w-lg bg-paper rounded-t-[40px] p-6 pb-12 max-h-[85vh] overflow-y-auto no-scrollbar border-t border-secondary/10"
+            className="w-full max-w-lg bg-paper rounded-t-[40px] p-6 pb-12 max-h-[90vh] overflow-y-auto no-scrollbar border-t border-secondary/10"
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
@@ -195,70 +204,131 @@ export default function AppModals({ handleJoin, sendMessage }) {
             onClick={e => e.stopPropagation()}
           >
             <div className="w-12 h-1.5 bg-secondary/20 rounded-full mx-auto mb-6" />
-            <h2 className="text-2xl font-black text-secondary mb-1">Level Roadmap<span className="text-accent">.</span></h2>
-            <p className="text-xs text-secondary/50 mb-6 font-medium">Your progress and upcoming unlocks</p>
+            <h2 className="text-2xl font-black text-secondary mb-1">Your Roadmap<span className="text-accent">.</span></h2>
+            <p className="text-xs text-secondary/50 mb-2 font-medium">Skills, milestones & Fame Score progression</p>
 
-            {(() => {
-              const currentLevel = XP_LEVELS.filter(l => l.xpRequired <= userXP).pop() || XP_LEVELS[0];
-              return (
-                <div className="space-y-3">
-                  {XP_LEVELS.map((lvl, i) => {
-                    const isCurrentLevel = lvl.level === currentLevel.level;
-                    const isUnlocked = userXP >= lvl.xpRequired;
-                    const nextLvl = XP_LEVELS[i + 1];
-                    const xpIn = isCurrentLevel ? userXP - lvl.xpRequired : 0;
-                    const xpNeed = nextLvl ? nextLvl.xpRequired - lvl.xpRequired : 0;
-                    const prog = isCurrentLevel && xpNeed > 0 ? Math.min((xpIn / xpNeed) * 100, 100) : 0;
-                    return (
-                      <div
-                        key={lvl.level}
-                        className={`p-4 rounded-2xl border transition-all ${
-                          isCurrentLevel
-                            ? 'bg-primary/5 border-primary/30 ring-2 ring-primary/20'
-                            : isUnlocked
-                            ? 'bg-accent/5 border-accent/20'
-                            : 'bg-secondary/5 border-secondary/10 opacity-50'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3 mb-2">
-                          <span className="text-2xl">{lvl.icon}</span>
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <span className="font-black text-secondary text-sm">Level {lvl.level}</span>
-                                <span className={`ml-2 text-xs font-bold ${lvl.color}`}>{lvl.title}</span>
-                              </div>
-                              {isCurrentLevel && (
-                                <span className="text-[9px] font-black text-primary uppercase tracking-widest bg-primary/10 px-2 py-0.5 rounded-full">Current</span>
-                              )}
-                              {!isUnlocked && (
-                                <div className="flex items-center gap-1 text-secondary/40">
-                                  <Lock size={12} />
-                                  <span className="text-[9px] font-bold">{lvl.xpRequired} XP</span>
+            {/* Fame Score section */}
+            <div className="mb-6">
+              <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-3">Fame Score</p>
+              {(() => {
+                const fameLevel = getFameLevel(totalXP);
+                return (
+                  <div className="space-y-2">
+                    {FAME_SCORE_LEVELS.map((lvl, i) => {
+                      const isCurrentLevel = lvl.level === fameLevel.level;
+                      const isUnlocked = totalXP >= lvl.totalXpRequired;
+                      const nextLvl = FAME_SCORE_LEVELS[i + 1];
+                      const xpIn = isCurrentLevel ? totalXP - lvl.totalXpRequired : 0;
+                      const xpNeed = nextLvl ? nextLvl.totalXpRequired - lvl.totalXpRequired : 0;
+                      const prog = isCurrentLevel && xpNeed > 0 ? Math.min((xpIn / xpNeed) * 100, 100) : 0;
+                      return (
+                        <div
+                          key={lvl.level}
+                          className={`p-3 rounded-2xl border transition-all ${
+                            isCurrentLevel
+                              ? 'bg-primary/5 border-primary/30 ring-2 ring-primary/20'
+                              : isUnlocked
+                              ? 'bg-accent/5 border-accent/20'
+                              : 'bg-secondary/5 border-secondary/10 opacity-40'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="text-xl">{lvl.icon}</span>
+                            <div className="flex-1">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-black text-secondary text-xs">Fame {lvl.level}</span>
+                                  <span className={`text-xs font-bold ${lvl.color}`}>{lvl.title}</span>
                                 </div>
+                                {isCurrentLevel && (
+                                  <span className="text-[9px] font-black text-primary uppercase tracking-widest bg-primary/10 px-2 py-0.5 rounded-full">Now</span>
+                                )}
+                                {!isUnlocked && (
+                                  <div className="flex items-center gap-1 text-secondary/40">
+                                    <Lock size={10} />
+                                    <span className="text-[9px] font-bold">{lvl.totalXpRequired} XP</span>
+                                  </div>
+                                )}
+                              </div>
+                              {isCurrentLevel && nextLvl && (
+                                <>
+                                  <div className="w-full h-1.5 bg-secondary/10 rounded-full mt-1.5 overflow-hidden">
+                                    <motion.div
+                                      className="h-full bg-gradient-to-r from-primary to-accent rounded-full"
+                                      initial={{ width: 0 }}
+                                      animate={{ width: `${prog}%` }}
+                                      transition={{ duration: 0.8, ease: 'easeOut' }}
+                                    />
+                                  </div>
+                                  <p className="text-[9px] text-secondary/40 mt-1">{xpIn} / {xpNeed} XP to {nextLvl.title}</p>
+                                </>
                               )}
                             </div>
-                            {isCurrentLevel && nextLvl && (
-                              <>
-                                <div className="w-full h-1.5 bg-secondary/10 rounded-full mt-2 overflow-hidden">
-                                  <motion.div
-                                    className="h-full bg-gradient-to-r from-primary to-accent rounded-full"
-                                    initial={{ width: 0 }}
-                                    animate={{ width: `${prog}%` }}
-                                    transition={{ duration: 0.8, ease: 'easeOut' }}
-                                  />
-                                </div>
-                                <p className="text-[9px] text-secondary/40 mt-1">{xpIn} / {xpNeed} XP to {nextLvl.title}</p>
-                              </>
-                            )}
                           </div>
                         </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              );
-            })()}
+                      );
+                    })}
+                  </div>
+                );
+              })()}
+            </div>
+
+            {/* Skills section */}
+            <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-3">Your Skills</p>
+            <div className="space-y-4">
+              {SKILLS.map((skill) => {
+                const xp = skillXP?.[skill.key] ?? 0;
+                const level = getSkillLevel(xp);
+                const progressPct = getSkillLevelProgress(xp);
+                const thresholdForLevel = SKILL_LEVEL_THRESHOLDS[level - 1] ?? 0;
+                const nextThreshold = SKILL_LEVEL_THRESHOLDS[level] ?? thresholdForLevel;
+                const xpInLevel = xp - thresholdForLevel;
+                const xpNeeded = nextThreshold - thresholdForLevel;
+                return (
+                  <div key={skill.key} className={`rounded-2xl border p-4 ${skill.bgColor} ${skill.borderColor}`}>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-lg">{skill.icon}</span>
+                      <span className={`font-black text-sm ${skill.color}`}>{skill.label}</span>
+                      <span className="ml-auto text-[10px] font-black text-secondary/50 bg-secondary/5 px-2 py-0.5 rounded-full">Lv. {level}</span>
+                    </div>
+                    <div className="w-full h-2 bg-secondary/10 rounded-full overflow-hidden mb-1">
+                      <motion.div
+                        className={`h-full rounded-full bg-gradient-to-r ${skill.barFrom} ${skill.barTo}`}
+                        initial={{ width: 0 }}
+                        animate={{ width: `${progressPct}%` }}
+                        transition={{ duration: 0.8, ease: 'easeOut' }}
+                      />
+                    </div>
+                    <p className="text-[9px] text-secondary/40 font-bold mb-3">
+                      {level < 10 ? `${xpInLevel} / ${xpNeeded} XP` : 'Max Level'}
+                    </p>
+                    {/* Milestone badges */}
+                    <div className="grid grid-cols-4 gap-2">
+                      {skill.badges.map((badge) => {
+                        const earned = level >= badge.level;
+                        return (
+                          <div key={badge.id} className={`flex flex-col items-center gap-1 p-2 rounded-xl border text-center transition-all ${
+                            earned
+                              ? badge.isStamp
+                                ? 'bg-accent/10 border-accent/30'
+                                : `${skill.bgColor} ${skill.borderColor}`
+                              : 'bg-secondary/5 border-secondary/10 opacity-30'
+                          }`}>
+                            <span className="text-lg">{badge.icon}</span>
+                            <span className={`text-[8px] font-bold leading-tight ${earned ? 'text-secondary/70' : 'text-secondary/30'}`}>
+                              Lv.{badge.level}
+                            </span>
+                            {badge.isStamp && earned && (
+                              <span className="text-[7px] font-black text-accent uppercase">stamp</span>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </motion.div>
         </motion.div>
       )}
@@ -343,11 +413,10 @@ export default function AppModals({ handleJoin, sendMessage }) {
         onClose={() => setSelectedUserProfile(null)}
         onMessage={(p) => showToast(`Opening chat with ${p.name}…`, 'info')}
       />
-      <LevelUpModal
+      <LevelUpScreen
         isOpen={showLevelUp}
         onClose={() => setShowLevelUp(false)}
-        newLevel={levelUpData?.newLevel}
-        unlockedTitle={levelUpData?.unlockedTitle}
+        levelUpData={levelUpData}
       />
       <AvatarCropModal
         imageUrl={avatarCropImage}

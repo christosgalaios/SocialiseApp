@@ -13,6 +13,20 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 ## [Unreleased]
 
 ### Added
+- **Your Skills** progression system — 5 individual skills (Social Spark, Adventure Spirit, Creative Soul, Community Leader, Knowledge Seeker), each with 10 levels, their own XP track, and a full milestone badge ladder
+- **Skill badges & stamps** — 4 milestone rewards per skill (at levels 3, 5, 7, 10); level-5 and level-10 milestones award special profile stamps (e.g. Hiking Boots at Adventure Spirit Lv.5, Social Butterfly at Social Spark Lv.5)
+- **Fame Score** — overall rank (10 levels, Newcomer → Luminary) derived from the sum of all skill XP; replaces the old single global XP level
+- **Full-screen Level Up Screen** — replaces the small LevelUpModal; shows the levelled-up skill icon with spinning rings, a fresh progress bar, and a badge-reveal card when a milestone is hit; also shows Fame Score level-ups when the overall rank increases
+- **Category-aware XP awards** — joining events now awards XP to the matching skill (Outdoors/Active → Adventure Spirit, Creative → Creative Soul, Learning → Knowledge Seeker, others → Social Spark) instead of a flat +50 to a global pool
+- **Level Roadmap** redesigned — bottom sheet now shows Fame Score track (all 10 levels with progress bar) followed by per-skill detail cards showing level, XP progress, and all 4 milestone badges
+- **Earned Badges section** on Profile — grid of all badges and stamps unlocked so far, with stamp badges highlighted in gold
+
+### Changed
+- Profile "Your Stats" section renamed to **Your Skills** with individual level bars, XP progress, and milestone badge grid per skill
+- WarmthScore circle now shows "Fame" label (was "Level") to reflect the new Fame Score system
+- XP rollback on failed event join now restores per-skill XP correctly instead of a flat total
+
+### Added
 - Interactive sound feedback across the entire app — warm, on-brand audio cues using the Web Audio API (no external files)
 - Splash screen sounds: each animation phase (host letter, members arriving, huddle, latecomer, welcome, together) has its own warm tone
 - Mango AI kitten sounds: chirp on tap, purr on hold, pickup/drop sounds when dragged, sleep/wake tones, celebrate cascade, and chat toggle chimes

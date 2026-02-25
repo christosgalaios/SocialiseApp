@@ -143,7 +143,33 @@ const useUIStore = create((set) => ({
     localStorage.setItem('socialise_login_streak', JSON.stringify(streak));
   },
 
-  // User XP
+  // Per-skill XP (individual progression for each skill)
+  skillXP: (() => {
+    const jsonValue = localStorage.getItem('socialise_skill_xp');
+    return jsonValue ? JSON.parse(jsonValue) : {
+      social_spark: 0,
+      adventure_spirit: 0,
+      creative_soul: 0,
+      community_leader: 0,
+      knowledge_seeker: 0,
+    };
+  })(),
+  setSkillXP: (skillXP) => {
+    set({ skillXP });
+    localStorage.setItem('socialise_skill_xp', JSON.stringify(skillXP));
+  },
+  addSkillXP: (gains) => {
+    set((state) => {
+      const next = { ...state.skillXP };
+      Object.entries(gains).forEach(([key, amount]) => {
+        if (next[key] !== undefined) next[key] = (next[key] || 0) + amount;
+      });
+      localStorage.setItem('socialise_skill_xp', JSON.stringify(next));
+      return { skillXP: next };
+    });
+  },
+
+  // Legacy userXP — kept as total of all skill XP for backend sync
   userXP: (() => {
     const jsonValue = localStorage.getItem('socialise_xp');
     return jsonValue ? JSON.parse(jsonValue) : 0;
@@ -153,7 +179,7 @@ const useUIStore = create((set) => ({
     localStorage.setItem('socialise_xp', JSON.stringify(xp));
   },
 
-  // Unlocked titles
+  // Unlocked titles / badges
   userUnlockedTitles: (() => {
     const jsonValue = localStorage.getItem('socialise_unlocked_titles');
     return jsonValue ? JSON.parse(jsonValue) : [];
@@ -192,9 +218,17 @@ const useUIStore = create((set) => ({
 
   // Reset all per-user data to clean defaults
   resetUserData: () => {
+    const defaultSkillXP = {
+      social_spark: 0,
+      adventure_spirit: 0,
+      creative_soul: 0,
+      community_leader: 0,
+      knowledge_seeker: 0,
+    };
     set({
       loginStreak: 0,
       userXP: 0,
+      skillXP: defaultSkillXP,
       userUnlockedTitles: [],
       userPreferences: null,
       showOnboarding: false,
@@ -203,6 +237,7 @@ const useUIStore = create((set) => ({
     });
     localStorage.removeItem('socialise_login_streak');
     localStorage.removeItem('socialise_xp');
+    localStorage.removeItem('socialise_skill_xp');
     localStorage.removeItem('socialise_unlocked_titles');
     localStorage.removeItem('socialise_preferences');
     localStorage.removeItem('socialise_onboarding_shown');
