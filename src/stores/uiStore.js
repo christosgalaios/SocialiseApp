@@ -48,8 +48,6 @@ const useUIStore = create((set) => ({
       set({ realtimePing: updater });
     }
   },
-  showReels: false,
-  setShowReels: (show) => set({ showReels: show }),
   showLevelUp: false,
   setShowLevelUp: (show) => set({ showLevelUp: show }),
   levelUpData: null,

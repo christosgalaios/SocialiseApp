@@ -584,14 +584,13 @@ function App() {
 
             {/* Floating Navigation - Mobile Only */}
             <div className="md:hidden">
-              <BottomNav activeTab={activeTab} setActiveTab={setActiveTabWithEffects} onReelsClick={() => useUIStore.getState().setShowReels(true)} />
+              <BottomNav activeTab={activeTab} setActiveTab={setActiveTabWithEffects} />
             </div>
 
             {/* Modals & Sheets */}
             <AppModals
               handleJoin={handleJoin}
               sendMessage={sendMessage}
-              filteredEvents={filteredEvents}
             />
 
             {/* Onboarding Flow */}

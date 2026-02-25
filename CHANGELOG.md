@@ -15,9 +15,12 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 ### Changed
 - Bug report floating button now uses terracotta theme to match the bug report modal
 - Feature request floating button now uses gold theme to match the feature request modal
+- Reels are now embedded directly in the Explore page as a horizontal carousel instead of opening as a full-screen overlay
+- Reels button removed from the mobile bottom navigation bar — reels are always visible on Explore
 
 ### Removed
 - Category filter ("Discover") section removed from the desktop sidebar on the Explore tab — filters are handled inline in the Explore tab itself
+- Full-screen EventReels modal removed — replaced by the inline reels carousel on the Explore tab
 
 ---
 

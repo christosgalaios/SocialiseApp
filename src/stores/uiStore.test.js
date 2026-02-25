@@ -17,7 +17,6 @@ describe('uiStore', () => {
         showProModal: false,
         showHelp: false,
         showConfetti: false,
-        showReels: false,
         showLevelUp: false,
         levelUpData: null,
         showLevelDetail: false,
@@ -86,11 +85,6 @@ describe('uiStore', () => {
     it('should toggle showHelp', () => {
       act(() => useUIStore.getState().setShowHelp(true));
       expect(useUIStore.getState().showHelp).toBe(true);
-    });
-
-    it('should toggle showReels', () => {
-      act(() => useUIStore.getState().setShowReels(true));
-      expect(useUIStore.getState().showReels).toBe(true);
     });
 
     it('should toggle showLevelUp', () => {
