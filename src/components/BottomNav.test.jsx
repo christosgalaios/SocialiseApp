@@ -24,7 +24,6 @@ vi.mock('framer-motion', () => ({
 
 describe('BottomNav', () => {
   const mockSetActiveTab = vi.fn();
-  const mockOnReelsClick = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -36,13 +35,11 @@ describe('BottomNav', () => {
         <BottomNav
           activeTab="home"
           setActiveTab={mockSetActiveTab}
-          onReelsClick={mockOnReelsClick}
         />
       );
 
       expect(screen.getByLabelText('Home')).toBeInTheDocument();
       expect(screen.getByLabelText('Hub')).toBeInTheDocument();
-      expect(screen.getByLabelText('Watch event reels')).toBeInTheDocument();
       expect(screen.getByLabelText('Explore')).toBeInTheDocument();
       expect(screen.getByLabelText('Profile')).toBeInTheDocument();
     });
@@ -52,7 +49,6 @@ describe('BottomNav', () => {
         <BottomNav
           activeTab="home"
           setActiveTab={mockSetActiveTab}
-          onReelsClick={mockOnReelsClick}
         />
       );
 
@@ -65,7 +61,6 @@ describe('BottomNav', () => {
         <BottomNav
           activeTab="home"
           setActiveTab={mockSetActiveTab}
-          onReelsClick={mockOnReelsClick}
         />
       );
 
@@ -79,7 +74,6 @@ describe('BottomNav', () => {
         <BottomNav
           activeTab="home"
           setActiveTab={mockSetActiveTab}
-          onReelsClick={mockOnReelsClick}
         />
       );
 
@@ -92,7 +86,6 @@ describe('BottomNav', () => {
         <BottomNav
           activeTab="home"
           setActiveTab={mockSetActiveTab}
-          onReelsClick={mockOnReelsClick}
         />
       );
 
@@ -105,7 +98,6 @@ describe('BottomNav', () => {
         <BottomNav
           activeTab="hub"
           setActiveTab={mockSetActiveTab}
-          onReelsClick={mockOnReelsClick}
         />
       );
 
@@ -123,26 +115,11 @@ describe('BottomNav', () => {
         <BottomNav
           activeTab="home"
           setActiveTab={mockSetActiveTab}
-          onReelsClick={mockOnReelsClick}
         />
       );
 
       await user.click(screen.getByRole('tab', { name: 'Hub' }));
       expect(mockSetActiveTab).toHaveBeenCalledWith('hub', expect.any(Number));
-    });
-
-    it('should call onReelsClick when reels button is clicked', async () => {
-      const user = userEvent.setup({ delay: null });
-      render(
-        <BottomNav
-          activeTab="home"
-          setActiveTab={mockSetActiveTab}
-          onReelsClick={mockOnReelsClick}
-        />
-      );
-
-      await user.click(screen.getByLabelText('Watch event reels'));
-      expect(mockOnReelsClick).toHaveBeenCalledTimes(1);
     });
 
     it('should pass correct direction when navigating forward', async () => {
@@ -151,13 +128,12 @@ describe('BottomNav', () => {
         <BottomNav
           activeTab="home"
           setActiveTab={mockSetActiveTab}
-          onReelsClick={mockOnReelsClick}
         />
       );
 
-      // Home is index 0, Explore is index 3 (skipping Reels action slot) → direction = 3
+      // Home is index 0, Explore is index 2 → direction = 2
       await user.click(screen.getByRole('tab', { name: 'Explore' }));
-      expect(mockSetActiveTab).toHaveBeenCalledWith('explore', 3);
+      expect(mockSetActiveTab).toHaveBeenCalledWith('explore', 2);
     });
   });
 
@@ -167,14 +143,13 @@ describe('BottomNav', () => {
         <BottomNav
           activeTab="home"
           setActiveTab={mockSetActiveTab}
-          onReelsClick={mockOnReelsClick}
         />
       );
 
       const homeTab = screen.getByRole('tab', { name: 'Home' });
       fireEvent.keyDown(homeTab, { key: 'ArrowRight' });
 
-      // Home → Hub (next nav tab)
+      // Home → Hub (next tab)
       expect(mockSetActiveTab).toHaveBeenCalledWith('hub', expect.any(Number));
     });
 
@@ -183,14 +158,13 @@ describe('BottomNav', () => {
         <BottomNav
           activeTab="hub"
           setActiveTab={mockSetActiveTab}
-          onReelsClick={mockOnReelsClick}
         />
       );
 
       const hubTab = screen.getByRole('tab', { name: 'Hub' });
       fireEvent.keyDown(hubTab, { key: 'ArrowLeft' });
 
-      // Hub → Home (previous nav tab)
+      // Hub → Home (previous tab)
       expect(mockSetActiveTab).toHaveBeenCalledWith('home', expect.any(Number));
     });
 
@@ -199,7 +173,6 @@ describe('BottomNav', () => {
         <BottomNav
           activeTab="profile"
           setActiveTab={mockSetActiveTab}
-          onReelsClick={mockOnReelsClick}
         />
       );
 
@@ -215,7 +188,6 @@ describe('BottomNav', () => {
         <BottomNav
           activeTab="home"
           setActiveTab={mockSetActiveTab}
-          onReelsClick={mockOnReelsClick}
         />
       );
 
@@ -231,7 +203,6 @@ describe('BottomNav', () => {
         <BottomNav
           activeTab="home"
           setActiveTab={mockSetActiveTab}
-          onReelsClick={mockOnReelsClick}
         />
       );
 
@@ -246,7 +217,6 @@ describe('BottomNav', () => {
         <BottomNav
           activeTab="home"
           setActiveTab={mockSetActiveTab}
-          onReelsClick={mockOnReelsClick}
         />
       );
 
