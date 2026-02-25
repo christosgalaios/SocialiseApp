@@ -64,6 +64,58 @@ jobs:
         if: steps.check-mergeable.outputs.mergeable == 'false'
         run: echo "::warning::Auto-approve skipped — PR has merge conflicts. Resolve conflicts and push again."
 
+      - name: Check changelog updated
+        if: steps.check-mergeable.outputs.mergeable == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+
+            // Skip for development → production promotions (no new user-facing changes)
+            if (pr.base.ref === 'production' && pr.head.ref === 'development') {
+              core.info('Changelog check skipped — development → production promotion');
+              return;
+            }
+
+            // Skip if the skip-changelog label is present
+            const labels = pr.labels.map(l => l.name);
+            if (labels.includes('skip-changelog')) {
+              core.info('Changelog check skipped — skip-changelog label present');
+              return;
+            }
+
+            // Fetch changed files (up to 100; enough for any normal PR)
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number,
+              per_page: 100,
+            });
+            const changedFiles = files.map(f => f.filename);
+
+            const changelogUpdated = changedFiles.includes('CHANGELOG.md');
+
+            // User-facing: anything in src/, API routes, server entry, matching algorithm
+            const userFacingPatterns = [
+              /^src\//,
+              /^server\/routes\//,
+              /^server\/index\.js$/,
+              /^server\/matching\.js$/,
+            ];
+            const userFacingChanged = changedFiles.some(f =>
+              userFacingPatterns.some(p => p.test(f))
+            );
+
+            if (userFacingChanged && !changelogUpdated) {
+              core.setFailed(
+                'CHANGELOG.md was not updated.\n' +
+                'Add entries under [Unreleased] for any user-facing changes, ' +
+                'or add the "skip-changelog" label if this PR contains no user-facing changes.'
+              );
+            } else {
+              core.info('Changelog check passed');
+            }
+
       - uses: actions/checkout@v4
         if: steps.check-mergeable.outputs.mergeable == 'true'
 
