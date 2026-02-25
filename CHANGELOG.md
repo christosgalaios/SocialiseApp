@@ -33,6 +33,8 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 
 ### Fixed
 - Swipe-to-close on bottom sheets and modals now responds when starting the drag from anywhere on the top bar (handle + header area), not just the tiny visual handle pill
+- Explore page reels carousel no longer traps scroll on iOS — changed snap behaviour so users can scroll past the reels section naturally (BUG-1772022302002)
+- Feature request modal text no longer bleeds outside the box on mobile — padding now matches the bug report modal (BUG-1772022766344)
 
 ### Changed
 - Bug report floating button now uses terracotta theme to match the bug report modal
