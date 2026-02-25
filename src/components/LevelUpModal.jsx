@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Star, Sparkles, Trophy, ChevronRight } from 'lucide-react';
 import { useEscapeKey, useFocusTrap } from '../hooks/useAccessibility';
+import { playSwooshClose, hapticTap } from '../utils/feedback';
 
 /**
  * LevelUpModal - Celebration screen when a user levels up.
@@ -65,7 +66,7 @@ const LevelUpModal = ({ isOpen, onClose, newLevel, unlockedTitle }) => {
           >
             {/* Close button */}
             <button
-              onClick={onClose}
+              onClick={() => { playSwooshClose(); hapticTap(); onClose(); }}
               className="absolute -top-2 -right-2 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white/60 hover:bg-white/20 transition-colors z-20"
               aria-label="Close"
             >

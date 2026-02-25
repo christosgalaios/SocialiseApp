@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Heart, Calendar, MapPin, Trash2 } from 'lucide-react';
 import { useEscapeKey, useFocusTrap, useSwipeToClose } from '../hooks/useAccessibility';
+import { playSwooshClose, hapticTap } from '../utils/feedback';
 
 const SavedEventsSheet = ({ isOpen, onClose, savedEvents = [], onRemove, onSelect }) => {
     useEscapeKey(isOpen, onClose);
@@ -41,7 +42,7 @@ const SavedEventsSheet = ({ isOpen, onClose, savedEvents = [], onRemove, onSelec
                                 Saved<span className="text-accent">.</span>
                             </h2>
                             <button
-                                onClick={onClose}
+                                onClick={() => { playSwooshClose(); hapticTap(); onClose(); }}
                                 className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
                                 aria-label="Close"
                             >

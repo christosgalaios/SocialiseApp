@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Search, Users, UserPlus, Check } from 'lucide-react';
 import api from '../api';
 import { useEscapeKey, useFocusTrap } from '../hooks/useAccessibility';
+import { playSwooshClose, hapticTap } from '../utils/feedback';
 
 const TribeDiscovery = ({ isOpen, onClose, onJoin, joinedTribes = [] }) => {
     const [searchQuery, setSearchQuery] = useState('');
@@ -65,7 +66,7 @@ const TribeDiscovery = ({ isOpen, onClose, onJoin, joinedTribes = [] }) => {
                                     Find Your Tribe<span className="text-accent">.</span>
                                 </h2>
                                 <button
-                                    onClick={onClose}
+                                    onClick={() => { playSwooshClose(); hapticTap(); onClose(); }}
                                     className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
                                     aria-label="Close"
                                 >

@@ -51,7 +51,7 @@ const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMe
 
             {/* Sticky bar: close + tabs - stays at top when image scrolls away */}
             <div className="sticky top-0 z-10 bg-paper border-b border-secondary/10 flex items-stretch shrink-0">
-              <button onClick={onClose} className="p-4 flex items-center justify-center text-secondary/70 hover:text-secondary active:scale-90 transition-all" aria-label="Close">
+              <button onClick={() => { playSwooshClose(); hapticTap(); onClose(); }} className="p-4 flex items-center justify-center text-secondary/70 hover:text-secondary active:scale-90 transition-all" aria-label="Close">
                 <X size={24} strokeWidth={2.5} />
               </button>
               <div role="tablist" aria-label="Event sections" className="flex flex-1">

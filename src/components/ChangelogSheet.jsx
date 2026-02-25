@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Sparkles, Bug, Shield, Trash2, RefreshCw } from 'lucide-react';
 import { useEscapeKey, useFocusTrap, useSwipeToClose } from '../hooks/useAccessibility';
+import { playSwooshClose, hapticTap } from '../utils/feedback';
 import changelogRaw from '../../CHANGELOG.md?raw';
 
 const CATEGORY_CONFIG = {
@@ -104,7 +105,7 @@ const ChangelogSheet = ({ isOpen, onClose }) => {
                 </p>
               </div>
               <button
-                onClick={onClose}
+                onClick={() => { playSwooshClose(); hapticTap(); onClose(); }}
                 className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
                 aria-label="Close"
               >

@@ -5,6 +5,7 @@ const MotionDiv = motion.div;
 import { X, MessageCircle, UserPlus, UserCheck } from 'lucide-react';
 import { useEscapeKey, useFocusTrap, useSwipeToClose } from '../hooks/useAccessibility';
 import { DEFAULT_AVATAR } from '../data/constants';
+import { playSwooshClose, hapticTap } from '../utils/feedback';
 
 /**
  * Sheet showing another user's profile (avatar, name, optional community/bio).
@@ -52,7 +53,7 @@ const UserProfileSheet = ({ profile, isOpen, onClose, onMessage }) => {
                         <div className="px-6 pb-8">
                             <div className="flex justify-end mb-2">
                                 <button
-                                    onClick={onClose}
+                                    onClick={() => { playSwooshClose(); hapticTap(); onClose(); }}
                                     className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary hover:bg-secondary/20 transition-colors"
                                     aria-label="Close"
                                 >

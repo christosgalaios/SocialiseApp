@@ -5,6 +5,7 @@ import api from '../api';
 import useAuthStore from '../stores/authStore';
 import { useEscapeKey, useFocusTrap, useSwipeToClose } from '../hooks/useAccessibility';
 import { DEFAULT_AVATAR } from '../data/constants';
+import { playSwooshClose, playTap, hapticTap } from '../utils/feedback';
 
 const QUICK_REACTIONS = ['❤️', '😂', '🔥', '👏', '😮', '👍'];
 
@@ -184,7 +185,7 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
               <div className="px-4 py-3 border-b border-secondary/10 shrink-0">
                 <div className="flex items-center gap-3">
                   <button
-                    onClick={closeCommunity}
+                    onClick={() => { playTap(); hapticTap(); closeCommunity(); }}
                     className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
                     aria-label="Back to communities"
                   >
@@ -207,7 +208,7 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
                       <Video size={16} />
                     </button>
                     <button
-                      onClick={onClose}
+                      onClick={() => { playSwooshClose(); hapticTap(); onClose(); }}
                       className="w-9 h-9 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
                       aria-label="Close"
                     >
@@ -302,7 +303,7 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
                       <Search size={18} className="text-secondary" />
                     </button>
                     <button
-                      onClick={onClose}
+                      onClick={() => { playSwooshClose(); hapticTap(); onClose(); }}
                       className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
                       aria-label="Close chats"
                     >

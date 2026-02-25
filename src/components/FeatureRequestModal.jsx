@@ -3,6 +3,7 @@ import { Lightbulb, X, Send, AlertCircle, Monitor } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEscapeKey, useFocusTrap, useSwipeToClose } from '../hooks/useAccessibility';
 import { formatError } from '../errorUtils';
+import { playSwooshClose, hapticTap } from '../utils/feedback';
 
 function detectPlatform() {
   const ua = navigator.userAgent || '';
@@ -121,7 +122,7 @@ export default function FeatureRequestModal({ isOpen, onClose, onSubmit }) {
               <p className="text-[10px] text-secondary/50 font-medium">Got an idea? Share it with us</p>
             </div>
           </div>
-          <button onPointerDown={(e) => { e.stopPropagation(); onClose(); }} className="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center" aria-label="Close feature request" style={{ touchAction: 'manipulation' }}>
+          <button onPointerDown={(e) => { e.stopPropagation(); playSwooshClose(); hapticTap(); onClose(); }} className="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center" aria-label="Close feature request" style={{ touchAction: 'manipulation' }}>
             <X size={16} className="text-secondary/60" />
           </button>
         </div>

@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { Heart, Zap, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { formatError } from '../errorUtils';
+import { playTap, hapticTap } from '../utils/feedback';
 import useAuthStore from '../stores/authStore';
 import useEventStore from '../stores/eventStore';
 import useUIStore from '../stores/uiStore';
@@ -122,6 +123,7 @@ export default function HomeTab({ onProfileClick, fetchAllData }) {
           <div className="flex items-center gap-2 md:hidden">
             <button
               onClick={() => {
+                playTap(); hapticTap();
                 const el = document.getElementById('micro-meets-scroll');
                 if (el) el.scrollBy({ left: -316, behavior: 'smooth' });
               }}
@@ -132,6 +134,7 @@ export default function HomeTab({ onProfileClick, fetchAllData }) {
             </button>
             <button
               onClick={() => {
+                playTap(); hapticTap();
                 const el = document.getElementById('micro-meets-scroll');
                 if (el) el.scrollBy({ left: 316, behavior: 'smooth' });
               }}
