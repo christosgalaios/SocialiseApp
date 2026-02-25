@@ -10,7 +10,6 @@ vi.mock('framer-motion', () => ({
   },
   AnimatePresence: ({ children }) => <>{children}</>,
   useMotionValue: (initial) => ({ get: () => initial, set: () => {} }),
-  useTransform: () => ({ get: () => 1, set: () => {} }),
   animate: vi.fn(),
 }));
 
