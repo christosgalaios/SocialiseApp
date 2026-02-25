@@ -373,7 +373,7 @@ These bugs from the original issue list have been resolved in the codebase:
 - Google Sheet Apps Script uses header-based column lookup (`getColumnMap_`) instead of hardcoded indices — columns can be reordered freely without breaking create/update logic ✓
 - `/fix-bugs` skill fetches from Google Sheet (single source), auto-prioritizes and updates the sheet first, then shows summary table and asks what to fix (all open / P1 only / specific bug) ✓
 - Google Sheet "Fixed At" column auto-populated by Apps Script when status is set to `fixed` — timestamps when each bug was resolved ✓
-- `/fix-bugs` workflow processes bugs ONE AT A TIME: mark `in-progress` via production API (syncs Supabase + Sheet) → fix code → mark `fixed` via production API → commit + push → next bug. Uses temp user registration on production backend for auth (see Lesson #9). No automatic pickup of new bugs after completing the agreed list ✓
+- `/fix-bugs` workflow processes bugs ONE AT A TIME: mark `in-progress` via production API (syncs Supabase + Sheet) → fix code → mark `claim-fixed` via production API → commit + push → next bug. User manually verifies each fix and changes to `fixed`. Uses temp user registration on production backend for auth (see Lesson #9). No automatic pickup of new bugs after completing the agreed list ✓
 - LocationPicker shows fallback text input when Google Maps API key is missing or fails to load (BUG-1771938422741) ✓
 - CreateEventModal close button enlarged to 40x40 touch target, z-index stacking fixed, overflow-x-hidden for reliable scrolling (BUG-1771938439942) ✓
 - Explore filters (category, search, size, date, tags) no longer affect HomeTab — `filteredEvents` scoped to ExploreTab only; HomeTab uses full unfiltered events from store; Sidebar "Discover" category section only renders on explore tab (BUG-1771942366608) ✓
@@ -704,9 +704,9 @@ When auto-approve merges `development → production` using a regular merge (not
 
 ### 7. `/fix-bugs` must update bug statuses in BOTH Supabase and Google Sheet — not just fix code
 
-When processing bugs via `/fix-bugs`, the full lifecycle is: **mark `in-progress` in Supabase + Sheet → fix the code → mark `fixed` in Supabase + Sheet → commit + push**. Fixing code and pushing without updating statuses means the bug sheet stays stale, the `/fix-bugs` skill will re-surface the same bugs next run, and there's no audit trail of when things were resolved.
+When processing bugs via `/fix-bugs`, the full lifecycle is: **mark `in-progress` in Supabase + Sheet → fix the code → mark `claim-fixed` in Supabase + Sheet → commit + push**. The user then manually verifies each fix and changes the status to `fixed`. Fixing code and pushing without updating statuses means the bug sheet stays stale, the `/fix-bugs` skill will re-surface the same bugs next run, and there's no audit trail of when things were resolved.
 
-**Rule:** Every `/fix-bugs` run MUST update bug statuses in both Supabase and the Google Sheet. The production API (`PUT /api/bugs/:bugId`) handles both automatically — see lesson #9 for how to authenticate. Process bugs ONE AT A TIME: mark in-progress on the sheet → fix → mark fixed on the sheet → commit + push → next bug. Never batch status updates or skip sheet sync.
+**Rule:** Every `/fix-bugs` run MUST update bug statuses in both Supabase and the Google Sheet. The production API (`PUT /api/bugs/:bugId`) handles both automatically — see lesson #9 for how to authenticate. Process bugs ONE AT A TIME: mark in-progress on the sheet → fix → mark `claim-fixed` on the sheet → commit + push → next bug. Never use `fixed` directly — only `claim-fixed`. The user changes `claim-fixed` → `fixed` after verifying. Never batch status updates or skip sheet sync.
 
 ### 8. External services in sandboxed environments — know what's reachable
 
@@ -734,7 +734,7 @@ Updating bug statuses directly via the Supabase REST API (`PATCH /rest/v1/bug_re
    curl -s -X PUT "https://socialise-app-production.up.railway.app/api/bugs/$BUG_ID" \
      -H "Content-Type: application/json" \
      -H "Authorization: Bearer $TOKEN" \
-     -d '{"status":"fixed"}'
+     -d '{"status":"claim-fixed"}'
    ```
 
 3. **Clean up the temp user** after all updates:
