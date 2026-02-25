@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useCallback } from 'react';
+import { playMangoCelebrate, playMangoChatToggle } from '../utils/feedback';
 
 /**
  * MangoContext - App-wide state for the Mango kitten assistant
@@ -19,6 +20,7 @@ export const MangoProvider = ({ children }) => {
 
     // Trigger celebration (e.g., when user joins an event). Optional message shows in bubble.
     const celebrate = useCallback((msg = null) => {
+        playMangoCelebrate();
         setPose('celebrate');
         setIsVisible(true);
         if (msg) setMessage(msg);
@@ -101,6 +103,7 @@ export const MangoProvider = ({ children }) => {
         setHasNotification,
         toggleChat: () => {
             setIsChatOpen(prev => {
+                playMangoChatToggle(!prev);
                 if (prev) setPose('wave');
                 return !prev;
             });

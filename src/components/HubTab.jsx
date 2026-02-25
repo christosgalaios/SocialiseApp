@@ -3,6 +3,7 @@ import useAuthStore from '../stores/authStore';
 import useCommunityStore from '../stores/communityStore';
 import useFeedStore from '../stores/feedStore';
 import FeedItem from './FeedItem';
+import { playCardPress, playTap, hapticTap } from '../utils/feedback';
 
 export default function HubTab() {
   const user = useAuthStore((s) => s.user);
@@ -55,7 +56,7 @@ export default function HubTab() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 key={comm.id}
-                onClick={() => setSelectedTribe(comm)}
+                onClick={() => { playCardPress(); hapticTap(); setSelectedTribe(comm); }}
                 className="premium-card p-4 flex items-center gap-4 group cursor-pointer"
               >
                 <div className="w-12 h-12 rounded-[18px] bg-secondary/10 flex items-center justify-center text-2xl border border-secondary/20 shadow-inner group-hover:bg-secondary/20 transition-colors">
@@ -70,7 +71,7 @@ export default function HubTab() {
               </motion.div>
             ))}
             <button
-              onClick={() => setShowTribeDiscovery(true)}
+              onClick={() => { playTap(); setShowTribeDiscovery(true); }}
               className="w-full py-4 border border-dashed border-primary/30 rounded-[20px] text-xs font-bold text-primary hover:bg-primary/5 hover:border-primary/50 transition-all uppercase tracking-widest"
             >
               + Find New Tribe

@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { INCLUSIVITY_TAGS, CATEGORY_ATTRIBUTES, DEFAULT_AVATAR } from '../data/constants';
 import { useEscapeKey, useFocusTrap, useSwipeToClose } from '../hooks/useAccessibility';
+import { playTap, playSuccess, playSwooshClose, hapticTap } from '../utils/feedback';
 
 const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMessage, onOpenProfile }) => {
   const [activeTab, setActiveTab] = useState('info');
@@ -19,7 +20,7 @@ const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMe
     <div className="fixed inset-0 z-[100] flex items-end justify-center" role="dialog" aria-modal="true" aria-label={event?.title || 'Event details'} ref={focusTrapRef}>
       <motion.div
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        onClick={onClose}
+        onClick={() => { playSwooshClose(); onClose(); }}
         className="absolute inset-0 bg-secondary/60 backdrop-blur-sm"
       />
       <motion.div
@@ -59,7 +60,7 @@ const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMe
                     key={tab}
                     role="tab"
                     aria-selected={activeTab === tab}
-                    onClick={() => setActiveTab(tab)}
+                    onClick={() => { playTap(); setActiveTab(tab); }}
                     className={`flex-1 py-4 text-[12px] font-black uppercase tracking-[0.2em] transition-all relative border-b-2 -mb-px ${activeTab === tab ? 'border-primary text-secondary' : 'border-transparent text-secondary/40'}`}
                   >
                     {tab === 'info' ? 'The Experience' : 'Community Hub'}
@@ -254,7 +255,7 @@ const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMe
                 <span className="text-3xl font-black text-accent italic leading-none">{(event.price ?? 0) === 0 ? 'FREE' : `£${event.price}`}</span>
               </div>
               <button
-                onClick={onJoin}
+                onClick={() => { playSuccess(); hapticTap(); onJoin(); }}
                 className={`flex-1 py-5 rounded-[24px] font-black text-xl uppercase tracking-[0.1em] transition-all shadow-xl active:scale-95 ${isJoined
                   ? 'bg-secondary/5 text-secondary/60 border-2 border-secondary/10'
                   : 'bg-gradient-to-r from-secondary to-primary text-white'

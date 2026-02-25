@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { Home, Users, Compass, User } from 'lucide-react';
+import { playTap, hapticTap } from '../utils/feedback';
 
 const tabs = [
   { id: 'home', icon: Home, label: 'Home' },
@@ -12,6 +13,8 @@ const BottomNav = ({ activeTab, setActiveTab }) => {
   const handleTabClick = (id) => {
     const fromIndex = tabs.findIndex(t => t.id === activeTab);
     const toIndex = tabs.findIndex(t => t.id === id);
+    playTap();
+    hapticTap();
     setActiveTab(id, toIndex - fromIndex);
   };
 

@@ -1,4 +1,5 @@
 import { ChevronRight, Compass, Home, Users, Search, User } from 'lucide-react';
+import { playTap } from '../utils/feedback';
 
 const navTabs = [
     { id: 'home', icon: Home, label: 'Home' },
@@ -20,7 +21,7 @@ const Sidebar = ({ experimentalFeatures, activeTab, setActiveTab }) => {
                         return (
                             <button
                                 key={tab.id}
-                                onClick={() => setActiveTab(tab.id)}
+                                onClick={() => { playTap(); setActiveTab(tab.id); }}
                                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all group ${isActive ? 'bg-secondary text-white shadow-[0_8px_20px_rgba(45,95,93,0.25)]' : 'hover:bg-secondary/10 text-secondary/80 hover:text-secondary'}`}
                             >
                                 <Icon size={18} className={isActive ? 'text-white' : 'text-secondary/40 group-hover:text-secondary'} />
