@@ -287,7 +287,7 @@ Recommendations:
 4. Auto-prioritizes any `auto` priority bugs, deduplicates, and pushes updates to the sheet — before asking the user anything
 5. Displays summary table, then asks user what to fix (all open / P1 only / specific bug)
 6. For each selected bug: validates against codebase, fixes if valid, adds regression test
-7. Updates bug status via `PUT /api/bugs/:bugId`: `fixed`, `rejected`, or `needs-triage`
+7. Updates bug status via `PUT /api/bugs/:bugId`: `claim-fixed` (user verifies → `fixed`), `rejected`, or `needs-triage`
 8. Each fix is committed separately
 
 **Safety guardrails:**
@@ -302,7 +302,8 @@ Recommendations:
 | Status | Meaning |
 |--------|---------|
 | `open` | Not yet processed — ready for fixing |
-| `fixed` | Bug validated and fix committed |
+| `claim-fixed` | Fix committed by Claude — awaiting user verification |
+| `fixed` | User-verified fix confirmed working (set manually by user) |
 | `rejected` | Not a bug (feature request, invalid, cannot reproduce) |
 | `needs-triage` | Valid bug but out of scope for automated fixing |
 
@@ -362,7 +363,7 @@ Once set up, paste the sheet's view URL to any Claude session and ask it to read
 2. Fix the bug
 3. Edit files → auto-lint keeps code clean
 4. `/gen-test path/to/file` → add test for the bug
-5. Update bug status via `PUT /api/bugs/:bugId` with `{"status": "fixed"}`
+5. Update bug status via `PUT /api/bugs/:bugId` with `{"status": "claim-fixed"}` (user verifies and changes to `fixed`)
 6. Merge to development → CI tests run
 7. code-reviewer checks for regressions
 8. Merge to production
