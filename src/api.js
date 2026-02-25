@@ -122,10 +122,6 @@ const api = {
         return fetchWithAuth(`/events/${id}`);
     },
 
-    createEvent(data) {
-        return fetchWithAuth('/events', { method: 'POST', body: data });
-    },
-
     updateEvent(id, data) {
         return fetchWithAuth(`/events/${id}`, { method: 'PUT', body: data });
     },

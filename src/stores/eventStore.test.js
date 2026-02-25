@@ -10,7 +10,6 @@ vi.mock('../api', () => ({
     unsaveEvent: vi.fn(),
     getEventChat: vi.fn(),
     sendEventMessage: vi.fn(),
-    createEvent: vi.fn(),
   },
 }));
 
@@ -27,7 +26,6 @@ describe('eventStore', () => {
         joinedEvents: [],
         savedEvents: [],
         selectedEvent: null,
-        showCreate: false,
         chatMessages: {},
         showMatchModal: null,
       });
@@ -91,11 +89,6 @@ describe('eventStore', () => {
       const event = { id: '1', title: 'Test' };
       act(() => useEventStore.getState().setSelectedEvent(event));
       expect(useEventStore.getState().selectedEvent).toEqual(event);
-    });
-
-    it('should set showCreate', () => {
-      act(() => useEventStore.getState().setShowCreate(true));
-      expect(useEventStore.getState().showCreate).toBe(true);
     });
 
     it('should set chatMessages directly', () => {
@@ -397,20 +390,4 @@ describe('eventStore', () => {
     });
   });
 
-  describe('createEvent', () => {
-    it('should create event and add to list', async () => {
-      const newEvent = { id: 'new-1', title: 'New Event' };
-      api.createEvent.mockResolvedValue(newEvent);
-      act(() => useEventStore.getState().setEvents([{ id: '1', title: 'Existing' }]));
-
-      const result = await act(async () => {
-        return useEventStore.getState().createEvent({ title: 'New Event' });
-      });
-
-      expect(result).toEqual(newEvent);
-      expect(useEventStore.getState().events[0]).toEqual(newEvent);
-      expect(useEventStore.getState().events).toHaveLength(2);
-      expect(useEventStore.getState().showCreate).toBe(false);
-    });
-  });
 });

@@ -243,49 +243,6 @@ describe('api.js', () => {
       });
     });
 
-    describe('createEvent', () => {
-      it('should create event with valid data', async () => {
-        const eventData = {
-          title: 'Dinner Party',
-          date: '2025-03-15',
-          time: '19:00',
-          location: 'Downtown Restaurant',
-          price: 25,
-          category: 'Food & Drinks',
-        };
-
-        const mockResponse = { id: '123', ...eventData };
-
-        globalThis.fetch.mockResolvedValueOnce({
-          ok: true,
-          text: async () => JSON.stringify(mockResponse),
-        });
-
-        const result = await api.createEvent(eventData);
-        expect(result.id).toBe('123');
-        expect(result.title).toBe('Dinner Party');
-      });
-
-      it('should require authentication', async () => {
-        localStorage.removeItem('socialise_token');
-
-        globalThis.fetch.mockResolvedValueOnce({
-          ok: true,
-          text: async () => JSON.stringify({}),
-        });
-
-        await api.createEvent({ title: 'Test' });
-        expect(globalThis.fetch).toHaveBeenCalledWith(
-          expect.any(String),
-          expect.objectContaining({
-            headers: expect.not.objectContaining({
-              Authorization: expect.any(String),
-            }),
-          })
-        );
-      });
-    });
-
     describe('joinEvent', () => {
       it('should join event successfully', async () => {
         globalThis.fetch.mockResolvedValueOnce({

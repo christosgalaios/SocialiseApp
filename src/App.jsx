@@ -59,7 +59,6 @@ function App() {
   const setSavedEvents = useEventStore((s) => s.setSavedEvents);
   const selectedEvent = useEventStore((s) => s.selectedEvent);
   const setChatMessages = useEventStore((s) => s.setChatMessages);
-  const setShowCreate = useEventStore((s) => s.setShowCreate);
 
   const setCommunities = useCommunityStore((s) => s.setCommunities);
 
@@ -68,7 +67,6 @@ function App() {
   const activeTab = useUIStore((s) => s.activeTab);
   const setActiveTab = useUIStore((s) => s.setActiveTab);
   const activeCategory = useUIStore((s) => s.activeCategory);
-  const setActiveCategory = useUIStore((s) => s.setActiveCategory);
   const searchQuery = useUIStore((s) => s.searchQuery);
   const sizeFilter = useUIStore((s) => s.sizeFilter);
   const dateRange = useUIStore((s) => s.dateRange);
@@ -364,17 +362,6 @@ function App() {
     }
   }, [user, setChatMessages, showToast]);
 
-  const createNewEvent = useCallback(async (data) => {
-    try {
-      const newEvent = await api.createEvent(data);
-      setEvents(prev => [newEvent, ...prev]);
-      useEventStore.getState().setShowCreate(false);
-      showToast('Experience published successfully!', 'success');
-    } catch (err) {
-      showToast(formatError(err, 'Failed to create event'), 'error');
-    }
-  }, [setEvents, showToast]);
-
   // Parse date string for filtering
   const parseEventDate = useCallback((dateStr) => {
     if (!dateStr) return null;
@@ -539,8 +526,6 @@ function App() {
             <div className="flex h-full">
               {/* Desktop Sidebar */}
               <Sidebar
-                activeCategory={activeCategory}
-                onSelect={setActiveCategory}
                 experimentalFeatures={experimentalFeatures}
                 activeTab={activeTab}
                 setActiveTab={setActiveTabWithEffects}
@@ -599,14 +584,13 @@ function App() {
 
             {/* Floating Navigation - Mobile Only */}
             <div className="md:hidden">
-              <BottomNav activeTab={activeTab} setActiveTab={setActiveTabWithEffects} onCreateClick={() => setShowCreate(true)} />
+              <BottomNav activeTab={activeTab} setActiveTab={setActiveTabWithEffects} onReelsClick={() => useUIStore.getState().setShowReels(true)} />
             </div>
 
             {/* Modals & Sheets */}
             <AppModals
               handleJoin={handleJoin}
               sendMessage={sendMessage}
-              createNewEvent={createNewEvent}
               filteredEvents={filteredEvents}
             />
 
