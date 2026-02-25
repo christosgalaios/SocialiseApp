@@ -631,7 +631,7 @@ function App() {
 
                     {activeTab === 'profile' && (
                       contentReady ? (
-                        <ProfileTab onLogout={handleLogout} />
+                        <ProfileTab onLogout={handleLogout} onCreateEvent={() => useUIStore.getState().showToast('Event creation coming soon!', 'info')} />
                       ) : (<ProfileSkeleton />)
                     )}
                   </AnimatePresence>

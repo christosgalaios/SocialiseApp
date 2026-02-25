@@ -1,3 +1,4 @@
+import React, { Suspense } from 'react';
 import { Zap, Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import useAuthStore from '../stores/authStore';
@@ -29,6 +30,9 @@ import AvatarCropModal from './AvatarCropModal';
 import BugReportModal from './BugReportModal';
 import FeatureRequestModal from './FeatureRequestModal';
 import ChangelogSheet from './ChangelogSheet';
+import OrganiserProfileSheet from './OrganiserProfileSheet';
+
+const OrganiserSetupFlow = React.lazy(() => import('./OrganiserSetupFlow'));
 
 // Match Analysis Modal (inline component)
 const MatchAnalysisModal = ({ event, onConfirm, onCancel }) => (
@@ -111,6 +115,7 @@ export default function AppModals({ handleJoin, sendMessage }) {
   const setShowFeatureRequest = useUIStore((s) => s.setShowFeatureRequest);
   const showChangelog = useUIStore((s) => s.showChangelog);
   const setShowChangelog = useUIStore((s) => s.setShowChangelog);
+  const showOrganiserSetup = useUIStore((s) => s.showOrganiserSetup);
   const savedEventsData = useEventStore((s) => s.savedEvents);
 
   const handleAvatarCropSave = async (croppedDataUrl) => {
@@ -455,6 +460,12 @@ export default function AppModals({ handleJoin, sendMessage }) {
         isOpen={showChangelog}
         onClose={() => setShowChangelog(false)}
       />
+      {showOrganiserSetup && (
+        <Suspense fallback={null}>
+          <OrganiserSetupFlow key="organiser-setup" />
+        </Suspense>
+      )}
+      <OrganiserProfileSheet key="organiser-profile" />
     </AnimatePresence>
   );
 }

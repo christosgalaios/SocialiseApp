@@ -233,6 +233,18 @@ const api = {
         return fetchWithAuth('/users/me/xp', { method: 'PUT', body: data });
     },
 
+    switchRole(role) {
+        return fetchWithAuth('/users/me/role', { method: 'PUT', body: { role } });
+    },
+
+    getOrganiserStats() {
+        return fetchWithAuth('/users/me/organiser-stats');
+    },
+
+    getOrganiserProfile(userId) {
+        return fetchWithAuth(`/users/${userId}/organiser-profile`);
+    },
+
     deleteAccount() {
         return fetchWithAuth('/users/me', { method: 'DELETE' });
     },

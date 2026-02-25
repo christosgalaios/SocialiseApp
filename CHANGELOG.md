@@ -12,8 +12,17 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 
 ## [Unreleased]
 
+### Added
+- **Organiser Profile** — any user can now become an organiser via a guided 3-step setup flow (display name, categories, bio & social links) accessible from the Profile tab
+- **Organiser Dashboard** — organisers see a dedicated dashboard with performance stats (events hosted, total attendees, active events, community members), their event list with RSVP counts, and their communities
+- **Public Organiser Profile** — tap on an event host's name to view their organiser profile sheet with bio, social links, upcoming events, and communities
+- **Role switching** — organisers can switch back to attendee view at any time; the profile tab adapts to show the appropriate experience
+- New backend endpoints: `PUT /users/me/role`, `GET /users/me/organiser-stats`, `GET /users/:id/organiser-profile`
+- Database migration 012 adds organiser columns (role, bio, display name, categories, social links, cover photo, verified status)
+
 ### Changed
 - Renamed "Community Hub" to "Event Hub" on event detail chat tab — better reflects that the hub is specific to each event
+- Event detail sheet now shows a "Hosted By" section with a tappable host name that opens the organiser profile
 
 ### Added
 - **Your Skills** progression system — 5 individual skills (Social Spark, Adventure Spirit, Creative Soul, Community Leader, Knowledge Seeker), each with 10 levels, their own XP track, and a full milestone badge ladder

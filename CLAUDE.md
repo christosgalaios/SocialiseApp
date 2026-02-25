@@ -64,6 +64,7 @@
     009_bug_report_version.sql         # Add app_version column to bug_reports
     010_bug_report_platform.sql         # Add platform column to bug_reports
     011_report_type.sql                 # Add type column (bug/feature) to bug_reports
+    012_organiser_profile.sql            # Organiser profile columns (role, bio, display name, categories, social links, etc.)
   /routes
     auth.js            # Login/register/me — Supabase
     events.js          # CRUD + RSVP/save/chat — Supabase
@@ -152,6 +153,10 @@ package.json           # Frontend deps (ESM) — v0.1.0
 | BugReportModal | `src/components/BugReportModal.jsx` | Bug report submission form. |
 | FeatureRequestModal | `src/components/FeatureRequestModal.jsx` | Feature request submission form (mirrors BugReportModal). |
 | Skeleton | `src/components/Skeleton.jsx` | Loading skeletons for each tab. |
+| OrganiserSetupFlow | `src/components/OrganiserSetupFlow.jsx` | 3-step organiser onboarding: display name → categories → bio + social links. Lazy-loaded. |
+| OrganiserDashboard | `src/components/OrganiserDashboard.jsx` | Organiser home view: stats, events, communities, quick actions. |
+| OrganiserProfileSheet | `src/components/OrganiserProfileSheet.jsx` | Bottom sheet: public organiser profile viewer (tapped from event host). |
+| OrganiserStatsCard | `src/components/OrganiserStatsCard.jsx` | Reusable stats card: icon, value, label, optional trend. |
 | useSwipeToClose | `src/hooks/useAccessibility.js` | Hook for swipe-down-to-close on bottom sheets. Returns `sheetY` motion value + `handleProps` for drag handle. |
 
 ---
@@ -166,7 +171,9 @@ package.json           # Frontend deps (ESM) — v0.1.0
 
 **User (localStorage + server):**
 ```js
-{ id, email, name, location, avatar, bio, interests, tribe, isPro }
+{ id, email, name, location, avatar, bio, interests, tribe, isPro,
+  role, organiserBio, organiserDisplayName, organiserCategories,
+  organiserSocialLinks, organiserCoverPhoto, organiserVerified, organiserSetupComplete }
 ```
 
 **Community/Tribe:**
@@ -232,6 +239,9 @@ Base (production): `https://socialise-app-production.up.railway.app/api`
 | GET | `/users/me/events` | Required | My hosted + attending events |
 | GET | `/users/me/saved` | Required | My saved events |
 | GET | `/users/me/communities` | Required | My communities |
+| PUT | `/users/me/role` | Required | Switch role (attendee ↔ organiser) |
+| GET | `/users/me/organiser-stats` | Required | Organiser dashboard stats, events, communities |
+| GET | `/users/:id/organiser-profile` | Optional | Public organiser profile + events + communities |
 | GET | `/events/recommendations/for-you` | Required | Micro-Meet recommendations (by match score) |
 | POST | `/bugs` | Required | Submit bug report or feature request (pass `type: 'feature'` for feature requests; stored in Supabase `bug_reports` table) |
 | GET | `/bugs` | Required | List bug reports/feature requests (filterable by `?status=open` and/or `?type=feature`) |
@@ -558,7 +568,7 @@ ESLint passes clean (0 errors, 0 warnings). The config (`eslint.config.js`) has 
 - No direct INSERT/UPDATE/DELETE on `users` table from frontend roles
 - All data mutation goes through Express API → service role client
 
-**Migrations:** Run via `node server/migrate.js`. Files in `server/migrations/` are executed in order (001–011). See Directory Layout above for details.
+**Migrations:** Run via `node server/migrate.js`. Files in `server/migrations/` are executed in order (001–012). See Directory Layout above for details.
 
 ---
 
@@ -829,3 +839,21 @@ During a deep QA session, round 3 fixes (3 files modified) were left uncommitted
 Attempted `gh pr create` with a detailed multi-paragraph PR body, only to discover `gh` isn't installed in the sandbox. The entire body composition was wasted effort. CLAUDE.md Lesson #8 already warns about sandbox limitations, but this is a more specific anti-pattern: building elaborate arguments for a command you haven't confirmed exists.
 
 **Rule:** Before composing a command with complex arguments (heredocs, multi-line bodies, JSON payloads), run a quick `which <tool>` or `<tool> --version` first. If it fails, skip the composition entirely and note the limitation. This applies to `gh`, `jq`, `docker`, and any non-standard CLI tool.
+
+### 16. Don't write a plan and stall — implement directly unless explicitly asked to wait
+
+When the user asks for a feature implementation, they expect you to build it — not write a plan file and then output "No response requested." Writing a plan is useful for internal reasoning, but stopping after the plan without implementing is a dead halt that wastes the user's time. The user had to follow up twice ("Continue from where you left off" and "Are you just waiting for approval?") before implementation started.
+
+**Rule:** When a user asks "how can we do this the best way?" in the context of a feature request, that's a request to implement — not to write a proposal and wait. Start building immediately. If you need to plan internally, do it in your reasoning, then proceed to implementation in the same turn. Only pause for explicit approval if the user says "just give me a plan" or "don't implement yet."
+
+### 17. Run database migrations yourself — don't tell the user to do it manually
+
+After implementing a feature that included a new migration file (`012_organiser_profile.sql`), I told the user "you'll need to run the migration manually." The user correctly pointed out that I should be able to run it myself using the Supabase Management API (see lesson #13). This wasted a round-trip and made the user do work that was clearly within my capability.
+
+**Rule:** When a feature implementation includes a database migration, run it yourself as part of the implementation — don't punt it to the user. Use the Supabase Management API (lesson #13) to execute the SQL. The migration is part of the feature delivery, not a separate task for the user. Only flag manual steps if they genuinely require user credentials or permissions you don't have.
+
+### 18. Clean up temporary files before committing — don't leave plan.md or scratch files in the repo
+
+During the organiser profile implementation, a temporary `plan.md` file was created for internal planning and left in the working directory. The git pre-push hook flagged it as untracked. Temporary scratch files should never be committed or left lying around — they confuse git status, can accidentally get committed, and create noise for the user.
+
+**Rule:** If you create temporary files (plans, notes, scratch pads) during implementation, delete them before staging and committing. Better yet, don't create temporary files at all — use your reasoning for planning instead of writing to disk.

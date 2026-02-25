@@ -284,3 +284,12 @@ export const PROFILE_STATS = SKILLS.map(s => ({
   icon: s.icon,
   maxLevel: 10,
 }));
+
+// --- ORGANISER PROFILE ---
+
+export const ORGANISER_SOCIAL_PLATFORMS = [
+  { key: 'instagram', label: 'Instagram', placeholder: '@username' },
+  { key: 'tiktok', label: 'TikTok', placeholder: '@username' },
+  { key: 'twitter', label: 'X / Twitter', placeholder: '@username' },
+  { key: 'website', label: 'Website', placeholder: 'https://...' },
+];
