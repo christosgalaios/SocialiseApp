@@ -58,7 +58,7 @@ const CHANGELOG = parseChangelog(changelogRaw);
 const ChangelogSheet = ({ isOpen, onClose }) => {
   useEscapeKey(isOpen, onClose);
   const focusTrapRef = useFocusTrap(isOpen);
-  const { sheetY, handleProps } = useSwipeToClose(onClose);
+  const { sheetY, dragZoneProps } = useSwipeToClose(onClose);
 
   const currentVersion =
     import.meta.env.VITE_APP_VERSION ||
@@ -88,13 +88,14 @@ const ChangelogSheet = ({ isOpen, onClose }) => {
             onClick={(e) => e.stopPropagation()}
             style={{ y: sheetY }}
           >
-            {/* Handle */}
-            <div {...handleProps} className="flex justify-center pt-3 pb-2 shrink-0">
+            {/* Drag zone — handle + header */}
+            <div {...dragZoneProps} className="shrink-0">
+            <div className="flex justify-center pt-3 pb-2">
               <div className="w-12 h-1 rounded-full bg-secondary/20" />
             </div>
 
             {/* Header */}
-            <div className="px-6 pb-4 border-b border-secondary/10 flex items-center justify-between shrink-0">
+            <div className="px-6 pb-4 border-b border-secondary/10 flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-black tracking-tight text-primary">
                   What&apos;s New<span className="text-accent">.</span>
@@ -110,6 +111,7 @@ const ChangelogSheet = ({ isOpen, onClose }) => {
               >
                 <X size={20} className="text-secondary" />
               </button>
+            </div>
             </div>
 
             {/* Scrollable content */}

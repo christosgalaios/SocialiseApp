@@ -6,7 +6,7 @@ import { useEscapeKey, useFocusTrap, useSwipeToClose } from '../hooks/useAccessi
 const HelpSheet = ({ isOpen, onClose, onDeleteAccount }) => {
     useEscapeKey(isOpen, onClose);
     const focusTrapRef = useFocusTrap(isOpen);
-    const { sheetY, handleProps } = useSwipeToClose(onClose);
+    const { sheetY, dragZoneProps } = useSwipeToClose(onClose);
     const [openFaq, setOpenFaq] = useState(null);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [deleting, setDeleting] = useState(false);
@@ -59,8 +59,9 @@ const HelpSheet = ({ isOpen, onClose, onDeleteAccount }) => {
                         onClick={(e) => e.stopPropagation()}
                         style={{ y: sheetY }}
                     >
-                        {/* Handle */}
-                        <div {...handleProps} className="flex justify-center pt-3 pb-2">
+                        {/* Drag zone — handle + header */}
+                        <div {...dragZoneProps}>
+                        <div className="flex justify-center pt-3 pb-2">
                             <div className="w-12 h-1 rounded-full bg-secondary/20" />
                         </div>
 
@@ -76,6 +77,7 @@ const HelpSheet = ({ isOpen, onClose, onDeleteAccount }) => {
                             >
                                 <X size={20} className="text-secondary" />
                             </button>
+                        </div>
                         </div>
 
                         <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 200px)' }}>

@@ -366,7 +366,7 @@ describe('useSwipeToClose', () => {
     });
   });
 
-  it('should return sheetY motion value and handleProps', () => {
+  it('should return sheetY motion value, handleProps and dragZoneProps', () => {
     const { result } = renderHook(() => useSwipeToClose(onClose));
 
     expect(result.current).toHaveProperty('sheetY');
@@ -375,6 +375,13 @@ describe('useSwipeToClose', () => {
     expect(result.current.handleProps).toHaveProperty('onPointerMove');
     expect(result.current.handleProps).toHaveProperty('onPointerUp');
     expect(result.current.handleProps.style).toEqual({ touchAction: 'none', cursor: 'grab' });
+
+    // dragZoneProps — same handlers, no cursor style
+    expect(result.current).toHaveProperty('dragZoneProps');
+    expect(result.current.dragZoneProps).toHaveProperty('onPointerDown');
+    expect(result.current.dragZoneProps).toHaveProperty('onPointerMove');
+    expect(result.current.dragZoneProps).toHaveProperty('onPointerUp');
+    expect(result.current.dragZoneProps.style).toEqual({ touchAction: 'none' });
   });
 
   it('should track downward drag and update sheetY', () => {

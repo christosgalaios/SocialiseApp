@@ -14,7 +14,7 @@ const UserProfileSheet = ({ profile, isOpen, onClose, onMessage }) => {
     const [isFollowing, setIsFollowing] = useState(false);
     useEscapeKey(isOpen, onClose);
     const focusTrapRef = useFocusTrap(isOpen);
-    const { sheetY, handleProps } = useSwipeToClose(onClose);
+    const { sheetY, dragZoneProps } = useSwipeToClose(onClose);
 
     if (!profile) return null;
 
@@ -46,10 +46,12 @@ const UserProfileSheet = ({ profile, isOpen, onClose, onMessage }) => {
                         onClick={(e) => e.stopPropagation()}
                         style={{ y: sheetY }}
                     >
-                        <div {...handleProps} className="flex justify-center pt-3 pb-2">
+                        {/* Drag zone — handle + close button row */}
+                        <div {...dragZoneProps}>
+                        <div className="flex justify-center pt-3 pb-2">
                             <div className="w-12 h-1.5 rounded-full bg-secondary/20" />
                         </div>
-                        <div className="px-6 pb-8">
+                        <div className="px-6">
                             <div className="flex justify-end mb-2">
                                 <button
                                     onClick={onClose}
@@ -59,6 +61,9 @@ const UserProfileSheet = ({ profile, isOpen, onClose, onMessage }) => {
                                     <X size={20} />
                                 </button>
                             </div>
+                        </div>
+                        </div>
+                        <div className="px-6 pb-8">
                             <div className="flex flex-col items-center text-center">
                                 <div className="w-24 h-24 rounded-[28px] overflow-hidden border-2 border-secondary/10 shadow-xl mb-4">
                                     <img src={avatar || DEFAULT_AVATAR} alt={name} className="w-full h-full object-cover" loading="lazy" />
