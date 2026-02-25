@@ -12,6 +12,9 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 
 ## [Unreleased]
 
+### Changed
+- Renamed "Community Hub" to "Event Hub" on event detail chat tab — better reflects that the hub is specific to each event
+
 ### Added
 - Interactive sound feedback across the entire app — warm, on-brand audio cues using the Web Audio API (no external files)
 - Splash screen sounds: each animation phase (host letter, members arriving, huddle, latecomer, welcome, together) has its own warm tone
