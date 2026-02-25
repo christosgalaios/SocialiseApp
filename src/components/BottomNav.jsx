@@ -1,17 +1,14 @@
 import { motion } from 'framer-motion';
-import { Home, Users, PlusCircle, Compass, User } from 'lucide-react';
+import { Home, Users, Compass, User } from 'lucide-react';
 
 const tabs = [
   { id: 'home', icon: Home, label: 'Home' },
   { id: 'hub', icon: Users, label: 'Hub' },
-  { id: 'create', icon: PlusCircle, label: 'Create', isAction: true },
   { id: 'explore', icon: Compass, label: 'Explore' },
   { id: 'profile', icon: User, label: 'Profile' },
 ];
 
-const navTabs = tabs.filter(t => !t.isAction);
-
-const BottomNav = ({ activeTab, setActiveTab, onCreateClick, hasEvents = true }) => {
+const BottomNav = ({ activeTab, setActiveTab }) => {
   const getTabIndex = (id) => tabs.findIndex(t => t.id === id);
 
   const handleTabClick = (id) => {
@@ -22,21 +19,21 @@ const BottomNav = ({ activeTab, setActiveTab, onCreateClick, hasEvents = true })
 
   // Navigate between tabs with arrow keys
   const handleKeyDown = (e, tabIndex) => {
-    const currentNavIndex = navTabs.findIndex(t => t.id === tabs[tabIndex].id);
+    const currentNavIndex = tabs.findIndex(t => t.id === tabs[tabIndex].id);
     if (currentNavIndex === -1) return;
 
     let nextIndex;
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
       e.preventDefault();
-      nextIndex = (currentNavIndex + 1) % navTabs.length;
+      nextIndex = (currentNavIndex + 1) % tabs.length;
     } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
       e.preventDefault();
-      nextIndex = (currentNavIndex - 1 + navTabs.length) % navTabs.length;
+      nextIndex = (currentNavIndex - 1 + tabs.length) % tabs.length;
     } else {
       return;
     }
 
-    const nextTab = navTabs[nextIndex];
+    const nextTab = tabs[nextIndex];
     handleTabClick(nextTab.id);
     // Focus the next tab button
     const allButtons = document.querySelectorAll('[data-nav-tab]');
@@ -51,53 +48,6 @@ const BottomNav = ({ activeTab, setActiveTab, onCreateClick, hasEvents = true })
         {tabs.map((tab, i) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
-
-          if (tab.isAction) {
-            return (
-              <motion.button
-                key={tab.id}
-                onClick={onCreateClick}
-                className="flex flex-col items-center gap-1 p-2 transition-all relative min-w-[60px] text-secondary/60 hover:text-secondary"
-                whileTap={{ scale: 0.9 }}
-                aria-label="Create new event"
-              >
-                {/* Accent glow behind Create button */}
-                <div className="absolute inset-0 bg-primary/20 rounded-2xl blur-xl opacity-60" aria-hidden="true" />
-
-                {/* Breathing animation when no events */}
-                <motion.div
-                  className="relative"
-                  animate={!hasEvents ? {
-                    scale: [1, 1.1, 1],
-                  } : {}}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                >
-                  {/* Glow ring */}
-                  <motion.div
-                    className="absolute inset-[-4px] rounded-full bg-gradient-to-r from-primary to-accent opacity-40"
-                    animate={!hasEvents ? {
-                      scale: [1, 1.3, 1],
-                      opacity: [0.4, 0.2, 0.4]
-                    } : {}}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                    aria-hidden="true"
-                  />
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg relative z-10 border border-white/20">
-                    <Icon size={20} strokeWidth={2.5} className="text-white" />
-                  </div>
-                </motion.div>
-                <span className="text-[9px] font-bold uppercase tracking-wider transition-opacity opacity-0 h-0 hidden">{tab.label}</span>
-              </motion.button>
-            );
-          }
 
           return (
             <button
