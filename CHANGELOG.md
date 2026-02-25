@@ -12,6 +12,12 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 
 ## [Unreleased]
 
+### Fixed
+- **GitHub Pages deploy reliability** — added `.nojekyll` file to disable unnecessary Jekyll processing that adds latency to deployments and can interfere with build output
+- **Deploy race condition** — both deploy workflows now share a single concurrency group (`deploy-gh-pages`) so concurrent dev/prod deploys can't overwrite each other's changes on the `gh-pages` branch
+- **Silent deploy failures** — `auto-approve` now catches and reports merge failures (posts a comment on the PR) and deploy dispatch failures instead of failing silently
+- **Branch cleanup safety** — branch deletion in `auto-approve` no longer fails the workflow if the branch was already deleted
+
 ### Added
 - **Organiser Profile** — any user can now become an organiser via a guided 3-step setup flow (display name, categories, bio & social links) accessible from the Profile tab
 - **Organiser Dashboard** — organisers see a dedicated dashboard with performance stats (events hosted, total attendees, active events, community members), their event list with RSVP counts, and their communities
