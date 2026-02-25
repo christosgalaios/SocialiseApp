@@ -19,8 +19,8 @@
 //      → Function: onSheetEdit | Event: From spreadsheet | Type: On edit
 //
 // FUNCTIONS:
-//   doPost(e)                   — Webhook handler for backend create/update/delete calls
-//   onSheetEdit(e)              — Installable trigger: syncs Status/Priority/Type edits → Supabase
+//   doPost(e)                   — Webhook handler for backend create/update/delete/full-sync calls
+//   onSheetEdit(e)              — Installable trigger: syncs ALL editable column changes → Supabase
 //   setupSupabaseCredentials()  — One-time setup: stores Supabase URL + key in Script Properties
 //   tidySheet()                 — Cleanup: consolidate duplicates, normalize env values, init reports counts
 //
@@ -115,9 +115,10 @@ function getColumnMap_(sheet) {
  * Called by the Express backend (server/routes/bugs.js).
  *
  * Payloads:
- *   Create: { bug_id, description, status, priority, environment, created_at, app_version, platform, type, reporter }
- *   Update: { action: 'update', bug_id, status?, priority?, description?, environment?, app_version?, platform?, reports?, type?, reporter?, fixed_at?, fix_notes?, component? }
- *   Delete: { action: 'delete', bug_id }
+ *   Create:    { bug_id, description, status, priority, environment, created_at, app_version, platform, type, reporter }
+ *   Update:    { action: 'update', bug_id, status?, priority?, description?, environment?, app_version?, platform?, reports?, type?, reporter?, fixed_at?, fix_notes?, component? }
+ *   Delete:    { action: 'delete', bug_id }
+ *   Full-Sync: { action: 'full-sync', bugs: [ { bug_id, description, status, ... }, ... ] }
  *
  * Duplicate detection (CREATE mode):
  *   If a bug with an identical description (case-insensitive, trimmed) already exists,
@@ -132,6 +133,60 @@ function doPost(e) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   var cols = getColumnMap_(sheet);
   var data = JSON.parse(e.postData.contents);
+
+  // --- FULL-SYNC mode: replace all sheet data with Supabase snapshot ---
+  // Payload: { action: 'full-sync', bugs: [ { bug_id, description, status, ... }, ... ] }
+  // Clears all data rows (keeps headers), then writes all bugs from the payload.
+  if (data.action === 'full-sync') {
+    if (!Array.isArray(data.bugs)) {
+      return ContentService.createTextOutput('error: bugs array required');
+    }
+
+    // Clear all data rows (keep header row)
+    var lastRow = sheet.getLastRow();
+    if (lastRow > 1) {
+      sheet.deleteRows(2, lastRow - 1);
+    }
+
+    // Write all bugs
+    var written = 0;
+    for (var s = 0; s < data.bugs.length; s++) {
+      var bug = data.bugs[s];
+      var fieldMap = {};
+      fieldMap[COL_BUG_ID]      = bug.bug_id || '';
+      fieldMap[COL_DESCRIPTION] = bug.description || '';
+      fieldMap[COL_STATUS]      = bug.status || 'open';
+      fieldMap[COL_PRIORITY]    = bug.priority || 'auto';
+      fieldMap[COL_ENVIRONMENT] = normalizeEnv_(bug.environment || '');
+      fieldMap[COL_CREATED_AT]  = bug.created_at || '';
+      fieldMap[COL_APP_VERSION] = bug.app_version || '';
+      fieldMap[COL_PLATFORM]    = bug.platform || '';
+      fieldMap[COL_REPORTS]     = bug.reports || 1;
+      fieldMap[COL_TYPE]        = bug.type || 'bug';
+      fieldMap[COL_REPORTER]    = bug.reporter || '';
+      fieldMap[COL_FIX_NOTES]   = bug.fix_notes || '';
+      fieldMap[COL_COMPONENT]   = bug.component || '';
+      fieldMap[COL_FIXED_AT]    = bug.fixed_at || '';
+
+      var maxCol = 0;
+      for (var header in fieldMap) {
+        var ci = cols[header];
+        if (ci && ci > maxCol) maxCol = ci;
+      }
+
+      var newRow = [];
+      for (var c = 0; c < maxCol; c++) newRow.push('');
+      for (var header2 in fieldMap) {
+        var ci2 = cols[header2];
+        if (ci2) newRow[ci2 - 1] = fieldMap[header2];
+      }
+
+      sheet.appendRow(newRow);
+      written++;
+    }
+
+    return ContentService.createTextOutput('synced:' + written);
+  }
 
   // --- DELETE mode: remove row by bug_id ---
   if (data.action === 'delete') {
@@ -359,11 +414,16 @@ function mergeVersions_(existing, incoming) {
 //      → This creates an installable trigger (simple onEdit can't call external APIs)
 //
 // HOW IT WORKS:
-//   When a user manually edits a cell in the Status, Priority, or Type column,
-//   onSheetEdit() sends a PATCH to the Supabase REST API to update the
-//   corresponding bug_reports row. Only these three columns are synced — other
-//   columns (description, environment, etc.) are considered source-of-truth in the
-//   sheet and don't need to sync back.
+//   When a user manually edits a cell in any syncable column, onSheetEdit()
+//   sends a PATCH to the Supabase REST API to update the corresponding
+//   bug_reports row. The Sheet is the primary editing surface — all editable
+//   columns sync back to Supabase automatically.
+//
+//   Syncable columns: Status, Priority, Type, Description, Environment,
+//   Fix Notes, Component, App Version, Platform.
+//
+//   Non-syncable columns (read-only in sheet context): Bug ID, Created At,
+//   Reports, Reporter, Fixed At (auto-managed by status changes).
 //
 //   "Fixed At" is auto-populated when status changes to "fixed" and cleared when
 //   status changes back to "open" — same behavior as the webhook-driven updates.
@@ -417,11 +477,17 @@ function onSheetEdit(e) {
 
   var cols = getColumnMap_(sheet);
 
-  // Only sync these columns back to Supabase
+  // Sync ALL editable columns back to Supabase (Sheet is the primary editing surface)
   var syncableCols = {};
-  if (cols[COL_STATUS])   syncableCols[cols[COL_STATUS]]   = 'status';
-  if (cols[COL_PRIORITY]) syncableCols[cols[COL_PRIORITY]] = 'priority';
-  if (cols[COL_TYPE])     syncableCols[cols[COL_TYPE]]     = 'type';
+  if (cols[COL_STATUS])      syncableCols[cols[COL_STATUS]]      = 'status';
+  if (cols[COL_PRIORITY])    syncableCols[cols[COL_PRIORITY]]    = 'priority';
+  if (cols[COL_TYPE])        syncableCols[cols[COL_TYPE]]        = 'type';
+  if (cols[COL_DESCRIPTION]) syncableCols[cols[COL_DESCRIPTION]] = 'description';
+  if (cols[COL_ENVIRONMENT]) syncableCols[cols[COL_ENVIRONMENT]] = 'environment';
+  if (cols[COL_FIX_NOTES])   syncableCols[cols[COL_FIX_NOTES]]  = 'fix_notes';
+  if (cols[COL_COMPONENT])   syncableCols[cols[COL_COMPONENT]]   = 'component';
+  if (cols[COL_APP_VERSION]) syncableCols[cols[COL_APP_VERSION]] = 'app_version';
+  if (cols[COL_PLATFORM])    syncableCols[cols[COL_PLATFORM]]    = 'platform';
 
   var fieldName = syncableCols[col];
   if (!fieldName) return; // Edited column is not one we sync
@@ -433,7 +499,11 @@ function onSheetEdit(e) {
   if (!bugId) return;
 
   var newValue = String(e.range.getValue()).trim();
-  if (!newValue) return;
+
+  // Allow clearing fields (empty string) for fix_notes, component, etc.
+  // But don't sync if status/priority/type is cleared (those are required)
+  var requiredFields = ['status', 'priority', 'type'];
+  if (!newValue && indexOf_(requiredFields, fieldName) !== -1) return;
 
   // Auto-populate "Fixed At" when status changes to "fixed"
   if (fieldName === 'status' && newValue === 'fixed' && cols[COL_FIXED_AT]) {

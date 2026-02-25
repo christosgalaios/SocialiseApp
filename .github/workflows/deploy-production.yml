@@ -4,24 +4,20 @@ on:
   push:
     branches: [production]
   workflow_dispatch:
-    inputs:
-      ref:
-        description: 'Branch to deploy'
-        default: 'production'
 
 permissions:
   contents: write
 
-# Only one production deploy at a time. Never cancel in-progress; queue instead.
+# Shared concurrency group with deploy-development to prevent race conditions
+# on the gh-pages branch. Both workflows push to the same branch (different
+# subfolders), and concurrent force-pushes can overwrite each other's changes.
 concurrency:
-  group: deploy-production
+  group: deploy-gh-pages
   cancel-in-progress: false
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    env:
-      VITE_API_URL: ${{ secrets.VITE_API_URL }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -85,6 +81,26 @@ jobs:
           # Deploys into /prod/ without touching the /dev/ preview build.
           target-folder: prod
           clean: true
+          # Preserve .nojekyll at the gh-pages root across deploys
+          clean-exclude: |
+            .nojekyll
+
+      # Ensure .nojekyll exists at gh-pages root to disable Jekyll processing.
+      - name: Ensure .nojekyll at gh-pages root
+        run: |
+          git fetch origin gh-pages:gh-pages 2>/dev/null || true
+          git checkout gh-pages
+          if [ ! -f .nojekyll ]; then
+            touch .nojekyll
+            git add .nojekyll
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git commit -m "chore: add .nojekyll to disable Jekyll processing"
+            git push origin gh-pages
+            echo "Created .nojekyll at gh-pages root"
+          else
+            echo ".nojekyll already exists at gh-pages root"
+          fi
 
   # ── Back-merge production → development ──
   # Merge commits from development→production PRs only exist on production.
