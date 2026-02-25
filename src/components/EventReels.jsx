@@ -81,32 +81,34 @@ const ReelCard = ({ event, isActive, onLike, isLiked, onSelect }) => {
         <button
           onClick={(e) => { e.stopPropagation(); onLike(); }}
           className="flex flex-col items-center gap-1"
+          aria-label={isLiked ? 'Unlike event' : 'Like event'}
         >
           <div className={`w-11 h-11 rounded-full flex items-center justify-center backdrop-blur-md transition-all ${isLiked ? 'bg-primary text-white' : 'bg-white/20 text-white'}`}>
             <Heart size={20} className={isLiked ? 'fill-current' : ''} />
           </div>
-          <span className="text-[10px] font-bold text-white">{event.attendees}</span>
+          <span className="text-[10px] font-bold text-white" aria-hidden="true">{event.attendees}</span>
         </button>
-        <button className="flex flex-col items-center gap-1" onClick={(e) => { e.stopPropagation(); onSelect(); }}>
+        <button className="flex flex-col items-center gap-1" onClick={(e) => { e.stopPropagation(); onSelect(); }} aria-label="Open event chat">
           <div className="w-11 h-11 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white">
             <MessageCircle size={20} />
           </div>
-          <span className="text-[10px] font-bold text-white">Chat</span>
+          <span className="text-[10px] font-bold text-white" aria-hidden="true">Chat</span>
         </button>
         <button
           onClick={(e) => { e.stopPropagation(); setShowUpload(!showUpload); }}
           className="flex flex-col items-center gap-1"
+          aria-label={showUpload ? 'Close upload' : 'Upload media'}
         >
           <div className="w-11 h-11 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white">
             <Upload size={20} />
           </div>
-          <span className="text-[10px] font-bold text-white">Upload</span>
+          <span className="text-[10px] font-bold text-white" aria-hidden="true">Upload</span>
         </button>
-        <button className="flex flex-col items-center gap-1">
+        <button className="flex flex-col items-center gap-1" aria-label="Share event">
           <div className="w-11 h-11 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white">
             <Share2 size={20} />
           </div>
-          <span className="text-[10px] font-bold text-white">Share</span>
+          <span className="text-[10px] font-bold text-white" aria-hidden="true">Share</span>
         </button>
       </div>
 
@@ -243,6 +245,7 @@ const EventReels = ({ events, onClose, onSelectEvent }) => {
         <button
           onClick={onClose}
           className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+          aria-label="Close reels"
         >
           <X size={20} />
         </button>
@@ -261,6 +264,7 @@ const EventReels = ({ events, onClose, onSelectEvent }) => {
           onClick={handlePrev}
           disabled={currentIndex === 0}
           className="absolute top-4 left-1/2 -translate-x-1/2 z-20 w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white disabled:opacity-20 transition-opacity"
+          aria-label="Previous reel"
         >
           <ChevronUp size={20} />
         </button>
@@ -268,6 +272,7 @@ const EventReels = ({ events, onClose, onSelectEvent }) => {
           onClick={handleNext}
           disabled={currentIndex === events.length - 1}
           className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white disabled:opacity-20 transition-opacity"
+          aria-label="Next reel"
         >
           <ChevronDown size={20} />
         </button>

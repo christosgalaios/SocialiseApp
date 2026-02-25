@@ -201,7 +201,7 @@ const AuthScreen = ({ onLogin }) => {
                       aria-label="First name"
                       value={firstName}
                       onChange={(e) => { setFirstName(e.target.value); setError(''); }}
-                      className="w-full py-4 pl-12 pr-4 rounded-2xl bg-white border border-secondary/10 text-[var(--text)] font-medium text-sm focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition-all"
+                      className="w-full py-4 pl-12 pr-4 rounded-2xl bg-paper border border-secondary/10 text-[var(--text)] font-medium text-sm focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition-all"
                     />
                   </div>
                   <div className="relative flex-1">
@@ -212,7 +212,7 @@ const AuthScreen = ({ onLogin }) => {
                       aria-label="Last name"
                       value={lastName}
                       onChange={(e) => { setLastName(e.target.value); setError(''); }}
-                      className="w-full py-4 pl-12 pr-4 rounded-2xl bg-white border border-secondary/10 text-[var(--text)] font-medium text-sm focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition-all"
+                      className="w-full py-4 pl-12 pr-4 rounded-2xl bg-paper border border-secondary/10 text-[var(--text)] font-medium text-sm focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition-all"
                     />
                   </div>
                 </div>
@@ -228,7 +228,7 @@ const AuthScreen = ({ onLogin }) => {
               aria-label="Email address"
               value={email}
               onChange={(e) => { setEmail(e.target.value); setError(''); }}
-              className="w-full py-4 pl-12 pr-4 rounded-2xl bg-white border border-secondary/10 text-[var(--text)] font-medium text-sm focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition-all"
+              className="w-full py-4 pl-12 pr-4 rounded-2xl bg-paper border border-secondary/10 text-[var(--text)] font-medium text-sm focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition-all"
               required
             />
           </div>
@@ -241,7 +241,7 @@ const AuthScreen = ({ onLogin }) => {
               aria-label="Password"
               value={password}
               onChange={(e) => { setPassword(e.target.value); setError(''); }}
-              className="w-full py-4 pl-12 pr-4 rounded-2xl bg-white border border-secondary/10 text-[var(--text)] font-medium text-sm focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition-all"
+              className="w-full py-4 pl-12 pr-4 rounded-2xl bg-paper border border-secondary/10 text-[var(--text)] font-medium text-sm focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition-all"
               required
               minLength={6}
             />
@@ -264,7 +264,7 @@ const AuthScreen = ({ onLogin }) => {
                     aria-label="Confirm password"
                     value={confirmPassword}
                     onChange={(e) => { setConfirmPassword(e.target.value); setError(''); }}
-                    className="w-full py-4 pl-12 pr-4 rounded-2xl bg-white border border-secondary/10 text-[var(--text)] font-medium text-sm focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition-all"
+                    className="w-full py-4 pl-12 pr-4 rounded-2xl bg-paper border border-secondary/10 text-[var(--text)] font-medium text-sm focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition-all"
                     required
                     minLength={6}
                   />

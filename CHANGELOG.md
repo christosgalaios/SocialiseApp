@@ -23,6 +23,11 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - "Create event" close button and backdrop now respond reliably on iOS — no more stuck modals
 - Events on the Explore tab no longer wobble when the page first loads
 - Feature request box text no longer overflows on smaller screens
+- Event reels screen reader support — all icon-only buttons now announce their purpose correctly
+- Chat messages that fail to send are now removed instead of showing as ghost "sent" messages
+- Joining multiple events rapidly now correctly accumulates XP instead of repeating the same amount
+- XP is now rolled back when an event join fails on the server
+- Zoom wheel on the avatar crop tool no longer triggers Chrome passive event warnings
 
 ---
 

@@ -136,7 +136,7 @@ export default function FeatureRequestModal({ isOpen, onClose, onSubmit }) {
               placeholder={"Describe the feature you'd like and why it would be useful.\n\ne.g. \"It would be great to filter events by distance so I can find things close to me without scrolling through everything.\""}
               rows={4}
               maxLength={2000}
-              className="w-full bg-white border border-secondary/10 rounded-2xl px-4 py-3 text-sm text-[var(--text)] placeholder:text-secondary/30 font-medium focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent/30 resize-none break-words"
+              className="w-full bg-paper border border-secondary/10 rounded-2xl px-4 py-3 text-sm text-[var(--text)] placeholder:text-secondary/30 font-medium focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent/30 resize-none break-words"
               style={{ overflowWrap: 'break-word', wordBreak: 'break-word' }}
             />
             <p className="text-[10px] text-secondary/30 mt-1 text-right">{description.length}/2000</p>

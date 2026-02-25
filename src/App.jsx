@@ -93,7 +93,6 @@ function App() {
   const setShowOnboarding = useUIStore((s) => s.setShowOnboarding);
   const userPreferences = useUIStore((s) => s.userPreferences);
   const setUserPreferences = useUIStore((s) => s.setUserPreferences);
-  const userXP = useUIStore((s) => s.userXP);
   const setUserXP = useUIStore((s) => s.setUserXP);
   const setLevelUpData = useUIStore((s) => s.setLevelUpData);
   const setShowLevelUp = useUIStore((s) => s.setShowLevelUp);
@@ -302,10 +301,11 @@ function App() {
       setJoinedEvents(prev => [...prev, id]);
       showToast("You're going! Added to your calendar.", 'success');
 
-      // Award XP
+      // Award XP — read fresh from store to avoid stale closure on rapid joins
       const xpGain = 50;
-      const newXP = userXP + xpGain;
-      const currentLevel = XP_LEVELS.filter(l => l.xpRequired <= userXP).pop();
+      const currentXP = useUIStore.getState().userXP;
+      const newXP = currentXP + xpGain;
+      const currentLevel = XP_LEVELS.filter(l => l.xpRequired <= currentXP).pop();
       const newLevel = XP_LEVELS.filter(l => l.xpRequired <= newXP).pop();
       setUserXP(newXP);
       // Persist XP to backend (fire-and-forget — localStorage is source of truth for optimistic UI)
@@ -324,10 +324,13 @@ function App() {
         await api.joinEvent(id);
       } catch (err) {
         setJoinedEvents(prev => prev.filter(e => e !== id));
+        // Rollback XP on join failure
+        setUserXP(useUIStore.getState().userXP - xpGain);
+        api.updateXP({ xp: useUIStore.getState().userXP }).catch(() => {});
         showToast(formatError(err), 'error');
       }
     }
-  }, [setJoinedEvents, showToast, userXP, setUserXP, setLevelUpData, setShowLevelUp, setShowConfetti, mango]);
+  }, [setJoinedEvents, showToast, setUserXP, setLevelUpData, setShowLevelUp, setShowConfetti, mango]);
 
   const sendMessage = useCallback(async (eventId, text) => {
     if (!text.trim()) return;
@@ -351,6 +354,11 @@ function App() {
     try {
       await api.sendEventMessage(eventId, text);
     } catch (err) {
+      // Remove the optimistic message so the user doesn't see a ghost "sent" message
+      setChatMessages(prev => ({
+        ...prev,
+        [eventId]: (prev[eventId] || []).filter(m => m.id !== optimisticId),
+      }));
       showToast(formatError(err, 'Failed to send message'), 'error');
     }
   }, [user, setChatMessages, showToast]);
