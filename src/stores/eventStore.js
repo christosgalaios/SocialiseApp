@@ -7,7 +7,6 @@ const useEventStore = create((set, get) => ({
   joinedEvents: [],
   savedEvents: [],
   selectedEvent: null,
-  showCreate: false,
   chatMessages: {},
   showMatchModal: null,
 
@@ -37,7 +36,6 @@ const useEventStore = create((set, get) => ({
   },
 
   setSelectedEvent: (event) => set({ selectedEvent: event }),
-  setShowCreate: (show) => set({ showCreate: show }),
   setChatMessages: (updater) => {
     if (typeof updater === 'function') {
       set((state) => ({ chatMessages: updater(state.chatMessages) }));
@@ -188,14 +186,6 @@ const useEventStore = create((set, get) => ({
     }
   },
 
-  createEvent: async (data) => {
-    const newEvent = await api.createEvent(data);
-    set((state) => ({
-      events: [newEvent, ...state.events],
-      showCreate: false,
-    }));
-    return newEvent;
-  },
 }));
 
 export default useEventStore;

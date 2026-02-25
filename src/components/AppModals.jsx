@@ -24,8 +24,6 @@ import BugReportModal from './BugReportModal';
 import FeatureRequestModal from './FeatureRequestModal';
 import ChangelogSheet from './ChangelogSheet';
 
-// Lazy-loaded: CreateEventModal pulls in LocationPicker → Google Maps (~50kb)
-const CreateEventModal = lazy(() => import('./CreateEventModal'));
 const EventReels = lazy(() => import('./EventReels'));
 
 // Match Analysis Modal (inline component)
@@ -52,14 +50,12 @@ const MatchAnalysisModal = ({ event, onConfirm, onCancel }) => (
   </div>
 );
 
-export default function AppModals({ handleJoin, sendMessage, createNewEvent, filteredEvents }) {
+export default function AppModals({ handleJoin, sendMessage, filteredEvents }) {
   const user = useAuthStore((s) => s.user);
   const handleLogoutAuth = useAuthStore((s) => s.handleLogout);
 
   const selectedEvent = useEventStore((s) => s.selectedEvent);
   const setSelectedEvent = useEventStore((s) => s.setSelectedEvent);
-  const showCreate = useEventStore((s) => s.showCreate);
-  const setShowCreate = useEventStore((s) => s.setShowCreate);
   const showMatchModal = useEventStore((s) => s.showMatchModal);
   const setShowMatchModal = useEventStore((s) => s.setShowMatchModal);
   const joinedEvents = useEventStore((s) => s.joinedEvents);
@@ -155,11 +151,6 @@ export default function AppModals({ handleJoin, sendMessage, createNewEvent, fil
           onSendMessage={(text) => sendMessage(selectedEvent.id, text)}
           onOpenProfile={setSelectedUserProfile}
         />
-      )}
-      {showCreate && (
-        <Suspense fallback={null}>
-          <CreateEventModal key="create-event" onClose={() => setShowCreate(false)} onSubmit={createNewEvent} />
-        </Suspense>
       )}
       {showMatchModal && (
         <MatchAnalysisModal

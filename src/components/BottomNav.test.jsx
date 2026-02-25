@@ -24,7 +24,7 @@ vi.mock('framer-motion', () => ({
 
 describe('BottomNav', () => {
   const mockSetActiveTab = vi.fn();
-  const mockOnCreateClick = vi.fn();
+  const mockOnReelsClick = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -36,13 +36,13 @@ describe('BottomNav', () => {
         <BottomNav
           activeTab="home"
           setActiveTab={mockSetActiveTab}
-          onCreateClick={mockOnCreateClick}
+          onReelsClick={mockOnReelsClick}
         />
       );
 
       expect(screen.getByLabelText('Home')).toBeInTheDocument();
       expect(screen.getByLabelText('Hub')).toBeInTheDocument();
-      expect(screen.getByLabelText('Create new event')).toBeInTheDocument();
+      expect(screen.getByLabelText('Watch event reels')).toBeInTheDocument();
       expect(screen.getByLabelText('Explore')).toBeInTheDocument();
       expect(screen.getByLabelText('Profile')).toBeInTheDocument();
     });
@@ -52,7 +52,7 @@ describe('BottomNav', () => {
         <BottomNav
           activeTab="home"
           setActiveTab={mockSetActiveTab}
-          onCreateClick={mockOnCreateClick}
+          onReelsClick={mockOnReelsClick}
         />
       );
 
@@ -65,7 +65,7 @@ describe('BottomNav', () => {
         <BottomNav
           activeTab="home"
           setActiveTab={mockSetActiveTab}
-          onCreateClick={mockOnCreateClick}
+          onReelsClick={mockOnReelsClick}
         />
       );
 
@@ -79,7 +79,7 @@ describe('BottomNav', () => {
         <BottomNav
           activeTab="home"
           setActiveTab={mockSetActiveTab}
-          onCreateClick={mockOnCreateClick}
+          onReelsClick={mockOnReelsClick}
         />
       );
 
@@ -92,7 +92,7 @@ describe('BottomNav', () => {
         <BottomNav
           activeTab="home"
           setActiveTab={mockSetActiveTab}
-          onCreateClick={mockOnCreateClick}
+          onReelsClick={mockOnReelsClick}
         />
       );
 
@@ -105,7 +105,7 @@ describe('BottomNav', () => {
         <BottomNav
           activeTab="hub"
           setActiveTab={mockSetActiveTab}
-          onCreateClick={mockOnCreateClick}
+          onReelsClick={mockOnReelsClick}
         />
       );
 
@@ -123,7 +123,7 @@ describe('BottomNav', () => {
         <BottomNav
           activeTab="home"
           setActiveTab={mockSetActiveTab}
-          onCreateClick={mockOnCreateClick}
+          onReelsClick={mockOnReelsClick}
         />
       );
 
@@ -131,18 +131,18 @@ describe('BottomNav', () => {
       expect(mockSetActiveTab).toHaveBeenCalledWith('hub', expect.any(Number));
     });
 
-    it('should call onCreateClick when create button is clicked', async () => {
+    it('should call onReelsClick when reels button is clicked', async () => {
       const user = userEvent.setup({ delay: null });
       render(
         <BottomNav
           activeTab="home"
           setActiveTab={mockSetActiveTab}
-          onCreateClick={mockOnCreateClick}
+          onReelsClick={mockOnReelsClick}
         />
       );
 
-      await user.click(screen.getByLabelText('Create new event'));
-      expect(mockOnCreateClick).toHaveBeenCalledTimes(1);
+      await user.click(screen.getByLabelText('Watch event reels'));
+      expect(mockOnReelsClick).toHaveBeenCalledTimes(1);
     });
 
     it('should pass correct direction when navigating forward', async () => {
@@ -151,11 +151,11 @@ describe('BottomNav', () => {
         <BottomNav
           activeTab="home"
           setActiveTab={mockSetActiveTab}
-          onCreateClick={mockOnCreateClick}
+          onReelsClick={mockOnReelsClick}
         />
       );
 
-      // Home is index 0, Explore is index 3 → direction = 3
+      // Home is index 0, Explore is index 3 (skipping Reels action slot) → direction = 3
       await user.click(screen.getByRole('tab', { name: 'Explore' }));
       expect(mockSetActiveTab).toHaveBeenCalledWith('explore', 3);
     });
@@ -167,7 +167,7 @@ describe('BottomNav', () => {
         <BottomNav
           activeTab="home"
           setActiveTab={mockSetActiveTab}
-          onCreateClick={mockOnCreateClick}
+          onReelsClick={mockOnReelsClick}
         />
       );
 
@@ -183,7 +183,7 @@ describe('BottomNav', () => {
         <BottomNav
           activeTab="hub"
           setActiveTab={mockSetActiveTab}
-          onCreateClick={mockOnCreateClick}
+          onReelsClick={mockOnReelsClick}
         />
       );
 
@@ -199,7 +199,7 @@ describe('BottomNav', () => {
         <BottomNav
           activeTab="profile"
           setActiveTab={mockSetActiveTab}
-          onCreateClick={mockOnCreateClick}
+          onReelsClick={mockOnReelsClick}
         />
       );
 
@@ -215,7 +215,7 @@ describe('BottomNav', () => {
         <BottomNav
           activeTab="home"
           setActiveTab={mockSetActiveTab}
-          onCreateClick={mockOnCreateClick}
+          onReelsClick={mockOnReelsClick}
         />
       );
 
@@ -231,7 +231,7 @@ describe('BottomNav', () => {
         <BottomNav
           activeTab="home"
           setActiveTab={mockSetActiveTab}
-          onCreateClick={mockOnCreateClick}
+          onReelsClick={mockOnReelsClick}
         />
       );
 
@@ -246,7 +246,7 @@ describe('BottomNav', () => {
         <BottomNav
           activeTab="home"
           setActiveTab={mockSetActiveTab}
-          onCreateClick={mockOnCreateClick}
+          onReelsClick={mockOnReelsClick}
         />
       );
 
@@ -254,34 +254,6 @@ describe('BottomNav', () => {
       fireEvent.keyDown(homeTab, { key: 'Enter' });
 
       expect(mockSetActiveTab).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('Create button breathing animation', () => {
-    it('should render create button without special behavior when hasEvents is true', () => {
-      render(
-        <BottomNav
-          activeTab="home"
-          setActiveTab={mockSetActiveTab}
-          onCreateClick={mockOnCreateClick}
-          hasEvents={true}
-        />
-      );
-
-      expect(screen.getByLabelText('Create new event')).toBeInTheDocument();
-    });
-
-    it('should render create button when hasEvents is false', () => {
-      render(
-        <BottomNav
-          activeTab="home"
-          setActiveTab={mockSetActiveTab}
-          onCreateClick={mockOnCreateClick}
-          hasEvents={false}
-        />
-      );
-
-      expect(screen.getByLabelText('Create new event')).toBeInTheDocument();
     });
   });
 });
