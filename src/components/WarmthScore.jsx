@@ -11,7 +11,7 @@ const DAILY_REWARDS = [
 ];
 
 /**
- * WarmthScore - Level progress circle with daily streak rewards
+ * WarmthScore - Fame Score circle with daily streak rewards
  */
 const WarmthScore = ({ level = 4, levelProgress = 75, levelIcon = '⭐', streak = 0 }) => {
     const circumference = 2 * Math.PI * 45; // radius = 45
@@ -72,8 +72,8 @@ const WarmthScore = ({ level = 4, levelProgress = 75, levelIcon = '⭐', streak 
                     >
                         {level}
                     </motion.span>
-                    <span className="text-[10px] font-bold text-secondary/50 uppercase tracking-widest">
-                        Level
+                    <span className="text-[8px] font-black text-secondary/50 uppercase tracking-widest">
+                        Fame
                     </span>
                 </div>
             </div>
