@@ -588,7 +588,7 @@ Configuration lives in `.claude/`. Full docs: `.claude/AUTOMATION_SETUP.md` and 
 
 `CHANGELOG.md` in the project root tracks all user-facing changes using the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 
-**When to update it:** Every PR that delivers a user-facing change — new feature, bug fix, behaviour change, or security improvement.
+**When to update it:** Every PR that touches `src/`, `server/routes/`, `server/index.js`, or `server/matching.js` **MUST** include a `CHANGELOG.md` update. No exceptions — if you write or change user-facing code, you update the changelog in the same commit. This is not optional.
 
 **How to update it:**
 1. Open `CHANGELOG.md`.
@@ -602,6 +602,8 @@ Configuration lives in `.claude/`. Full docs: `.claude/AUTOMATION_SETUP.md` and 
 4. When a batch of changes ships to production, rename `[Unreleased]` to `[0.1.{PR#}] — YYYY-MM-DD` and add a fresh `[Unreleased]` block above it.
 
 **What not to include:** CI workflow tweaks, docs-only changes, dependency bumps with no user impact, and version sync commits.
+
+**Before pushing any branch:** confirm `CHANGELOG.md` is in `git diff --staged` alongside your code changes. If it isn't, stop and add it.
 
 ---
 
@@ -663,6 +665,7 @@ node index.js        # Express @ localhost:3001
 - Optional chaining everywhere user/event data is accessed: `user?.name ?? 'fallback'`.
 - Framer Motion used for all transitions. `AnimatePresence` wraps conditionally rendered elements.
 - Never hardcode `#ffffff` or `black` — always use design token CSS vars or Tailwind utilities mapped to those vars.
+- **CHANGELOG.md is mandatory on every PR that changes `src/`, `server/routes/`, `server/index.js`, or `server/matching.js`.** Add one line per user-facing change under `[Unreleased]` before committing. The changelog is the user-visible record of every fix and feature — keeping it current is part of the definition of "done".
 
 ---
 
