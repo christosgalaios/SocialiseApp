@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Crown, ChevronLeft, ChevronRight, Quote, Mail, Lock, User, AlertCircle } from 'lucide-react';
 import { formatError } from '../errorUtils';
-import { playTap, playError as playErrorSound } from '../utils/feedback';
+import { playTap, playError as playErrorSound, hapticTap } from '../utils/feedback';
 
 const TESTIMONIALS = [
   {
@@ -173,8 +173,8 @@ const AuthScreen = ({ onLogin }) => {
               />
             ))}
           </div>
-          <button onClick={prevTestimonial} className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white shadow items-center justify-center text-secondary/60 hover:text-secondary"><ChevronLeft size={16} /></button>
-          <button onClick={nextTestimonial} className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white shadow items-center justify-center text-secondary/60 hover:text-secondary"><ChevronRight size={16} /></button>
+          <button onClick={() => { playTap(); hapticTap(); prevTestimonial(); }} className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white shadow items-center justify-center text-secondary/60 hover:text-secondary"><ChevronLeft size={16} /></button>
+          <button onClick={() => { playTap(); hapticTap(); nextTestimonial(); }} className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white shadow items-center justify-center text-secondary/60 hover:text-secondary"><ChevronRight size={16} /></button>
         </div>
       </motion.div>
 

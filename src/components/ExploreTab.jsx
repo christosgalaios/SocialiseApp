@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, Calendar, Users, ChevronLeft, ChevronRight } from 'lucide-react';
+import { playTap, hapticTap } from '../utils/feedback';
 import useEventStore from '../stores/eventStore';
 import useUIStore from '../stores/uiStore';
 import EventCard from './EventCard';
@@ -181,7 +182,7 @@ export default function ExploreTab({ filteredEvents }) {
             <h2 className="text-lg font-black text-secondary tracking-tight">Reels<span className="text-accent">.</span></h2>
             <div className="flex items-center gap-1.5">
               <button
-                onClick={() => scroll(-1)}
+                onClick={() => { playTap(); hapticTap(); scroll(-1); }}
                 disabled={!canScrollLeft}
                 className="w-8 h-8 rounded-full bg-secondary/5 border border-secondary/10 flex items-center justify-center text-secondary/40 hover:text-secondary/70 disabled:opacity-30 transition-all"
                 aria-label="Scroll left"
@@ -189,7 +190,7 @@ export default function ExploreTab({ filteredEvents }) {
                 <ChevronLeft size={16} />
               </button>
               <button
-                onClick={() => scroll(1)}
+                onClick={() => { playTap(); hapticTap(); scroll(1); }}
                 disabled={!canScrollRight}
                 className="w-8 h-8 rounded-full bg-secondary/5 border border-secondary/10 flex items-center justify-center text-secondary/40 hover:text-secondary/70 disabled:opacity-30 transition-all"
                 aria-label="Scroll right"

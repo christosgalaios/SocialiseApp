@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
+import { playSwooshClose, hapticTap } from '../utils/feedback';
 
 const MotionDiv = motion.div;
 
@@ -197,7 +198,7 @@ const AvatarCropModal = ({ imageUrl, isOpen, onSave, onCancel }) => {
                 Adjust Photo
               </h2>
               <button
-                onClick={onCancel}
+                onClick={() => { playSwooshClose(); hapticTap(); onCancel(); }}
                 className="w-9 h-9 rounded-full bg-secondary/10 flex items-center justify-center text-secondary hover:bg-secondary/20 transition-colors"
                 aria-label="Cancel"
               >

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, HelpCircle, ChevronDown, Mail, Shield, FileText, MessageCircle, Trash2, AlertTriangle } from 'lucide-react';
 import { useEscapeKey, useFocusTrap, useSwipeToClose } from '../hooks/useAccessibility';
+import { playSwooshClose, playClick, hapticTap } from '../utils/feedback';
 
 const HelpSheet = ({ isOpen, onClose, onDeleteAccount }) => {
     useEscapeKey(isOpen, onClose);
@@ -71,7 +72,7 @@ const HelpSheet = ({ isOpen, onClose, onDeleteAccount }) => {
                                 Help & Support<span className="text-accent">.</span>
                             </h2>
                             <button
-                                onClick={onClose}
+                                onClick={() => { playSwooshClose(); hapticTap(); onClose(); }}
                                 className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
                                 aria-label="Close"
                             >
@@ -91,7 +92,7 @@ const HelpSheet = ({ isOpen, onClose, onDeleteAccount }) => {
                                     {faqs.map((faq, i) => (
                                         <div key={i} className="bg-secondary/5 rounded-2xl border border-secondary/10 overflow-hidden">
                                             <button
-                                                onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                                                onClick={() => { playClick(); setOpenFaq(openFaq === i ? null : i); }}
                                                 className="w-full p-4 flex items-center justify-between text-left"
                                             >
                                                 <span className="font-bold text-sm text-secondary">{faq.q}</span>

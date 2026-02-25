@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Calendar, MapPin, Clock, Ticket, Trash2 } from 'lucide-react';
 import { useEscapeKey, useFocusTrap, useSwipeToClose } from '../hooks/useAccessibility';
+import { playSwooshClose, hapticTap } from '../utils/feedback';
 
 const MyBookingsSheet = ({ isOpen, onClose, bookings = [], onCancel }) => {
     useEscapeKey(isOpen, onClose);
@@ -42,7 +43,7 @@ const MyBookingsSheet = ({ isOpen, onClose, bookings = [], onCancel }) => {
                                 My Bookings<span className="text-accent">.</span>
                             </h2>
                             <button
-                                onClick={onClose}
+                                onClick={() => { playSwooshClose(); hapticTap(); onClose(); }}
                                 className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
                                 aria-label="Close"
                             >
