@@ -9,14 +9,20 @@
 //   2. Replace all existing code with this file
 //   3. Save (Ctrl+S)
 //   4. Run tidySheet() from the function dropdown > Run
-//      (this auto-adds any missing columns: Platform, Reports, Fixed At, Type, etc.)
+//      (this auto-adds any missing columns: Platform, Reports, Fixed At, Type, Reporter, etc.)
 //   5. Grant permissions when prompted
 //   6. Deploy > Manage deployments > Edit > New version > Deploy
 //   7. Configure dropdown colors manually (see DROPDOWN SETUP below)
+//   8. Run setupSupabaseCredentials() — enter SUPABASE_URL and service role key
+//      (needed for bi-directional sync: sheet edits → Supabase)
+//   9. Create an installable trigger: Triggers (clock icon) > Add Trigger
+//      → Function: onSheetEdit | Event: From spreadsheet | Type: On edit
 //
 // FUNCTIONS:
-//   doPost(e)    — Webhook handler for backend create/update/delete calls
-//   tidySheet()  — Cleanup: consolidate duplicates, normalize env values, init reports counts
+//   doPost(e)                   — Webhook handler for backend create/update/delete calls
+//   onSheetEdit(e)              — Installable trigger: syncs Status/Priority/Type edits → Supabase
+//   setupSupabaseCredentials()  — One-time setup: stores Supabase URL + key in Script Properties
+//   tidySheet()                 — Cleanup: consolidate duplicates, normalize env values, init reports counts
 //
 // DROPDOWN SETUP (Smart Table column type settings):
 //   Smart Tables manage dropdowns via column type, not data validation.
@@ -53,6 +59,10 @@
 //     Plain text — auto-detected from user agent.
 //     Format: "OS / Browser / Device" (e.g. "Android 14 / Chrome 120 / Mobile")
 //
+//   REPORTER column:
+//     Plain text — email of the user who submitted the report.
+//     Auto-populated from the JWT token on the backend.
+//
 // ==========================================
 
 // ---- Column header constants ----
@@ -68,8 +78,9 @@ var COL_PLATFORM    = 'Platform';
 var COL_FIXED_AT    = 'Fixed At';
 var COL_REPORTS     = 'Reports';
 var COL_TYPE        = 'Type';
+var COL_REPORTER    = 'Reporter';
 
-var HEADERS = [COL_BUG_ID, COL_DESCRIPTION, COL_STATUS, COL_PRIORITY, COL_ENVIRONMENT, COL_CREATED_AT, COL_APP_VERSION, COL_PLATFORM, COL_FIXED_AT, COL_REPORTS, COL_TYPE];
+var HEADERS = [COL_BUG_ID, COL_DESCRIPTION, COL_STATUS, COL_PRIORITY, COL_ENVIRONMENT, COL_CREATED_AT, COL_APP_VERSION, COL_PLATFORM, COL_FIXED_AT, COL_REPORTS, COL_TYPE, COL_REPORTER];
 
 /**
  * Returns a map of { headerName: columnIndex (1-based) } for the given sheet.
@@ -90,8 +101,8 @@ function getColumnMap_(sheet) {
  * Called by the Express backend (server/routes/bugs.js).
  *
  * Payloads:
- *   Create: { bug_id, description, status, priority, environment, created_at, app_version, platform, type }
- *   Update: { action: 'update', bug_id, status?, priority?, reports?, environment?, app_version?, fixed_at?, type? }
+ *   Create: { bug_id, description, status, priority, environment, created_at, app_version, platform, type, reporter }
+ *   Update: { action: 'update', bug_id, status?, priority?, description?, environment?, app_version?, platform?, reports?, type?, reporter?, fixed_at? }
  *   Delete: { action: 'delete', bug_id }
  *
  * Duplicate detection (CREATE mode):
@@ -135,14 +146,20 @@ function doPost(e) {
           sheet.getRange(i + 1, cols[COL_STATUS]).setValue(data.status);
         if (data.priority && cols[COL_PRIORITY])
           sheet.getRange(i + 1, cols[COL_PRIORITY]).setValue(data.priority);
+        if (data.description && cols[COL_DESCRIPTION])
+          sheet.getRange(i + 1, cols[COL_DESCRIPTION]).setValue(data.description);
         if (data.environment && cols[COL_ENVIRONMENT])
           sheet.getRange(i + 1, cols[COL_ENVIRONMENT]).setValue(normalizeEnv_(data.environment));
         if (data.app_version && cols[COL_APP_VERSION])
           sheet.getRange(i + 1, cols[COL_APP_VERSION]).setValue(data.app_version);
+        if (data.platform && cols[COL_PLATFORM])
+          sheet.getRange(i + 1, cols[COL_PLATFORM]).setValue(data.platform);
         if (data.reports != null && cols[COL_REPORTS])
           sheet.getRange(i + 1, cols[COL_REPORTS]).setValue(data.reports);
         if (data.type && cols[COL_TYPE])
           sheet.getRange(i + 1, cols[COL_TYPE]).setValue(data.type);
+        if (data.reporter && cols[COL_REPORTER])
+          sheet.getRange(i + 1, cols[COL_REPORTER]).setValue(data.reporter);
 
         // Auto-populate "Fixed At" timestamp when status changes to "fixed"
         if (data.status === 'fixed' && cols[COL_FIXED_AT]) {
@@ -242,6 +259,7 @@ function doPost(e) {
   fieldMap[COL_PLATFORM]    = data.platform || '';
   fieldMap[COL_REPORTS]     = 1;
   fieldMap[COL_TYPE]        = data.type || 'bug';
+  fieldMap[COL_REPORTER]    = data.reporter || '';
 
   // Place each field in the correct column position
   var maxCol = 0;
@@ -306,6 +324,146 @@ function mergeVersions_(existing, incoming) {
     return parts.join(', ');
   }
   return existing;
+}
+
+// ==========================================
+// BI-DIRECTIONAL SYNC — Sheet edits → Supabase
+// ==========================================
+//
+// SETUP (one-time):
+//   1. Run setupSupabaseCredentials() from the function dropdown > Run
+//      → It prompts for SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY
+//      → Stores them in Script Properties (encrypted at rest by Google)
+//   2. Go to Triggers (clock icon in sidebar) > Add Trigger:
+//      - Function: onSheetEdit
+//      - Event source: From spreadsheet
+//      - Event type: On edit
+//      → This creates an installable trigger (simple onEdit can't call external APIs)
+//
+// HOW IT WORKS:
+//   When a user manually edits a cell in the Status, Priority, or Type column,
+//   onSheetEdit() sends a PATCH to the Supabase REST API to update the
+//   corresponding bug_reports row. Only these three columns are synced — other
+//   columns (description, environment, etc.) are considered source-of-truth in the
+//   sheet and don't need to sync back.
+//
+//   "Fixed At" is auto-populated when status changes to "fixed" and cleared when
+//   status changes back to "open" — same behavior as the webhook-driven updates.
+
+/**
+ * Run this once to store Supabase credentials in Script Properties.
+ * These are needed by onSheetEdit() to sync changes back to Supabase.
+ *
+ * Values are stored encrypted at rest by Google and never exposed in logs.
+ */
+function setupSupabaseCredentials() {
+  var ui = SpreadsheetApp.getUi();
+
+  var urlResponse = ui.prompt(
+    'Supabase URL',
+    'Enter your SUPABASE_URL (e.g. https://xxxxx.supabase.co):',
+    ui.ButtonSet.OK_CANCEL
+  );
+  if (urlResponse.getSelectedButton() !== ui.Button.OK) return;
+
+  var keyResponse = ui.prompt(
+    'Supabase Service Role Key',
+    'Enter your SUPABASE_SERVICE_ROLE_KEY:',
+    ui.ButtonSet.OK_CANCEL
+  );
+  if (keyResponse.getSelectedButton() !== ui.Button.OK) return;
+
+  var props = PropertiesService.getScriptProperties();
+  props.setProperty('SUPABASE_URL', urlResponse.getResponseText().trim());
+  props.setProperty('SUPABASE_SERVICE_ROLE_KEY', keyResponse.getResponseText().trim());
+
+  ui.alert('Supabase credentials saved to Script Properties.\n\nNow create an installable trigger:\n→ Triggers (clock icon) > Add Trigger\n→ Function: onSheetEdit\n→ Event: From spreadsheet > On edit');
+}
+
+/**
+ * Installable trigger — fires on any cell edit in the sheet.
+ * Syncs Status, Priority, and Type changes back to Supabase.
+ *
+ * IMPORTANT: This must be set up as an installable trigger (not a simple onEdit),
+ * because simple triggers cannot call external services (UrlFetchApp).
+ */
+function onSheetEdit(e) {
+  if (!e || !e.range) return;
+
+  var sheet = e.range.getSheet();
+  var row = e.range.getRow();
+  var col = e.range.getColumn();
+
+  // Ignore header row edits
+  if (row <= 1) return;
+
+  var cols = getColumnMap_(sheet);
+
+  // Only sync these columns back to Supabase
+  var syncableCols = {};
+  if (cols[COL_STATUS])   syncableCols[cols[COL_STATUS]]   = 'status';
+  if (cols[COL_PRIORITY]) syncableCols[cols[COL_PRIORITY]] = 'priority';
+  if (cols[COL_TYPE])     syncableCols[cols[COL_TYPE]]     = 'type';
+
+  var fieldName = syncableCols[col];
+  if (!fieldName) return; // Edited column is not one we sync
+
+  // Get the bug_id for this row
+  var bugIdCol = cols[COL_BUG_ID];
+  if (!bugIdCol) return;
+  var bugId = String(sheet.getRange(row, bugIdCol).getValue()).trim();
+  if (!bugId) return;
+
+  var newValue = String(e.range.getValue()).trim();
+  if (!newValue) return;
+
+  // Auto-populate "Fixed At" when status changes to "fixed"
+  if (fieldName === 'status' && newValue === 'fixed' && cols[COL_FIXED_AT]) {
+    sheet.getRange(row, cols[COL_FIXED_AT]).setValue(new Date().toISOString());
+  }
+  // Clear "Fixed At" when status changes back to "open"
+  if (fieldName === 'status' && newValue === 'open' && cols[COL_FIXED_AT]) {
+    sheet.getRange(row, cols[COL_FIXED_AT]).setValue('');
+  }
+
+  // Send update to Supabase
+  var props = PropertiesService.getScriptProperties();
+  var supabaseUrl = props.getProperty('SUPABASE_URL');
+  var supabaseKey = props.getProperty('SUPABASE_SERVICE_ROLE_KEY');
+
+  if (!supabaseUrl || !supabaseKey) {
+    Logger.log('onSheetEdit: Supabase credentials not configured. Run setupSupabaseCredentials() first.');
+    return;
+  }
+
+  var updateBody = {};
+  updateBody[fieldName] = newValue;
+
+  try {
+    var response = UrlFetchApp.fetch(
+      supabaseUrl + '/rest/v1/bug_reports?bug_id=eq.' + encodeURIComponent(bugId),
+      {
+        method: 'patch',
+        headers: {
+          'apikey': supabaseKey,
+          'Authorization': 'Bearer ' + supabaseKey,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        payload: JSON.stringify(updateBody),
+        muteHttpExceptions: true
+      }
+    );
+
+    var code = response.getResponseCode();
+    if (code >= 200 && code < 300) {
+      Logger.log('onSheetEdit: Synced ' + fieldName + '=' + newValue + ' for ' + bugId);
+    } else {
+      Logger.log('onSheetEdit: Supabase returned ' + code + ': ' + response.getContentText());
+    }
+  } catch (err) {
+    Logger.log('onSheetEdit: Failed to sync to Supabase: ' + err.message);
+  }
 }
 
 // ==========================================

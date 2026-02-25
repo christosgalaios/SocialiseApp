@@ -129,7 +129,7 @@ router.post('/', authenticateToken, async (req, res) => {
         }
 
         // Sync to Google Sheet (non-blocking — Supabase is source of truth)
-        syncToSheet({ bug_id: bugId, description: sanitized, status: 'open', priority: 'auto', environment: env, app_version: app_version || null, platform: platform || null, type: reportType, created_at: createdAt });
+        syncToSheet({ bug_id: bugId, description: sanitized, status: 'open', priority: 'auto', environment: env, app_version: app_version || null, platform: platform || null, type: reportType, created_at: createdAt, reporter: req.user.email });
 
         res.status(201).json({
             message: `${label} logged`,
