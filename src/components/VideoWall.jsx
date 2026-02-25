@@ -288,6 +288,7 @@ const VideoWall = ({ onEventSelect, userName = "You" }) => {
                 onMouseEnter={() => setIsInteracting(true)}
                 onMouseLeave={handleInteractionEnd}
                 className="flex gap-4 overflow-x-auto snap-x snap-mandatory no-scrollbar -mx-5 px-5 md:mx-0 md:px-0 pb-4"
+                style={{ touchAction: 'pan-x' }}
             >
                 {/* Curated intro card first */}
                 <CuratedIntroCard userName={userName} />

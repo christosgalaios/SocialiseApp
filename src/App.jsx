@@ -23,7 +23,7 @@ import Toast from './components/Toast';
 import IOSInstallPrompt from './components/IOSInstallPrompt';
 import Confetti from './components/Confetti';
 import RealtimePing from './components/RealtimePing';
-import { Bug } from 'lucide-react';
+import { Bug, Lightbulb } from 'lucide-react';
 
 // Lazy-loaded components (heavy, conditionally rendered)
 const MangoChat = lazy(() => import('./components/MangoChat'));
@@ -93,7 +93,6 @@ function App() {
   const setShowOnboarding = useUIStore((s) => s.setShowOnboarding);
   const userPreferences = useUIStore((s) => s.userPreferences);
   const setUserPreferences = useUIStore((s) => s.setUserPreferences);
-  const userXP = useUIStore((s) => s.userXP);
   const setUserXP = useUIStore((s) => s.setUserXP);
   const setLevelUpData = useUIStore((s) => s.setLevelUpData);
   const setShowLevelUp = useUIStore((s) => s.setShowLevelUp);
@@ -179,8 +178,9 @@ function App() {
       setFeedPosts(feedData || []);
     } catch (err) {
       console.error('Failed to load data:', err);
+      showToast('Failed to load data. Pull down to retry.', 'error');
     }
-  }, [setEvents, setJoinedEvents, setSavedEvents, setCommunities, setFeedPosts]);
+  }, [setEvents, setJoinedEvents, setSavedEvents, setCommunities, setFeedPosts, showToast]);
 
   // Fetch data when app is ready
   useEffect(() => {
@@ -302,10 +302,11 @@ function App() {
       setJoinedEvents(prev => [...prev, id]);
       showToast("You're going! Added to your calendar.", 'success');
 
-      // Award XP
+      // Award XP — read fresh from store to avoid stale closure on rapid joins
       const xpGain = 50;
-      const newXP = userXP + xpGain;
-      const currentLevel = XP_LEVELS.filter(l => l.xpRequired <= userXP).pop();
+      const currentXP = useUIStore.getState().userXP;
+      const newXP = currentXP + xpGain;
+      const currentLevel = XP_LEVELS.filter(l => l.xpRequired <= currentXP).pop();
       const newLevel = XP_LEVELS.filter(l => l.xpRequired <= newXP).pop();
       setUserXP(newXP);
       // Persist XP to backend (fire-and-forget — localStorage is source of truth for optimistic UI)
@@ -324,10 +325,13 @@ function App() {
         await api.joinEvent(id);
       } catch (err) {
         setJoinedEvents(prev => prev.filter(e => e !== id));
+        // Rollback XP on join failure
+        setUserXP(useUIStore.getState().userXP - xpGain);
+        api.updateXP({ xp: useUIStore.getState().userXP }).catch(() => {});
         showToast(formatError(err), 'error');
       }
     }
-  }, [setJoinedEvents, showToast, userXP, setUserXP, setLevelUpData, setShowLevelUp, setShowConfetti, mango]);
+  }, [setJoinedEvents, showToast, setUserXP, setLevelUpData, setShowLevelUp, setShowConfetti, mango]);
 
   const sendMessage = useCallback(async (eventId, text) => {
     if (!text.trim()) return;
@@ -351,6 +355,11 @@ function App() {
     try {
       await api.sendEventMessage(eventId, text);
     } catch (err) {
+      // Remove the optimistic message so the user doesn't see a ghost "sent" message
+      setChatMessages(prev => ({
+        ...prev,
+        [eventId]: (prev[eventId] || []).filter(m => m.id !== optimisticId),
+      }));
       showToast(formatError(err, 'Failed to send message'), 'error');
     }
   }, [user, setChatMessages, showToast]);
@@ -375,7 +384,7 @@ function App() {
   }, []);
 
   const filteredEvents = events.filter(e => {
-    const matchesSearch = e.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    const matchesSearch = e.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       e.location?.toLowerCase().includes(searchQuery.toLowerCase());
     if (!matchesSearch) return false;
     const matchesCategory = activeCategory === 'All' || e.category === activeCategory;
@@ -463,7 +472,11 @@ function App() {
   // Enhanced setActiveTab with mango effects
   const setActiveTabWithEffects = useCallback((id, direction = 0) => {
     if (activeTab === 'home' && id !== 'home') {
-      // Exiting home tab
+      // Exiting home tab — clean up pull-to-refresh touch state
+      touchStartY.current = 0;
+      touchStartX.current = 0;
+      touchDirectionLocked.current = null;
+      hasVibratedRef.current = false;
     } else if (activeTab !== 'home' && id === 'home') {
       mango.setMessage('Welcome back!');
       mango.setCoords({ x: 0, y: 0 });
@@ -473,9 +486,19 @@ function App() {
     }
     setPullY(0);
     setActiveTab(id, direction);
+    // Instant scroll reset — smooth scroll can race with AnimatePresence transitions
+    // and cause iOS Safari to lock the scroll context
     if (mainContentRef.current) {
-      mainContentRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+      mainContentRef.current.scrollTop = 0;
     }
+    // Force iOS Safari to recalculate the scroll context after the tab
+    // transition completes. Without this, the browser may "decide" the area
+    // isn't scrollable during the AnimatePresence exit/enter gap.
+    requestAnimationFrame(() => {
+      if (mainContentRef.current) {
+        void mainContentRef.current.offsetHeight;
+      }
+    });
   }, [activeTab, setActiveTab, mango, setPullY]);
 
   const handleSplashFinish = useCallback(() => {
@@ -620,9 +643,20 @@ function App() {
               </Suspense>
             )}
 
+            {/* Feature Request Button (above bug button) */}
+            <motion.button
+              className="fixed bottom-[168px] right-4 z-50 w-11 h-11 rounded-full bg-secondary/90 text-white shadow-lg flex items-center justify-center backdrop-blur-sm border border-white/10 md:bottom-[60px]"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={() => useUIStore.getState().setShowFeatureRequest(true)}
+              aria-label="Request a feature"
+            >
+              <Lightbulb size={18} />
+            </motion.button>
+
             {/* Bug Report Button */}
             <motion.button
-              className="fixed bottom-28 right-4 z-50 w-11 h-11 rounded-full bg-secondary/90 text-white shadow-lg flex items-center justify-center backdrop-blur-sm border border-white/10 md:bottom-6"
+              className="fixed bottom-[120px] right-4 z-50 w-11 h-11 rounded-full bg-secondary/90 text-white shadow-lg flex items-center justify-center backdrop-blur-sm border border-white/10 md:bottom-6"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={() => useUIStore.getState().setShowBugReport(true)}

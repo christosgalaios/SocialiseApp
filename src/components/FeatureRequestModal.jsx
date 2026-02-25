@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Bug, X, Send, AlertCircle, Monitor } from 'lucide-react';
+import { Lightbulb, X, Send, AlertCircle, Monitor } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEscapeKey, useFocusTrap, useSwipeToClose } from '../hooks/useAccessibility';
 import { formatError } from '../errorUtils';
@@ -58,7 +58,7 @@ function detectPlatform() {
   return `${os.trim()} / ${browser.trim()} / ${device}`;
 }
 
-export default function BugReportModal({ isOpen, onClose, onSubmit }) {
+export default function FeatureRequestModal({ isOpen, onClose, onSubmit }) {
   const [description, setDescription] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -68,7 +68,7 @@ export default function BugReportModal({ isOpen, onClose, onSubmit }) {
   const platformInfo = useMemo(() => detectPlatform(), []);
 
   const handleSubmit = async () => {
-    if (!description.trim()) return setError('Please describe the bug');
+    if (!description.trim()) return setError('Please describe the feature');
     if (description.trim().length < 30) return setError('Please provide a bit more detail — a couple of sentences helps a lot');
 
     setSubmitting(true);
@@ -78,7 +78,7 @@ export default function BugReportModal({ isOpen, onClose, onSubmit }) {
       setDescription('');
       onClose();
     } catch (err) {
-      setError(formatError(err, 'Failed to submit bug report'));
+      setError(formatError(err, 'Failed to submit feature request'));
     } finally {
       setSubmitting(false);
     }
@@ -95,11 +95,11 @@ export default function BugReportModal({ isOpen, onClose, onSubmit }) {
       onClick={onClose}
       role="dialog"
       aria-modal="true"
-      aria-label="Report a bug"
+      aria-label="Request a feature"
     >
       <motion.div
         ref={focusTrapRef}
-        className="w-full max-w-md max-h-[85dvh] overflow-y-auto bg-paper rounded-t-[32px] sm:rounded-[32px] p-6 pb-8 border-t sm:border border-secondary/10 shadow-2xl"
+        className="w-full max-w-md max-h-[85dvh] overflow-y-auto overscroll-contain bg-paper rounded-t-[32px] sm:rounded-[32px] p-5 pb-6 border-t sm:border border-secondary/10 shadow-2xl"
         initial={{ y: '100%' }}
         animate={{ y: 0 }}
         exit={{ y: '100%' }}
@@ -113,15 +113,15 @@ export default function BugReportModal({ isOpen, onClose, onSubmit }) {
         {/* Header */}
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
-              <Bug size={20} className="text-primary" />
+            <div className="w-10 h-10 rounded-2xl bg-accent/15 flex items-center justify-center">
+              <Lightbulb size={20} className="text-accent" />
             </div>
             <div>
-              <h2 className="text-lg font-black text-secondary">Report a Bug</h2>
-              <p className="text-[10px] text-secondary/50 font-medium">Something broken? Let us know</p>
+              <h2 className="text-lg font-black text-secondary">Request a Feature</h2>
+              <p className="text-[10px] text-secondary/50 font-medium">Got an idea? Share it with us</p>
             </div>
           </div>
-          <button onPointerDown={(e) => { e.stopPropagation(); onClose(); }} className="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center" aria-label="Close bug report" style={{ touchAction: 'manipulation' }}>
+          <button onPointerDown={(e) => { e.stopPropagation(); onClose(); }} className="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center" aria-label="Close feature request" style={{ touchAction: 'manipulation' }}>
             <X size={16} className="text-secondary/60" />
           </button>
         </div>
@@ -129,14 +129,15 @@ export default function BugReportModal({ isOpen, onClose, onSubmit }) {
         <div className="space-y-4">
           {/* Description */}
           <div>
-            <label className="text-xs font-bold text-secondary/70 mb-1.5 block">What went wrong?</label>
+            <label className="text-xs font-bold text-secondary/70 mb-1.5 block">What would you like to see?</label>
             <textarea
               value={description}
               onChange={e => { setDescription(e.target.value); if (error) setError(''); }}
-              placeholder={"What happened? What did you expect instead?\n\ne.g. \"I tapped 'Join' on an event and the button spun forever — the RSVP never confirmed.\""}
+              placeholder={"Describe the feature you'd like and why it would be useful.\n\ne.g. \"It would be great to filter events by distance so I can find things close to me without scrolling through everything.\""}
               rows={4}
               maxLength={2000}
-              className="w-full bg-paper border border-secondary/10 rounded-2xl px-4 py-3 text-sm text-[var(--text)] placeholder:text-secondary/30 font-medium focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 resize-none"
+              className="w-full bg-paper border border-secondary/10 rounded-2xl px-4 py-3 text-sm text-[var(--text)] placeholder:text-secondary/30 font-medium focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent/30 resize-none break-words"
+              style={{ overflowWrap: 'break-word', wordBreak: 'break-word' }}
             />
             <p className="text-[10px] text-secondary/30 mt-1 text-right">{description.length}/2000</p>
           </div>
@@ -169,7 +170,7 @@ export default function BugReportModal({ isOpen, onClose, onSubmit }) {
           <button
             onClick={handleSubmit}
             disabled={submitting || !description.trim()}
-            className="w-full py-3.5 rounded-2xl font-black text-white bg-primary hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+            className="w-full py-3.5 rounded-2xl font-black text-white bg-accent hover:bg-accent/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
           >
             {submitting ? (
               <span className="animate-pulse">Submitting...</span>
@@ -182,7 +183,7 @@ export default function BugReportModal({ isOpen, onClose, onSubmit }) {
           </button>
 
           <p className="text-[9px] text-secondary/40 text-center leading-relaxed">
-            The more detail you give (what, where, when), the faster it gets fixed. Priority is determined automatically.
+            The more detail you give (what, why, how), the better we can prioritize it.
           </p>
         </div>
       </motion.div>

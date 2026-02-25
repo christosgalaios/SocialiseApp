@@ -63,6 +63,7 @@
     008_bug_reports.sql                # Bug reports table (replaces BUGS.md file)
     009_bug_report_version.sql         # Add app_version column to bug_reports
     010_bug_report_platform.sql         # Add platform column to bug_reports
+    011_report_type.sql                 # Add type column (bug/feature) to bug_reports
   /routes
     auth.js            # Login/register/me — Supabase
     events.js          # CRUD + RSVP/save/chat — Supabase
@@ -148,7 +149,10 @@ package.json           # Frontend deps (ESM) — v0.1.0
 | CreateEventModal | `src/components/CreateEventModal.jsx` | Event creation form. |
 | VideoWall | `src/components/VideoWall.jsx` | Auto-playing video showcase. |
 | AuthScreen | `src/components/AuthScreen.jsx` | Login/register form. Demo: ben@demo.com / password (blocked in prod). |
+| BugReportModal | `src/components/BugReportModal.jsx` | Bug report submission form. |
+| FeatureRequestModal | `src/components/FeatureRequestModal.jsx` | Feature request submission form (mirrors BugReportModal). |
 | Skeleton | `src/components/Skeleton.jsx` | Loading skeletons for each tab. |
+| useSwipeToClose | `src/hooks/useAccessibility.js` | Hook for swipe-down-to-close on bottom sheets. Returns `sheetY` motion value + `handleProps` for drag handle. |
 
 ---
 
@@ -229,9 +233,9 @@ Base (production): `https://socialise-app-production.up.railway.app/api`
 | GET | `/users/me/saved` | Required | My saved events |
 | GET | `/users/me/communities` | Required | My communities |
 | GET | `/events/recommendations/for-you` | Required | Micro-Meet recommendations (by match score) |
-| POST | `/bugs` | Required | Submit bug report (stored in Supabase `bug_reports` table) |
-| GET | `/bugs` | Required | List bug reports (filterable by `?status=open`) |
-| PUT | `/bugs/:bugId` | Required | Update bug report status/priority (used by `/fix-bugs` skill) |
+| POST | `/bugs` | Required | Submit bug report or feature request (pass `type: 'feature'` for feature requests; stored in Supabase `bug_reports` table) |
+| GET | `/bugs` | Required | List bug reports/feature requests (filterable by `?status=open` and/or `?type=feature`) |
+| PUT | `/bugs/:bugId` | Required | Update report status/priority/type (used by `/fix-bugs` skill) |
 | DELETE | `/bugs/:bugId` | Required | Delete bug report (used for duplicate consolidation — syncs deletion to Google Sheet) |
 
 **Demo credentials:** `ben@demo.com` / `password` (blocked in production — `NODE_ENV=production` returns 403)
@@ -244,7 +248,7 @@ Base (production): `https://socialise-app-production.up.railway.app/api`
 - `ALLOWED_ORIGINS` — Comma-separated CORS origins. Defaults to localhost dev origins.
 - `SUPABASE_URL` — Supabase project URL. Required.
 - `SUPABASE_SERVICE_ROLE_KEY` — Supabase service role key (server-side only, bypasses RLS). Required.
-- `BUGS_SHEET_WEBHOOK_URL` — Optional. Google Apps Script web app URL. When set, bug reports are synced to a Google Sheet in real time (fire-and-forget — failures don't affect the API response). Supports two modes: new bug creation (appends row) and status updates via `PUT /bugs/:bugId` (updates existing row by `bug_id`). The Apps Script uses header-based column lookup (not hardcoded indices) so columns can be reordered freely. Environment values are `PROD` (from `/prod/` page), `DEV` (from `/dev/` page), or `LOCAL` (localhost). The "Fixed At" column is auto-populated by the Apps Script when a bug's status is set to `fixed`. The Apps Script source is in `docs/google-sheets-apps-script.js`.
+- `BUGS_SHEET_WEBHOOK_URL` — Optional. Google Apps Script web app URL. When set, bug reports are synced to a Google Sheet in real time (fire-and-forget — failures don't affect the API response). Supports three modes: new bug creation (appends row), status updates via `PUT /bugs/:bugId` (updates existing row), and deletion via `DELETE /bugs/:bugId` (removes row). The Apps Script uses header-based column lookup (not hardcoded indices) so columns can be reordered freely. Environment values are `PROD` (from `/prod/` page), `DEV` (from `/dev/` page), or `LOCAL` (localhost). The "Fixed At" column is auto-populated by the Apps Script when a bug's status is set to `fixed`. Bi-directional sync: the `onSheetEdit` installable trigger syncs manual Status/Priority/Type edits from the sheet back to Supabase (requires one-time `setupSupabaseCredentials()` in Apps Script — stores `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` in Google Script Properties). The Apps Script source is in `docs/google-sheets-apps-script.js`.
 
 ---
 
@@ -357,7 +361,7 @@ These bugs from the original issue list have been resolved in the codebase:
 - Blob URL memory leak in ProfileTab `handleAvatarUpload` fixed — revokes previous URL before creating new one ✓
 - `EventReels` slideshow images have `onError` fallback (skip to next image on load failure) ✓
 - `loading="lazy"` added to all remaining img tags: HomeTab, ProfileTab, AuthScreen, IOSInstallPrompt, RealtimePing ✓
-- Component test coverage expanded: 409 frontend tests across 18 test files (useAccessibility 16, BottomNav 16, Toast 10, Sidebar 16, ErrorBoundary 11) ✓
+- Component test coverage expanded: 409 frontend tests across 18 test files (useAccessibility 16, BottomNav 16, Toast 10, Sidebar 16, ErrorBoundary 11); `useSwipeToClose` hook adds 10 more tests; EventReels (27) and AvatarCropModal (14) added in deep QA (total 489 across 22 test files) ✓
 - `auto-approve.yml` blocks feature branch PRs from targeting `production` — only `development` → `production` PRs are allowed ✓
 - `deploy-production.yml` back-merges production into development after deploy — keeps branches in sync (merge commits from development→production PRs no longer cause "behind" drift) ✓
 - XP and unlocked titles persisted to Supabase `users` table (migration 007) — fixes level mismatch between prod and dev environments. Auth responses include `xp` and `unlockedTitles`, synced to uiStore on login/session check. `PUT /api/users/me/xp` endpoint for updates. ✓
@@ -388,6 +392,29 @@ These bugs from the original issue list have been resolved in the codebase:
 - Explore tab first-load animation glitch fixed — `transition={{ duration: 0.15 }}` on ExploreTab motion.div reduces the visible gap from `AnimatePresence mode="wait"` sequential transitions (BUG-1771954315641) ✓
 - ChangelogSheet scroll fixed — replaced `maxHeight` calc with flex layout (`flex-1 min-h-0`) + `overscroll-contain` so the "What's New" sheet scrolls properly on iOS Safari (BUG-1771957626306) ✓
 - VideoWall press-and-hold drag glitch fixed — replaced Framer Motion `whileTap` with manual press tracking via `onPointerDown` + global `pointerup` listener so cards stay scaled down until touch is fully released, even when finger drags off the card (BUG-1771957730622) ✓
+- Feature request submission added — `FeatureRequestModal` component (mirrors `BugReportModal`), Lightbulb button above Bug button, `type` column in `bug_reports` table (migration 011), `FEAT-` ID prefix for feature requests, Google Sheet `Type` column, `/fix-bugs` skill re-categorizes bug-as-feature instead of rejecting ✓
+- Apps Script update handler now syncs `description`, `platform`, and `reporter` fields (previously only synced status/priority/environment/app_version/reports/type) ✓
+- Reporter column added to Google Sheet — auto-populated from JWT email on bug/feature submission, visible in sheet for triage ✓
+- Bi-directional sync added — `onSheetEdit` installable trigger syncs manual Status/Priority/Type edits from Google Sheet back to Supabase via REST API. Auto-populates/clears "Fixed At" on status changes. Requires one-time `setupSupabaseCredentials()` setup ✓
+- Community hub scroll lock fixed — `overscroll-behavior-y: contain` on `#main-content` prevents iOS Safari scroll context confusion during tab transitions; pull-to-refresh touch refs cleaned up on tab switch; instant scroll reset instead of smooth (races with AnimatePresence); `requestAnimationFrame` forces iOS to recalculate scroll context (BUG-1771959452079 + BUG-1771959505810) ✓
+- CreateEventModal stuck fixed — close button uses `onPointerDown` instead of `onClick` for immediate response on iOS; backdrop uses `onPointerDown`; `touch-action: manipulation` on header/close button prevents iOS gesture recognizer interference; swipe-down-to-close via Framer Motion `drag="y"` on modal container (BUG-1771966783965) ✓
+- Explore page wobble animation fixed — removed `layoutId` from `EventCard` that caused unintended cross-tab layout animations during `AnimatePresence mode="wait"` transitions (BUG-1771959632614) ✓
+- Feature request box text overflow fixed — `break-words` and `overflow-wrap: break-word` on description textarea; `overscroll-contain` on modal scroll area (BUG-1771992727908) ✓
+- Feature request/bug report buttons overlap fixed — increased vertical spacing between floating buttons (bottom-[120px] and bottom-[168px] on mobile) to prevent touch target overlap (BUG-1771992911027) ✓
+- Swipe-to-close added to all 12 bottom sheets/modals — `useSwipeToClose` hook in `useAccessibility.js` tracks pointer drag on handle bars and dismisses when threshold or velocity exceeded. Applied to: EventDetailSheet, MyBookingsSheet, SavedEventsSheet, HelpSheet, GroupChatsSheet, TribeSheet, ChangelogSheet, UserProfileSheet, BugReportModal, FeatureRequestModal, CreateEventModal. 10 new tests for the hook (BUG-1771992986881) ✓
+- EventReels aria-labels added — all 7 icon-only buttons now have proper `aria-label` attributes (close, previous, next, like/unlike, chat, upload, share). Text labels on buttons marked `aria-hidden="true"` to prevent double-announcement ✓
+- `sendMessage` in App.jsx now removes optimistic message on failure — previously, failed sends left ghost "sent" messages visible in the chat. Now rolls back the optimistic message from `chatMessages` state on error ✓
+- `handleJoin` in App.jsx reads XP from Zustand store at call time (`useUIStore.getState().userXP`) instead of stale closure value — fixes XP not accumulating on rapid event joins. Also rolls back XP on join failure ✓
+- `AvatarCropModal` wheel listener attached via native `addEventListener` with `{ passive: false }` — fixes Chrome console warning about `preventDefault()` on passive wheel events (React attaches `onWheel` as passive by default) ✓
+- `bg-white` replaced with `bg-paper` in 9 locations — AuthScreen form inputs (5), BugReportModal textarea (1), FeatureRequestModal textarea (1), GroupChatsSheet message bubble + reaction popup (2). Design system compliance: never hardcode `#ffffff` ✓
+- GroupChatsSheet missing aria-labels added — search and close buttons in community list header now have proper `aria-label` attributes ✓
+- Component test coverage expanded: 489 tests across 22 test files — added EventReels (27 tests: rendering, accessibility, navigation, interactions, touch, inclusivity tags) and AvatarCropModal (14 tests: rendering, interactions, zoom controls, wheel handler lifecycle) ✓
+- `fetchAllData` now shows error toast on failure — previously only logged to console, leaving users with an empty app and no explanation ✓
+- Mango `handleDragEnd` setTimeout now tracked via `fallTimerRef` and cleaned up on unmount — prevents state-update-on-unmounted-component warnings and memory leaks. All three Mango timers (hold, idle, fall) now have explicit unmount cleanup ✓
+- BugReportModal and FeatureRequestModal close buttons use `onPointerDown` instead of `onClick` — prevents iOS gesture recognizer from swallowing taps inside scrollable modal containers (same fix as CreateEventModal BUG-1771966783965) ✓
+- Null safety on `filteredEvents` — `e.title?.toLowerCase()` prevents crash when an event has a missing title ✓
+- HomeTab micro-meets scroll buttons have `aria-label="Scroll left"` / `aria-label="Scroll right"` for screen readers ✓
+- OnboardingFlow back button has `aria-label="Go back"` for screen readers ✓
 
 ---
 
@@ -459,6 +486,7 @@ These bugs from the original issue list have been resolved in the codebase:
 - [x] Add `aria-hidden="true"` to decorative elements (glow rings, active indicators, chevron icons)
 - [x] BottomNav uses `<nav>` landmark with `aria-label="Main navigation"`
 - [x] Sidebar uses `<nav>` landmark with `aria-label="Category filter"`
+- [x] Swipe-down-to-close on all 12 bottom sheets/modals via `useSwipeToClose` hook — drag handle bars dismiss on threshold or velocity
 - [ ] Test with screen reader (VoiceOver/NVDA) and keyboard-only navigation
 
 ### Phase 5: Security Hardening (Pre-Launch)
@@ -530,7 +558,7 @@ ESLint passes clean (0 errors, 0 warnings). The config (`eslint.config.js`) has 
 - No direct INSERT/UPDATE/DELETE on `users` table from frontend roles
 - All data mutation goes through Express API → service role client
 
-**Migrations:** Run via `node server/migrate.js`. Files in `server/migrations/` are executed in order (001–010). See Directory Layout above for details.
+**Migrations:** Run via `node server/migrate.js`. Files in `server/migrations/` are executed in order (001–011). See Directory Layout above for details.
 
 ---
 
@@ -684,7 +712,7 @@ When processing bugs via `/fix-bugs`, the full lifecycle is: **mark `in-progress
 
 In this sandbox environment, DNS resolution for some hosts fails (`EAI_AGAIN`), but the Supabase REST API resolves fine via its IP. The local Express server can't connect to Supabase (DNS failure), but direct `curl` to `$SUPABASE_URL/rest/v1/` works. The production Railway backend (`socialise-app-production.up.railway.app`) is reachable but blocks demo login. The development Railway backend may not be running.
 
-**Rule:** When you need to update Supabase data and the local server can't start, go directly to the Supabase REST API with the service role key. Don't waste time trying to start the local server, logging in for a JWT, or retrying DNS failures. Use `printenv` to get env vars into shell variables (avoids quoting issues with `$VAR` in curl commands).
+**Rule:** When you need to update Supabase data and the local server can't start, go directly to the Supabase REST API with the service role key. Don't waste time trying to start the local server, logging in for a JWT, or retrying DNS failures. Use `printenv` to get env vars into shell variables (avoids quoting issues with `$VAR` in curl commands). For running raw SQL (migrations, schema changes, ad-hoc queries), use the Supabase Management API — see lesson #13.
 
 ### 9. Google Sheet sync requires the production API — Supabase REST alone is not enough
 
@@ -756,3 +784,45 @@ At the end of each task or conversation, proactively review what happened and su
 - **Verification steps that were skipped** (e.g., not checking the Google Sheet after an update)
 
 When a lesson is identified, propose updating the relevant documentation (CLAUDE.md, skill definitions, agent definitions) to make it permanent. Don't just note it — encode it so it can't happen again.
+
+### 13. Running Supabase migrations in the sandbox — use the Management API, not the JS client
+
+The Supabase JS client (`@supabase/supabase-js`) relies on DNS resolution for `*.supabase.co` hostnames, which fails in this sandbox environment (`EAI_AGAIN` / `fetch failed`). This means `node server/migrate.js` will always fail — it uses `supabase.rpc('exec', ...)` under the hood. Don't waste time installing deps, creating `.env`, and retrying the migration runner.
+
+**Rule:** To execute raw SQL against Supabase from the sandbox, use the **Supabase Management API** database query endpoint with the `SUPABASE_ACCESS_TOKEN`:
+
+```bash
+SUPABASE_ACCESS_TOKEN=$(printenv SUPABASE_ACCESS_TOKEN | tr -d ' ')
+PROJECT_REF=$(printenv SUPABASE_URL | sed 's|https://||' | sed 's|\.supabase\.co||')
+
+SQL=$(cat server/migrations/001_initial_schema.sql)
+
+curl -s -X POST "https://api.supabase.com/v1/projects/$PROJECT_REF/database/query" \
+  -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d "$(jq -n --arg q "$SQL" '{query: $q}')"
+```
+
+Key details:
+- The endpoint is `POST https://api.supabase.com/v1/projects/{ref}/database/query` (NOT `/sql` — that doesn't exist)
+- Auth uses `SUPABASE_ACCESS_TOKEN` (management token), NOT `SUPABASE_SERVICE_ROLE_KEY`
+- Trim whitespace from the token: `tr -d ' '` — the env var may have a leading space
+- Extract the project ref from `SUPABASE_URL` by stripping `https://` and `.supabase.co`
+- Use `jq -n --arg q "$SQL" '{query: $q}'` to safely JSON-encode the SQL (handles quotes, newlines, dollar signs in PL/pgSQL)
+- HTTP 201 = success, HTTP 400 = SQL error (check the `message` field)
+- Migrations with `IF NOT EXISTS` / `CREATE OR REPLACE` are safe to re-run; seed data INSERTs will fail with duplicate key errors if data already exists — skip and continue
+- Existing triggers will fail with `42710: trigger already exists` — non-critical if the table itself was created successfully
+
+This also applies to any ad-hoc SQL you need to run (schema inspection, data fixes, etc.) — always prefer the Management API over trying to start the local Express server or use the JS client.
+
+### 14. Commit after every QA round — never leave fixes uncommitted across context boundaries
+
+During a deep QA session, round 3 fixes (3 files modified) were left uncommitted when the context window ran out. If the session hadn't been continued, those fixes would have been silently lost — no error, no warning, just gone. Rounds 1 and 2 had been committed and pushed; round 3 had not.
+
+**Rule:** When running multi-round QA or fix sessions, commit and push after **every** round — not at the end. A small incremental commit takes seconds and guarantees work survives context compaction, session timeouts, or crashes. Never accumulate uncommitted changes across rounds "because there might be more coming." There always might be more coming. Commit anyway.
+
+### 15. Verify tool availability before composing complex arguments
+
+Attempted `gh pr create` with a detailed multi-paragraph PR body, only to discover `gh` isn't installed in the sandbox. The entire body composition was wasted effort. CLAUDE.md Lesson #8 already warns about sandbox limitations, but this is a more specific anti-pattern: building elaborate arguments for a command you haven't confirmed exists.
+
+**Rule:** Before composing a command with complex arguments (heredocs, multi-line bodies, JSON payloads), run a quick `which <tool>` or `<tool> --version` first. If it fails, skip the composition entirely and note the limitation. This applies to `gh`, `jq`, `docker`, and any non-standard CLI tool.

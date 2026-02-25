@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Sparkles, Bug, Shield, Trash2, RefreshCw } from 'lucide-react';
-import { useEscapeKey, useFocusTrap } from '../hooks/useAccessibility';
+import { useEscapeKey, useFocusTrap, useSwipeToClose } from '../hooks/useAccessibility';
 
 const CATEGORY_CONFIG = {
   Added: { icon: Sparkles, color: 'text-primary', bg: 'bg-primary/10' },
@@ -216,6 +216,7 @@ const CHANGELOG = [
 const ChangelogSheet = ({ isOpen, onClose }) => {
   useEscapeKey(isOpen, onClose);
   const focusTrapRef = useFocusTrap(isOpen);
+  const { sheetY, handleProps } = useSwipeToClose(onClose);
 
   const currentVersion = import.meta.env.VITE_APP_VERSION || CHANGELOG[0]?.version || '0.1.dev';
 
@@ -240,9 +241,10 @@ const ChangelogSheet = ({ isOpen, onClose }) => {
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
             className="absolute inset-x-0 bottom-0 top-16 bg-paper rounded-t-[32px] overflow-hidden shadow-2xl flex flex-col"
             onClick={(e) => e.stopPropagation()}
+            style={{ y: sheetY }}
           >
             {/* Handle */}
-            <div className="flex justify-center pt-3 pb-2 shrink-0">
+            <div {...handleProps} className="flex justify-center pt-3 pb-2 shrink-0">
               <div className="w-12 h-1 rounded-full bg-secondary/20" />
             </div>
 
