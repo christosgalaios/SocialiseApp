@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Calendar, Users, TrendingUp, Plus, Megaphone,
-  ChevronRight, BarChart3, Globe, Pencil, Clock, History, RefreshCw,
+  ChevronRight, BarChart3, Globe, Pencil, Clock, History, RefreshCw, Share2, Sparkles,
 } from 'lucide-react';
 import useAuthStore from '../stores/authStore';
 import useUIStore from '../stores/uiStore';
@@ -21,6 +21,21 @@ const containerVariants = {
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
   show: { opacity: 1, y: 0, transition: { type: 'spring', damping: 25, stiffness: 400 } },
+};
+
+const getRelativeDate = (dateStr) => {
+  const eventDate = new Date(dateStr);
+  if (isNaN(eventDate.getTime())) return dateStr;
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const target = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate());
+  const diffDays = Math.round((target - today) / (1000 * 60 * 60 * 24));
+  if (diffDays === 0) return 'Today';
+  if (diffDays === 1) return 'Tomorrow';
+  if (diffDays === -1) return 'Yesterday';
+  if (diffDays > 1 && diffDays <= 7) return `In ${diffDays} days`;
+  if (diffDays < -1 && diffDays >= -7) return `${Math.abs(diffDays)} days ago`;
+  return dateStr;
 };
 
 export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }) {
@@ -219,6 +234,26 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           </div>
         )}
 
+        {/* Event count summary */}
+        {events.length > 0 && (
+          <div className="flex items-center gap-3 mb-3">
+            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-green-600">
+              <Clock size={10} />
+              {upcomingEvents.length} upcoming
+            </span>
+            <span className="text-secondary/20">|</span>
+            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-secondary/40">
+              <History size={10} />
+              {pastEvents.length} past
+            </span>
+            <span className="text-secondary/20">|</span>
+            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-secondary/40">
+              <Users size={10} />
+              {communities.length} communities
+            </span>
+          </div>
+        )}
+
         <button
           onClick={() => { playTap(); onSwitchToAttendee(); }}
           className="text-[10px] font-black text-secondary/40 uppercase tracking-widest hover:text-secondary/60 transition-colors"
@@ -284,11 +319,17 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           Create Event
         </button>
         <button
-          onClick={() => { playTap(); hapticTap(); }}
+          onClick={() => {
+            playTap(); hapticTap();
+            const profileUrl = `${window.location.origin}${window.location.pathname}?organiser=${user?.id}`;
+            navigator.clipboard?.writeText(profileUrl)
+              .then(() => showToast('Profile link copied!', 'success'))
+              .catch(() => showToast('Could not copy link', 'error'));
+          }}
           className="p-4 rounded-2xl bg-secondary/5 border border-secondary/10 font-bold text-sm text-secondary flex items-center justify-center gap-2 hover:bg-secondary/10 transition-colors"
         >
-          <Users size={18} />
-          Community
+          <Share2 size={18} />
+          Share
         </button>
       </motion.div>
 
@@ -361,7 +402,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           </div>
 
           {/* Attendance rate */}
-          {events.length > 0 && (
+          {events.length > 0 ? (
             <div className="premium-card p-6">
               <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-4">
                 Event Fill Rates<span className="text-accent">.</span>
@@ -387,14 +428,29 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                   );
                 })}
               </div>
-              {events.length > 0 && (
-                <div className="mt-4 pt-4 border-t border-secondary/10 flex items-center justify-between">
-                  <span className="text-[10px] font-bold text-secondary/40">Average fill rate</span>
-                  <span className="text-sm font-black text-primary">
-                    {Math.round(events.reduce((sum, e) => sum + (e.spots > 0 ? (e.attendees / e.spots) * 100 : 0), 0) / Math.max(events.length, 1))}%
-                  </span>
-                </div>
-              )}
+              <div className="mt-4 pt-4 border-t border-secondary/10 flex items-center justify-between">
+                <span className="text-[10px] font-bold text-secondary/40">Average fill rate</span>
+                <span className="text-sm font-black text-primary">
+                  {Math.round(events.reduce((sum, e) => sum + (e.spots > 0 ? (e.attendees / e.spots) * 100 : 0), 0) / Math.max(events.length, 1))}%
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div className="premium-card p-8 text-center">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-[20px] bg-accent/5 border border-accent/10 flex items-center justify-center">
+                <Sparkles size={28} className="text-accent/40" />
+              </div>
+              <h4 className="text-sm font-black text-secondary mb-1">No analytics yet</h4>
+              <p className="text-[11px] text-secondary/40 max-w-[220px] mx-auto mb-4">
+                Create your first event and watch your analytics come to life
+              </p>
+              <button
+                onClick={() => { playClick(); hapticTap(); onCreateEvent?.(); }}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-xs font-bold active:scale-95 transition-transform"
+              >
+                <Plus size={14} />
+                Create Your First Event
+              </button>
             </div>
           )}
         </motion.div>
@@ -527,7 +583,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-bold text-secondary truncate">{event.title}</p>
                       <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-[10px] text-secondary/40 font-medium">{event.date}</span>
+                        <span className={`text-[10px] font-medium ${getRelativeDate(event.date) === 'Today' ? 'text-green-600 font-bold' : getRelativeDate(event.date) === 'Tomorrow' ? 'text-primary font-bold' : 'text-secondary/40'}`}>{getRelativeDate(event.date)}</span>
                         <span className="text-[10px] text-secondary/30">|</span>
                         <span className={`text-[10px] font-bold ${fillPct >= 80 ? 'text-accent' : 'text-primary'}`}>
                           <Users size={10} className="inline mr-0.5" />

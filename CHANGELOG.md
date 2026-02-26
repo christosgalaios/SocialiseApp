@@ -31,6 +31,10 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Dashboard refresh button** — organisers can manually refresh their dashboard stats, events, and communities with a single tap
 - **"Hosting" badge on event cards** — events the organiser hosts now show a gold "HOSTING" badge with megaphone icon on both Home and Explore tabs, replacing the "GOING" badge
 - **Community activity indicator** — community rows on the organiser dashboard now show an "active" badge for communities with members
+- **Relative date labels on dashboard events** — event rows show "Today", "Tomorrow", "In 3 days" etc. instead of raw dates, with green highlight for today's events
+- **Share profile quick action** — organisers can copy their profile link to clipboard with a single tap from the dashboard
+- **Empty analytics state** — analytics tab shows a motivational empty state with a "Create Your First Event" CTA when no events exist
+- **Dashboard header summary** — organiser profile card now shows a compact "X upcoming, Y past, Z communities" summary at a glance
 
 ### Changed
 - **Public organiser profile redesign** — richer layout with cover photo, quick stats grid, "Connect" section for social links, "Hosts" section for categories, and improved loading skeleton
