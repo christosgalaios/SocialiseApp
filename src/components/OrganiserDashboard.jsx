@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Calendar, Users, TrendingUp, Plus, Megaphone,
@@ -57,7 +57,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [eventFilter, setEventFilter] = useState('upcoming');
 
-  const fetchDashboard = async (silent = false) => {
+  const fetchDashboard = useCallback(async (silent = false) => {
     try {
       const data = await api.getOrganiserStats();
       setStats(data.stats);
@@ -67,22 +67,25 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
     } catch {
       if (!silent) showToast('Failed to load organiser stats', 'error');
     }
-  };
+  }, [showToast]);
 
   useEffect(() => {
     let cancelled = false;
     fetchDashboard(true)
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [fetchDashboard]);
 
-  const handleRefresh = async () => {
-    if (isRefreshing) return;
+  const isRefreshingRef = useRef(false);
+  const handleRefresh = useCallback(async () => {
+    if (isRefreshingRef.current) return;
+    isRefreshingRef.current = true;
     setIsRefreshing(true);
     playClick(); hapticTap();
     await fetchDashboard(false);
+    isRefreshingRef.current = false;
     setIsRefreshing(false);
-  };
+  }, [fetchDashboard]);
 
   const socialLinks = user?.organiserSocialLinks || {};
   const activeSocials = ORGANISER_SOCIAL_PLATFORMS.filter(p => socialLinks[p.key]?.trim());
@@ -122,6 +125,32 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
     else countdown = 'Starting soon';
     return { ...next, countdown };
   }, [upcomingEvents]);
+
+  // Keyboard shortcuts
+  const handleKeyboard = useCallback((e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.key === 'n' || e.key === 'N') { onCreateEvent?.(); }
+    if (e.key === 'r' || e.key === 'R') { handleRefresh(); }
+  }, [onCreateEvent, handleRefresh]);
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyboard);
+    return () => document.removeEventListener('keydown', handleKeyboard);
+  }, [handleKeyboard]);
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 17) return 'Good Afternoon';
+    return 'Good Evening';
+  };
+
+  const getOrganiserTier = () => {
+    const hosted = stats?.eventsHosted ?? 0;
+    if (hosted >= 20) return { label: 'Gold', color: 'text-amber-500', bg: 'bg-amber-500/10', border: 'border-amber-500/20', icon: '👑' };
+    if (hosted >= 5) return { label: 'Silver', color: 'text-slate-400', bg: 'bg-slate-400/10', border: 'border-slate-400/20', icon: '⭐' };
+    return { label: 'Bronze', color: 'text-orange-600', bg: 'bg-orange-500/10', border: 'border-orange-500/20', icon: '🌱' };
+  };
 
   if (loading) {
     return (
@@ -175,6 +204,24 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
 
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="show" className="space-y-6">
+      {/* Greeting */}
+      <motion.div variants={itemVariants} className="flex items-center justify-between">
+        <div>
+          <p className="text-[10px] font-black text-secondary/40 uppercase tracking-widest mb-0.5">Dashboard</p>
+          <h1 className="text-2xl font-black text-secondary tracking-tight">
+            {getGreeting()}<span className="text-accent">,</span> {(user?.organiserDisplayName || user?.name)?.split(' ')[0]}<span className="text-accent">.</span>
+          </h1>
+        </div>
+        {stats && (() => {
+          const tier = getOrganiserTier();
+          return (
+            <span className={`inline-flex items-center gap-1 px-2.5 py-1 ${tier.bg} rounded-full border ${tier.border} ${tier.color} text-[10px] font-black`}>
+              {tier.icon} {tier.label}
+            </span>
+          );
+        })()}
+      </motion.div>
+
       {/* Organiser Header */}
       <motion.div variants={itemVariants} className="premium-card p-6 relative overflow-hidden">
         <div className="absolute -right-12 -top-12 w-48 h-48 bg-primary/5 rounded-full blur-3xl" />
@@ -209,7 +256,8 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               onClick={handleRefresh}
               disabled={isRefreshing}
               className="w-10 h-10 rounded-2xl bg-secondary/5 border border-secondary/10 flex items-center justify-center hover:bg-secondary/10 transition-colors disabled:opacity-50"
-              aria-label="Refresh dashboard"
+              aria-label="Refresh dashboard (R)"
+              title="Refresh (R)"
             >
               <RefreshCw size={16} className={`text-secondary/60 ${isRefreshing ? 'animate-spin' : ''}`} />
             </button>
@@ -337,6 +385,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
         >
           <Plus size={20} />
           <span className="text-[10px]">New Event</span>
+          <kbd className="hidden md:inline text-[8px] font-mono text-white/50 bg-white/10 px-1 rounded">N</kbd>
         </button>
         <button
           onClick={() => { playTap(); hapticTap(); setShowTribeDiscovery(true); }}

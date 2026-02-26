@@ -49,6 +49,9 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Public profile event tabs** — events on the public organiser profile are now split into "Upcoming" and "Past" tabs with counts and animated transitions
 - **Animated stats on public profiles** — quick stats (events, communities, members) now animate with a spring pop-in effect when the profile loads
 - **Enhanced "Hosted By" section** — event detail sheet now shows the host with a styled organiser badge, larger avatar with border, and a card-style background
+- **Time-based dashboard greeting** — organiser dashboard header now shows "Good Morning/Afternoon/Evening, [name]" based on the current time of day
+- **Organiser tier badges** — dashboard displays a Bronze/Silver/Gold tier badge based on events hosted (Bronze < 5, Silver < 20, Gold 20+) with matching colors and icons
+- **Dashboard keyboard shortcuts** — press N to create a new event and R to refresh the dashboard (disabled when typing in inputs); New Event button shows a keyboard hint on desktop
 
 ### Changed
 - **Organiser dashboard lazy-loaded** — OrganiserDashboard is now loaded on demand via React.lazy(), reducing the main bundle from 520KB to 494KB (26KB saved) with a matching loading skeleton
