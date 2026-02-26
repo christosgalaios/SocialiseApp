@@ -234,7 +234,7 @@ export default function OrganiserEditProfileSheet() {
                 <label className="text-xs font-black text-secondary/60 uppercase tracking-widest mb-2 block">
                   Cover Photo
                 </label>
-                <div className="relative h-24 rounded-2xl overflow-hidden bg-secondary/5 border-2 border-dashed border-secondary/20">
+                <div className="relative h-24 rounded-2xl overflow-hidden bg-secondary/5 border-2 border-dashed border-secondary/20 hover:border-primary/30 transition-colors duration-200">
                   {coverPhotoPreview ? (
                     <>
                       <img src={coverPhotoPreview} className="w-full h-full object-cover" alt="Cover" />
@@ -277,7 +277,7 @@ export default function OrganiserEditProfileSheet() {
                   placeholder="How attendees will see you"
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  className="w-full bg-secondary/5 border-2 border-secondary/20 rounded-2xl px-4 py-3.5 text-base font-medium text-[var(--text)] focus:outline-none focus:border-primary transition-all placeholder:text-secondary/40"
+                  className="w-full bg-secondary/5 border-2 border-secondary/20 rounded-2xl px-4 py-3.5 text-base font-medium text-[var(--text)] focus:outline-none focus:border-primary hover:border-secondary/30 transition-all placeholder:text-secondary/40"
                   maxLength={50}
                 />
                 {displayName.trim().length > 0 && displayName.trim().length < 2 && (
@@ -307,7 +307,7 @@ export default function OrganiserEditProfileSheet() {
                   placeholder="Tell people what kind of events you host..."
                   value={organiserBio}
                   onChange={(e) => setOrganiserBio(e.target.value)}
-                  className="w-full bg-secondary/5 border-2 border-secondary/20 rounded-2xl px-4 py-3 text-sm font-medium text-[var(--text)] focus:outline-none focus:border-primary transition-all placeholder:text-secondary/40 min-h-[100px] resize-none"
+                  className="w-full bg-secondary/5 border-2 border-secondary/20 rounded-2xl px-4 py-3 text-sm font-medium text-[var(--text)] focus:outline-none focus:border-primary hover:border-secondary/30 transition-all placeholder:text-secondary/40 min-h-[100px] resize-none"
                   maxLength={300}
                   style={{ overflowWrap: 'break-word', wordBreak: 'break-words' }}
                 />

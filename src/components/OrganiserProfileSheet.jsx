@@ -429,7 +429,7 @@ export default function OrganiserProfileSheet() {
                               <button
                                 key={tab.key}
                                 onClick={() => { playTap(); setEventTab(tab.key); }}
-                                className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold transition-colors relative"
+                                className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold transition-colors relative hover:bg-secondary/5 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                               >
                                 {eventTab === tab.key && (
                                   <motion.div
