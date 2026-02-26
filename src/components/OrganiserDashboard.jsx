@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Calendar, Users, TrendingUp, Plus, ArrowLeft, Megaphone, MapPin,
-  Eye, ChevronRight, BarChart3, Globe,
+  Calendar, Users, TrendingUp, Plus, Megaphone,
+  ChevronRight, BarChart3, Globe, Pencil, Clock, History,
 } from 'lucide-react';
 import useAuthStore from '../stores/authStore';
 import useUIStore from '../stores/uiStore';
@@ -24,11 +24,13 @@ const itemVariants = {
 export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }) {
   const user = useAuthStore((s) => s.user);
   const showToast = useUIStore((s) => s.showToast);
+  const setShowOrganiserEditProfile = useUIStore((s) => s.setShowOrganiserEditProfile);
 
   const [stats, setStats] = useState(null);
   const [events, setEvents] = useState([]);
   const [communities, setCommunities] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [eventFilter, setEventFilter] = useState('upcoming');
 
   useEffect(() => {
     let cancelled = false;
@@ -52,17 +54,69 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
   const socialLinks = user?.organiserSocialLinks || {};
   const activeSocials = ORGANISER_SOCIAL_PLATFORMS.filter(p => socialLinks[p.key]?.trim());
 
+  const { upcomingEvents, pastEvents } = useMemo(() => {
+    const now = new Date();
+    const upcoming = [];
+    const past = [];
+    events.forEach((event) => {
+      const eventDate = new Date(event.date);
+      if (eventDate >= now || isNaN(eventDate.getTime())) {
+        upcoming.push(event);
+      } else {
+        past.push(event);
+      }
+    });
+    return { upcomingEvents: upcoming, pastEvents: past };
+  }, [events]);
+
+  const filteredEvents = eventFilter === 'upcoming' ? upcomingEvents : pastEvents;
+
   if (loading) {
     return (
-      <div className="space-y-4 animate-pulse">
-        <div className="h-32 rounded-[24px] bg-secondary/10" />
-        <div className="grid grid-cols-2 gap-3">
-          <div className="h-28 rounded-[24px] bg-secondary/10" />
-          <div className="h-28 rounded-[24px] bg-secondary/10" />
-          <div className="h-28 rounded-[24px] bg-secondary/10" />
-          <div className="h-28 rounded-[24px] bg-secondary/10" />
+      <div className="space-y-5 animate-pulse">
+        {/* Profile header skeleton */}
+        <div className="premium-card p-6 rounded-[24px]">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-16 h-16 rounded-[24px] bg-secondary/10" />
+            <div className="flex-1 space-y-2">
+              <div className="h-5 w-36 bg-secondary/10 rounded-full" />
+              <div className="h-3 w-20 bg-secondary/10 rounded-full" />
+            </div>
+          </div>
+          <div className="h-4 w-full bg-secondary/10 rounded-full mb-2" />
+          <div className="h-4 w-3/4 bg-secondary/10 rounded-full" />
         </div>
-        <div className="h-40 rounded-[24px] bg-secondary/10" />
+        {/* Quick actions skeleton */}
+        <div className="flex gap-3">
+          <div className="flex-1 h-14 rounded-2xl bg-secondary/10" />
+          <div className="w-28 h-14 rounded-2xl bg-secondary/10" />
+        </div>
+        {/* Stats grid skeleton */}
+        <div>
+          <div className="h-3 w-32 bg-secondary/10 rounded-full mb-3" />
+          <div className="grid grid-cols-2 gap-3">
+            {[0, 1, 2, 3].map(i => (
+              <div key={i} className="premium-card p-5 rounded-[24px]">
+                <div className="w-11 h-11 rounded-2xl bg-secondary/10 mb-3" />
+                <div className="h-7 w-12 bg-secondary/10 rounded-full mb-1" />
+                <div className="h-2.5 w-20 bg-secondary/10 rounded-full" />
+              </div>
+            ))}
+          </div>
+        </div>
+        {/* Events section skeleton */}
+        <div className="premium-card p-6 rounded-[24px]">
+          <div className="h-3 w-24 bg-secondary/10 rounded-full mb-4" />
+          {[0, 1, 2].map(i => (
+            <div key={i} className="flex items-center gap-3 p-3 mb-2">
+              <div className="w-12 h-12 rounded-xl bg-secondary/10 shrink-0" />
+              <div className="flex-1 space-y-2">
+                <div className="h-4 w-32 bg-secondary/10 rounded-full" />
+                <div className="h-3 w-20 bg-secondary/10 rounded-full" />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -72,8 +126,16 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
       {/* Organiser Header */}
       <motion.div variants={itemVariants} className="premium-card p-6 relative overflow-hidden">
         <div className="absolute -right-12 -top-12 w-48 h-48 bg-primary/5 rounded-full blur-3xl" />
+
+        {/* Cover photo area */}
+        {user?.organiserCoverPhoto && (
+          <div className="-mx-6 -mt-6 mb-4 h-28 overflow-hidden rounded-t-[24px]">
+            <img src={user.organiserCoverPhoto} className="w-full h-full object-cover" alt="" loading="lazy" />
+          </div>
+        )}
+
         <div className="flex items-center gap-4 mb-4">
-          <div className="w-16 h-16 rounded-[24px] overflow-hidden border-2 border-primary/20 shadow-lg">
+          <div className="w-16 h-16 rounded-[24px] overflow-hidden border-2 border-primary/20 shadow-lg shrink-0">
             <img src={user?.avatar || DEFAULT_AVATAR} className="w-full h-full object-cover" alt="Organiser" loading="lazy" />
           </div>
           <div className="flex-1 min-w-0">
@@ -90,6 +152,13 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               <span className="text-[10px] font-black text-accent uppercase tracking-widest">Organiser</span>
             </div>
           </div>
+          <button
+            onClick={() => { playTap(); hapticTap(); setShowOrganiserEditProfile(true); }}
+            className="w-10 h-10 rounded-2xl bg-secondary/5 border border-secondary/10 flex items-center justify-center hover:bg-secondary/10 transition-colors shrink-0"
+            aria-label="Edit organiser profile"
+          >
+            <Pencil size={16} className="text-secondary/60" />
+          </button>
         </div>
 
         {user?.organiserBio && (
@@ -97,7 +166,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
         )}
 
         {activeSocials.length > 0 && (
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 mb-3">
             {activeSocials.map(p => (
               <span key={p.key} className="inline-flex items-center gap-1 px-2.5 py-1 bg-secondary/5 rounded-full border border-secondary/10 text-[11px] font-bold text-secondary/60">
                 <Globe size={10} />
@@ -109,7 +178,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
 
         <button
           onClick={() => { playTap(); onSwitchToAttendee(); }}
-          className="mt-4 text-[10px] font-black text-secondary/40 uppercase tracking-widest hover:text-secondary/60 transition-colors"
+          className="text-[10px] font-black text-secondary/40 uppercase tracking-widest hover:text-secondary/60 transition-colors"
         >
           Switch to attendee view
         </button>
@@ -181,9 +250,37 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
             My Events<span className="text-accent">.</span>
           </h3>
           <span className="text-[9px] font-bold text-secondary/30 uppercase tracking-widest">
-            {events.length} events
+            {events.length} total
           </span>
         </div>
+
+        {/* Event filter tabs */}
+        {events.length > 0 && (
+          <div className="flex gap-2 mb-4">
+            {[
+              { key: 'upcoming', label: 'Upcoming', icon: Clock, count: upcomingEvents.length },
+              { key: 'past', label: 'Past', icon: History, count: pastEvents.length },
+            ].map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => { playTap(); setEventFilter(tab.key); }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all ${
+                  eventFilter === tab.key
+                    ? 'bg-primary/10 text-primary border border-primary/20'
+                    : 'bg-secondary/5 text-secondary/50 border border-secondary/10 hover:bg-secondary/10'
+                }`}
+              >
+                <tab.icon size={12} />
+                {tab.label}
+                <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-black ${
+                  eventFilter === tab.key ? 'bg-primary/20 text-primary' : 'bg-secondary/10 text-secondary/40'
+                }`}>
+                  {tab.count}
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
 
         {events.length === 0 ? (
           <div className="text-center py-8">
@@ -191,28 +288,58 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
             <p className="text-sm text-secondary/40 font-medium">No events yet</p>
             <p className="text-[11px] text-secondary/30">Create your first event to get started</p>
           </div>
-        ) : (
-          <div className="space-y-3">
-            {events.slice(0, 5).map((event) => (
-              <div key={event.id} className="flex items-center gap-3 p-3 rounded-2xl bg-secondary/5 border border-secondary/10">
-                <div className="w-12 h-12 rounded-xl overflow-hidden bg-secondary/10 shrink-0">
-                  {event.image && <img src={event.image} className="w-full h-full object-cover" alt="" loading="lazy" />}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-secondary truncate">{event.title}</p>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-[10px] text-secondary/40 font-medium">{event.date}</span>
-                    <span className="text-[10px] text-secondary/30">|</span>
-                    <span className="text-[10px] text-primary font-bold">
-                      <Users size={10} className="inline mr-0.5" />
-                      {event.attendees}/{event.spots}
-                    </span>
-                  </div>
-                </div>
-                <ChevronRight size={16} className="text-secondary/30 shrink-0" />
-              </div>
-            ))}
+        ) : filteredEvents.length === 0 ? (
+          <div className="text-center py-6">
+            <p className="text-sm text-secondary/40 font-medium">
+              No {eventFilter} events
+            </p>
           </div>
+        ) : (
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={eventFilter}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.15 }}
+              className="space-y-3"
+            >
+              {filteredEvents.slice(0, 5).map((event) => {
+                const fillPct = event.spots > 0 ? Math.round((event.attendees / event.spots) * 100) : 0;
+                return (
+                  <div key={event.id} className="flex items-center gap-3 p-3 rounded-2xl bg-secondary/5 border border-secondary/10">
+                    <div className="w-12 h-12 rounded-xl overflow-hidden bg-secondary/10 shrink-0">
+                      {event.image && <img src={event.image} className="w-full h-full object-cover" alt="" loading="lazy" />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-secondary truncate">{event.title}</p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-[10px] text-secondary/40 font-medium">{event.date}</span>
+                        <span className="text-[10px] text-secondary/30">|</span>
+                        <span className={`text-[10px] font-bold ${fillPct >= 80 ? 'text-accent' : 'text-primary'}`}>
+                          <Users size={10} className="inline mr-0.5" />
+                          {event.attendees}/{event.spots}
+                        </span>
+                      </div>
+                      {/* Mini fill bar */}
+                      <div className="w-full h-1 bg-secondary/10 rounded-full mt-1.5 overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all ${fillPct >= 80 ? 'bg-accent' : 'bg-primary/60'}`}
+                          style={{ width: `${Math.min(fillPct, 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                    <ChevronRight size={16} className="text-secondary/30 shrink-0" />
+                  </div>
+                );
+              })}
+              {filteredEvents.length > 5 && (
+                <p className="text-[10px] text-center text-secondary/40 font-bold pt-1">
+                  +{filteredEvents.length - 5} more
+                </p>
+              )}
+            </motion.div>
+          </AnimatePresence>
         )}
       </motion.div>
 

@@ -67,6 +67,8 @@ const useUIStore = create((set) => ({
   setShowOrganiserSetup: (show) => set({ showOrganiserSetup: show }),
   showOrganiserProfile: null, // userId or null
   setShowOrganiserProfile: (userId) => set({ showOrganiserProfile: userId }),
+  showOrganiserEditProfile: false,
+  setShowOrganiserEditProfile: (show) => set({ showOrganiserEditProfile: show }),
   organiserDashboardTab: 'overview',
   setOrganiserDashboardTab: (tab) => set({ organiserDashboardTab: tab }),
 

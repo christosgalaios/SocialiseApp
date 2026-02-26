@@ -5,8 +5,11 @@ export default function OrganiserStatsCard({ icon: Icon, value, label, trend, co
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`premium-card p-5 relative overflow-hidden`}
+      whileHover={{ y: -2 }}
+      transition={{ type: 'spring', damping: 25, stiffness: 400 }}
+      className="premium-card p-5 relative overflow-hidden group cursor-default"
     >
+      <div className="absolute -right-6 -bottom-6 w-24 h-24 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: `radial-gradient(circle, var(--primary) 0%, transparent 70%)`, opacity: 0.05 }} />
       <div className="flex items-start justify-between">
         <div className={`w-11 h-11 rounded-2xl ${bgColor} flex items-center justify-center border ${borderColor}`}>
           {Icon && <Icon size={22} className={color} />}
@@ -20,7 +23,14 @@ export default function OrganiserStatsCard({ icon: Icon, value, label, trend, co
         )}
       </div>
       <div className="mt-3">
-        <span className="text-2xl font-black text-secondary">{value}</span>
+        <motion.span
+          className="text-2xl font-black text-secondary block"
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ type: 'spring', damping: 20, stiffness: 300, delay: 0.1 }}
+        >
+          {value}
+        </motion.span>
         <p className="text-[10px] font-bold text-secondary/40 uppercase tracking-widest mt-0.5">{label}</p>
       </div>
     </motion.div>

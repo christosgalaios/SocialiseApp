@@ -12,6 +12,16 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 
 ## [Unreleased]
 
+### Added
+- **Edit organiser profile** — organisers can now update their display name, bio, categories, and social links after initial setup via the Edit Profile sheet on the dashboard
+- **Event filtering on organiser dashboard** — events are split into "Upcoming" and "Past" tabs with counts, making it easy to see what's active vs completed
+- **Event fill bar** — each event row on the organiser dashboard now shows a mini progress bar indicating how full the event is, with accent color when 80%+ filled
+- **Cover photo display** — organiser dashboard and profile header now display the cover photo when one is set
+
+### Changed
+- **Organiser dashboard loading skeleton** — replaced basic pulse blocks with a detailed skeleton that mirrors the actual dashboard structure (profile card, quick actions, stats grid, event list)
+- **Stats card polish** — stat cards now animate their values on mount and show a subtle hover lift effect
+
 ### Fixed
 - **GitHub Pages deploy reliability** — added `.nojekyll` file to disable unnecessary Jekyll processing that adds latency to deployments and can interfere with build output
 - **Deploy race condition** — both deploy workflows now share a single concurrency group (`deploy-gh-pages`) so concurrent dev/prod deploys can't overwrite each other's changes on the `gh-pages` branch

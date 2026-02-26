@@ -31,6 +31,7 @@ import BugReportModal from './BugReportModal';
 import FeatureRequestModal from './FeatureRequestModal';
 import ChangelogSheet from './ChangelogSheet';
 import OrganiserProfileSheet from './OrganiserProfileSheet';
+import OrganiserEditProfileSheet from './OrganiserEditProfileSheet';
 
 const OrganiserSetupFlow = React.lazy(() => import('./OrganiserSetupFlow'));
 
@@ -466,6 +467,7 @@ export default function AppModals({ handleJoin, sendMessage }) {
         </Suspense>
       )}
       <OrganiserProfileSheet key="organiser-profile" />
+      <OrganiserEditProfileSheet key="organiser-edit-profile" />
     </AnimatePresence>
   );
 }
