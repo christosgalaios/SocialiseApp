@@ -13,6 +13,8 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 ## [Unreleased]
 
 ### Added
+- **Revenue paid vs free split bar** — revenue insights section now shows a visual bar indicating the proportion of paid to free events, with a percentage label
+- **Event filter tab sliding pill** — the Upcoming/Past event filter buttons now have a smooth animated pill that slides between options when switching
 - **Dynamic motivational tagline** — the organiser dashboard greeting now shows a context-aware subtitle that adapts to your stats (events running, people reached, upcoming count, etc.)
 - **Dashboard tab sliding pill** — switching between Overview and Analytics tabs now shows a smooth animated pill that slides between options instead of an instant switch
 - **Setup flow step labels** — the organiser onboarding progress bar now shows step names (Identity, Categories, Details) with color-coded active state
