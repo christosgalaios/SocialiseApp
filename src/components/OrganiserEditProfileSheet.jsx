@@ -258,7 +258,7 @@ export default function OrganiserEditProfileSheet() {
                   placeholder="https://example.com/cover-photo.jpg"
                   value={coverPhotoPreview}
                   onChange={(e) => setCoverPhotoPreview(e.target.value)}
-                  className="w-full mt-2 bg-secondary/5 border border-secondary/20 rounded-xl px-3 py-2 text-sm font-medium text-[var(--text)] focus:outline-none focus:border-primary transition-all placeholder:text-secondary/40"
+                  className="w-full mt-2 bg-secondary/5 border border-secondary/20 rounded-xl px-3 py-2 text-sm font-medium text-[var(--text)] focus:outline-none focus:border-primary hover:border-secondary/30 transition-all placeholder:text-secondary/40"
                 />
               </motion.div>
 
