@@ -47,6 +47,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
   const setSelectedEvent = useEventStore((s) => s.setSelectedEvent);
   const allEvents = useEventStore((s) => s.events);
   const setSelectedTribe = useCommunityStore((s) => s.setSelectedTribe);
+  const setShowTribeDiscovery = useCommunityStore((s) => s.setShowTribeDiscovery);
   const allCommunities = useCommunityStore((s) => s.communities);
 
   const [stats, setStats] = useState(null);
@@ -329,13 +330,20 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
       })()}
 
       {/* Quick Actions */}
-      <motion.div variants={itemVariants} className="flex gap-3">
+      <motion.div variants={itemVariants} className="grid grid-cols-3 gap-3">
         <button
           onClick={() => { playClick(); hapticTap(); onCreateEvent?.(); }}
-          className="flex-1 p-4 rounded-2xl bg-gradient-to-r from-primary to-accent text-white font-black text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-transform shadow-lg"
+          className="p-4 rounded-2xl bg-gradient-to-r from-primary to-accent text-white font-black text-sm flex flex-col items-center justify-center gap-1.5 active:scale-[0.98] transition-transform shadow-lg"
         >
-          <Plus size={18} />
-          Create Event
+          <Plus size={20} />
+          <span className="text-[10px]">New Event</span>
+        </button>
+        <button
+          onClick={() => { playTap(); hapticTap(); setShowTribeDiscovery(true); }}
+          className="p-4 rounded-2xl bg-secondary/5 border border-secondary/10 font-bold text-sm text-secondary flex flex-col items-center justify-center gap-1.5 hover:bg-secondary/10 transition-colors"
+        >
+          <Users size={20} />
+          <span className="text-[10px]">Community</span>
         </button>
         <button
           onClick={() => {
@@ -345,10 +353,10 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               .then(() => showToast('Profile link copied!', 'success'))
               .catch(() => showToast('Could not copy link', 'error'));
           }}
-          className="p-4 rounded-2xl bg-secondary/5 border border-secondary/10 font-bold text-sm text-secondary flex items-center justify-center gap-2 hover:bg-secondary/10 transition-colors"
+          className="p-4 rounded-2xl bg-secondary/5 border border-secondary/10 font-bold text-sm text-secondary flex flex-col items-center justify-center gap-1.5 hover:bg-secondary/10 transition-colors"
         >
-          <Share2 size={18} />
-          Share
+          <Share2 size={20} />
+          <span className="text-[10px]">Share</span>
         </button>
       </motion.div>
 
@@ -617,6 +625,9 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
         </div>
       </motion.div>
 
+      {/* Events + Communities responsive grid */}
+      <div className="grid gap-6 lg:grid-cols-2">
+
       {/* My Events */}
       <motion.div variants={itemVariants} className="premium-card p-6">
         <div className="flex items-center justify-between mb-4">
@@ -690,19 +701,37 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               {filteredEvents.slice(0, 5).map((event) => {
                 const fillPct = event.spots > 0 ? Math.round((event.attendees / event.spots) * 100) : 0;
                 const fullEvent = allEvents.find(e => e.id === event.id) || event;
+                const relDate = getRelativeDate(event.date);
+                const isLive = relDate === 'Today';
+                const isSoldOut = fillPct >= 100;
+                const isAlmostFull = fillPct >= 80 && !isSoldOut;
                 return (
                   <button
                     key={event.id}
                     onClick={() => { playTap(); hapticTap(); setSelectedEvent(fullEvent); }}
                     className="w-full flex items-center gap-3 p-3 rounded-2xl bg-secondary/5 border border-secondary/10 hover:bg-secondary/10 transition-colors text-left"
                   >
-                    <div className="w-12 h-12 rounded-xl overflow-hidden bg-secondary/10 shrink-0">
+                    <div className="w-12 h-12 rounded-xl overflow-hidden bg-secondary/10 shrink-0 relative">
                       {event.image && <img src={event.image} className="w-full h-full object-cover" alt="" loading="lazy" />}
+                      {isLive && (
+                        <div className="absolute top-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-paper animate-pulse" />
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-secondary truncate">{event.title}</p>
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-sm font-bold text-secondary truncate">{event.title}</p>
+                        {isSoldOut && (
+                          <span className="shrink-0 text-[8px] font-black text-red-600 bg-red-500/10 px-1.5 py-0.5 rounded-full border border-red-500/20 uppercase">Sold Out</span>
+                        )}
+                        {isAlmostFull && (
+                          <span className="shrink-0 text-[8px] font-black text-accent bg-accent/10 px-1.5 py-0.5 rounded-full border border-accent/20 uppercase">Almost Full</span>
+                        )}
+                        {isLive && (
+                          <span className="shrink-0 text-[8px] font-black text-green-600 bg-green-500/10 px-1.5 py-0.5 rounded-full border border-green-500/20 uppercase">Live</span>
+                        )}
+                      </div>
                       <div className="flex items-center gap-2 mt-0.5">
-                        <span className={`text-[10px] font-medium ${getRelativeDate(event.date) === 'Today' ? 'text-green-600 font-bold' : getRelativeDate(event.date) === 'Tomorrow' ? 'text-primary font-bold' : 'text-secondary/40'}`}>{getRelativeDate(event.date)}</span>
+                        <span className={`text-[10px] font-medium ${relDate === 'Today' ? 'text-green-600 font-bold' : relDate === 'Tomorrow' ? 'text-primary font-bold' : 'text-secondary/40'}`}>{relDate}</span>
                         <span className="text-[10px] text-secondary/30">|</span>
                         <span className={`text-[10px] font-bold ${fillPct >= 80 ? 'text-accent' : 'text-primary'}`}>
                           <Users size={10} className="inline mr-0.5" />
@@ -712,7 +741,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                       {/* Mini fill bar */}
                       <div className="w-full h-1 bg-secondary/10 rounded-full mt-1.5 overflow-hidden">
                         <div
-                          className={`h-full rounded-full transition-all ${fillPct >= 80 ? 'bg-accent' : 'bg-primary/60'}`}
+                          className={`h-full rounded-full transition-all ${isSoldOut ? 'bg-red-500' : fillPct >= 80 ? 'bg-accent' : 'bg-primary/60'}`}
                           style={{ width: `${Math.min(fillPct, 100)}%` }}
                         />
                       </div>
@@ -784,6 +813,8 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           </div>
         )}
       </motion.div>
+
+      </div>{/* end responsive grid */}
       </>
       )}
     </motion.div>

@@ -38,6 +38,10 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Top performer card** — analytics tab highlights the event with the highest fill rate, showing title, fill percentage, and attendee count
 - **Next event countdown** — overview tab shows a countdown banner (e.g. "3d 5h until start") for the organiser's next upcoming event
 - **Event category distribution** — analytics tab shows a breakdown of which categories the organiser hosts most, with animated progress bars and matching category icons
+- **Event status badges** — dashboard event rows now show "Live" (green pulse), "Sold Out" (red), and "Almost Full" (gold) status badges based on fill rate and date
+- **Community quick action** — "Community" button on the organiser dashboard now opens the tribe discovery modal to browse and join communities
+- **Responsive dashboard grid** — events and communities sections display side-by-side on wide screens (lg breakpoint) for better desktop experience
+- **3-column quick actions** — dashboard quick actions reorganised into a 3-column grid (New Event, Community, Share) with icon + label layout
 
 ### Changed
 - **Public organiser profile redesign** — richer layout with cover photo, quick stats grid, "Connect" section for social links, "Hosts" section for categories, and improved loading skeleton
