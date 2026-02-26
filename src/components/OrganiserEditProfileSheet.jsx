@@ -450,7 +450,7 @@ export default function OrganiserEditProfileSheet() {
                           playTap();
                           showToast('Verification request submitted! We\'ll review your profile.', 'success');
                         }}
-                        className="px-3 py-1.5 rounded-xl bg-primary/10 border border-primary/20 text-primary text-[11px] font-bold hover:bg-primary/20 transition-colors"
+                        className="px-3 py-1.5 rounded-xl bg-primary/10 border border-primary/20 text-primary text-[11px] font-bold hover:bg-primary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                       >
                         Request
                       </button>

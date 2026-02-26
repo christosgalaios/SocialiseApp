@@ -143,7 +143,7 @@ export default function OrganiserSetupFlow() {
           </div>
           <button
             onPointerDown={close}
-            className="ml-4 w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center"
+            className="ml-4 w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
             aria-label="Close"
           >
             <X size={20} className="text-secondary/60" />
@@ -257,7 +257,7 @@ export default function OrganiserSetupFlow() {
                     transition={{ duration: 0.2, delay: catIdx * 0.03 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => toggleCategory(cat.id)}
-                    className={`p-4 rounded-2xl border-2 flex flex-col items-center gap-2 transition-all ${
+                    className={`p-4 rounded-2xl border-2 flex flex-col items-center gap-2 transition-all focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${
                       isSelected
                         ? 'bg-primary/10 border-primary text-primary'
                         : 'bg-secondary/5 border-secondary/20 text-secondary/70 hover:border-secondary/40'
