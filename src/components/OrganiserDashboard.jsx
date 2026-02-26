@@ -1791,7 +1791,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                         />
                         <button
                           onClick={() => saveNote(event.id)}
-                          className="px-3 py-2 rounded-xl bg-primary/10 text-primary text-[10px] font-bold hover:bg-primary/20 transition-colors"
+                          className="px-3 py-2 rounded-xl bg-primary/10 text-primary text-[10px] font-bold hover:bg-primary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                         >
                           Save
                         </button>
@@ -1806,7 +1806,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                       <div className="ml-3">
                         <button
                           onClick={(e) => { e.stopPropagation(); setExpandedChecklist(expandedChecklist === event.id ? null : event.id); playTap(); }}
-                          className="flex items-center gap-1.5 text-[10px] font-bold text-secondary/40 hover:text-secondary/60 transition-colors"
+                          className="flex items-center gap-1.5 text-[10px] font-bold text-secondary/40 hover:text-secondary/60 transition-colors rounded-lg px-1 -mx-1 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                         >
                           <ChevronDown size={10} className={`transition-transform ${expandedChecklist === event.id ? 'rotate-180' : ''}`} />
                           <span>Pre-event checklist</span>
@@ -1944,13 +1944,13 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                   <button
                     onClick={handleCreateCommunity}
                     disabled={!newCommunityName.trim() || isCreatingCommunity}
-                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-xs font-black uppercase tracking-widest disabled:opacity-50 transition-all active:scale-[0.98]"
+                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-xs font-black uppercase tracking-widest disabled:opacity-50 transition-all active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                   >
                     {isCreatingCommunity ? 'Creating...' : 'Create'}
                   </button>
                   <button
                     onClick={() => { setShowCreateCommunity(false); setNewCommunityName(''); setNewCommunityDesc(''); }}
-                    className="px-4 py-2.5 rounded-xl bg-secondary/5 border border-secondary/10 text-xs font-bold text-secondary/50 hover:text-secondary/70 transition-colors"
+                    className="px-4 py-2.5 rounded-xl bg-secondary/5 border border-secondary/10 text-xs font-bold text-secondary/50 hover:text-secondary/70 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                   >
                     Cancel
                   </button>
