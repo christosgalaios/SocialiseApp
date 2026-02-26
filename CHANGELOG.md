@@ -13,6 +13,8 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 ## [Unreleased]
 
 ### Added
+- **Revenue active income indicator** — a pulsing green dot appears next to the "% paid" label in Revenue Insights, indicating active income
+- **Most Popular Event tappable** — the "Most Popular Event" in Audience Insights is now a button that opens the event detail, with hover highlight and chevron
 - **Edit profile unsaved indicator** — a pulsing amber dot appears next to "Edit Profile" header when there are unsaved changes, and the Save button gains a warm glow shadow
 - **Verification request interaction** — the shield icon wobbles on hover, and the card has a decorative background glow
 - **Dashboard loading skeleton cascade** — skeleton elements now stagger in with individual fade-up animations instead of a single pulse, with quick actions scaling in individually and stat cards cascading

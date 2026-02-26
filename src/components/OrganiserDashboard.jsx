@@ -1087,7 +1087,10 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                   </div>
                   <h3 className="text-xs font-black text-green-600 uppercase tracking-widest">Revenue Insights</h3>
                 </div>
-                <span className="text-[9px] font-bold text-green-600/50">{paidPct}% paid</span>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                  <span className="text-[9px] font-bold text-green-600/50">{paidPct}% paid</span>
+                </div>
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div>
@@ -1198,7 +1201,13 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                   <span className="text-sm font-black text-secondary">{audienceInsights.totalAttendees} people</span>
                 </div>
                 {audienceInsights.bestEvent && (
-                  <div className="pt-3 mt-3 border-t border-secondary/10">
+                  <button
+                    onClick={() => {
+                      const fullEvent = allEvents.find(e => e.id === audienceInsights.bestEvent.id) || audienceInsights.bestEvent;
+                      playTap(); hapticTap(); setSelectedEvent(fullEvent);
+                    }}
+                    className="w-full pt-3 mt-3 border-t border-secondary/10 text-left hover:bg-secondary/5 -mx-1 px-1 rounded-xl transition-colors"
+                  >
                     <p className="text-[9px] font-black text-accent uppercase tracking-widest mb-1.5">Most Popular Event</p>
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-xl overflow-hidden bg-secondary/10 shrink-0">
@@ -1210,8 +1219,9 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                         <p className="text-xs font-bold text-secondary truncate">{audienceInsights.bestEvent.title}</p>
                         <p className="text-[10px] text-secondary/40">{audienceInsights.bestEvent.attendees} attendees</p>
                       </div>
+                      <ChevronRight size={12} className="text-secondary/20 shrink-0" />
                     </div>
-                  </div>
+                  </button>
                 )}
               </div>
             </div>
