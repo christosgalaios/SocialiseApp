@@ -13,6 +13,7 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 ## [Unreleased]
 
 ### Added
+- **Weekly activity chart enhanced** — taller chart (h-20), today's bar highlighted in accent gold, event days show green dots below labels, hover tooltips show attendee count, total weekly stats in header
 - **Event note card styling** — pinned notes now display in a styled card with an icon and background instead of a plain border-left
 - **Checklist mini progress bar** — each event's pre-event checklist header shows a mini progress bar with green highlight when all tasks are complete
 - **Top performer fill bar and category tag** — the Top Performer card now shows an animated fill progress bar and category tag with a badge-style percentage
