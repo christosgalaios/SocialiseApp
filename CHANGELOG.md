@@ -13,6 +13,9 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 ## [Unreleased]
 
 ### Added
+- **Validation shake on edit profile** — save button now shakes when tapped with incomplete fields (display name too short or no category selected) instead of silently doing nothing
+- **4-column quick actions grid** — dashboard quick actions expanded from 3 to 4 buttons with a new "Edit Profile" shortcut, hover lift animations, and keyboard shortcut hints on all buttons (N/C/E)
+- **Keyboard shortcuts for community & edit** — press "C" to open community discovery and "E" to open edit profile from the organiser dashboard
 - **Clickable events on public profiles** — tapping an event on the public organiser profile now opens the event detail sheet with full info and chat
 - **Clickable communities on public profiles** — tapping a community on the public organiser profile now opens the community sheet
 - **"View All" events button** — dashboard event list now shows a "View all X events" toggle when there are more than 5 events, expanding to show the full list

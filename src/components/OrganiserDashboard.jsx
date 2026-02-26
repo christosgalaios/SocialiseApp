@@ -375,7 +375,9 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
     if (e.key === 'n' || e.key === 'N') { onCreateEvent?.(); }
     if (e.key === 'r' || e.key === 'R') { handleRefresh(); }
-  }, [onCreateEvent, handleRefresh]);
+    if (e.key === 'c' || e.key === 'C') { setShowTribeDiscovery(true); }
+    if (e.key === 'e' || e.key === 'E') { setShowOrganiserEditProfile(true); }
+  }, [onCreateEvent, handleRefresh, setShowTribeDiscovery, setShowOrganiserEditProfile]);
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyboard);
@@ -412,9 +414,10 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           <div className="h-4 w-3/4 bg-secondary/10 rounded-full" />
         </div>
         {/* Quick actions skeleton */}
-        <div className="flex gap-3">
-          <div className="flex-1 h-14 rounded-2xl bg-secondary/10" />
-          <div className="w-28 h-14 rounded-2xl bg-secondary/10" />
+        <div className="grid grid-cols-4 gap-2">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="h-[76px] rounded-2xl bg-secondary/10" />
+          ))}
         </div>
         {/* Stats grid skeleton */}
         <div>
@@ -707,23 +710,41 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
       })()}
 
       {/* Quick Actions */}
-      <motion.div variants={itemVariants} className="grid grid-cols-3 gap-3">
-        <button
+      <motion.div variants={itemVariants} className="grid grid-cols-4 gap-2">
+        <motion.button
+          whileHover={{ y: -2 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => { playClick(); hapticTap(); onCreateEvent?.(); }}
-          className="p-4 rounded-2xl bg-gradient-to-r from-primary to-accent text-white font-black text-sm flex flex-col items-center justify-center gap-1.5 active:scale-[0.98] transition-transform shadow-lg"
+          className="p-3 rounded-2xl bg-gradient-to-br from-primary to-accent text-white font-black text-sm flex flex-col items-center justify-center gap-1.5 shadow-lg relative overflow-hidden group"
         >
+          <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors" />
           <Plus size={20} />
           <span className="text-[10px]">New Event</span>
           <kbd className="hidden md:inline text-[8px] font-mono text-white/50 bg-white/10 px-1 rounded">N</kbd>
-        </button>
-        <button
+        </motion.button>
+        <motion.button
+          whileHover={{ y: -2 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => { playTap(); hapticTap(); setShowTribeDiscovery(true); }}
-          className="p-4 rounded-2xl bg-secondary/5 border border-secondary/10 font-bold text-sm text-secondary flex flex-col items-center justify-center gap-1.5 hover:bg-secondary/10 transition-colors"
+          className="p-3 rounded-2xl bg-secondary/5 border border-secondary/10 font-bold text-sm text-secondary flex flex-col items-center justify-center gap-1.5 hover:bg-secondary/10 transition-colors"
         >
           <Users size={20} />
           <span className="text-[10px]">Community</span>
-        </button>
-        <button
+          <kbd className="hidden md:inline text-[8px] font-mono text-secondary/30 bg-secondary/5 px-1 rounded">C</kbd>
+        </motion.button>
+        <motion.button
+          whileHover={{ y: -2 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => { playTap(); hapticTap(); setShowOrganiserEditProfile(true); }}
+          className="p-3 rounded-2xl bg-secondary/5 border border-secondary/10 font-bold text-sm text-secondary flex flex-col items-center justify-center gap-1.5 hover:bg-secondary/10 transition-colors"
+        >
+          <Pencil size={20} />
+          <span className="text-[10px]">Edit</span>
+          <kbd className="hidden md:inline text-[8px] font-mono text-secondary/30 bg-secondary/5 px-1 rounded">E</kbd>
+        </motion.button>
+        <motion.button
+          whileHover={{ y: -2 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => {
             playTap(); hapticTap();
             const profileUrl = `${window.location.origin}${window.location.pathname}?organiser=${user?.id}`;
@@ -731,11 +752,11 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               .then(() => showToast('Profile link copied!', 'success'))
               .catch(() => showToast('Could not copy link', 'error'));
           }}
-          className="p-4 rounded-2xl bg-secondary/5 border border-secondary/10 font-bold text-sm text-secondary flex flex-col items-center justify-center gap-1.5 hover:bg-secondary/10 transition-colors"
+          className="p-3 rounded-2xl bg-secondary/5 border border-secondary/10 font-bold text-sm text-secondary flex flex-col items-center justify-center gap-1.5 hover:bg-secondary/10 transition-colors"
         >
           <Share2 size={20} />
           <span className="text-[10px]">Share</span>
-        </button>
+        </motion.button>
       </motion.div>
 
       {/* Dashboard Tabs */}

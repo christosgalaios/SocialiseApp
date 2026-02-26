@@ -86,9 +86,15 @@ export default function OrganiserEditProfileSheet() {
 
   const hasSocialErrors = Object.keys(socialErrors).length > 0;
   const canSave = displayName.trim().length >= 2 && selectedCategories.length >= 1 && !hasSocialErrors;
+  const [shakeKey, setShakeKey] = useState(0);
 
   const handleSave = async () => {
-    if (isSubmitting || !canSave) return;
+    if (isSubmitting) return;
+    if (!canSave) {
+      setShakeKey(k => k + 1);
+      playTap();
+      return;
+    }
     setIsSubmitting(true);
 
     try {
@@ -448,10 +454,17 @@ export default function OrganiserEditProfileSheet() {
                 </motion.p>
               )}
               <motion.button
+                key={shakeKey}
                 onClick={handleSave}
-                disabled={!canSave || isSubmitting}
-                whileTap={{ scale: 0.98 }}
-                className="w-full h-14 rounded-2xl bg-gradient-to-r from-primary to-accent text-white font-black uppercase tracking-widest flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-transform"
+                disabled={isSubmitting}
+                whileTap={canSave ? { scale: 0.98 } : {}}
+                animate={!canSave && shakeKey > 0 ? { x: [0, -6, 6, -4, 4, 0] } : {}}
+                transition={{ duration: 0.3 }}
+                className={`w-full h-14 rounded-2xl font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
+                  canSave
+                    ? 'bg-gradient-to-r from-primary to-accent text-white'
+                    : 'bg-secondary/20 text-secondary/40 cursor-not-allowed'
+                } ${isSubmitting ? 'opacity-50' : ''}`}
               >
                 {isSubmitting ? (
                   <motion.div
