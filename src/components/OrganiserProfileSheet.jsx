@@ -241,7 +241,7 @@ export default function OrganiserProfileSheet() {
                       <motion.button
                         whileTap={{ scale: 0.92 }}
                         onClick={handleShareProfile}
-                        className="w-12 py-3 rounded-2xl bg-secondary/5 border-2 border-secondary/20 flex items-center justify-center hover:bg-secondary/10 transition-colors"
+                        className="w-12 py-3 rounded-2xl bg-secondary/5 border-2 border-secondary/20 flex items-center justify-center hover:bg-secondary/10 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                         aria-label="Share profile"
                       >
                         <Share2 size={18} className="text-secondary/60" />
@@ -576,7 +576,7 @@ export default function OrganiserProfileSheet() {
                             return (
                               <span
                                 key={tag}
-                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold border ${tagDef.color}`}
+                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold border transition-transform hover:scale-105 ${tagDef.color}`}
                               >
                                 <span>{tagDef.emoji}</span>
                                 {tagDef.label}
@@ -604,7 +604,7 @@ export default function OrganiserProfileSheet() {
                               organiserName: profile?.organiserDisplayName || profile?.name,
                             });
                           }}
-                          className="w-full p-4 rounded-2xl bg-primary/5 border border-primary/10 hover:bg-primary/10 transition-colors text-center"
+                          className="w-full p-4 rounded-2xl bg-primary/5 border border-primary/10 hover:bg-primary/10 transition-colors text-center focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                         >
                           <Sparkles size={20} className="text-primary mx-auto mb-1.5" />
                           <p className="text-sm font-bold text-secondary">Leave a vibe review</p>
