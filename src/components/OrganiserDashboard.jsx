@@ -701,27 +701,44 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
             exit={{ opacity: 0, height: 0 }}
             className="overflow-hidden"
           >
-            <div className="premium-card p-4 space-y-2">
-              <h4 className="text-[10px] font-black text-secondary/40 uppercase tracking-widest mb-2">Show/Hide Sections</h4>
+            <div className="premium-card p-4 space-y-1">
+              <div className="flex items-center gap-2 mb-2">
+                <motion.div
+                  initial={{ rotate: -30 }}
+                  animate={{ rotate: 0 }}
+                  transition={{ type: 'spring', damping: 12, stiffness: 200 }}
+                >
+                  <Settings size={12} className="text-secondary/40" />
+                </motion.div>
+                <h4 className="text-[10px] font-black text-secondary/40 uppercase tracking-widest">Show/Hide Sections</h4>
+              </div>
               {[
                 { id: 'alerts', label: 'Attention Alerts' },
                 { id: 'completeness', label: 'Profile Completeness' },
                 { id: 'milestones', label: 'Milestones' },
                 { id: 'activity', label: 'Weekly Activity' },
                 { id: 'countdown', label: 'Next Event Countdown' },
-              ].map(widget => (
-                <button
+              ].map((widget, idx) => (
+                <motion.button
                   key={widget.id}
+                  initial={{ opacity: 0, x: -6 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.15, delay: idx * 0.04 }}
                   onClick={() => toggleWidget(widget.id)}
                   className="w-full flex items-center gap-2 p-2 rounded-xl hover:bg-secondary/5 transition-colors text-left"
                 >
-                  {isWidgetVisible(widget.id) ? (
-                    <CheckSquare size={14} className="text-primary shrink-0" />
-                  ) : (
-                    <Square size={14} className="text-secondary/30 shrink-0" />
-                  )}
+                  <motion.div
+                    animate={{ scale: isWidgetVisible(widget.id) ? [1, 1.15, 1] : 1 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {isWidgetVisible(widget.id) ? (
+                      <CheckSquare size={14} className="text-primary shrink-0" />
+                    ) : (
+                      <Square size={14} className="text-secondary/30 shrink-0" />
+                    )}
+                  </motion.div>
                   <span className={`text-xs font-bold ${isWidgetVisible(widget.id) ? 'text-secondary' : 'text-secondary/40'}`}>{widget.label}</span>
-                </button>
+                </motion.button>
               ))}
             </div>
           </motion.div>
@@ -1849,12 +1866,31 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
         </AnimatePresence>
 
         {communities.length === 0 && !showCreateCommunity ? (
-          <div className="text-center py-8">
-            <div className="w-16 h-16 mx-auto mb-3 rounded-[20px] bg-secondary/5 border border-secondary/10 flex items-center justify-center">
+          <div className="text-center py-8 relative overflow-hidden">
+            <div className="absolute -right-8 -top-8 w-28 h-28 bg-secondary/5 rounded-full blur-3xl" />
+            <motion.div
+              initial={{ scale: 0, rotate: -15 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: 'spring', damping: 15, stiffness: 200 }}
+              className="w-16 h-16 mx-auto mb-3 rounded-[20px] bg-gradient-to-br from-secondary/5 to-primary/5 border border-secondary/10 flex items-center justify-center"
+            >
               <Users size={28} className="text-secondary/30" />
-            </div>
+            </motion.div>
             <p className="text-sm text-secondary/50 font-bold mb-1">No communities yet</p>
-            <p className="text-[11px] text-secondary/30 max-w-[200px] mx-auto mb-4">Build your tribe by creating a community around your events</p>
+            <p className="text-[11px] text-secondary/30 mb-3 max-w-[200px] mx-auto">Build your tribe by creating a community around your events</p>
+            <div className="flex justify-center gap-2 mb-4">
+              {['Engage', 'Grow', 'Connect'].map((hint, i) => (
+                <motion.span
+                  key={hint}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 + i * 0.08 }}
+                  className="text-[9px] font-bold text-secondary/30 bg-secondary/5 px-2 py-0.5 rounded-full"
+                >
+                  {hint}
+                </motion.span>
+              ))}
+            </div>
             <button
               onClick={() => { playTap(); setShowCreateCommunity(true); }}
               className="inline-flex items-center gap-1 px-4 py-2 rounded-xl bg-primary/10 border border-primary/20 text-primary text-xs font-bold hover:bg-primary/20 transition-colors"
