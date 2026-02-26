@@ -1321,41 +1321,65 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
       })()}
 
       {/* Milestones */}
-      {isWidgetVisible('milestones') && (
+      {isWidgetVisible('milestones') && (() => {
+        const unlockedCount = milestones.filter(m => m.unlocked).length;
+        return (
       <motion.div variants={itemVariants} className="premium-card p-5">
-        <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-3">
-          Milestones<span className="text-accent">.</span>
-        </h3>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-xs font-black text-primary uppercase tracking-widest">
+            Milestones<span className="text-accent">.</span>
+          </h3>
+          <span className={`text-[9px] font-bold ${unlockedCount === milestones.length ? 'text-accent' : 'text-secondary/35'}`}>
+            {unlockedCount}/{milestones.length} unlocked
+          </span>
+        </div>
         <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-          {milestones.map((m) => {
+          {milestones.map((m, idx) => {
             const pct = Math.min(Math.round((m.current / m.target) * 100), 100);
             return (
-              <div
+              <motion.div
                 key={m.label}
-                className={`shrink-0 w-24 p-3 rounded-2xl border text-center transition-all ${
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.25, delay: idx * 0.06 }}
+                className={`shrink-0 w-24 p-3 rounded-2xl border text-center transition-all relative overflow-hidden ${
                   m.unlocked ? 'bg-accent/5 border-accent/20' : 'bg-secondary/5 border-secondary/10'
                 }`}
               >
-                <div className={`w-10 h-10 mx-auto rounded-xl flex items-center justify-center mb-2 ${
-                  m.unlocked ? 'bg-accent/10' : 'bg-secondary/10'
-                }`}>
+                {m.unlocked && <div className="absolute inset-0 bg-gradient-to-t from-accent/5 to-transparent" />}
+                <motion.div
+                  animate={m.unlocked ? { scale: [1, 1.1, 1] } : {}}
+                  transition={{ duration: 0.6, delay: 0.3 + idx * 0.06 }}
+                  className={`w-10 h-10 mx-auto rounded-xl flex items-center justify-center mb-2 relative ${
+                    m.unlocked ? 'bg-accent/10' : 'bg-secondary/10'
+                  }`}
+                >
                   <m.icon size={18} className={m.unlocked ? 'text-accent' : 'text-secondary/30'} />
-                </div>
+                </motion.div>
                 <p className={`text-[9px] font-black uppercase tracking-widest mb-1 ${m.unlocked ? 'text-accent' : 'text-secondary/40'}`}>
                   {m.label}
                 </p>
                 {!m.unlocked && (
-                  <div className="w-full h-1 bg-secondary/10 rounded-full overflow-hidden">
-                    <div className="h-full bg-primary/40 rounded-full" style={{ width: `${pct}%` }} />
-                  </div>
+                  <>
+                    <div className="w-full h-1 bg-secondary/10 rounded-full overflow-hidden mb-0.5">
+                      <motion.div
+                        className="h-full bg-primary/40 rounded-full"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${pct}%` }}
+                        transition={{ duration: 0.4, delay: 0.1 + idx * 0.06 }}
+                      />
+                    </div>
+                    <p className="text-[7px] font-medium text-secondary/30">{m.current}/{m.target}</p>
+                  </>
                 )}
-                {m.unlocked && <p className="text-[8px] font-bold text-accent">Unlocked</p>}
-              </div>
+                {m.unlocked && <p className="text-[8px] font-bold text-accent relative">Unlocked</p>}
+              </motion.div>
             );
           })}
         </div>
       </motion.div>
-      )}
+        );
+      })()}
 
       {/* Stats Grid */}
       <motion.div variants={itemVariants}>
