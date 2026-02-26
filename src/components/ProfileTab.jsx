@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, Suspense, lazy } from 'react';
 const APP_VERSION = import.meta.env.VITE_APP_VERSION || '0.1.dev';
 import {
   Mail, ShieldCheck, Zap, Check, Heart, Crown, ChevronRight, LogOut, Camera, Users, Settings, MessageCircle, ArrowLeft, Volume2, Megaphone,
@@ -20,7 +20,7 @@ import {
   SKILL_LEVEL_THRESHOLDS,
 } from '../data/constants';
 import WarmthScore from './WarmthScore';
-import OrganiserDashboard from './OrganiserDashboard';
+const OrganiserDashboard = lazy(() => import('./OrganiserDashboard'));
 import api from '../api';
 
 const containerVariants = {
@@ -197,10 +197,27 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
         className="p-5 md:p-10 max-w-4xl mx-auto pb-32 relative"
         style={{ overscrollBehavior: 'contain' }}
       >
-        <OrganiserDashboard
-          onSwitchToAttendee={handleSwitchToAttendee}
-          onCreateEvent={onCreateEvent}
-        />
+        <Suspense fallback={
+          <div className="space-y-5 animate-pulse">
+            <div className="premium-card p-6 rounded-[24px]">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-16 h-16 rounded-[24px] bg-secondary/10" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-5 w-36 bg-secondary/10 rounded-full" />
+                  <div className="h-3 w-20 bg-secondary/10 rounded-full" />
+                </div>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {[0, 1, 2, 3].map(i => <div key={i} className="h-24 rounded-[24px] bg-secondary/10" />)}
+            </div>
+          </div>
+        }>
+          <OrganiserDashboard
+            onSwitchToAttendee={handleSwitchToAttendee}
+            onCreateEvent={onCreateEvent}
+          />
+        </Suspense>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -559,7 +576,7 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
             onClick={() => { playClick(); hapticTap(); setShowOrganiserSetup(true); }}
           >
             <div className="absolute -left-8 -bottom-8 w-36 h-36 bg-accent/10 rounded-full blur-3xl group-hover:bg-accent/20 transition-colors" />
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 mb-4">
               <div className="w-14 h-14 rounded-2xl bg-accent/10 flex items-center justify-center border border-accent/20 shrink-0">
                 <Megaphone size={26} className="text-accent" />
               </div>
@@ -568,6 +585,19 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
                 <p className="text-[11px] text-secondary/50 font-medium mt-0.5">Host events, build communities & track your impact</p>
               </div>
               <ChevronRight size={20} className="text-accent/60 shrink-0" />
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { icon: '📅', label: 'Host Events', desc: 'Create & manage' },
+                { icon: '👥', label: 'Communities', desc: 'Build your tribe' },
+                { icon: '📊', label: 'Analytics', desc: 'Track growth' },
+              ].map((feature) => (
+                <div key={feature.label} className="p-2.5 rounded-xl bg-secondary/5 border border-secondary/10 text-center">
+                  <span className="text-lg block mb-1">{feature.icon}</span>
+                  <p className="text-[10px] font-bold text-secondary">{feature.label}</p>
+                  <p className="text-[8px] text-secondary/40 font-medium">{feature.desc}</p>
+                </div>
+              ))}
             </div>
           </motion.div>
         )}

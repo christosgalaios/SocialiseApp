@@ -12,6 +12,114 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 
 ## [Unreleased]
 
+### Added
+- **Setup flow step labels** — the organiser onboarding progress bar now shows step names (Identity, Categories, Details) with color-coded active state
+- **Category selection counter** — step 2 of setup shows an animated "X selected" counter that scales on change and turns green when requirement is met
+- **Bio character progress bar** — step 3 of setup shows an animated progress bar below the bio textarea that turns amber near the limit
+- **Clickable top event on public profile** — the "Top Event" highlight on the public organiser profile is now a button that opens the event detail sheet, with fill rate percentage badge and progress bar
+- **Event category and price on public profile** — event rows on the public organiser profile now show category tags and ticket price
+- **Community descriptions on public profile** — community rows on the public organiser profile now display a one-line description and category tag
+- **Platform-specific social link colors** — social links on the public profile use platform-specific color accents (pink for Instagram, sky for Twitter, etc.) instead of uniform gray
+- **Next event countdown fill bar** — the "Next Event" widget now shows attendee count and an animated fill progress bar with color-coded status
+- **Community description previews** — community rows on the organiser dashboard now show a one-line description snippet and category tag
+
+### Changed
+- **OrganiserProfileSheet lazy-loaded** — the public organiser profile sheet is now code-split into its own 17KB chunk, reducing the main bundle from 500KB to 483KB
+- **Profile header stat badges** — organiser profile header now shows pill-shaped badges for upcoming events, past events, communities, and total attendees with color-coded styling
+- **Validation shake on edit profile** — save button now shakes when tapped with incomplete fields (display name too short or no category selected) instead of silently doing nothing
+- **4-column quick actions grid** — dashboard quick actions expanded from 3 to 4 buttons with a new "Edit Profile" shortcut, hover lift animations, and keyboard shortcut hints on all buttons (N/C/E)
+- **Keyboard shortcuts for community & edit** — press "C" to open community discovery and "E" to open edit profile from the organiser dashboard
+- **Clickable events on public profiles** — tapping an event on the public organiser profile now opens the event detail sheet with full info and chat
+- **Clickable communities on public profiles** — tapping a community on the public organiser profile now opens the community sheet
+- **"View All" events button** — dashboard event list now shows a "View all X events" toggle when there are more than 5 events, expanding to show the full list
+- **Event time in dashboard rows** — event rows on the organiser dashboard now show the event time alongside the relative date
+- **Event price in dashboard rows** — paid events display their ticket price inline in the event row metadata
+- **Search result count** — event search bar shows the number of matching results when filtering
+- **Search clear button** — event search bar now has a clear (×) button to quickly reset the search query
+- **Animated stat counters** — organiser dashboard stat cards now count up from 0 to their target value with a smooth ease-out animation on load
+- **Enhanced analytics empty state** — the "no analytics yet" state now features gradient background orbs, a spring-animated icon, and preview tags (Fill rates, Revenue, Audience) to hint at what's coming
+- **Enhanced events empty state** — the "no events yet" state features a gradient icon container with spring animation
+- **Share organiser profile** — "Share" button on public organiser profile copies the profile link to clipboard
+- **Public profile fill rate bars** — event rows on the public organiser profile now show a mini fill rate bar with color-coded progress
+- **Public profile total attendees** — quick stats grid expanded to 2x2 with a new "Attendees" stat showing total reach across all events
+- **Public profile category icons** — category tags on the organiser profile now show matching icons from the design system
+- **Public profile avg fill bar** — engagement stats row now includes an animated progress bar alongside the fill rate percentage
+- **Staggered public profile sections** — profile sections (stats, bio, social links, categories, events, communities) animate in sequentially on load
+- **Dashboard event row stagger** — event rows on the organiser dashboard animate in with a cascading slide effect when switching tabs or searching
+- **Edit profile live preview** — toggle a real-time preview card while editing your organiser profile to see how your name, bio, categories, and cover photo will look to others
+- **Edit profile unsaved changes warning** — closing the edit profile sheet with unsaved changes prompts a confirmation dialog to prevent accidental data loss
+- **Collapsible social links** — social links section in the edit profile sheet now collapses by default, showing a count badge of linked platforms; expand to edit
+- **Character progress bars** — display name and bio fields show animated progress bars indicating character usage, with color changes near limits
+- **Category selection animation** — category chips in the edit profile now animate with a spring scale effect on selection and a pop-in checkmark
+- **Inline community creation** — create a community directly from the organiser dashboard without leaving the page; quick form with name and description fields
+- **Dashboard community "+" button** — new add button in the communities section header for one-tap access to the community creation form
+- **Staggered community row animations** — community rows on the organiser dashboard animate in with a cascading slide effect
+- **Tier badge pop-in** — organiser tier badge (Bronze/Silver/Gold) now animates with a spring pop-in when the dashboard loads
+- **Countdown value animation** — next event countdown number springs into view with a scale effect
+- **Staggered form section entry** — edit profile form sections animate in sequentially for a polished sheet-open experience
+- **Edit organiser profile** — organisers can now update their display name, bio, categories, and social links after initial setup via the Edit Profile sheet on the dashboard
+- **Event filtering on organiser dashboard** — events are split into "Upcoming" and "Past" tabs with counts, making it easy to see what's active vs completed
+- **Event fill bar** — each event row on the organiser dashboard now shows a mini progress bar indicating how full the event is, with accent color when 80%+ filled
+- **Cover photo display** — organiser dashboard and profile header now display the cover photo when one is set
+- **Organiser overview on Home tab** — organisers see a quick stats banner (active events, attendees, total hosted) on the Home tab with a "New Event" shortcut and live "Today's Events" section
+- **Profile completeness indicator** — organiser dashboard shows a checklist with progress bar (display name, bio, categories, social links, first event) that disappears once 100% complete; incomplete items link to the edit sheet
+- **Social link validation** — edit profile sheet and setup flow validate website URLs and username formats in real-time with inline error messages; invalid links prevent saving
+- **Clickable social links on public profiles** — social links on the organiser profile sheet now open the corresponding platform (Instagram, TikTok, X, Website) in a new tab with hover effects
+- **Organiser quick stats on public profile** — public organiser profile now shows events, communities, and member counts in a compact 3-column grid
+- **Organiser badge on Home tab** — organisers see a small "Organiser" badge next to the date and their organiser display name in the greeting
+- **Dashboard Overview/Analytics tabs** — organiser dashboard now has two tabs: Overview (events + communities) and Analytics (performance stats + event fill rate chart with average)
+- **Clickable event rows** — event rows on the organiser dashboard now open the EventDetailSheet when tapped
+- **Clickable community rows** — community rows on the organiser dashboard now open the TribeSheet when tapped
+- **"Become an Organiser" feature preview** — the CTA card on the attendee profile now shows a 3-column preview of organiser features (Host Events, Communities, Analytics)
+- **Category chips on organiser dashboard** — organiser header now shows category badges (e.g. Food & Drinks, Outdoors) with matching icons so visitors instantly see what the organiser hosts
+- **Dashboard refresh button** — organisers can manually refresh their dashboard stats, events, and communities with a single tap
+- **"Hosting" badge on event cards** — events the organiser hosts now show a gold "HOSTING" badge with megaphone icon on both Home and Explore tabs, replacing the "GOING" badge
+- **Community activity indicator** — community rows on the organiser dashboard now show an "active" badge for communities with members
+- **Relative date labels on dashboard events** — event rows show "Today", "Tomorrow", "In 3 days" etc. instead of raw dates, with green highlight for today's events
+- **Share profile quick action** — organisers can copy their profile link to clipboard with a single tap from the dashboard
+- **Empty analytics state** — analytics tab shows a motivational empty state with a "Create Your First Event" CTA when no events exist
+- **Dashboard header summary** — organiser profile card now shows a compact "X upcoming, Y past, Z communities" summary at a glance
+- **Top performer card** — analytics tab highlights the event with the highest fill rate, showing title, fill percentage, and attendee count
+- **Next event countdown** — overview tab shows a countdown banner (e.g. "3d 5h until start") for the organiser's next upcoming event
+- **Event category distribution** — analytics tab shows a breakdown of which categories the organiser hosts most, with animated progress bars and matching category icons
+- **Event status badges** — dashboard event rows now show "Live" (green pulse), "Sold Out" (red), and "Almost Full" (gold) status badges based on fill rate and date
+- **Community quick action** — "Community" button on the organiser dashboard now opens the tribe discovery modal to browse and join communities
+- **Responsive dashboard grid** — events and communities sections display side-by-side on wide screens (lg breakpoint) for better desktop experience
+- **3-column quick actions** — dashboard quick actions reorganised into a 3-column grid (New Event, Community, Share) with icon + label layout
+- **Cover photo editing** — edit profile sheet now lets organisers set or remove a cover photo via URL
+- **Verification request** — edit profile sheet shows a "Get Verified" section that submits a verification request; verified organisers see a green badge instead
+- **Trend arrows on stat cards** — OrganiserStatsCard now shows TrendingUp/TrendingDown/Minus icons alongside percentage trends for clearer visual feedback
+- **Follow button on public organiser profiles** — visitors can follow/unfollow organisers from the profile sheet with a gradient CTA button and visual state toggle
+- **Public profile event tabs** — events on the public organiser profile are now split into "Upcoming" and "Past" tabs with counts and animated transitions
+- **Animated stats on public profiles** — quick stats (events, communities, members) now animate with a spring pop-in effect when the profile loads
+- **Enhanced "Hosted By" section** — event detail sheet now shows the host with a styled organiser badge, larger avatar with border, and a card-style background
+- **Time-based dashboard greeting** — organiser dashboard header now shows "Good Morning/Afternoon/Evening, [name]" based on the current time of day
+- **Organiser tier badges** — dashboard displays a Bronze/Silver/Gold tier badge based on events hosted (Bronze < 5, Silver < 20, Gold 20+) with matching colors and icons
+- **Dashboard keyboard shortcuts** — press N to create a new event and R to refresh the dashboard (disabled when typing in inputs); New Event button shows a keyboard hint on desktop
+- **Pin events** — organisers can pin important events to the top of their dashboard event list; pinned events show a gold highlight and pin icon, persisted to localStorage
+- **Revenue insights** — analytics tab shows estimated revenue, paid event count, and average ticket price for organisers with paid events
+- **Audience insights** — analytics tab shows average attendees per event, overall fill rate, total reach, and highlights the most popular event
+- **Duplicate event** — tap the copy icon on any dashboard event row to pre-fill the Create Event form with that event's details (title, category, location, spots, price, image)
+- **Event quick notes** — tap the note icon on any event row to add a personal reminder; notes are persisted locally and shown inline below each event
+- **Weekly activity chart** — overview tab shows a 7-day bar chart of attendee activity, with animated bars and day labels
+- **Dashboard event search** — search bar appears when 4+ events exist, filtering by title or category in real-time
+- **Community growth indicators** — community rows now show size labels (New/Starting/Growing/Large) with color-coded badges and mini member bar
+- **Export analytics** — download a text summary of all organiser analytics (performance stats, events, revenue) from the analytics tab
+- **Attention alerts** — dashboard shows warnings for upcoming events with low fill rates and notifications for sold-out events that may need more spots
+- **Organiser milestones** — overview tab shows a horizontally scrollable milestone tracker (First Event, 5 Events, 10 Events, 50 Attendees, 100 Attendees) with unlock progress bars
+- **Public profile tier badge** — organiser profile sheet now shows Bronze/Silver/Gold tier badge instead of plain "Organiser" label
+- **Public profile engagement stats** — average fill rate displayed prominently on the public organiser profile
+- **Public profile top event highlight** — the best-performing event is showcased with an accent card on the public profile
+- **Dashboard widget settings** — gear icon opens a panel to show/hide dashboard sections (alerts, completeness, milestones, activity chart, countdown)
+- **Event pre-checklist** — each upcoming event has a collapsible 4-item checklist (Confirm venue, Share on socials, Send reminders, Prepare materials) with completion tracking persisted locally
+
+### Changed
+- **Edit profile sheet lazy-loaded** — OrganiserEditProfileSheet is now loaded on demand via React.lazy(), reducing the main bundle from 504KB to 491KB (13KB saved)
+- **Organiser dashboard lazy-loaded** — OrganiserDashboard is now loaded on demand via React.lazy(), reducing the main bundle from 520KB to 494KB (26KB saved) with a matching loading skeleton
+- **Public organiser profile redesign** — richer layout with cover photo, quick stats grid, "Connect" section for social links, "Hosts" section for categories, and improved loading skeleton
+- **Organiser dashboard loading skeleton** — replaced basic pulse blocks with a detailed skeleton that mirrors the actual dashboard structure (profile card, quick actions, stats grid, event list)
+- **Stats card polish** — stat cards now animate their values on mount and show a subtle hover lift effect
+
 ### Fixed
 - **GitHub Pages deploy reliability** — added `.nojekyll` file to disable unnecessary Jekyll processing that adds latency to deployments and can interfere with build output
 - **Deploy race condition** — both deploy workflows now share a single concurrency group (`deploy-gh-pages`) so concurrent dev/prod deploys can't overwrite each other's changes on the `gh-pages` branch
