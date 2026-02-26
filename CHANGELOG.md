@@ -82,6 +82,7 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Leave review CTA focus ring** — the "Leave a vibe review" button shows a focus ring for keyboard accessibility
 - **Vibe tag hover scale** — vibe tags on the public organiser profile scale up on hover for tactile feedback
 - **Complete focus-visible audit** — all remaining buttons across the organiser dashboard and profile sheet now show focus rings for keyboard accessibility: settings, refresh, edit, switch-to-attendee, alert view/dismiss, most popular event, create event (both empty states), clear search, event card rows, create community, leave-review link, and share profile
+- **Review sheet polish** — close button hover state, vibe tag buttons focus rings, comment textarea hover border, delete button red focus ring, submit button focus ring
 - **Community empty state polish** — spring-animated icon with gradient background, staggered "Engage / Grow / Connect" hint tags, subtle glow backdrop
 - **Profile stat badges staggered entrance** — the upcoming/past/communities/attendees badges in the organiser header animate in with spring scale stagger instead of appearing instantly
 - **Community card hover lift** — community cards in the dashboard now lift on hover and scale on tap for tactile feedback
