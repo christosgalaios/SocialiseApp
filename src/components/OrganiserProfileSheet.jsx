@@ -214,28 +214,37 @@ export default function OrganiserProfileSheet() {
 
                     {/* Follow + Share buttons */}
                     <div className="flex gap-2">
-                      <button
+                      <motion.button
+                        whileTap={{ scale: 0.96 }}
                         onClick={() => {
                           playClick(); hapticTap();
                           setIsFollowing(!isFollowing);
                           showToast(isFollowing ? 'Unfollowed organiser' : 'Following organiser!', isFollowing ? 'info' : 'success');
                         }}
-                        className={`flex-1 py-3 rounded-2xl font-black text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98] ${
+                        className={`flex-1 py-3 rounded-2xl font-black text-sm flex items-center justify-center gap-2 transition-all ${
                           isFollowing
                             ? 'bg-secondary/5 border-2 border-secondary/20 text-secondary'
                             : 'bg-gradient-to-r from-primary to-accent text-white shadow-lg'
                         }`}
                       >
-                        {isFollowing ? <UserCheck size={18} /> : <UserPlus size={18} />}
-                        {isFollowing ? 'Following' : 'Follow'}
-                      </button>
-                      <button
+                        <motion.span
+                          key={isFollowing ? 'following' : 'follow'}
+                          initial={{ scale: 0.8, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          className="flex items-center gap-2"
+                        >
+                          {isFollowing ? <UserCheck size={18} /> : <UserPlus size={18} />}
+                          {isFollowing ? 'Following' : 'Follow'}
+                        </motion.span>
+                      </motion.button>
+                      <motion.button
+                        whileTap={{ scale: 0.92 }}
                         onClick={handleShareProfile}
                         className="w-12 py-3 rounded-2xl bg-secondary/5 border-2 border-secondary/20 flex items-center justify-center hover:bg-secondary/10 transition-colors"
                         aria-label="Share profile"
                       >
                         <Share2 size={18} className="text-secondary/60" />
-                      </button>
+                      </motion.button>
                     </div>
 
                     {/* Bio */}
@@ -404,14 +413,20 @@ export default function OrganiserProfileSheet() {
                               <button
                                 key={tab.key}
                                 onClick={() => { playTap(); setEventTab(tab.key); }}
-                                className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold transition-all ${
-                                  eventTab === tab.key
-                                    ? 'bg-primary/10 text-primary'
-                                    : 'text-secondary/40 hover:text-secondary/60'
-                                }`}
+                                className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold transition-colors relative"
                               >
-                                <tab.icon size={10} />
-                                {tab.label} ({tab.count})
+                                {eventTab === tab.key && (
+                                  <motion.div
+                                    layoutId="profile-event-tab-pill"
+                                    className="absolute inset-0 bg-primary/10 rounded-lg"
+                                    transition={{ type: 'spring', damping: 30, stiffness: 400 }}
+                                    style={{ zIndex: 0 }}
+                                  />
+                                )}
+                                <span className={`relative z-[1] flex items-center gap-1 ${eventTab === tab.key ? 'text-primary' : 'text-secondary/40'}`}>
+                                  <tab.icon size={10} />
+                                  {tab.label} ({tab.count})
+                                </span>
                               </button>
                             ))}
                           </div>
