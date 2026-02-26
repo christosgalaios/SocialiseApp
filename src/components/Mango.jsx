@@ -719,22 +719,8 @@ const Mango = ({
     const xVelocity = useVelocity(x);
     const wiggleRotation = useTransform(xVelocity, [-1000, 0, 1000], [-25, 0, 25]);
 
-    // Track window dimensions for drag bounds
-    const [windowSize, setWindowSize] = useState({
-        width: typeof window !== 'undefined' ? window.innerWidth : 1024,
-        height: typeof window !== 'undefined' ? window.innerHeight : 768,
-    });
-
-    useEffect(() => {
-        const handleResize = () => {
-            setWindowSize({ width: window.innerWidth, height: window.innerHeight });
-        };
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
-
-    // Ground level - 100px from bottom (above bottom nav ~80px + some margin)
-    const GROUND_LEVEL = windowSize.height - 100 - size;
+    // Ref-based drag constraint — covers full viewport and auto-updates on resize
+    const dragBoundsRef = useRef(null);
 
     const positionClasses = {
         'bottom-right': 'fixed bottom-28 right-4',
@@ -916,50 +902,45 @@ const Mango = ({
     }
 
     return (
-        <motion.div
-            ref={containerRef}
-            className={`${positionClasses[position]} z-50 touch-none select-none`}
-            drag
-            dragMomentum={false}
-            // Constrain: can't go below ground (positive Y from start = going down)
-            // Can go up freely (negative Y)
-            dragConstraints={{
-                top: -(windowSize.height - size),
-                bottom: 0,
-                left: -(windowSize.width - size),
-                right: windowSize.width - size
-            }}
-            onPointerDown={handlePointerDown}
-            onPointerUp={handlePointerUp}
-            onPointerCancel={handlePointerUp}
-            onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd}
-            style={{ x, y }}
-            animate={isFalling ? { y: 0 } : undefined}
-            transition={isFalling ? {
-                type: "spring",
-                stiffness: 300,
-                damping: 20,
-                mass: 1.5
-            } : undefined}
-            whileTap={{ scale: isDragging ? 1.1 : 1 }}
-        >
+        <>
+            {/* Viewport-sized constraint boundary — auto-updates on resize */}
+            <div ref={dragBoundsRef} className="fixed inset-0 pointer-events-none" style={{ zIndex: 49 }} />
             <motion.div
-                style={{
-                    rotate: isDragging ? wiggleRotation : 0
-                }}
-                animate={{
-                    scale: isDragging ? 1.1 : isFalling ? 1.2 : 1
-                }}
-                transition={{
-                    scale: { duration: 0.2 }
-                }}
+                ref={containerRef}
+                className={`${positionClasses[position]} z-50 touch-none select-none`}
+                drag
+                dragMomentum={false}
+                dragConstraints={dragBoundsRef}
+                onPointerDown={handlePointerDown}
+                onPointerUp={handlePointerUp}
+                onPointerCancel={handlePointerUp}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+                style={{ x, y }}
+                animate={isFalling ? { y: 0 } : undefined}
+                transition={isFalling ? {
+                    type: "spring",
+                    stiffness: 300,
+                    damping: 20,
+                    mass: 1.5
+                } : undefined}
+                whileTap={{ scale: isDragging ? 1.1 : 1 }}
             >
-
-
-                <MangoSVG pose={currentPose} size={size} isDragging={isDragging} />
+                <motion.div
+                    style={{
+                        rotate: isDragging ? wiggleRotation : 0
+                    }}
+                    animate={{
+                        scale: isDragging ? 1.1 : isFalling ? 1.2 : 1
+                    }}
+                    transition={{
+                        scale: { duration: 0.2 }
+                    }}
+                >
+                    <MangoSVG pose={currentPose} size={size} isDragging={isDragging} />
+                </motion.div>
             </motion.div>
-        </motion.div>
+        </>
     );
 };
 
