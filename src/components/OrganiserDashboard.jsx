@@ -923,6 +923,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               </h3>
               <motion.button
                 onClick={exportAnalytics}
+                whileHover={{ scale: 1.05, transition: { duration: 0.12 } }}
                 whileTap={{ scale: 0.94 }}
                 className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border text-[10px] font-bold transition-colors ${
                   exportDone ? 'bg-green-500/10 border-green-500/20 text-green-600' : 'bg-secondary/5 border-secondary/10 text-secondary/50 hover:text-secondary/70'
@@ -1047,8 +1048,9 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                         key={cat}
                         initial={{ opacity: 0, x: -8 }}
                         animate={{ opacity: 1, x: 0 }}
+                        whileHover={{ x: 3, transition: { duration: 0.12 } }}
                         transition={{ duration: 0.25, delay: idx * 0.06 }}
-                        className="flex items-center gap-3"
+                        className="flex items-center gap-3 cursor-default"
                       >
                         <motion.div
                           initial={{ scale: 0.8, opacity: 0 }}
@@ -1250,7 +1252,9 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                       key={event.id}
                       initial={{ opacity: 0, x: -6 }}
                       animate={{ opacity: 1, x: 0 }}
+                      whileHover={{ x: 3, transition: { duration: 0.12 } }}
                       transition={{ duration: 0.2, delay: idx * 0.05 }}
+                      className="cursor-default"
                     >
                       <div className="flex justify-between mb-1">
                         <span className="text-[11px] font-bold text-secondary truncate max-w-[55%]">{event.title}</span>
