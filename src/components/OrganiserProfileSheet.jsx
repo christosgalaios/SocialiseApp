@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, Users, Globe, Megaphone, ChevronRight, ExternalLink, UserPlus, UserCheck, Clock, History } from 'lucide-react';
+import { X, Calendar, Users, Globe, Megaphone, ChevronRight, ExternalLink, UserPlus, UserCheck, Clock, History, Star, TrendingUp } from 'lucide-react';
 import { DEFAULT_AVATAR, ORGANISER_SOCIAL_PLATFORMS } from '../data/constants';
 import { playTap, playClick, hapticTap } from '../utils/feedback';
 import useUIStore from '../stores/uiStore';
@@ -53,6 +53,22 @@ export default function OrganiserProfileSheet() {
     return { upcomingEvents: upcoming, pastEvents: past };
   }, [profile]);
 
+  const highlightEvent = useMemo(() => {
+    if (!profile?.events?.length) return null;
+    return [...profile.events].sort((a, b) => {
+      const fillA = a.spots > 0 ? a.attendees / a.spots : 0;
+      const fillB = b.spots > 0 ? b.attendees / b.spots : 0;
+      return fillB - fillA;
+    })[0];
+  }, [profile]);
+
+  const organiserTier = useMemo(() => {
+    const hosted = profile?.events?.length ?? 0;
+    if (hosted >= 20) return { label: 'Gold Organiser', color: 'text-amber-500', bg: 'bg-amber-500/10', border: 'border-amber-500/20' };
+    if (hosted >= 5) return { label: 'Silver Organiser', color: 'text-slate-400', bg: 'bg-slate-400/10', border: 'border-slate-400/20' };
+    return { label: 'Organiser', color: 'text-accent', bg: 'bg-accent/10', border: 'border-accent/20' };
+  }, [profile]);
+
   if (!userId) return null;
 
   const socialLinks = profile?.organiserSocialLinks || {};
@@ -61,6 +77,7 @@ export default function OrganiserProfileSheet() {
   const totalEvents = profile?.events?.length ?? 0;
   const totalCommunities = profile?.communities?.length ?? 0;
   const totalMembers = profile?.communities?.reduce((sum, c) => sum + (c.members ?? 0), 0) ?? 0;
+  const avgFill = totalEvents > 0 ? Math.round(profile.events.reduce((sum, e) => sum + (e.spots > 0 ? (e.attendees / e.spots) * 100 : 0), 0) / totalEvents) : 0;
 
   const displayedEvents = eventTab === 'upcoming' ? upcomingEvents : pastEvents;
 
@@ -147,9 +164,11 @@ export default function OrganiserProfileSheet() {
                             <span className="text-[10px] font-black text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">Verified</span>
                           )}
                         </div>
-                        <div className="flex items-center gap-1 mt-1">
-                          <Megaphone size={12} className="text-accent" />
-                          <span className="text-[10px] font-black text-accent uppercase tracking-widest">Organiser</span>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full ${organiserTier.bg} border ${organiserTier.border} text-[9px] font-black ${organiserTier.color} uppercase tracking-widest`}>
+                            <Megaphone size={9} />
+                            {organiserTier.label}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -201,6 +220,39 @@ export default function OrganiserProfileSheet() {
                         </div>
                       ))}
                     </div>
+
+                    {/* Engagement stats */}
+                    {totalEvents > 0 && (
+                      <div className="flex items-center justify-between p-3 rounded-2xl bg-primary/5 border border-primary/10">
+                        <div className="flex items-center gap-2">
+                          <TrendingUp size={14} className="text-primary" />
+                          <span className="text-[11px] font-bold text-secondary">Avg Fill Rate</span>
+                        </div>
+                        <span className={`text-sm font-black ${avgFill >= 70 ? 'text-accent' : 'text-primary'}`}>{avgFill}%</span>
+                      </div>
+                    )}
+
+                    {/* Highlight Event */}
+                    {highlightEvent && (
+                      <div className="premium-card p-4 rounded-[20px] relative overflow-hidden">
+                        <div className="absolute -right-4 -top-4 w-16 h-16 bg-accent/5 rounded-full blur-2xl" />
+                        <div className="flex items-center gap-1.5 mb-2">
+                          <Star size={12} className="text-accent" />
+                          <span className="text-[9px] font-black text-accent uppercase tracking-widest">Top Event</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-xl overflow-hidden bg-secondary/10 shrink-0">
+                            {highlightEvent.image && <img src={highlightEvent.image} className="w-full h-full object-cover" alt="" loading="lazy" />}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-bold text-secondary truncate">{highlightEvent.title}</p>
+                            <p className="text-[10px] text-secondary/40">
+                              {highlightEvent.attendees}/{highlightEvent.spots} spots filled
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
 
                     {/* Social links — clickable */}
                     {activeSocials.length > 0 && (

@@ -61,6 +61,11 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Dashboard event search** — search bar appears when 4+ events exist, filtering by title or category in real-time
 - **Community growth indicators** — community rows now show size labels (New/Starting/Growing/Large) with color-coded badges and mini member bar
 - **Export analytics** — download a text summary of all organiser analytics (performance stats, events, revenue) from the analytics tab
+- **Attention alerts** — dashboard shows warnings for upcoming events with low fill rates and notifications for sold-out events that may need more spots
+- **Organiser milestones** — overview tab shows a horizontally scrollable milestone tracker (First Event, 5 Events, 10 Events, 50 Attendees, 100 Attendees) with unlock progress bars
+- **Public profile tier badge** — organiser profile sheet now shows Bronze/Silver/Gold tier badge instead of plain "Organiser" label
+- **Public profile engagement stats** — average fill rate displayed prominently on the public organiser profile
+- **Public profile top event highlight** — the best-performing event is showcased with an accent card on the public profile
 
 ### Changed
 - **Organiser dashboard lazy-loaded** — OrganiserDashboard is now loaded on demand via React.lazy(), reducing the main bundle from 520KB to 494KB (26KB saved) with a matching loading skeleton

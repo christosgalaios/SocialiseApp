@@ -4,6 +4,7 @@ import {
   Calendar, Users, TrendingUp, Plus, Megaphone,
   ChevronRight, BarChart3, Globe, Pencil, Clock, History, RefreshCw, Share2, Sparkles,
   Pin, DollarSign, UserCheck, Repeat, Copy, StickyNote, Activity, Search, Download, ArrowUpRight,
+  AlertTriangle, Award, Target, Zap,
 } from 'lucide-react';
 import useAuthStore from '../stores/authStore';
 import useUIStore from '../stores/uiStore';
@@ -235,6 +236,35 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
     return { avgPerEvent, overallFill, totalAttendees, bestEvent };
   }, [events]);
 
+  const attentionAlerts = useMemo(() => {
+    const alerts = [];
+    const now = new Date();
+    upcomingEvents.forEach(e => {
+      const eventDate = new Date(e.date);
+      const daysUntil = Math.ceil((eventDate - now) / (1000 * 60 * 60 * 24));
+      const fill = e.spots > 0 ? (e.attendees / e.spots) * 100 : 0;
+      if (daysUntil <= 3 && daysUntil >= 0 && fill < 50) {
+        alerts.push({ event: e, type: 'low-fill', message: `"${e.title}" is only ${Math.round(fill)}% filled and starts in ${daysUntil === 0 ? 'today' : daysUntil === 1 ? 'tomorrow' : `${daysUntil} days`}` });
+      } else if (fill >= 100) {
+        alerts.push({ event: e, type: 'sold-out', message: `"${e.title}" is sold out — consider adding more spots` });
+      }
+    });
+    return alerts;
+  }, [upcomingEvents]);
+
+  const milestones = useMemo(() => {
+    const hosted = stats?.eventsHosted ?? 0;
+    const attendees = stats?.totalAttendees ?? 0;
+    const items = [
+      { label: 'First Event', target: 1, current: hosted, icon: Calendar, unlocked: hosted >= 1 },
+      { label: '5 Events', target: 5, current: hosted, icon: Target, unlocked: hosted >= 5 },
+      { label: '10 Events', target: 10, current: hosted, icon: Award, unlocked: hosted >= 10 },
+      { label: '50 Attendees', target: 50, current: attendees, icon: Users, unlocked: attendees >= 50 },
+      { label: '100 Attendees', target: 100, current: attendees, icon: Zap, unlocked: attendees >= 100 },
+    ];
+    return items;
+  }, [stats]);
+
   const exportAnalytics = useCallback(() => {
     const lines = [
       `Organiser Analytics — ${user?.organiserDisplayName || user?.name}`,
@@ -365,6 +395,41 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           );
         })()}
       </motion.div>
+
+      {/* Attention Alerts */}
+      {attentionAlerts.length > 0 && (
+        <motion.div variants={itemVariants} className="space-y-2">
+          {attentionAlerts.map((alert, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: i * 0.1 }}
+              className={`flex items-center gap-3 p-3 rounded-2xl border ${
+                alert.type === 'low-fill'
+                  ? 'bg-amber-500/5 border-amber-500/20'
+                  : 'bg-green-500/5 border-green-500/20'
+              }`}
+            >
+              <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
+                alert.type === 'low-fill' ? 'bg-amber-500/10' : 'bg-green-500/10'
+              }`}>
+                <AlertTriangle size={14} className={alert.type === 'low-fill' ? 'text-amber-500' : 'text-green-600'} />
+              </div>
+              <p className="text-[11px] font-medium text-secondary/70 flex-1">{alert.message}</p>
+              <button
+                onClick={() => {
+                  const fullEvent = allEvents.find(e => e.id === alert.event.id) || alert.event;
+                  playTap(); hapticTap(); setSelectedEvent(fullEvent);
+                }}
+                className="text-[10px] font-bold text-primary hover:underline shrink-0"
+              >
+                View
+              </button>
+            </motion.div>
+          ))}
+        </motion.div>
+      )}
 
       {/* Organiser Header */}
       <motion.div variants={itemVariants} className="premium-card p-6 relative overflow-hidden">
@@ -917,6 +982,41 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           </div>
         </motion.div>
       )}
+
+      {/* Milestones */}
+      <motion.div variants={itemVariants} className="premium-card p-5">
+        <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-3">
+          Milestones<span className="text-accent">.</span>
+        </h3>
+        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+          {milestones.map((m) => {
+            const pct = Math.min(Math.round((m.current / m.target) * 100), 100);
+            return (
+              <div
+                key={m.label}
+                className={`shrink-0 w-24 p-3 rounded-2xl border text-center transition-all ${
+                  m.unlocked ? 'bg-accent/5 border-accent/20' : 'bg-secondary/5 border-secondary/10'
+                }`}
+              >
+                <div className={`w-10 h-10 mx-auto rounded-xl flex items-center justify-center mb-2 ${
+                  m.unlocked ? 'bg-accent/10' : 'bg-secondary/10'
+                }`}>
+                  <m.icon size={18} className={m.unlocked ? 'text-accent' : 'text-secondary/30'} />
+                </div>
+                <p className={`text-[9px] font-black uppercase tracking-widest mb-1 ${m.unlocked ? 'text-accent' : 'text-secondary/40'}`}>
+                  {m.label}
+                </p>
+                {!m.unlocked && (
+                  <div className="w-full h-1 bg-secondary/10 rounded-full overflow-hidden">
+                    <div className="h-full bg-primary/40 rounded-full" style={{ width: `${pct}%` }} />
+                  </div>
+                )}
+                {m.unlocked && <p className="text-[8px] font-bold text-accent">Unlocked</p>}
+              </div>
+            );
+          })}
+        </div>
+      </motion.div>
 
       {/* Stats Grid */}
       <motion.div variants={itemVariants}>
