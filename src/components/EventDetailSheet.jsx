@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, Wand2, Calendar, Clock, MapPin,
-  ChevronRight, Zap, ShieldCheck, Heart,
+  ChevronRight, Zap, ShieldCheck, Heart, Megaphone,
   MessageCircle, Check, Send, Mountain, Ruler, TrendingUp, Footprints
 } from 'lucide-react';
 import { INCLUSIVITY_TAGS, CATEGORY_ATTRIBUTES, DEFAULT_AVATAR } from '../data/constants';
@@ -116,14 +116,20 @@ const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMe
                           useUIStore.getState().setShowOrganiserProfile(event.host_id);
                         }
                       }}
-                      className="flex items-center gap-3 group/host w-full text-left"
+                      className="flex items-center gap-3 group/host w-full text-left p-3 rounded-2xl bg-secondary/5 border border-secondary/10 hover:bg-secondary/10 transition-colors"
                     >
-                      <div className="w-10 h-10 rounded-xl overflow-hidden bg-secondary/10 border border-secondary/10 shrink-0">
+                      <div className="w-12 h-12 rounded-2xl overflow-hidden bg-secondary/10 border-2 border-primary/20 shadow-sm shrink-0">
                         <img src={event.hostAvatar || DEFAULT_AVATAR} className="w-full h-full object-cover" alt="" loading="lazy" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-secondary group-hover/host:text-primary transition-colors truncate">{event.host}</p>
-                        <p className="text-[10px] text-secondary/40 font-medium">Tap to view profile</p>
+                        <div className="flex items-center gap-1.5">
+                          <p className="text-sm font-bold text-secondary group-hover/host:text-primary transition-colors truncate">{event.host}</p>
+                          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-accent/10 rounded-full border border-accent/20">
+                            <Megaphone size={8} className="text-accent" />
+                            <span className="text-[7px] font-black text-accent uppercase">Organiser</span>
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-secondary/40 font-medium mt-0.5">Tap to view profile</p>
                       </div>
                       <ChevronRight size={14} className="text-secondary/30 shrink-0" />
                     </button>

@@ -48,8 +48,10 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Follow button on public organiser profiles** — visitors can follow/unfollow organisers from the profile sheet with a gradient CTA button and visual state toggle
 - **Public profile event tabs** — events on the public organiser profile are now split into "Upcoming" and "Past" tabs with counts and animated transitions
 - **Animated stats on public profiles** — quick stats (events, communities, members) now animate with a spring pop-in effect when the profile loads
+- **Enhanced "Hosted By" section** — event detail sheet now shows the host with a styled organiser badge, larger avatar with border, and a card-style background
 
 ### Changed
+- **Organiser dashboard lazy-loaded** — OrganiserDashboard is now loaded on demand via React.lazy(), reducing the main bundle from 520KB to 494KB (26KB saved) with a matching loading skeleton
 - **Public organiser profile redesign** — richer layout with cover photo, quick stats grid, "Connect" section for social links, "Hosts" section for categories, and improved loading skeleton
 - **Organiser dashboard loading skeleton** — replaced basic pulse blocks with a detailed skeleton that mirrors the actual dashboard structure (profile card, quick actions, stats grid, event list)
 - **Stats card polish** — stat cards now animate their values on mount and show a subtle hover lift effect
