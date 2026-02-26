@@ -19,6 +19,8 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Text overflow in bug/feature modals** — both BugReportModal and FeatureRequestModal now consistently handle long text with word-break, overflow-wrap, and overscroll containment (BUG-1772022766344)
 
 ### Added
+- **Event note card styling** — pinned notes now display in a styled card with an icon and background instead of a plain border-left
+- **Checklist mini progress bar** — each event's pre-event checklist header shows a mini progress bar with green highlight when all tasks are complete
 - **Top performer fill bar and category tag** — the Top Performer card now shows an animated fill progress bar and category tag with a badge-style percentage
 - **Export analytics success state** — the Export button shows a brief green checkmark + "Done" state after exporting with a tap scale animation
 - **Category distribution staggered bars** — analytics category bars now cascade in with staggered slide animation; the top category is highlighted with accent gold color
