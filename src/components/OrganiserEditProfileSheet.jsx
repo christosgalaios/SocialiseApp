@@ -1,12 +1,17 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Link2, Check, Camera, ShieldCheck } from 'lucide-react';
+import { X, Link2, Check, Camera, ShieldCheck, ChevronDown, Eye } from 'lucide-react';
 import { CATEGORIES, ORGANISER_SOCIAL_PLATFORMS } from '../data/constants';
 import { playTap, playSuccess } from '../utils/feedback';
 import useAuthStore from '../stores/authStore';
 import useUIStore from '../stores/uiStore';
 import { useEscapeKey, useFocusTrap, useSwipeToClose } from '../hooks/useAccessibility';
 import api from '../api';
+
+const sectionVariants = {
+  hidden: { opacity: 0, y: 12 },
+  show: (i) => ({ opacity: 1, y: 0, transition: { type: 'spring', damping: 25, stiffness: 400, delay: i * 0.06 } }),
+};
 
 export default function OrganiserEditProfileSheet() {
   const user = useAuthStore((s) => s.user);
@@ -21,8 +26,31 @@ export default function OrganiserEditProfileSheet() {
   const [socialLinks, setSocialLinks] = useState(user?.organiserSocialLinks || {});
   const [coverPhotoPreview, setCoverPhotoPreview] = useState(user?.organiserCoverPhoto || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSocialLinks, setShowSocialLinks] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const initialStateRef = useRef({
+    displayName: user?.organiserDisplayName || user?.name || '',
+    organiserBio: user?.organiserBio || '',
+    selectedCategories: user?.organiserCategories || [],
+    socialLinks: user?.organiserSocialLinks || {},
+    coverPhotoPreview: user?.organiserCoverPhoto || '',
+  });
 
-  const close = () => setShowOrganiserEditProfile(false);
+  const hasUnsavedChanges = () => {
+    const init = initialStateRef.current;
+    return displayName !== init.displayName ||
+      organiserBio !== init.organiserBio ||
+      JSON.stringify(selectedCategories) !== JSON.stringify(init.selectedCategories) ||
+      JSON.stringify(socialLinks) !== JSON.stringify(init.socialLinks) ||
+      coverPhotoPreview !== init.coverPhotoPreview;
+  };
+
+  const close = () => {
+    if (hasUnsavedChanges() && !isSubmitting) {
+      if (!window.confirm('You have unsaved changes. Discard them?')) return;
+    }
+    setShowOrganiserEditProfile(false);
+  };
   useEscapeKey(close);
   const focusTrapRef = useFocusTrap(showOrganiserEditProfile);
   const { sheetY, handleProps } = useSwipeToClose(close);
@@ -116,19 +144,74 @@ export default function OrganiserEditProfileSheet() {
             {/* Header */}
             <div className="px-6 pb-4 flex items-center justify-between border-b border-secondary/10">
               <h2 className="text-lg font-black text-secondary">Edit Profile</h2>
-              <button
-                onPointerDown={() => { playTap(); close(); }}
-                className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center"
-                aria-label="Close"
-              >
-                <X size={20} className="text-secondary/60" />
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => { playTap(); setShowPreview(!showPreview); }}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
+                    showPreview ? 'bg-primary/10 text-primary' : 'bg-secondary/10 text-secondary/60'
+                  }`}
+                  aria-label={showPreview ? 'Hide preview' : 'Show preview'}
+                >
+                  <Eye size={18} />
+                </button>
+                <button
+                  onPointerDown={() => { playTap(); close(); }}
+                  className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center"
+                  aria-label="Close"
+                >
+                  <X size={20} className="text-secondary/60" />
+                </button>
+              </div>
             </div>
 
             {/* Scrollable content */}
             <div className="flex-1 overflow-y-auto p-6 space-y-6" style={{ overscrollBehavior: 'contain' }}>
+
+              {/* Live Preview */}
+              <AnimatePresence>
+                {showPreview && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="premium-card p-4 rounded-2xl relative overflow-hidden mb-2">
+                      <p className="text-[9px] font-black text-primary/60 uppercase tracking-widest mb-3">Preview</p>
+                      {coverPhotoPreview && (
+                        <div className="-mx-4 -mt-8 mb-3 h-16 overflow-hidden rounded-t-2xl">
+                          <img src={coverPhotoPreview} className="w-full h-full object-cover opacity-60" alt="" />
+                        </div>
+                      )}
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl overflow-hidden bg-secondary/10 shrink-0">
+                          <img src={user?.avatar} className="w-full h-full object-cover" alt="" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-black text-secondary truncate">
+                            {displayName.trim() || 'Your Name'}
+                          </p>
+                          {selectedCategories.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-0.5">
+                              {selectedCategories.slice(0, 3).map(catId => {
+                                const cat = CATEGORIES.find(c => c.id === catId);
+                                return <span key={catId} className="text-[8px] font-bold text-primary bg-primary/5 px-1.5 py-0.5 rounded-full">{cat?.label || catId}</span>;
+                              })}
+                              {selectedCategories.length > 3 && <span className="text-[8px] text-secondary/40">+{selectedCategories.length - 3}</span>}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      {organiserBio.trim() && (
+                        <p className="text-[11px] text-secondary/50 mt-2 line-clamp-2">{organiserBio}</p>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               {/* Cover Photo */}
-              <div>
+              <motion.div custom={0} variants={sectionVariants} initial="hidden" animate="show">
                 <label className="text-xs font-black text-secondary/60 uppercase tracking-widest mb-2 block">
                   Cover Photo
                 </label>
@@ -158,13 +241,18 @@ export default function OrganiserEditProfileSheet() {
                   onChange={(e) => setCoverPhotoPreview(e.target.value)}
                   className="w-full mt-2 bg-secondary/5 border border-secondary/20 rounded-xl px-3 py-2 text-sm font-medium text-[var(--text)] focus:outline-none focus:border-primary transition-all placeholder:text-secondary/40"
                 />
-              </div>
+              </motion.div>
 
               {/* Display Name */}
-              <div>
-                <label className="text-xs font-black text-secondary/60 uppercase tracking-widest mb-2 block">
-                  Display Name
-                </label>
+              <motion.div custom={1} variants={sectionVariants} initial="hidden" animate="show">
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-xs font-black text-secondary/60 uppercase tracking-widest">
+                    Display Name
+                  </label>
+                  <span className={`text-[10px] font-bold ${displayName.length >= 2 ? 'text-green-600' : 'text-secondary/40'}`}>
+                    {displayName.length}/50
+                  </span>
+                </div>
                 <input
                   type="text"
                   placeholder="How attendees will see you"
@@ -173,14 +261,29 @@ export default function OrganiserEditProfileSheet() {
                   className="w-full bg-secondary/5 border-2 border-secondary/20 rounded-2xl px-4 py-3.5 text-base font-medium text-[var(--text)] focus:outline-none focus:border-primary transition-all placeholder:text-secondary/40"
                   maxLength={50}
                 />
-                <p className="text-[10px] text-secondary/40 mt-1 font-medium">{displayName.length}/50 characters</p>
-              </div>
+                {displayName.trim().length > 0 && displayName.trim().length < 2 && (
+                  <p className="text-[10px] text-red-500/70 mt-1 font-medium">Name must be at least 2 characters</p>
+                )}
+                {/* Character progress bar */}
+                <div className="w-full h-0.5 bg-secondary/10 rounded-full mt-1.5 overflow-hidden">
+                  <motion.div
+                    className={`h-full rounded-full ${displayName.length >= 2 ? 'bg-green-500/60' : 'bg-primary/40'}`}
+                    animate={{ width: `${Math.min((displayName.length / 50) * 100, 100)}%` }}
+                    transition={{ duration: 0.2 }}
+                  />
+                </div>
+              </motion.div>
 
               {/* Bio */}
-              <div>
-                <label className="text-xs font-black text-secondary/60 uppercase tracking-widest mb-2 block">
-                  Organiser Bio
-                </label>
+              <motion.div custom={2} variants={sectionVariants} initial="hidden" animate="show">
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-xs font-black text-secondary/60 uppercase tracking-widest">
+                    Organiser Bio
+                  </label>
+                  <span className={`text-[10px] font-bold ${organiserBio.length > 250 ? 'text-amber-500' : 'text-secondary/40'}`}>
+                    {organiserBio.length}/300
+                  </span>
+                </div>
                 <textarea
                   placeholder="Tell people what kind of events you host..."
                   value={organiserBio}
@@ -189,23 +292,38 @@ export default function OrganiserEditProfileSheet() {
                   maxLength={300}
                   style={{ overflowWrap: 'break-word', wordBreak: 'break-words' }}
                 />
-                <p className="text-[10px] text-secondary/40 mt-1 font-medium">{organiserBio.length}/300 characters</p>
-              </div>
+                {/* Character progress bar */}
+                <div className="w-full h-0.5 bg-secondary/10 rounded-full mt-1 overflow-hidden">
+                  <motion.div
+                    className={`h-full rounded-full ${organiserBio.length > 250 ? 'bg-amber-500/60' : 'bg-primary/40'}`}
+                    animate={{ width: `${Math.min((organiserBio.length / 300) * 100, 100)}%` }}
+                    transition={{ duration: 0.2 }}
+                  />
+                </div>
+              </motion.div>
 
               {/* Categories */}
-              <div>
-                <label className="text-xs font-black text-secondary/60 uppercase tracking-widest mb-3 block">
-                  Event Categories
-                </label>
+              <motion.div custom={3} variants={sectionVariants} initial="hidden" animate="show">
+                <div className="flex items-center justify-between mb-3">
+                  <label className="text-xs font-black text-secondary/60 uppercase tracking-widest">
+                    Event Categories
+                  </label>
+                  <span className={`text-[10px] font-bold ${selectedCategories.length >= 1 ? 'text-green-600' : 'text-red-500/70'}`}>
+                    {selectedCategories.length} selected
+                  </span>
+                </div>
                 <div className="flex flex-wrap gap-2">
                   {categories.map((cat) => {
                     const isSelected = selectedCategories.includes(cat.id);
                     const Icon = cat.icon;
                     return (
-                      <button
+                      <motion.button
                         key={cat.id}
-                        onClick={() => toggleCategory(cat.id)}
-                        className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border-2 text-sm font-bold transition-all ${
+                        onClick={() => { toggleCategory(cat.id); playTap(); }}
+                        whileTap={{ scale: 0.92 }}
+                        animate={isSelected ? { scale: [1, 1.05, 1] } : {}}
+                        transition={{ duration: 0.2 }}
+                        className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border-2 text-sm font-bold transition-colors ${
                           isSelected
                             ? 'bg-primary/10 border-primary text-primary'
                             : 'bg-secondary/5 border-secondary/20 text-secondary/70 hover:border-secondary/40'
@@ -213,85 +331,127 @@ export default function OrganiserEditProfileSheet() {
                       >
                         {Icon && <Icon size={14} />}
                         {cat.label}
-                        {isSelected && <Check size={12} />}
-                      </button>
+                        {isSelected && (
+                          <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', damping: 15, stiffness: 400 }}>
+                            <Check size={12} />
+                          </motion.span>
+                        )}
+                      </motion.button>
                     );
                   })}
                 </div>
                 {selectedCategories.length === 0 && (
                   <p className="text-[10px] text-red-500/70 mt-1 font-medium">Select at least 1 category</p>
                 )}
-              </div>
+              </motion.div>
 
-              {/* Social Links */}
-              <div>
-                <label className="text-xs font-black text-secondary/60 uppercase tracking-widest mb-3 block">
-                  Social Links <span className="text-secondary/30">(optional)</span>
-                </label>
-                <div className="space-y-3">
-                  {ORGANISER_SOCIAL_PLATFORMS.map((platform) => {
-                    const error = socialErrors[platform.key];
-                    return (
-                      <div key={platform.key} className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-secondary/5 border border-secondary/10 flex items-center justify-center shrink-0">
-                          <Link2 size={16} className="text-secondary/50" />
-                        </div>
-                        <div className="flex-1">
-                          <span className="text-[10px] font-bold text-secondary/40 uppercase tracking-wider">{platform.label}</span>
-                          <input
-                            type="text"
-                            placeholder={platform.placeholder}
-                            value={socialLinks[platform.key] || ''}
-                            onChange={(e) => updateSocialLink(platform.key, e.target.value)}
-                            className={`w-full bg-secondary/5 border rounded-xl px-3 py-2 text-sm font-medium text-[var(--text)] focus:outline-none transition-all placeholder:text-secondary/40 ${
-                              error ? 'border-red-400 focus:border-red-500' : 'border-secondary/20 focus:border-primary'
-                            }`}
-                          />
-                          {error && <p className="text-[10px] text-red-500/70 mt-0.5 font-medium">{error}</p>}
-                        </div>
+              {/* Social Links — collapsible */}
+              <motion.div custom={4} variants={sectionVariants} initial="hidden" animate="show">
+                <button
+                  onClick={() => { setShowSocialLinks(!showSocialLinks); playTap(); }}
+                  className="w-full flex items-center justify-between mb-3"
+                >
+                  <label className="text-xs font-black text-secondary/60 uppercase tracking-widest pointer-events-none">
+                    Social Links <span className="text-secondary/30">(optional)</span>
+                  </label>
+                  <div className="flex items-center gap-2">
+                    {Object.values(socialLinks).filter(v => v?.trim()).length > 0 && (
+                      <span className="text-[10px] font-bold text-green-600 bg-green-500/10 px-1.5 py-0.5 rounded-full">
+                        {Object.values(socialLinks).filter(v => v?.trim()).length} linked
+                      </span>
+                    )}
+                    <ChevronDown size={14} className={`text-secondary/40 transition-transform ${showSocialLinks ? 'rotate-180' : ''}`} />
+                  </div>
+                </button>
+                <AnimatePresence>
+                  {showSocialLinks && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="space-y-3">
+                        {ORGANISER_SOCIAL_PLATFORMS.map((platform) => {
+                          const error = socialErrors[platform.key];
+                          const hasValue = socialLinks[platform.key]?.trim();
+                          return (
+                            <div key={platform.key} className="flex items-center gap-3">
+                              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border transition-colors ${
+                                hasValue ? 'bg-green-500/5 border-green-500/20' : 'bg-secondary/5 border-secondary/10'
+                              }`}>
+                                <Link2 size={16} className={hasValue ? 'text-green-600' : 'text-secondary/50'} />
+                              </div>
+                              <div className="flex-1">
+                                <span className="text-[10px] font-bold text-secondary/40 uppercase tracking-wider">{platform.label}</span>
+                                <input
+                                  type="text"
+                                  placeholder={platform.placeholder}
+                                  value={socialLinks[platform.key] || ''}
+                                  onChange={(e) => updateSocialLink(platform.key, e.target.value)}
+                                  className={`w-full bg-secondary/5 border rounded-xl px-3 py-2 text-sm font-medium text-[var(--text)] focus:outline-none transition-all placeholder:text-secondary/40 ${
+                                    error ? 'border-red-400 focus:border-red-500' : hasValue ? 'border-green-500/30 focus:border-green-500' : 'border-secondary/20 focus:border-primary'
+                                  }`}
+                                />
+                                {error && <p className="text-[10px] text-red-500/70 mt-0.5 font-medium">{error}</p>}
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
-                    );
-                  })}
-                </div>
-              </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
 
               {/* Verification Request */}
-              {!user?.organiserVerified && (
-                <div className="premium-card p-4 rounded-2xl">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
-                      <ShieldCheck size={18} className="text-primary" />
+              <motion.div custom={5} variants={sectionVariants} initial="hidden" animate="show">
+                {!user?.organiserVerified ? (
+                  <div className="premium-card p-4 rounded-2xl">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
+                        <ShieldCheck size={18} className="text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-bold text-secondary">Get Verified</p>
+                        <p className="text-[10px] text-secondary/40">Verified organisers get a badge on their profile</p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          playTap();
+                          showToast('Verification request submitted! We\'ll review your profile.', 'success');
+                        }}
+                        className="px-3 py-1.5 rounded-xl bg-primary/10 border border-primary/20 text-primary text-[11px] font-bold hover:bg-primary/20 transition-colors"
+                      >
+                        Request
+                      </button>
                     </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-bold text-secondary">Get Verified</p>
-                      <p className="text-[10px] text-secondary/40">Verified organisers get a badge on their profile</p>
-                    </div>
-                    <button
-                      onClick={() => {
-                        playTap();
-                        showToast('Verification request submitted! We\'ll review your profile.', 'success');
-                      }}
-                      className="px-3 py-1.5 rounded-xl bg-primary/10 border border-primary/20 text-primary text-[11px] font-bold hover:bg-primary/20 transition-colors"
-                    >
-                      Request
-                    </button>
                   </div>
-                </div>
-              )}
-              {user?.organiserVerified && (
-                <div className="flex items-center gap-2 p-3 rounded-2xl bg-green-500/5 border border-green-500/10">
-                  <ShieldCheck size={16} className="text-green-600" />
-                  <span className="text-sm font-bold text-green-600">Verified Organiser</span>
-                </div>
-              )}
+                ) : (
+                  <div className="flex items-center gap-2 p-3 rounded-2xl bg-green-500/5 border border-green-500/10">
+                    <ShieldCheck size={16} className="text-green-600" />
+                    <span className="text-sm font-bold text-green-600">Verified Organiser</span>
+                  </div>
+                )}
+              </motion.div>
             </div>
 
             {/* Footer with save button */}
             <div className="p-6 pb-8 border-t border-secondary/10">
-              <button
+              {hasUnsavedChanges() && (
+                <motion.p
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-[10px] font-bold text-amber-500 text-center mb-2"
+                >
+                  You have unsaved changes
+                </motion.p>
+              )}
+              <motion.button
                 onClick={handleSave}
                 disabled={!canSave || isSubmitting}
-                className="w-full h-14 rounded-2xl bg-gradient-to-r from-primary to-accent text-white font-black uppercase tracking-widest flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] transition-transform"
+                whileTap={{ scale: 0.98 }}
+                className="w-full h-14 rounded-2xl bg-gradient-to-r from-primary to-accent text-white font-black uppercase tracking-widest flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-transform"
               >
                 {isSubmitting ? (
                   <motion.div
@@ -305,7 +465,7 @@ export default function OrganiserEditProfileSheet() {
                     Save Changes
                   </>
                 )}
-              </button>
+              </motion.button>
             </div>
           </motion.div>
         </motion.div>

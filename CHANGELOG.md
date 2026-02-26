@@ -13,6 +13,17 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 ## [Unreleased]
 
 ### Added
+- **Edit profile live preview** — toggle a real-time preview card while editing your organiser profile to see how your name, bio, categories, and cover photo will look to others
+- **Edit profile unsaved changes warning** — closing the edit profile sheet with unsaved changes prompts a confirmation dialog to prevent accidental data loss
+- **Collapsible social links** — social links section in the edit profile sheet now collapses by default, showing a count badge of linked platforms; expand to edit
+- **Character progress bars** — display name and bio fields show animated progress bars indicating character usage, with color changes near limits
+- **Category selection animation** — category chips in the edit profile now animate with a spring scale effect on selection and a pop-in checkmark
+- **Inline community creation** — create a community directly from the organiser dashboard without leaving the page; quick form with name and description fields
+- **Dashboard community "+" button** — new add button in the communities section header for one-tap access to the community creation form
+- **Staggered community row animations** — community rows on the organiser dashboard animate in with a cascading slide effect
+- **Tier badge pop-in** — organiser tier badge (Bronze/Silver/Gold) now animates with a spring pop-in when the dashboard loads
+- **Countdown value animation** — next event countdown number springs into view with a scale effect
+- **Staggered form section entry** — edit profile form sections animate in sequentially for a polished sheet-open experience
 - **Edit organiser profile** — organisers can now update their display name, bio, categories, and social links after initial setup via the Edit Profile sheet on the dashboard
 - **Event filtering on organiser dashboard** — events are split into "Upcoming" and "Past" tabs with counts, making it easy to see what's active vs completed
 - **Event fill bar** — each event row on the organiser dashboard now shows a mini progress bar indicating how full the event is, with accent color when 80%+ filled
@@ -70,6 +81,7 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Event pre-checklist** — each upcoming event has a collapsible 4-item checklist (Confirm venue, Share on socials, Send reminders, Prepare materials) with completion tracking persisted locally
 
 ### Changed
+- **Edit profile sheet lazy-loaded** — OrganiserEditProfileSheet is now loaded on demand via React.lazy(), reducing the main bundle from 504KB to 491KB (13KB saved)
 - **Organiser dashboard lazy-loaded** — OrganiserDashboard is now loaded on demand via React.lazy(), reducing the main bundle from 520KB to 494KB (26KB saved) with a matching loading skeleton
 - **Public organiser profile redesign** — richer layout with cover photo, quick stats grid, "Connect" section for social links, "Hosts" section for categories, and improved loading skeleton
 - **Organiser dashboard loading skeleton** — replaced basic pulse blocks with a detailed skeleton that mirrors the actual dashboard structure (profile card, quick actions, stats grid, event list)

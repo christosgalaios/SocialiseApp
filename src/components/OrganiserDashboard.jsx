@@ -12,7 +12,7 @@ import useEventStore from '../stores/eventStore';
 import useCommunityStore from '../stores/communityStore';
 import OrganiserStatsCard from './OrganiserStatsCard';
 import { DEFAULT_AVATAR, ORGANISER_SOCIAL_PLATFORMS, CATEGORIES } from '../data/constants';
-import { playTap, playClick, hapticTap } from '../utils/feedback';
+import { playTap, playClick, playSuccess, hapticTap } from '../utils/feedback';
 import api from '../api';
 
 const containerVariants = {
@@ -83,6 +83,10 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
     } catch { return {}; }
   });
   const [expandedChecklist, setExpandedChecklist] = useState(null);
+  const [showCreateCommunity, setShowCreateCommunity] = useState(false);
+  const [newCommunityName, setNewCommunityName] = useState('');
+  const [newCommunityDesc, setNewCommunityDesc] = useState('');
+  const [isCreatingCommunity, setIsCreatingCommunity] = useState(false);
 
   const fetchDashboard = useCallback(async (silent = false) => {
     try {
@@ -312,6 +316,28 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
     playClick();
   }, [user, stats, events, revenueInsights, showToast]);
 
+  const handleCreateCommunity = useCallback(async () => {
+    if (isCreatingCommunity || !newCommunityName.trim()) return;
+    setIsCreatingCommunity(true);
+    try {
+      await api.createCommunity({
+        name: newCommunityName.trim(),
+        description: newCommunityDesc.trim() || null,
+        category: user?.organiserCategories?.[0] || 'Social',
+      });
+      playSuccess();
+      showToast('Community created!', 'success');
+      setNewCommunityName('');
+      setNewCommunityDesc('');
+      setShowCreateCommunity(false);
+      fetchDashboard(true);
+    } catch (err) {
+      showToast(err.message || 'Failed to create community', 'error');
+    } finally {
+      setIsCreatingCommunity(false);
+    }
+  }, [isCreatingCommunity, newCommunityName, newCommunityDesc, user, showToast, fetchDashboard]);
+
   const toggleWidget = useCallback((widgetId) => {
     setHiddenWidgets(prev => {
       const next = prev.includes(widgetId) ? prev.filter(w => w !== widgetId) : [...prev, widgetId];
@@ -432,9 +458,14 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
         {stats && (() => {
           const tier = getOrganiserTier();
           return (
-            <span className={`inline-flex items-center gap-1 px-2.5 py-1 ${tier.bg} rounded-full border ${tier.border} ${tier.color} text-[10px] font-black`}>
+            <motion.span
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: 'spring', damping: 15, stiffness: 300, delay: 0.3 }}
+              className={`inline-flex items-center gap-1 px-2.5 py-1 ${tier.bg} rounded-full border ${tier.border} ${tier.color} text-[10px] font-black`}
+            >
               {tier.icon} {tier.label}
-            </span>
+            </motion.span>
           );
         })()}
       </motion.div>
@@ -1033,7 +1064,14 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               <p className="text-sm font-bold text-secondary truncate">{nextEvent.title}</p>
             </div>
             <div className="text-right shrink-0">
-              <p className="text-lg font-black text-primary leading-tight">{nextEvent.countdown}</p>
+              <motion.p
+                className="text-lg font-black text-primary leading-tight"
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: 'spring', damping: 15, stiffness: 300, delay: 0.2 }}
+              >
+                {nextEvent.countdown}
+              </motion.p>
               <p className="text-[9px] font-bold text-secondary/40 uppercase tracking-widest">until start</p>
             </div>
           </div>
@@ -1415,29 +1453,97 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           <h3 className="text-xs font-black text-primary uppercase tracking-widest">
             My Communities<span className="text-accent">.</span>
           </h3>
-          <span className="text-[9px] font-bold text-secondary/30 uppercase tracking-widest">
-            {communities.length} communities
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-[9px] font-bold text-secondary/30 uppercase tracking-widest">
+              {communities.length} communities
+            </span>
+            <button
+              onClick={() => { playTap(); setShowCreateCommunity(!showCreateCommunity); }}
+              className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${
+                showCreateCommunity ? 'bg-primary/10 text-primary' : 'bg-secondary/5 border border-secondary/10 text-secondary/40 hover:text-secondary/60'
+              }`}
+              aria-label="Create community"
+            >
+              <Plus size={14} />
+            </button>
+          </div>
         </div>
 
-        {communities.length === 0 ? (
+        {/* Inline Create Community Form */}
+        <AnimatePresence>
+          {showCreateCommunity && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="overflow-hidden mb-4"
+            >
+              <div className="p-4 rounded-2xl bg-primary/5 border border-primary/10 space-y-3">
+                <p className="text-[10px] font-black text-primary uppercase tracking-widest">Quick Create</p>
+                <input
+                  type="text"
+                  value={newCommunityName}
+                  onChange={(e) => setNewCommunityName(e.target.value)}
+                  placeholder="Community name..."
+                  className="w-full px-3 py-2.5 rounded-xl bg-paper border border-secondary/20 text-sm font-medium text-[var(--text)] placeholder:text-secondary/30 outline-none focus:border-primary transition-colors"
+                  maxLength={50}
+                />
+                <input
+                  type="text"
+                  value={newCommunityDesc}
+                  onChange={(e) => setNewCommunityDesc(e.target.value)}
+                  placeholder="Short description (optional)..."
+                  className="w-full px-3 py-2 rounded-xl bg-paper border border-secondary/20 text-xs font-medium text-[var(--text)] placeholder:text-secondary/30 outline-none focus:border-primary transition-colors"
+                  maxLength={200}
+                />
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleCreateCommunity}
+                    disabled={!newCommunityName.trim() || isCreatingCommunity}
+                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-xs font-black uppercase tracking-widest disabled:opacity-50 transition-all active:scale-[0.98]"
+                  >
+                    {isCreatingCommunity ? 'Creating...' : 'Create'}
+                  </button>
+                  <button
+                    onClick={() => { setShowCreateCommunity(false); setNewCommunityName(''); setNewCommunityDesc(''); }}
+                    className="px-4 py-2.5 rounded-xl bg-secondary/5 border border-secondary/10 text-xs font-bold text-secondary/50 hover:text-secondary/70 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {communities.length === 0 && !showCreateCommunity ? (
           <div className="text-center py-8">
             <div className="w-16 h-16 mx-auto mb-3 rounded-[20px] bg-secondary/5 border border-secondary/10 flex items-center justify-center">
               <Users size={28} className="text-secondary/30" />
             </div>
             <p className="text-sm text-secondary/50 font-bold mb-1">No communities yet</p>
-            <p className="text-[11px] text-secondary/30 max-w-[200px] mx-auto">Build your tribe by creating a community around your events</p>
+            <p className="text-[11px] text-secondary/30 max-w-[200px] mx-auto mb-4">Build your tribe by creating a community around your events</p>
+            <button
+              onClick={() => { playTap(); setShowCreateCommunity(true); }}
+              className="inline-flex items-center gap-1 px-4 py-2 rounded-xl bg-primary/10 border border-primary/20 text-primary text-xs font-bold hover:bg-primary/20 transition-colors"
+            >
+              <Plus size={14} />
+              Create Community
+            </button>
           </div>
         ) : (
           <div className="space-y-3">
-            {communities.map((community) => {
+            {communities.map((community, idx) => {
               const fullCommunity = allCommunities.find(c => c.id === community.id) || community;
               const memberCount = community.members ?? 0;
               const sizeLabel = memberCount >= 100 ? 'Large' : memberCount >= 20 ? 'Growing' : memberCount > 0 ? 'Starting' : 'New';
               const sizeColor = memberCount >= 100 ? 'text-accent' : memberCount >= 20 ? 'text-green-600' : 'text-secondary/40';
               return (
-                <button
+                <motion.button
                   key={community.id}
+                  initial={{ opacity: 0, x: -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.2, delay: idx * 0.05 }}
                   onClick={() => { playTap(); hapticTap(); setSelectedTribe(fullCommunity); }}
                   className="w-full flex items-center gap-3 p-3 rounded-2xl bg-secondary/5 border border-secondary/10 hover:bg-secondary/10 transition-colors text-left"
                 >
@@ -1464,7 +1570,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                     </div>
                   </div>
                   <ChevronRight size={16} className="text-secondary/30 shrink-0" />
-                </button>
+                </motion.button>
               );
             })}
           </div>
