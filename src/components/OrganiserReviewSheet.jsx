@@ -135,7 +135,7 @@ export default function OrganiserReviewSheet() {
               </div>
               <button
                 onPointerDown={() => { playTap(); close(); }}
-                className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center"
+                className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                 aria-label="Close"
               >
                 <X size={20} className="text-secondary/60" />
@@ -171,7 +171,7 @@ export default function OrganiserReviewSheet() {
                             key={tag.id}
                             type="button"
                             onClick={() => toggleTag(tag.id)}
-                            className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold border transition-all active:scale-95 ${
+                            className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold border transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${
                               isSelected
                                 ? `${tag.color} ring-2 ring-primary/20 shadow-sm`
                                 : 'bg-secondary/5 text-secondary/50 border-secondary/10 hover:bg-secondary/10'
@@ -200,7 +200,7 @@ export default function OrganiserReviewSheet() {
                       placeholder="Share a quick thought about this organiser..."
                       maxLength={200}
                       rows={3}
-                      className="w-full bg-secondary/5 border border-secondary/10 rounded-2xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-primary transition-all placeholder:text-secondary/30 text-[var(--text)] resize-none break-words"
+                      className="w-full bg-secondary/5 border border-secondary/10 rounded-2xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-primary hover:border-secondary/20 transition-all placeholder:text-secondary/30 text-[var(--text)] resize-none break-words"
                       style={{ overflowWrap: 'break-word' }}
                     />
                     <p className="text-[10px] text-secondary/30 font-medium mt-1 text-right">{comment.length}/200</p>
@@ -215,7 +215,7 @@ export default function OrganiserReviewSheet() {
                 <button
                   onClick={handleDelete}
                   disabled={isSubmitting}
-                  className="px-4 py-3 rounded-2xl bg-red-500/10 text-red-600 text-sm font-bold border border-red-500/20 hover:bg-red-500/20 transition-colors disabled:opacity-50"
+                  className="px-4 py-3 rounded-2xl bg-red-500/10 text-red-600 text-sm font-bold border border-red-500/20 hover:bg-red-500/20 transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-red-500/30 focus-visible:outline-none"
                 >
                   Remove
                 </button>
@@ -223,7 +223,7 @@ export default function OrganiserReviewSheet() {
               <button
                 onClick={handleSubmit}
                 disabled={selectedTags.length === 0 || isSubmitting}
-                className="flex-1 py-3.5 rounded-2xl font-black text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed bg-gradient-to-r from-primary to-accent text-white shadow-lg"
+                className="flex-1 py-3.5 rounded-2xl font-black text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed bg-gradient-to-r from-primary to-accent text-white shadow-lg focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
               >
                 {isSubmitting ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
