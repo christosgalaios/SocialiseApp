@@ -1027,7 +1027,9 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           })()}
 
           {/* Audience Insights */}
-          {audienceInsights && (
+          {audienceInsights && (() => {
+            const maxSpots = Math.max(...events.map(e => e.spots ?? 0), 1);
+            return (
             <div className="premium-card p-6 relative overflow-hidden">
               <div className="absolute -right-6 -top-6 w-24 h-24 bg-primary/5 rounded-full blur-2xl" />
               <div className="flex items-center gap-2 mb-4">
@@ -1037,19 +1039,39 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                 <h3 className="text-xs font-black text-primary uppercase tracking-widest">Audience Insights</h3>
               </div>
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Users size={14} className="text-secondary/40" />
-                    <span className="text-[11px] font-bold text-secondary">Avg. per event</span>
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex items-center gap-2">
+                      <Users size={14} className="text-secondary/40" />
+                      <span className="text-[11px] font-bold text-secondary">Avg. per event</span>
+                    </div>
+                    <span className="text-sm font-black text-primary">{audienceInsights.avgPerEvent}</span>
                   </div>
-                  <span className="text-sm font-black text-primary">{audienceInsights.avgPerEvent} attendees</span>
+                  <div className="w-full h-1.5 bg-secondary/10 rounded-full overflow-hidden">
+                    <motion.div
+                      className="h-full bg-primary/50 rounded-full"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${Math.min((audienceInsights.avgPerEvent / maxSpots) * 100, 100)}%` }}
+                      transition={{ duration: 0.5, ease: 'easeOut' }}
+                    />
+                  </div>
                 </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <BarChart3 size={14} className="text-secondary/40" />
-                    <span className="text-[11px] font-bold text-secondary">Overall fill rate</span>
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex items-center gap-2">
+                      <BarChart3 size={14} className="text-secondary/40" />
+                      <span className="text-[11px] font-bold text-secondary">Overall fill rate</span>
+                    </div>
+                    <span className={`text-sm font-black ${audienceInsights.overallFill >= 70 ? 'text-accent' : 'text-primary'}`}>{audienceInsights.overallFill}%</span>
                   </div>
-                  <span className={`text-sm font-black ${audienceInsights.overallFill >= 70 ? 'text-accent' : 'text-primary'}`}>{audienceInsights.overallFill}%</span>
+                  <div className="w-full h-1.5 bg-secondary/10 rounded-full overflow-hidden">
+                    <motion.div
+                      className={`h-full rounded-full ${audienceInsights.overallFill >= 70 ? 'bg-accent/60' : 'bg-primary/50'}`}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${audienceInsights.overallFill}%` }}
+                      transition={{ duration: 0.5, ease: 'easeOut', delay: 0.1 }}
+                    />
+                  </div>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -1076,7 +1098,8 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                 )}
               </div>
             </div>
-          )}
+            );
+          })()}
 
           {/* Attendance rate */}
           {events.length > 0 ? (
@@ -1615,9 +1638,17 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
       {/* My Communities */}
       <motion.div variants={itemVariants} className="premium-card p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xs font-black text-primary uppercase tracking-widest">
-            My Communities<span className="text-accent">.</span>
-          </h3>
+          <div>
+            <h3 className="text-xs font-black text-primary uppercase tracking-widest">
+              My Communities<span className="text-accent">.</span>
+            </h3>
+            {communities.length > 0 && (() => {
+              const totalMembers = communities.reduce((sum, c) => sum + (c.members ?? 0), 0);
+              return totalMembers > 0 ? (
+                <p className="text-[9px] font-medium text-secondary/35 mt-0.5">{totalMembers} total members</p>
+              ) : null;
+            })()}
+          </div>
           <div className="flex items-center gap-2">
             <span className="text-[9px] font-bold text-secondary/30 uppercase tracking-widest">
               {communities.length} communities
