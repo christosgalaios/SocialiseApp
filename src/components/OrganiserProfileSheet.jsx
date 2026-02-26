@@ -196,7 +196,7 @@ export default function OrganiserProfileSheet() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <h3 className="text-xl font-black text-secondary truncate">
+                          <h3 className="text-xl font-black text-secondary truncate select-text">
                             {profile.organiserDisplayName || profile.name}
                           </h3>
                           {profile.organiserVerified && (
@@ -251,7 +251,7 @@ export default function OrganiserProfileSheet() {
                     {/* Bio */}
                     {(profile.organiserBio || profile.bio) && (
                       <div className="premium-card p-4 rounded-[20px] border border-transparent hover:border-secondary/10 transition-colors duration-200">
-                        <p className="text-sm text-secondary/70 font-medium leading-relaxed">
+                        <p className="text-sm text-secondary/70 font-medium leading-relaxed select-text">
                           {profile.organiserBio || profile.bio}
                         </p>
                       </div>

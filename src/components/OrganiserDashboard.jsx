@@ -601,7 +601,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <h2 className="text-xl font-black text-secondary truncate">
+              <h2 className="text-xl font-black text-secondary truncate select-text">
                 {user?.organiserDisplayName || user?.name}
               </h2>
               {user?.organiserVerified && (
@@ -655,7 +655,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
         </div>
 
         {user?.organiserBio && (
-          <p className="text-sm text-secondary/60 font-medium leading-relaxed mb-3">{user.organiserBio}</p>
+          <p className="text-sm text-secondary/60 font-medium leading-relaxed mb-3 select-text">{user.organiserBio}</p>
         )}
 
         {/* Category chips */}
@@ -1774,7 +1774,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                     {note && editingNoteId !== event.id && (
                       <div className="ml-3 flex items-start gap-2 p-2 rounded-xl bg-primary/5 border border-primary/10">
                         <StickyNote size={10} className="text-primary/40 shrink-0 mt-0.5" />
-                        <p className="text-[10px] text-secondary/60 italic leading-relaxed">{note}</p>
+                        <p className="text-[10px] text-secondary/60 italic leading-relaxed select-text">{note}</p>
                       </div>
                     )}
                     {/* Note editor */}
