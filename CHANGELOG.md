@@ -47,6 +47,9 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Setup flow back button feedback** — the back button on organiser setup now has hover scale and tap compression
 - **Setup flow social link state** — social link icons turn green when a URL is entered, matching the edit profile behavior
 - **Setup flow name progress bar** — the display name field now shows a thin progress bar that turns green once the minimum 2-character requirement is met
+- **Public profile top event hover lift** — the "Top Event" highlight card lifts on hover and compresses on tap for consistent card feedback
+- **Public profile social link hover scale** — social link chips scale up on hover and compress on tap for better affordance
+- **Public profile follow button hover** — the Follow/Following button subtly scales up on hover before the tap compression
 - **Community empty state polish** — spring-animated icon with gradient background, staggered "Engage / Grow / Connect" hint tags, subtle glow backdrop
 - **Profile stat badges staggered entrance** — the upcoming/past/communities/attendees badges in the organiser header animate in with spring scale stagger instead of appearing instantly
 - **Community card hover lift** — community cards in the dashboard now lift on hover and scale on tap for tactile feedback
