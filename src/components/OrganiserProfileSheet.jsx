@@ -264,20 +264,27 @@ export default function OrganiserProfileSheet() {
                         { icon: MessageCircle, value: totalCommunities, label: 'Communities', color: 'text-secondary', bg: 'bg-secondary/5' },
                         { icon: Users, value: totalMembers, label: 'Members', color: 'text-teal-600', bg: 'bg-teal-500/5' },
                       ].map((stat, i) => (
-                        <div key={stat.label} className={`p-3 rounded-2xl ${stat.bg} border border-secondary/10`}>
+                        <motion.div
+                          key={stat.label}
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ type: 'spring', damping: 20, stiffness: 300, delay: 0.1 + i * 0.06 }}
+                          whileHover={{ y: -2, transition: { duration: 0.12 } }}
+                          className={`p-3 rounded-2xl ${stat.bg} border border-secondary/10`}
+                        >
                           <div className="flex items-center gap-2">
                             <stat.icon size={14} className={stat.color} />
                             <motion.span
                               className="text-lg font-black text-secondary"
                               initial={{ opacity: 0, scale: 0.5 }}
                               animate={{ opacity: 1, scale: 1 }}
-                              transition={{ type: 'spring', damping: 20, stiffness: 300, delay: 0.1 + i * 0.05 }}
+                              transition={{ type: 'spring', damping: 20, stiffness: 300, delay: 0.15 + i * 0.05 }}
                             >
                               {stat.value}
                             </motion.span>
                           </div>
                           <p className="text-[9px] font-bold text-secondary/40 uppercase tracking-widest mt-0.5">{stat.label}</p>
-                        </div>
+                        </motion.div>
                       ))}
                     </motion.div>
 
@@ -384,14 +391,20 @@ export default function OrganiserProfileSheet() {
                           Hosts<span className="text-accent">.</span>
                         </h4>
                         <div className="flex flex-wrap gap-2">
-                          {profile.organiserCategories.map(catId => {
+                          {profile.organiserCategories.map((catId, idx) => {
                             const catData = CATEGORIES.find(c => c.id === catId);
                             const CatIcon = catData?.icon;
                             return (
-                              <span key={catId} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 rounded-full border border-primary/20 text-[11px] font-bold text-primary">
+                              <motion.span
+                                key={catId}
+                                initial={{ opacity: 0, scale: 0.85 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ type: 'spring', damping: 20, stiffness: 300, delay: idx * 0.05 }}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 rounded-full border border-primary/20 text-[11px] font-bold text-primary"
+                              >
                                 {CatIcon && <CatIcon size={12} />}
                                 {catData?.label || catId}
-                              </span>
+                              </motion.span>
                             );
                           })}
                         </div>
@@ -594,8 +607,16 @@ export default function OrganiserProfileSheet() {
                     {/* Empty state */}
                     {(!profile.events?.length && !profile.communities?.length) && (
                       <div className="text-center py-6">
-                        <Megaphone size={32} className="text-secondary/20 mx-auto mb-2" />
+                        <motion.div
+                          initial={{ scale: 0, rotate: -10 }}
+                          animate={{ scale: 1, rotate: 0 }}
+                          transition={{ type: 'spring', damping: 15, stiffness: 200 }}
+                          className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-secondary/5 border border-secondary/10 flex items-center justify-center"
+                        >
+                          <Megaphone size={24} className="text-secondary/20" />
+                        </motion.div>
                         <p className="text-sm text-secondary/40 font-medium">This organiser hasn&apos;t hosted anything yet</p>
+                        <p className="text-[10px] text-secondary/25 mt-1">Check back later for events</p>
                       </div>
                     )}
                   </div>
