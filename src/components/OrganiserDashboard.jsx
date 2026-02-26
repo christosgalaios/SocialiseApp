@@ -4,7 +4,7 @@ import {
   Calendar, Users, TrendingUp, Plus, Megaphone,
   ChevronRight, BarChart3, Globe, Pencil, Clock, History, RefreshCw, Share2, Sparkles,
   Pin, DollarSign, UserCheck, Repeat, Copy, StickyNote, Activity, Search, Download, ArrowUpRight,
-  AlertTriangle, Award, Target, Zap, Settings, CheckSquare, Square, ChevronDown,
+  AlertTriangle, Award, Target, Zap, Settings, CheckSquare, Square, ChevronDown, X,
 } from 'lucide-react';
 import useAuthStore from '../stores/authStore';
 import useUIStore from '../stores/uiStore';
@@ -1258,8 +1258,22 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               value={eventSearch}
               onChange={(e) => setEventSearch(e.target.value)}
               placeholder="Search events..."
-              className="w-full pl-9 pr-3 py-2 rounded-xl bg-secondary/5 border border-secondary/10 text-xs text-[var(--text)] placeholder:text-secondary/30 outline-none focus:border-primary/30 transition-colors"
+              className={`w-full pl-9 py-2 rounded-xl bg-secondary/5 border border-secondary/10 text-xs text-[var(--text)] placeholder:text-secondary/30 outline-none focus:border-primary/30 transition-colors ${eventSearch ? 'pr-8' : 'pr-3'}`}
             />
+            {eventSearch && (
+              <button
+                onClick={() => setEventSearch('')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
+                aria-label="Clear search"
+              >
+                <X size={10} className="text-secondary/50" />
+              </button>
+            )}
+            {eventSearch.trim() && (
+              <p className="text-[9px] font-bold text-secondary/30 mt-1">
+                {sortedFilteredEvents.length} result{sortedFilteredEvents.length !== 1 ? 's' : ''}
+              </p>
+            )}
           </div>
         )}
 
@@ -1344,11 +1358,23 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                         </div>
                         <div className="flex items-center gap-2 mt-0.5">
                           <span className={`text-[10px] font-medium ${relDate === 'Today' ? 'text-green-600 font-bold' : relDate === 'Tomorrow' ? 'text-primary font-bold' : 'text-secondary/40'}`}>{relDate}</span>
-                          <span className="text-[10px] text-secondary/30">|</span>
+                          {event.time && (
+                            <>
+                              <span className="text-[10px] text-secondary/20">·</span>
+                              <span className="text-[10px] text-secondary/40 font-medium">{event.time}</span>
+                            </>
+                          )}
+                          <span className="text-[10px] text-secondary/20">·</span>
                           <span className={`text-[10px] font-bold ${fillPct >= 80 ? 'text-accent' : 'text-primary'}`}>
                             <Users size={10} className="inline mr-0.5" />
                             {event.attendees}/{event.spots}
                           </span>
+                          {parseFloat(event.price) > 0 && (
+                            <>
+                              <span className="text-[10px] text-secondary/20">·</span>
+                              <span className="text-[10px] font-bold text-green-600">${event.price}</span>
+                            </>
+                          )}
                         </div>
                         {/* Mini fill bar */}
                         <div className="w-full h-1 bg-secondary/10 rounded-full mt-1.5 overflow-hidden">

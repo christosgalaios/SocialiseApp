@@ -13,6 +13,10 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 ## [Unreleased]
 
 ### Added
+- **Event time in dashboard rows** — event rows on the organiser dashboard now show the event time alongside the relative date
+- **Event price in dashboard rows** — paid events display their ticket price inline in the event row metadata
+- **Search result count** — event search bar shows the number of matching results when filtering
+- **Search clear button** — event search bar now has a clear (×) button to quickly reset the search query
 - **Animated stat counters** — organiser dashboard stat cards now count up from 0 to their target value with a smooth ease-out animation on load
 - **Enhanced analytics empty state** — the "no analytics yet" state now features gradient background orbs, a spring-animated icon, and preview tags (Fill rates, Revenue, Audience) to hint at what's coming
 - **Enhanced events empty state** — the "no events yet" state features a gradient icon container with spring animation
