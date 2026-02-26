@@ -184,7 +184,7 @@ export default function OrganiserProfileSheet() {
                   {/* Cover photo */}
                   {profile.organiserCoverPhoto && (
                     <div className="h-28 overflow-hidden">
-                      <img src={profile.organiserCoverPhoto} className="w-full h-full object-cover" alt="" loading="lazy" />
+                      <img src={profile.organiserCoverPhoto} className="w-full h-full object-cover" alt="" loading="lazy" aria-hidden="true" />
                     </div>
                   )}
 
@@ -192,7 +192,7 @@ export default function OrganiserProfileSheet() {
                     {/* Profile header */}
                     <div className="flex items-center gap-4">
                       <div className={`w-20 h-20 rounded-[24px] overflow-hidden border-2 border-primary/20 shadow-lg shrink-0 ${profile.organiserCoverPhoto ? '-mt-10 relative z-10 ring-4 ring-paper' : ''}`}>
-                        <img src={profile.avatar || DEFAULT_AVATAR} className="w-full h-full object-cover" alt="" loading="lazy" />
+                        <img src={profile.avatar || DEFAULT_AVATAR} className="w-full h-full object-cover" alt={`${profile.organiserDisplayName || profile.name || 'Organiser'} avatar`} loading="lazy" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
@@ -333,7 +333,7 @@ export default function OrganiserProfileSheet() {
                         </div>
                         <div className="flex items-center gap-3">
                           <div className="w-12 h-12 rounded-xl overflow-hidden bg-secondary/10 shrink-0">
-                            {highlightEvent.image && <img src={highlightEvent.image} className="w-full h-full object-cover" alt="" loading="lazy" />}
+                            {highlightEvent.image && <img src={highlightEvent.image} className="w-full h-full object-cover" alt={highlightEvent.title || 'Top event'} loading="lazy" />}
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-bold text-secondary truncate">{highlightEvent.title}</p>
@@ -472,7 +472,7 @@ export default function OrganiserProfileSheet() {
                                   className="w-full flex items-center gap-3 p-3 rounded-2xl bg-secondary/5 border border-secondary/10 hover:bg-secondary/10 transition-colors text-left focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                                 >
                                   <div className="w-11 h-11 rounded-xl overflow-hidden bg-secondary/10 shrink-0">
-                                    {event.image && <img src={event.image} className="w-full h-full object-cover" alt="" loading="lazy" />}
+                                    {event.image && <img src={event.image} className="w-full h-full object-cover" alt={event.title || 'Event'} loading="lazy" />}
                                   </div>
                                   <div className="flex-1 min-w-0">
                                     <p className="text-sm font-bold text-secondary truncate">{event.title}</p>

@@ -999,7 +999,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-14 h-14 rounded-2xl overflow-hidden bg-secondary/10 shrink-0">
-                    {best?.image && <img src={best.image} className="w-full h-full object-cover" alt="" loading="lazy" />}
+                    {best?.image && <img src={best.image} className="w-full h-full object-cover" alt={best?.title || 'Event'} loading="lazy" />}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-black text-secondary truncate">{best?.title}</p>
@@ -1222,7 +1222,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-xl overflow-hidden bg-secondary/10 shrink-0">
                         {audienceInsights.bestEvent.image && (
-                          <img src={audienceInsights.bestEvent.image} className="w-full h-full object-cover" alt="" loading="lazy" />
+                          <img src={audienceInsights.bestEvent.image} className="w-full h-full object-cover" alt={audienceInsights.bestEvent.title || 'Event'} loading="lazy" />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -1339,7 +1339,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           )}
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-2xl overflow-hidden bg-secondary/10 shrink-0 relative">
-              {nextEvent.image && <img src={nextEvent.image} className="w-full h-full object-cover" alt="" loading="lazy" />}
+              {nextEvent.image && <img src={nextEvent.image} className="w-full h-full object-cover" alt={nextEvent.title || 'Next event'} loading="lazy" />}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-[9px] font-black text-green-600 uppercase tracking-widest mb-0.5">Next Event</p>
@@ -1441,7 +1441,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
             {unlockedCount}/{milestones.length} unlocked
           </span>
         </div>
-        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 snap-x snap-mandatory">
           {milestones.map((m, idx) => {
             const pct = Math.min(Math.round((m.current / m.target) * 100), 100);
             return (
@@ -1452,7 +1452,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                 whileHover={{ y: -2, transition: { duration: 0.15 } }}
                 whileTap={{ scale: 0.97 }}
                 transition={{ duration: 0.25, delay: idx * 0.06 }}
-                className={`shrink-0 w-24 p-3 rounded-2xl border text-center transition-all relative overflow-hidden cursor-default ${
+                className={`shrink-0 w-24 p-3 rounded-2xl border text-center transition-all relative overflow-hidden cursor-default snap-start ${
                   m.unlocked ? 'bg-accent/5 border-accent/20' : 'bg-secondary/5 border-secondary/10'
                 }`}
               >
@@ -1681,7 +1681,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                       }`}
                     >
                       <div className="w-12 h-12 rounded-xl overflow-hidden bg-secondary/10 shrink-0 relative">
-                        {event.image && <img src={event.image} className="w-full h-full object-cover" alt="" loading="lazy" />}
+                        {event.image && <img src={event.image} className="w-full h-full object-cover" alt={event.title || 'Event'} loading="lazy" />}
                         {isLive && (
                           <div className="absolute top-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-paper animate-pulse" />
                         )}
