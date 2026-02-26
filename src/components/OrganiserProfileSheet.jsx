@@ -323,7 +323,7 @@ export default function OrganiserProfileSheet() {
                         }}
                         className="w-full premium-card p-4 rounded-[20px] relative overflow-hidden text-left hover:bg-secondary/5 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                       >
-                        <div className="absolute -right-4 -top-4 w-16 h-16 bg-accent/5 rounded-full blur-2xl" />
+                        <div className="absolute -right-4 -top-4 w-16 h-16 bg-accent/5 rounded-full blur-2xl" aria-hidden="true" />
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-1.5">
                             <Star size={12} className="text-accent" />
@@ -352,7 +352,7 @@ export default function OrganiserProfileSheet() {
                               />
                             </div>
                           </div>
-                          <ChevronRight size={14} className="text-secondary/30 shrink-0" />
+                          <ChevronRight size={14} className="text-secondary/30 shrink-0" aria-hidden="true" />
                         </div>
                       </motion.button>
                       );
@@ -495,7 +495,7 @@ export default function OrganiserProfileSheet() {
                                       />
                                     </div>
                                   </div>
-                                  <ChevronRight size={14} className="text-secondary/30 shrink-0" />
+                                  <ChevronRight size={14} className="text-secondary/30 shrink-0" aria-hidden="true" />
                                 </motion.button>
                               );
                             }) : (
@@ -540,7 +540,7 @@ export default function OrganiserProfileSheet() {
                                     )}
                                   </div>
                                 </div>
-                                <ChevronRight size={14} className="text-secondary/30 shrink-0" />
+                                <ChevronRight size={14} className="text-secondary/30 shrink-0" aria-hidden="true" />
                               </motion.button>
                             );
                           })}

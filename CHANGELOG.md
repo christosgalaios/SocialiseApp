@@ -97,6 +97,7 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Edit profile complete focus audit** — preview toggle, close, remove cover photo, category chips, and save button all now show focus rings for keyboard accessibility
 - **Setup flow complete focus audit** — close, back, continue/submit buttons all now show focus rings; display name input gets hover border for pre-focus affordance
 - **Profile sheet complete focus audit** — close, follow, highlight event, event rows, community rows, and social link chips all now show focus rings for keyboard accessibility
+- **Decorative elements aria-hidden** — all decorative glow/blur divs and chevron indicators across dashboard (8 glows, 3 chevrons), profile sheet (1 glow, 3 chevrons), and edit profile sheet (1 glow) now have `aria-hidden="true"` to prevent screen reader noise
 - **Dashboard community section focus rings** — create community toggle, community card rows, and "View all events" button now show focus rings for keyboard accessibility
 - **Community empty state polish** — spring-animated icon with gradient background, staggered "Engage / Grow / Connect" hint tags, subtle glow backdrop
 - **Profile stat badges staggered entrance** — the upcoming/past/communities/attendees badges in the organiser header animate in with spring scale stagger instead of appearing instantly
