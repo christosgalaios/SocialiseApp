@@ -96,29 +96,24 @@ export default function HomeTab({ onProfileClick, onCreateEvent, fetchAllData })
   const visible = recommended.slice(0, recommendedLimit);
   const hasMore = recommendedLimit < recommended.length;
 
-  // Find the user's next upcoming RSVP'd event
-  const nextEvent = useMemo(() => {
+  // All upcoming RSVP'd events, sorted chronologically (next-up first)
+  const upcomingEvents = useMemo(() => {
     const now = new Date();
     return events
       .filter(e => joinedEvents.includes(e.id))
       .map(e => {
         const eventDate = new Date(e.date);
-        return { ...e, _parsedDate: eventDate };
+        const diff = eventDate - now;
+        let countdown;
+        if (isNaN(eventDate.getTime())) countdown = null;
+        else if (diff <= 0 || Math.floor(diff / (1000 * 60 * 60 * 24)) === 0) countdown = 'Today';
+        else if (Math.floor(diff / (1000 * 60 * 60 * 24)) === 1) countdown = 'Tomorrow';
+        else countdown = `In ${Math.floor(diff / (1000 * 60 * 60 * 24))} days`;
+        return { ...e, _parsedDate: eventDate, _countdown: countdown };
       })
       .filter(e => e._parsedDate >= now || isNaN(e._parsedDate.getTime()))
-      .sort((a, b) => a._parsedDate - b._parsedDate)[0] || null;
+      .sort((a, b) => a._parsedDate - b._parsedDate);
   }, [events, joinedEvents]);
-
-  const nextEventCountdown = useMemo(() => {
-    if (!nextEvent?._parsedDate || isNaN(nextEvent._parsedDate.getTime())) return null;
-    const now = new Date();
-    const diff = nextEvent._parsedDate - now;
-    if (diff <= 0) return 'Today';
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    if (days === 0) return 'Today';
-    if (days === 1) return 'Tomorrow';
-    return `In ${days} days`;
-  }, [nextEvent]);
 
   const microMeets = events.filter(e => e.isMicroMeet || e.is_micro_meet).sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
 
@@ -212,71 +207,115 @@ export default function HomeTab({ onProfileClick, onCreateEvent, fetchAllData })
         </motion.div>
       )}
 
-      {/* Your Next Event */}
-      {nextEvent && (
-        <motion.div variants={itemVariants}>
-          <button
-            type="button"
-            onClick={() => { playTap(); hapticTap(); setSelectedEvent(nextEvent); }}
-            className="w-full premium-card p-5 relative overflow-hidden text-left group hover:shadow-lg transition-shadow"
-          >
-            <div className="absolute -right-8 -top-8 w-32 h-32 bg-primary/5 rounded-full blur-3xl" />
-            <div className="flex items-center gap-2 mb-3">
+      {/* Your Events — scrollable carousel, next-up event always first */}
+      {upcomingEvents.length > 0 && (
+        <div className="max-w-[100vw] -mx-5 px-5 md:mx-0 md:px-0">
+          <motion.div variants={itemVariants} className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
                 <Calendar size={16} className="text-primary" />
               </div>
-              <div className="flex-1">
-                <h3 className="text-xs font-black text-primary uppercase tracking-widest">Your Next Event</h3>
-              </div>
-              {nextEventCountdown && (
-                <span className="text-[10px] font-black text-accent bg-accent/10 px-2.5 py-1 rounded-full border border-accent/20">
-                  {nextEventCountdown}
-                </span>
-              )}
+              <h2 className="text-xl font-bold tracking-tight text-primary">Your Events<span className="text-accent">.</span></h2>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-2xl overflow-hidden bg-secondary/10 shrink-0 border border-secondary/10">
-                {nextEvent.image && <img src={nextEvent.image} className="w-full h-full object-cover" alt="" loading="lazy" />}
+            {upcomingEvents.length > 1 && (
+              <div className="flex items-center gap-2 md:hidden">
+                <button
+                  onClick={() => {
+                    playTap(); hapticTap();
+                    const el = document.getElementById('your-events-scroll');
+                    if (el) el.scrollBy({ left: -280, behavior: 'smooth' });
+                  }}
+                  className="w-8 h-8 rounded-full bg-secondary/10 border border-secondary/15 flex items-center justify-center text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all"
+                  aria-label="Scroll left"
+                >
+                  <ChevronLeft size={16} strokeWidth={2.5} />
+                </button>
+                <button
+                  onClick={() => {
+                    playTap(); hapticTap();
+                    const el = document.getElementById('your-events-scroll');
+                    if (el) el.scrollBy({ left: 280, behavior: 'smooth' });
+                  }}
+                  className="w-8 h-8 rounded-full bg-secondary/10 border border-secondary/15 flex items-center justify-center text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all"
+                  aria-label="Scroll right"
+                >
+                  <ChevronRight size={16} strokeWidth={2.5} />
+                </button>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-base font-black text-secondary truncate tracking-tight group-hover:text-primary transition-colors">{nextEvent.title}</p>
-                <div className="flex items-center gap-3 mt-1.5">
-                  <span className="flex items-center gap-1 text-[11px] text-secondary/50 font-medium">
-                    <Clock size={11} className="text-primary/60" />
-                    {nextEvent.date}{nextEvent.time ? ` · ${nextEvent.time}` : ''}
-                  </span>
-                </div>
-                {nextEvent.location && (
-                  <span className="flex items-center gap-1 text-[11px] text-secondary/40 font-medium mt-0.5">
-                    <MapPin size={11} className="text-primary/40" />
-                    <span className="truncate">{nextEvent.location?.split(',')[0]}</span>
-                  </span>
-                )}
-                {nextEvent.spots > 0 && (
-                  <div className="mt-2">
-                    <div className="flex items-center justify-between mb-0.5">
-                      <span className="text-[10px] font-bold text-secondary/40">
-                        {nextEvent.attendees || 0}/{nextEvent.spots} going
+            )}
+          </motion.div>
+
+          <motion.div
+            id="your-events-scroll"
+            className="flex gap-4 overflow-x-auto pb-4 snap-x no-scrollbar"
+            style={{ touchAction: 'pan-x' }}
+            variants={containerVariants}
+          >
+            {upcomingEvents.map((evt, idx) => (
+              <motion.div key={evt.id} variants={itemVariants} className="snap-start shrink-0 w-[280px]">
+                <button
+                  type="button"
+                  onClick={() => { playTap(); hapticTap(); setSelectedEvent(evt); }}
+                  className="w-full premium-card p-4 relative overflow-hidden text-left group hover:shadow-lg transition-shadow"
+                >
+                  {idx === 0 && <div className="absolute -right-6 -top-6 w-24 h-24 bg-primary/5 rounded-full blur-3xl" />}
+                  <div className="flex items-center justify-between mb-2.5">
+                    <span className={`text-[9px] font-black uppercase tracking-widest ${idx === 0 ? 'text-primary' : 'text-secondary/40'}`}>
+                      {idx === 0 ? 'Next Up' : 'Upcoming'}
+                    </span>
+                    {evt._countdown && (
+                      <span className={`text-[9px] font-black px-2 py-0.5 rounded-full border ${
+                        idx === 0
+                          ? 'text-accent bg-accent/10 border-accent/20'
+                          : 'text-secondary/40 bg-secondary/5 border-secondary/10'
+                      }`}>
+                        {evt._countdown}
                       </span>
-                      <span className={`text-[10px] font-black ${(nextEvent.attendees / nextEvent.spots) >= 0.8 ? 'text-accent' : 'text-primary'}`}>
-                        {Math.round(((nextEvent.attendees || 0) / nextEvent.spots) * 100)}%
-                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-14 h-14 rounded-2xl overflow-hidden bg-secondary/10 shrink-0 border border-secondary/10">
+                      {evt.image && <img src={evt.image} className="w-full h-full object-cover" alt="" loading="lazy" />}
                     </div>
-                    <div className="w-full h-1.5 bg-secondary/10 rounded-full overflow-hidden">
-                      <motion.div
-                        className={`h-full rounded-full ${(nextEvent.attendees / nextEvent.spots) >= 0.8 ? 'bg-accent' : 'bg-primary/60'}`}
-                        initial={{ width: 0 }}
-                        animate={{ width: `${Math.min(((nextEvent.attendees || 0) / nextEvent.spots) * 100, 100)}%` }}
-                        transition={{ duration: 0.6, ease: 'easeOut', delay: 0.2 }}
-                      />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-black text-secondary truncate tracking-tight group-hover:text-primary transition-colors">{evt.title}</p>
+                      <span className="flex items-center gap-1 text-[10px] text-secondary/50 font-medium mt-1">
+                        <Clock size={10} className="text-primary/60" />
+                        {evt.date}{evt.time ? ` · ${evt.time}` : ''}
+                      </span>
+                      {evt.location && (
+                        <span className="flex items-center gap-1 text-[10px] text-secondary/40 font-medium mt-0.5">
+                          <MapPin size={10} className="text-primary/40" />
+                          <span className="truncate">{evt.location?.split(',')[0]}</span>
+                        </span>
+                      )}
                     </div>
                   </div>
-                )}
-              </div>
-              <ChevronRight size={16} className="text-secondary/30 shrink-0" />
-            </div>
-          </button>
-        </motion.div>
+                  {evt.spots > 0 && (
+                    <div className="mt-2.5">
+                      <div className="flex items-center justify-between mb-0.5">
+                        <span className="text-[9px] font-bold text-secondary/40">
+                          {evt.attendees || 0}/{evt.spots} going
+                        </span>
+                        <span className={`text-[9px] font-black ${((evt.attendees || 0) / evt.spots) >= 0.8 ? 'text-accent' : 'text-primary'}`}>
+                          {Math.round(((evt.attendees || 0) / evt.spots) * 100)}%
+                        </span>
+                      </div>
+                      <div className="w-full h-1.5 bg-secondary/10 rounded-full overflow-hidden">
+                        <motion.div
+                          className={`h-full rounded-full ${((evt.attendees || 0) / evt.spots) >= 0.8 ? 'bg-accent' : 'bg-primary/60'}`}
+                          initial={{ width: 0 }}
+                          animate={{ width: `${Math.min(((evt.attendees || 0) / evt.spots) * 100, 100)}%` }}
+                          transition={{ duration: 0.6, ease: 'easeOut', delay: 0.1 + idx * 0.1 }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </button>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
       )}
 
       {/* Video Wall */}
