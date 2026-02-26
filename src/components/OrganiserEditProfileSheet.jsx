@@ -369,7 +369,7 @@ export default function OrganiserEditProfileSheet() {
               <motion.div custom={4} variants={sectionVariants} initial="hidden" animate="show">
                 <button
                   onClick={() => { setShowSocialLinks(!showSocialLinks); playTap(); }}
-                  className="w-full flex items-center justify-between mb-3"
+                  className="w-full flex items-center justify-between mb-3 rounded-xl px-1 -mx-1 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none transition-all"
                 >
                   <label className="text-xs font-black text-secondary/60 uppercase tracking-widest pointer-events-none">
                     Social Links <span className="text-secondary/30">(optional)</span>
