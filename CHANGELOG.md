@@ -19,6 +19,8 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Text overflow in bug/feature modals** — both BugReportModal and FeatureRequestModal now consistently handle long text with word-break, overflow-wrap, and overscroll containment (BUG-1772022766344)
 
 ### Added
+- **Dismissable attention alerts** — alerts now have an X dismiss button with exit animation; sold-out events use a Zap icon (green) instead of the generic warning triangle
+- **Organiser tier badge** — profile header now shows a spring-animated tier badge (Bronze/Silver/Gold) with matching colors and icon based on events hosted
 - **Milestones staggered animation** — milestone cards animate in with staggered scale + fade, unlocked icons pulse, progress bars animate from zero with current/target counts
 - **Milestone unlock counter** — header now shows "X/5" completion progress alongside the section title, with accent color when all milestones are unlocked
 - **Weekly activity chart enhanced** — taller chart (h-20), today's bar highlighted in accent gold, event days show green dots below labels, hover tooltips show attendee count, total weekly stats in header

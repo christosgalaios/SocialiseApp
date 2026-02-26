@@ -89,6 +89,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
   const [newCommunityDesc, setNewCommunityDesc] = useState('');
   const [isCreatingCommunity, setIsCreatingCommunity] = useState(false);
   const [exportDone, setExportDone] = useState(false);
+  const [dismissedAlerts, setDismissedAlerts] = useState([]);
 
   const fetchDashboard = useCallback(async (silent = false) => {
     try {
@@ -503,11 +504,13 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
       {/* Attention Alerts */}
       {isWidgetVisible('alerts') && attentionAlerts.length > 0 && (
         <motion.div variants={itemVariants} className="space-y-2">
-          {attentionAlerts.map((alert, i) => (
+          <AnimatePresence>
+          {attentionAlerts.filter((_, i) => !dismissedAlerts.includes(i)).map((alert, i) => (
             <motion.div
-              key={i}
+              key={`alert-${i}`}
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 10, height: 0, marginBottom: 0, padding: 0 }}
               transition={{ delay: i * 0.1 }}
               className={`flex items-center gap-3 p-3 rounded-2xl border ${
                 alert.type === 'low-fill'
@@ -518,7 +521,10 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
                 alert.type === 'low-fill' ? 'bg-amber-500/10' : 'bg-green-500/10'
               }`}>
-                <AlertTriangle size={14} className={alert.type === 'low-fill' ? 'text-amber-500' : 'text-green-600'} />
+                {alert.type === 'low-fill'
+                  ? <AlertTriangle size={14} className="text-amber-500" />
+                  : <Zap size={14} className="text-green-600" />
+                }
               </div>
               <p className="text-[11px] font-medium text-secondary/70 flex-1">{alert.message}</p>
               <button
@@ -530,8 +536,16 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               >
                 View
               </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); setDismissedAlerts(prev => [...prev, i]); }}
+                className="w-6 h-6 rounded-lg flex items-center justify-center text-secondary/30 hover:text-secondary/50 hover:bg-secondary/10 transition-colors shrink-0"
+                aria-label="Dismiss alert"
+              >
+                <X size={12} />
+              </button>
             </motion.div>
           ))}
+          </AnimatePresence>
         </motion.div>
       )}
 
@@ -559,9 +573,21 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                 <span className="text-[10px] font-black text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">Verified</span>
               )}
             </div>
-            <div className="flex items-center gap-1 mt-1">
-              <Megaphone size={12} className="text-accent" />
-              <span className="text-[10px] font-black text-accent uppercase tracking-widest">Organiser</span>
+            <div className="flex items-center gap-1.5 mt-1">
+              {(() => {
+                const tier = getOrganiserTier();
+                return (
+                  <motion.span
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ type: 'spring', damping: 15, stiffness: 300 }}
+                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full ${tier.bg} border ${tier.border} text-[9px] font-black ${tier.color} uppercase tracking-widest`}
+                  >
+                    <span>{tier.icon}</span>
+                    {tier.label}
+                  </motion.span>
+                );
+              })()}
             </div>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
