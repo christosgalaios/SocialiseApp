@@ -466,7 +466,7 @@ export default function OrganiserEditProfileSheet() {
             </div>
 
             {/* Footer with save button */}
-            <div className="p-6 pb-8 border-t border-secondary/10">
+            <div className="p-6 border-t border-secondary/10 pb-[max(32px,env(safe-area-inset-bottom))]">
               {hasUnsavedChanges() && (
                 <motion.p
                   initial={{ opacity: 0, y: 4 }}
