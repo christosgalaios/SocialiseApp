@@ -13,6 +13,8 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 ## [Unreleased]
 
 ### Added
+- **Dynamic motivational tagline** — the organiser dashboard greeting now shows a context-aware subtitle that adapts to your stats (events running, people reached, upcoming count, etc.)
+- **Dashboard tab sliding pill** — switching between Overview and Analytics tabs now shows a smooth animated pill that slides between options instead of an instant switch
 - **Setup flow step labels** — the organiser onboarding progress bar now shows step names (Identity, Categories, Details) with color-coded active state
 - **Category selection counter** — step 2 of setup shows an animated "X selected" counter that scales on change and turns green when requirement is met
 - **Bio character progress bar** — step 3 of setup shows an animated progress bar below the bio textarea that turns amber near the limit

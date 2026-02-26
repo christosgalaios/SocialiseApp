@@ -391,6 +391,19 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
     return 'Good Evening';
   };
 
+  const getTagline = () => {
+    const hosted = stats?.eventsHosted ?? 0;
+    const attendees = stats?.totalAttendees ?? 0;
+    const active = stats?.activeEvents ?? 0;
+    if (hosted === 0) return 'Ready to create your first event?';
+    if (active >= 3) return `${active} events running — you're on fire`;
+    if (attendees >= 100) return `${attendees} people reached and counting`;
+    if (upcomingEvents.length > 0) return `${upcomingEvents.length} upcoming — keep the momentum`;
+    if (hosted >= 10) return 'A seasoned organiser — impressive';
+    if (attendees > 0) return `${attendees} people connected through your events`;
+    return 'Your community is waiting';
+  };
+
   const getOrganiserTier = () => {
     const hosted = stats?.eventsHosted ?? 0;
     if (hosted >= 20) return { label: 'Gold', color: 'text-amber-500', bg: 'bg-amber-500/10', border: 'border-amber-500/20', icon: '👑' };
@@ -458,6 +471,16 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           <h1 className="text-2xl font-black text-secondary tracking-tight">
             {getGreeting()}<span className="text-accent">,</span> {(user?.organiserDisplayName || user?.name)?.split(' ')[0]}<span className="text-accent">.</span>
           </h1>
+          {stats && (
+            <motion.p
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.4 }}
+              className="text-[11px] font-medium text-secondary/40 mt-0.5"
+            >
+              {getTagline()}
+            </motion.p>
+          )}
         </div>
         {stats && (() => {
           const tier = getOrganiserTier();
@@ -770,7 +793,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
       </motion.div>
 
       {/* Dashboard Tabs */}
-      <motion.div variants={itemVariants} className="flex gap-1 p-1 bg-secondary/5 rounded-2xl border border-secondary/10">
+      <motion.div variants={itemVariants} className="flex gap-1 p-1 bg-secondary/5 rounded-2xl border border-secondary/10 relative">
         {[
           { key: 'overview', label: 'Overview' },
           { key: 'analytics', label: 'Analytics' },
@@ -778,13 +801,20 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           <button
             key={tab.key}
             onClick={() => { playTap(); setOrganiserDashboardTab(tab.key); }}
-            className={`flex-1 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
-              organiserDashboardTab === tab.key
-                ? 'bg-paper text-primary shadow-sm'
-                : 'text-secondary/40 hover:text-secondary/60'
-            }`}
+            className="flex-1 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-colors relative z-[1]"
+            style={{ color: organiserDashboardTab === tab.key ? 'var(--primary)' : undefined }}
           >
-            {tab.label}
+            {organiserDashboardTab === tab.key && (
+              <motion.div
+                layoutId="dashboard-tab-pill"
+                className="absolute inset-0 bg-paper rounded-xl shadow-sm"
+                transition={{ type: 'spring', damping: 30, stiffness: 400 }}
+                style={{ zIndex: -1 }}
+              />
+            )}
+            <span className={organiserDashboardTab === tab.key ? '' : 'text-secondary/40 hover:text-secondary/60'}>
+              {tab.label}
+            </span>
           </button>
         ))}
       </motion.div>
