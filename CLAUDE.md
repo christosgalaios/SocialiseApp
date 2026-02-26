@@ -66,14 +66,12 @@
     011_report_type.sql                 # Add type column (bug/feature) to bug_reports
     012_organiser_profile.sql            # Organiser profile columns (role, bio, display name, categories, social links, etc.)
     013_bug_report_fix_metadata.sql      # Add fix_notes and component columns to bug_reports
-    014_organiser_reviews.sql            # Organiser reviews table (vibe tags)
   /routes
     auth.js            # Login/register/me — Supabase
     events.js          # CRUD + RSVP/save/chat — Supabase
     communities.js     # CRUD + join/leave/feed — Supabase
     feed.js            # Global feed + reactions — Supabase
     users.js           # Profiles + recommendations — Supabase
-    reviews.js         # Organiser vibe reviews — CRUD, aggregation
 /.claude
   settings.json        # MCP servers, hooks, skills config
   AUTOMATION_SETUP.md  # Full automation reference guide
@@ -160,7 +158,6 @@ package.json           # Frontend deps (ESM) — v0.1.0
 | OrganiserDashboard | `src/components/OrganiserDashboard.jsx` | Organiser home view: stats, events, communities, quick actions. |
 | OrganiserProfileSheet | `src/components/OrganiserProfileSheet.jsx` | Bottom sheet: public organiser profile viewer (tapped from event host). |
 | OrganiserStatsCard | `src/components/OrganiserStatsCard.jsx` | Reusable stats card: icon, value, label, optional trend. |
-| OrganiserReviewSheet | `src/components/OrganiserReviewSheet.jsx` | Bottom sheet: select vibe tags + optional comment to review an organiser. Upsert (one review per user-organiser pair). Lazy-loaded. |
 | useSwipeToClose | `src/hooks/useAccessibility.js` | Hook for swipe-down-to-close on bottom sheets. Returns `sheetY` motion value + `handleProps` for drag handle. |
 
 ---
@@ -253,10 +250,6 @@ Base (production): `https://socialise-app-production.up.railway.app/api`
 | PUT | `/bugs/batch` | Required or Service Key | Batch update + delete multiple bugs in one call. Accepts `{ updates: [{ bugId, ...fields }], deletions: ["BUG-123"] }`. Returns `{ results: [{ bugId, success, sheetSynced }] }`. |
 | PUT | `/bugs/:bugId` | Required or Service Key | Update report fields (status, priority, type, fix_notes, component, etc.) — auto-syncs Supabase + Google Sheet. Response includes `sheetSynced: true/false`. |
 | DELETE | `/bugs/:bugId` | Required or Service Key | Delete bug report (used for duplicate consolidation — syncs deletion to Google Sheet). Response includes `sheetSynced: true/false`. |
-
-| GET | `/reviews/:organiserId` | Optional | Get reviews for an organiser (aggregated vibe tags + reviewer info) |
-| POST | `/reviews/:organiserId` | Required | Submit or update a vibe review (upsert — one per user-organiser pair). Body: `{ tags: [...], comment?: "..." }` |
-| DELETE | `/reviews/:organiserId` | Required | Delete own review for an organiser |
 
 **Demo credentials:** `ben@demo.com` / `password` (blocked in production — `NODE_ENV=production` returns 403)
 
@@ -575,14 +568,14 @@ ESLint passes clean (0 errors, 0 warnings). The config (`eslint.config.js`) has 
 **Security model:** Frontend never talks to Supabase directly. All requests go through Express, which uses the Supabase service role key (`bypassrls=true`). RLS protects against direct database access.
 
 **Tables with RLS enabled and forced:**
-`users`, `events`, `event_rsvps`, `saved_events`, `chat_messages`, `communities`, `community_members`, `community_messages`, `feed_posts`, `post_reactions`, `bug_reports`, `organiser_reviews`
+`users`, `events`, `event_rsvps`, `saved_events`, `chat_messages`, `communities`, `community_members`, `community_messages`, `feed_posts`, `post_reactions`, `bug_reports`
 
 **Key restrictions:**
 - Sensitive columns (`password`, `verification_code`, `verification_code_expiry`) revoked from `anon` and `authenticated` roles
 - No direct INSERT/UPDATE/DELETE on `users` table from frontend roles
 - All data mutation goes through Express API → service role client
 
-**Migrations:** Run via `node server/migrate.js`. Files in `server/migrations/` are executed in order (001–014). See Directory Layout above for details.
+**Migrations:** Run via `node server/migrate.js`. Files in `server/migrations/` are executed in order (001–012). See Directory Layout above for details.
 
 ---
 
