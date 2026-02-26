@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Calendar, Users, TrendingUp, Plus, Megaphone,
   ChevronRight, BarChart3, Globe, Pencil, Clock, History, RefreshCw, Share2, Sparkles,
-  Pin, DollarSign, UserCheck, Repeat, Copy, StickyNote, Activity,
+  Pin, DollarSign, UserCheck, Repeat, Copy, StickyNote, Activity, Search, Download, ArrowUpRight,
 } from 'lucide-react';
 import useAuthStore from '../stores/authStore';
 import useUIStore from '../stores/uiStore';
@@ -69,6 +69,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
   });
   const [editingNoteId, setEditingNoteId] = useState(null);
   const [noteText, setNoteText] = useState('');
+  const [eventSearch, setEventSearch] = useState('');
 
   const fetchDashboard = useCallback(async (silent = false) => {
     try {
@@ -199,10 +200,15 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
   }, [events]);
 
   const sortedFilteredEvents = useMemo(() => {
-    const pinned = filteredEvents.filter(e => pinnedEventIds.includes(e.id));
-    const unpinned = filteredEvents.filter(e => !pinnedEventIds.includes(e.id));
+    let results = filteredEvents;
+    if (eventSearch.trim()) {
+      const q = eventSearch.toLowerCase();
+      results = results.filter(e => e.title?.toLowerCase().includes(q) || e.category?.toLowerCase().includes(q));
+    }
+    const pinned = results.filter(e => pinnedEventIds.includes(e.id));
+    const unpinned = results.filter(e => !pinnedEventIds.includes(e.id));
     return [...pinned, ...unpinned];
-  }, [filteredEvents, pinnedEventIds]);
+  }, [filteredEvents, pinnedEventIds, eventSearch]);
 
   const revenueInsights = useMemo(() => {
     if (events.length === 0) return null;
@@ -228,6 +234,41 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
     const bestEvent = [...events].sort((a, b) => (b.attendees ?? 0) - (a.attendees ?? 0))[0];
     return { avgPerEvent, overallFill, totalAttendees, bestEvent };
   }, [events]);
+
+  const exportAnalytics = useCallback(() => {
+    const lines = [
+      `Organiser Analytics — ${user?.organiserDisplayName || user?.name}`,
+      `Exported: ${new Date().toLocaleDateString()}`,
+      '',
+      'PERFORMANCE',
+      `Events Hosted: ${stats?.eventsHosted ?? 0}`,
+      `Total Attendees: ${stats?.totalAttendees ?? 0}`,
+      `Active Events: ${stats?.activeEvents ?? 0}`,
+      `Community Members: ${stats?.totalCommunityMembers ?? 0}`,
+      '',
+      'EVENTS',
+      ...events.map(e => {
+        const fill = e.spots > 0 ? Math.round((e.attendees / e.spots) * 100) : 0;
+        return `  ${e.title} — ${e.attendees}/${e.spots} (${fill}%) — ${e.date}`;
+      }),
+    ];
+    if (revenueInsights?.paidEvents > 0) {
+      lines.push('', 'REVENUE',
+        `Est. Revenue: $${Math.round(revenueInsights.totalRevenue)}`,
+        `Paid Events: ${revenueInsights.paidEvents}`,
+        `Avg Ticket: $${revenueInsights.avgTicket}`,
+      );
+    }
+    const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `analytics-${new Date().toISOString().split('T')[0]}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Analytics exported', 'success');
+    playClick();
+  }, [user, stats, events, revenueInsights, showToast]);
 
   // Keyboard shortcuts
   const handleKeyboard = useCallback((e) => {
@@ -541,9 +582,19 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
         >
           {/* Stats Grid */}
           <div>
-            <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-3">
-              Your Performance<span className="text-accent">.</span>
-            </h3>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-xs font-black text-primary uppercase tracking-widest">
+                Your Performance<span className="text-accent">.</span>
+              </h3>
+              <button
+                onClick={exportAnalytics}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-secondary/5 border border-secondary/10 text-[10px] font-bold text-secondary/50 hover:text-secondary/70 transition-colors"
+                aria-label="Export analytics"
+              >
+                <Download size={10} />
+                Export
+              </button>
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <OrganiserStatsCard
                 icon={Calendar}
@@ -950,6 +1001,20 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           </div>
         )}
 
+        {/* Event search */}
+        {events.length > 3 && (
+          <div className="relative mb-3">
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary/30" />
+            <input
+              type="text"
+              value={eventSearch}
+              onChange={(e) => setEventSearch(e.target.value)}
+              placeholder="Search events..."
+              className="w-full pl-9 pr-3 py-2 rounded-xl bg-secondary/5 border border-secondary/10 text-xs text-[var(--text)] placeholder:text-secondary/30 outline-none focus:border-primary/30 transition-colors"
+            />
+          </div>
+        )}
+
         {events.length === 0 ? (
           <div className="text-center py-8">
             <div className="w-16 h-16 mx-auto mb-3 rounded-[20px] bg-primary/5 border border-primary/10 flex items-center justify-center">
@@ -1138,6 +1203,9 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           <div className="space-y-3">
             {communities.map((community) => {
               const fullCommunity = allCommunities.find(c => c.id === community.id) || community;
+              const memberCount = community.members ?? 0;
+              const sizeLabel = memberCount >= 100 ? 'Large' : memberCount >= 20 ? 'Growing' : memberCount > 0 ? 'Starting' : 'New';
+              const sizeColor = memberCount >= 100 ? 'text-accent' : memberCount >= 20 ? 'text-green-600' : 'text-secondary/40';
               return (
                 <button
                   key={community.id}
@@ -1151,14 +1219,19 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                     <p className="text-sm font-bold text-secondary truncate">{community.name}</p>
                     <div className="flex items-center gap-1.5">
                       <span className="text-[10px] text-secondary/40 font-medium">
-                        {community.members ?? 0} members
+                        {memberCount} members
                       </span>
-                      {(community.members ?? 0) > 0 && (
-                        <span className="inline-flex items-center gap-0.5 text-[9px] font-bold text-green-600 bg-green-500/10 px-1.5 py-0.5 rounded-full">
-                          <TrendingUp size={8} />
-                          active
-                        </span>
-                      )}
+                      <span className={`inline-flex items-center gap-0.5 text-[9px] font-bold ${sizeColor} bg-current/10 px-1.5 py-0.5 rounded-full`}>
+                        <ArrowUpRight size={8} />
+                        {sizeLabel}
+                      </span>
+                    </div>
+                    {/* Member growth bar */}
+                    <div className="w-full h-1 bg-secondary/10 rounded-full mt-1.5 overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all ${memberCount >= 100 ? 'bg-accent' : memberCount >= 20 ? 'bg-green-500/60' : 'bg-primary/40'}`}
+                        style={{ width: `${Math.min((memberCount / 100) * 100, 100)}%` }}
+                      />
                     </div>
                   </div>
                   <ChevronRight size={16} className="text-secondary/30 shrink-0" />

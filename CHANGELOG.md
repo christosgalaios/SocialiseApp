@@ -58,6 +58,9 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Duplicate event** — tap the copy icon on any dashboard event row to pre-fill the Create Event form with that event's details (title, category, location, spots, price, image)
 - **Event quick notes** — tap the note icon on any event row to add a personal reminder; notes are persisted locally and shown inline below each event
 - **Weekly activity chart** — overview tab shows a 7-day bar chart of attendee activity, with animated bars and day labels
+- **Dashboard event search** — search bar appears when 4+ events exist, filtering by title or category in real-time
+- **Community growth indicators** — community rows now show size labels (New/Starting/Growing/Large) with color-coded badges and mini member bar
+- **Export analytics** — download a text summary of all organiser analytics (performance stats, events, revenue) from the analytics tab
 
 ### Changed
 - **Organiser dashboard lazy-loaded** — OrganiserDashboard is now loaded on demand via React.lazy(), reducing the main bundle from 520KB to 494KB (26KB saved) with a matching loading skeleton
