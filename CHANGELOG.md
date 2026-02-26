@@ -13,6 +13,13 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 ## [Unreleased]
 
 ### Added
+- **Share organiser profile** — "Share" button on public organiser profile copies the profile link to clipboard
+- **Public profile fill rate bars** — event rows on the public organiser profile now show a mini fill rate bar with color-coded progress
+- **Public profile total attendees** — quick stats grid expanded to 2x2 with a new "Attendees" stat showing total reach across all events
+- **Public profile category icons** — category tags on the organiser profile now show matching icons from the design system
+- **Public profile avg fill bar** — engagement stats row now includes an animated progress bar alongside the fill rate percentage
+- **Staggered public profile sections** — profile sections (stats, bio, social links, categories, events, communities) animate in sequentially on load
+- **Dashboard event row stagger** — event rows on the organiser dashboard animate in with a cascading slide effect when switching tabs or searching
 - **Edit profile live preview** — toggle a real-time preview card while editing your organiser profile to see how your name, bio, categories, and cover photo will look to others
 - **Edit profile unsaved changes warning** — closing the edit profile sheet with unsaved changes prompts a confirmation dialog to prevent accidental data loss
 - **Collapsible social links** — social links section in the edit profile sheet now collapses by default, showing a count badge of linked platforms; expand to edit

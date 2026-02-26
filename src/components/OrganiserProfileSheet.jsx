@@ -1,11 +1,17 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, Users, Globe, Megaphone, ChevronRight, ExternalLink, UserPlus, UserCheck, Clock, History, Star, TrendingUp } from 'lucide-react';
-import { DEFAULT_AVATAR, ORGANISER_SOCIAL_PLATFORMS } from '../data/constants';
+import { X, Calendar, Users, Globe, Megaphone, ChevronRight, ExternalLink, UserPlus, UserCheck, Clock, History, Star, TrendingUp, Share2, MessageCircle } from 'lucide-react';
+import { DEFAULT_AVATAR, ORGANISER_SOCIAL_PLATFORMS, CATEGORIES } from '../data/constants';
 import { playTap, playClick, hapticTap } from '../utils/feedback';
 import useUIStore from '../stores/uiStore';
 import { useEscapeKey, useFocusTrap, useSwipeToClose } from '../hooks/useAccessibility';
 import api from '../api';
+
+const sectionAnim = (i) => ({
+  initial: { opacity: 0, y: 10 },
+  animate: { opacity: 1, y: 0 },
+  transition: { type: 'spring', damping: 25, stiffness: 400, delay: i * 0.06 },
+});
 
 const SOCIAL_URLS = {
   instagram: (v) => `https://instagram.com/${v.replace(/^@/, '')}`,
@@ -78,8 +84,17 @@ export default function OrganiserProfileSheet() {
   const totalCommunities = profile?.communities?.length ?? 0;
   const totalMembers = profile?.communities?.reduce((sum, c) => sum + (c.members ?? 0), 0) ?? 0;
   const avgFill = totalEvents > 0 ? Math.round(profile.events.reduce((sum, e) => sum + (e.spots > 0 ? (e.attendees / e.spots) * 100 : 0), 0) / totalEvents) : 0;
+  const totalAttendees = profile?.events?.reduce((sum, e) => sum + (e.attendees ?? 0), 0) ?? 0;
 
   const displayedEvents = eventTab === 'upcoming' ? upcomingEvents : pastEvents;
+
+  const handleShareProfile = () => {
+    playTap(); hapticTap();
+    const profileUrl = `${window.location.origin}${window.location.pathname}?organiser=${userId}`;
+    navigator.clipboard?.writeText(profileUrl)
+      .then(() => showToast('Profile link copied!', 'success'))
+      .catch(() => showToast('Could not copy link', 'error'));
+  };
 
   return (
     <AnimatePresence>
@@ -173,22 +188,31 @@ export default function OrganiserProfileSheet() {
                       </div>
                     </div>
 
-                    {/* Follow button */}
-                    <button
-                      onClick={() => {
-                        playClick(); hapticTap();
-                        setIsFollowing(!isFollowing);
-                        showToast(isFollowing ? 'Unfollowed organiser' : 'Following organiser!', isFollowing ? 'info' : 'success');
-                      }}
-                      className={`w-full py-3 rounded-2xl font-black text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98] ${
-                        isFollowing
-                          ? 'bg-secondary/5 border-2 border-secondary/20 text-secondary'
-                          : 'bg-gradient-to-r from-primary to-accent text-white shadow-lg'
-                      }`}
-                    >
-                      {isFollowing ? <UserCheck size={18} /> : <UserPlus size={18} />}
-                      {isFollowing ? 'Following' : 'Follow'}
-                    </button>
+                    {/* Follow + Share buttons */}
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => {
+                          playClick(); hapticTap();
+                          setIsFollowing(!isFollowing);
+                          showToast(isFollowing ? 'Unfollowed organiser' : 'Following organiser!', isFollowing ? 'info' : 'success');
+                        }}
+                        className={`flex-1 py-3 rounded-2xl font-black text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98] ${
+                          isFollowing
+                            ? 'bg-secondary/5 border-2 border-secondary/20 text-secondary'
+                            : 'bg-gradient-to-r from-primary to-accent text-white shadow-lg'
+                        }`}
+                      >
+                        {isFollowing ? <UserCheck size={18} /> : <UserPlus size={18} />}
+                        {isFollowing ? 'Following' : 'Follow'}
+                      </button>
+                      <button
+                        onClick={handleShareProfile}
+                        className="w-12 py-3 rounded-2xl bg-secondary/5 border-2 border-secondary/20 flex items-center justify-center hover:bg-secondary/10 transition-colors"
+                        aria-label="Share profile"
+                      >
+                        <Share2 size={18} className="text-secondary/60" />
+                      </button>
+                    </div>
 
                     {/* Bio */}
                     {(profile.organiserBio || profile.bio) && (
@@ -200,36 +224,49 @@ export default function OrganiserProfileSheet() {
                     )}
 
                     {/* Quick stats */}
-                    <div className="grid grid-cols-3 gap-3">
+                    <motion.div {...sectionAnim(1)} className="grid grid-cols-2 gap-2">
                       {[
-                        { icon: Calendar, value: totalEvents, label: 'Events', color: 'text-primary' },
-                        { icon: Users, value: totalCommunities, label: 'Communities', color: 'text-secondary' },
-                        { icon: Users, value: totalMembers, label: 'Members', color: 'text-accent' },
-                      ].map((stat) => (
-                        <div key={stat.label} className="p-3 rounded-2xl bg-secondary/5 border border-secondary/10 text-center">
-                          <stat.icon size={14} className={`${stat.color} mx-auto mb-1`} />
-                          <motion.span
-                            className="text-lg font-black text-secondary block"
-                            initial={{ opacity: 0, scale: 0.5 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ type: 'spring', damping: 20, stiffness: 300, delay: 0.15 }}
-                          >
-                            {stat.value}
-                          </motion.span>
-                          <p className="text-[9px] font-bold text-secondary/40 uppercase tracking-widest">{stat.label}</p>
+                        { icon: Calendar, value: totalEvents, label: 'Events', color: 'text-primary', bg: 'bg-primary/5' },
+                        { icon: Users, value: totalAttendees, label: 'Attendees', color: 'text-accent', bg: 'bg-accent/5' },
+                        { icon: MessageCircle, value: totalCommunities, label: 'Communities', color: 'text-secondary', bg: 'bg-secondary/5' },
+                        { icon: Users, value: totalMembers, label: 'Members', color: 'text-teal-600', bg: 'bg-teal-500/5' },
+                      ].map((stat, i) => (
+                        <div key={stat.label} className={`p-3 rounded-2xl ${stat.bg} border border-secondary/10`}>
+                          <div className="flex items-center gap-2">
+                            <stat.icon size={14} className={stat.color} />
+                            <motion.span
+                              className="text-lg font-black text-secondary"
+                              initial={{ opacity: 0, scale: 0.5 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              transition={{ type: 'spring', damping: 20, stiffness: 300, delay: 0.1 + i * 0.05 }}
+                            >
+                              {stat.value}
+                            </motion.span>
+                          </div>
+                          <p className="text-[9px] font-bold text-secondary/40 uppercase tracking-widest mt-0.5">{stat.label}</p>
                         </div>
                       ))}
-                    </div>
+                    </motion.div>
 
                     {/* Engagement stats */}
                     {totalEvents > 0 && (
-                      <div className="flex items-center justify-between p-3 rounded-2xl bg-primary/5 border border-primary/10">
+                      <motion.div {...sectionAnim(2)} className="flex items-center justify-between p-3 rounded-2xl bg-primary/5 border border-primary/10">
                         <div className="flex items-center gap-2">
                           <TrendingUp size={14} className="text-primary" />
                           <span className="text-[11px] font-bold text-secondary">Avg Fill Rate</span>
                         </div>
-                        <span className={`text-sm font-black ${avgFill >= 70 ? 'text-accent' : 'text-primary'}`}>{avgFill}%</span>
-                      </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-16 h-1.5 bg-secondary/10 rounded-full overflow-hidden">
+                            <motion.div
+                              className={`h-full rounded-full ${avgFill >= 70 ? 'bg-accent' : 'bg-primary'}`}
+                              initial={{ width: 0 }}
+                              animate={{ width: `${Math.min(avgFill, 100)}%` }}
+                              transition={{ duration: 0.6, ease: 'easeOut', delay: 0.3 }}
+                            />
+                          </div>
+                          <span className={`text-sm font-black ${avgFill >= 70 ? 'text-accent' : 'text-primary'}`}>{avgFill}%</span>
+                        </div>
+                      </motion.div>
                     )}
 
                     {/* Highlight Event */}
@@ -256,7 +293,7 @@ export default function OrganiserProfileSheet() {
 
                     {/* Social links — clickable */}
                     {activeSocials.length > 0 && (
-                      <div>
+                      <motion.div {...sectionAnim(3)}>
                         <h4 className="text-xs font-black text-primary uppercase tracking-widest mb-3">
                           Connect<span className="text-accent">.</span>
                         </h4>
@@ -278,28 +315,33 @@ export default function OrganiserProfileSheet() {
                             );
                           })}
                         </div>
-                      </div>
+                      </motion.div>
                     )}
 
                     {/* Categories */}
                     {profile.organiserCategories?.length > 0 && (
-                      <div>
+                      <motion.div {...sectionAnim(4)}>
                         <h4 className="text-xs font-black text-primary uppercase tracking-widest mb-3">
                           Hosts<span className="text-accent">.</span>
                         </h4>
                         <div className="flex flex-wrap gap-2">
-                          {profile.organiserCategories.map(cat => (
-                            <span key={cat} className="px-3 py-1 bg-primary/10 rounded-full border border-primary/20 text-[11px] font-bold text-primary">
-                              {cat}
-                            </span>
-                          ))}
+                          {profile.organiserCategories.map(catId => {
+                            const catData = CATEGORIES.find(c => c.id === catId);
+                            const CatIcon = catData?.icon;
+                            return (
+                              <span key={catId} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 rounded-full border border-primary/20 text-[11px] font-bold text-primary">
+                                {CatIcon && <CatIcon size={12} />}
+                                {catData?.label || catId}
+                              </span>
+                            );
+                          })}
                         </div>
-                      </div>
+                      </motion.div>
                     )}
 
                     {/* Events with tabs */}
                     {profile.events?.length > 0 && (
-                      <div>
+                      <motion.div {...sectionAnim(5)}>
                         <div className="flex items-center justify-between mb-3">
                           <h4 className="text-xs font-black text-primary uppercase tracking-widest">
                             Events<span className="text-accent">.</span>
@@ -333,35 +375,44 @@ export default function OrganiserProfileSheet() {
                             transition={{ duration: 0.12 }}
                             className="space-y-2"
                           >
-                            {displayedEvents.length > 0 ? displayedEvents.map(event => (
-                              <div key={event.id} className="flex items-center gap-3 p-3 rounded-2xl bg-secondary/5 border border-secondary/10">
-                                <div className="w-11 h-11 rounded-xl overflow-hidden bg-secondary/10 shrink-0">
-                                  {event.image && <img src={event.image} className="w-full h-full object-cover" alt="" loading="lazy" />}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-sm font-bold text-secondary truncate">{event.title}</p>
-                                  <div className="flex items-center gap-2 mt-0.5">
-                                    <span className="text-[10px] text-secondary/40 font-medium">{event.date}</span>
-                                    <span className="text-[10px] text-primary font-bold">
-                                      {event.attendees}/{event.spots} spots
-                                    </span>
+                            {displayedEvents.length > 0 ? displayedEvents.map(event => {
+                              const fillPct = event.spots > 0 ? Math.round((event.attendees / event.spots) * 100) : 0;
+                              return (
+                                <div key={event.id} className="flex items-center gap-3 p-3 rounded-2xl bg-secondary/5 border border-secondary/10">
+                                  <div className="w-11 h-11 rounded-xl overflow-hidden bg-secondary/10 shrink-0">
+                                    {event.image && <img src={event.image} className="w-full h-full object-cover" alt="" loading="lazy" />}
                                   </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-bold text-secondary truncate">{event.title}</p>
+                                    <div className="flex items-center gap-2 mt-0.5">
+                                      <span className="text-[10px] text-secondary/40 font-medium">{event.date}</span>
+                                      <span className={`text-[10px] font-bold ${fillPct >= 80 ? 'text-accent' : 'text-primary'}`}>
+                                        {event.attendees}/{event.spots} spots
+                                      </span>
+                                    </div>
+                                    <div className="w-full h-1 bg-secondary/10 rounded-full mt-1.5 overflow-hidden">
+                                      <div
+                                        className={`h-full rounded-full transition-all ${fillPct >= 100 ? 'bg-red-500' : fillPct >= 80 ? 'bg-accent' : 'bg-primary/50'}`}
+                                        style={{ width: `${Math.min(fillPct, 100)}%` }}
+                                      />
+                                    </div>
+                                  </div>
+                                  <ChevronRight size={14} className="text-secondary/30 shrink-0" />
                                 </div>
-                                <ChevronRight size={14} className="text-secondary/30 shrink-0" />
-                              </div>
-                            )) : (
+                              );
+                            }) : (
                               <p className="text-center py-4 text-[11px] text-secondary/40 font-medium">
                                 No {eventTab} events
                               </p>
                             )}
                           </motion.div>
                         </AnimatePresence>
-                      </div>
+                      </motion.div>
                     )}
 
                     {/* Communities */}
                     {profile.communities?.length > 0 && (
-                      <div>
+                      <motion.div {...sectionAnim(6)}>
                         <h4 className="text-xs font-black text-primary uppercase tracking-widest mb-3">
                           Communities<span className="text-accent">.</span>
                         </h4>
@@ -378,7 +429,7 @@ export default function OrganiserProfileSheet() {
                             </div>
                           ))}
                         </div>
-                      </div>
+                      </motion.div>
                     )}
 
                     {/* Empty state */}

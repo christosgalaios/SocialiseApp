@@ -1274,7 +1274,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               transition={{ duration: 0.15 }}
               className="space-y-3"
             >
-              {sortedFilteredEvents.slice(0, 5).map((event) => {
+              {sortedFilteredEvents.slice(0, 5).map((event, idx) => {
                 const fillPct = event.spots > 0 ? Math.round((event.attendees / event.spots) * 100) : 0;
                 const fullEvent = allEvents.find(e => e.id === event.id) || event;
                 const relDate = getRelativeDate(event.date);
@@ -1284,7 +1284,13 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                 const isPinned = pinnedEventIds.includes(event.id);
                 const note = eventNotes[event.id];
                 return (
-                  <div key={event.id} className="space-y-1">
+                  <motion.div
+                    key={event.id}
+                    initial={{ opacity: 0, x: -6 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.2, delay: idx * 0.04 }}
+                    className="space-y-1"
+                  >
                     <button
                       onClick={() => { playTap(); hapticTap(); setSelectedEvent(fullEvent); }}
                       className={`w-full flex items-center gap-3 p-3 rounded-2xl border hover:bg-secondary/10 transition-colors text-left ${
@@ -1434,7 +1440,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                         </AnimatePresence>
                       </div>
                     )}
-                  </div>
+                  </motion.div>
                 );
               })}
               {sortedFilteredEvents.length > 5 && (
