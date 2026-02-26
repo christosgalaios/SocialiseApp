@@ -958,14 +958,19 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           })()}
 
           {/* Revenue Insights */}
-          {revenueInsights && revenueInsights.paidEvents > 0 && (
+          {revenueInsights && revenueInsights.paidEvents > 0 && (() => {
+            const paidPct = events.length > 0 ? Math.round((revenueInsights.paidEvents / events.length) * 100) : 0;
+            return (
             <div className="premium-card p-6 relative overflow-hidden">
               <div className="absolute -left-6 -bottom-6 w-24 h-24 bg-green-500/5 rounded-full blur-2xl" />
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center justify-center">
-                  <DollarSign size={16} className="text-green-600" />
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center justify-center">
+                    <DollarSign size={16} className="text-green-600" />
+                  </div>
+                  <h3 className="text-xs font-black text-green-600 uppercase tracking-widest">Revenue Insights</h3>
                 </div>
-                <h3 className="text-xs font-black text-green-600 uppercase tracking-widest">Revenue Insights</h3>
+                <span className="text-[9px] font-bold text-green-600/50">{paidPct}% paid</span>
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div>
@@ -1002,8 +1007,24 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                   <p className="text-[9px] font-bold text-secondary/40 uppercase tracking-widest mt-0.5">Avg Ticket</p>
                 </div>
               </div>
+              {/* Paid vs free split bar */}
+              <div className="mt-4 pt-3 border-t border-secondary/10">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[9px] font-bold text-secondary/40">Paid vs Free</span>
+                  <span className="text-[9px] font-bold text-secondary/40">{revenueInsights.paidEvents} paid · {events.length - revenueInsights.paidEvents} free</span>
+                </div>
+                <div className="w-full h-2 bg-secondary/10 rounded-full overflow-hidden flex">
+                  <motion.div
+                    className="h-full bg-green-500/60 rounded-l-full"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${paidPct}%` }}
+                    transition={{ duration: 0.6, ease: 'easeOut' }}
+                  />
+                </div>
+              </div>
             </div>
-          )}
+            );
+          })()}
 
           {/* Audience Insights */}
           {audienceInsights && (
@@ -1309,18 +1330,24 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               <button
                 key={tab.key}
                 onClick={() => { playTap(); setEventFilter(tab.key); }}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all ${
-                  eventFilter === tab.key
-                    ? 'bg-primary/10 text-primary border border-primary/20'
-                    : 'bg-secondary/5 text-secondary/50 border border-secondary/10 hover:bg-secondary/10'
-                }`}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold transition-colors relative"
               >
-                <tab.icon size={12} />
-                {tab.label}
-                <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-black ${
-                  eventFilter === tab.key ? 'bg-primary/20 text-primary' : 'bg-secondary/10 text-secondary/40'
-                }`}>
-                  {tab.count}
+                {eventFilter === tab.key && (
+                  <motion.div
+                    layoutId="event-filter-pill"
+                    className="absolute inset-0 bg-primary/10 border border-primary/20 rounded-xl"
+                    transition={{ type: 'spring', damping: 30, stiffness: 400 }}
+                    style={{ zIndex: 0 }}
+                  />
+                )}
+                <span className={`relative z-[1] flex items-center gap-1.5 ${eventFilter === tab.key ? 'text-primary' : 'text-secondary/50'}`}>
+                  <tab.icon size={12} />
+                  {tab.label}
+                  <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-black ${
+                    eventFilter === tab.key ? 'bg-primary/20 text-primary' : 'bg-secondary/10 text-secondary/40'
+                  }`}>
+                    {tab.count}
+                  </span>
                 </span>
               </button>
             ))}
