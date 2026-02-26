@@ -890,7 +890,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           <button
             key={tab.key}
             onClick={() => { playTap(); setOrganiserDashboardTab(tab.key); }}
-            className="flex-1 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-colors relative z-[1]"
+            className="flex-1 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-colors relative z-[1] focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
             style={{ color: organiserDashboardTab === tab.key ? 'var(--primary)' : undefined }}
           >
             {organiserDashboardTab === tab.key && (
@@ -1556,7 +1556,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               <button
                 key={tab.key}
                 onClick={() => { playTap(); setEventFilter(tab.key); }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold transition-colors relative"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold transition-colors relative focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
               >
                 {eventFilter === tab.key && (
                   <motion.div
@@ -1830,7 +1830,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                                 <button
                                   key={item.id}
                                   onClick={(e) => { e.stopPropagation(); toggleChecklistItem(event.id, item.id); }}
-                                  className="w-full flex items-center gap-2 p-1.5 rounded-lg hover:bg-secondary/5 transition-colors text-left"
+                                  className="w-full flex items-center gap-2 p-1.5 rounded-lg hover:bg-secondary/5 transition-colors text-left focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                                 >
                                   {item.done ? (
                                     <CheckSquare size={12} className="text-green-600 shrink-0" />

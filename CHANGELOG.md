@@ -65,6 +65,9 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Public profile loading skeleton cascade** — skeleton elements now animate with individual staggered delays instead of a single parent pulse
 - **Public profile bio card hover border** — the bio section shows a subtle border on hover for visual depth
 - **Edit profile verified badge hover glow** — the "Verified Organiser" badge shows a brighter border and soft shadow on hover
+- **Dashboard tab keyboard focus rings** — Overview/Analytics tab buttons show a primary ring when navigated via keyboard
+- **Event filter tab focus rings** — Upcoming/Past event filter tabs show a focus ring for keyboard accessibility
+- **Checklist item focus rings** — pre-event checklist checkboxes show a focus ring when navigated via keyboard
 - **Community empty state polish** — spring-animated icon with gradient background, staggered "Engage / Grow / Connect" hint tags, subtle glow backdrop
 - **Profile stat badges staggered entrance** — the upcoming/past/communities/attendees badges in the organiser header animate in with spring scale stagger instead of appearing instantly
 - **Community card hover lift** — community cards in the dashboard now lift on hover and scale on tap for tactile feedback
