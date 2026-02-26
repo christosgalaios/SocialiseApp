@@ -184,6 +184,53 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
         </button>
       </motion.div>
 
+      {/* Profile Completeness */}
+      {(() => {
+        const checks = [
+          { label: 'Display name', done: !!user?.organiserDisplayName?.trim() },
+          { label: 'Bio', done: !!user?.organiserBio?.trim() },
+          { label: 'Categories', done: (user?.organiserCategories?.length ?? 0) > 0 },
+          { label: 'Social links', done: activeSocials.length > 0 },
+          { label: 'First event', done: events.length > 0 },
+        ];
+        const completed = checks.filter(c => c.done).length;
+        const pct = Math.round((completed / checks.length) * 100);
+        if (pct >= 100) return null;
+        return (
+          <motion.div variants={itemVariants} className="premium-card p-5 relative overflow-hidden">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-xs font-black text-primary uppercase tracking-widest">
+                Complete Your Profile<span className="text-accent">.</span>
+              </h3>
+              <span className="text-[10px] font-black text-primary bg-primary/10 px-2 py-0.5 rounded-full">{pct}%</span>
+            </div>
+            <div className="w-full h-2 bg-secondary/10 rounded-full overflow-hidden mb-3">
+              <motion.div
+                className="h-full bg-gradient-to-r from-primary to-accent rounded-full"
+                initial={{ width: 0 }}
+                animate={{ width: `${pct}%` }}
+                transition={{ duration: 0.8, ease: 'easeOut' }}
+              />
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {checks.map((check) => (
+                <span
+                  key={check.label}
+                  className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold border transition-all ${
+                    check.done
+                      ? 'bg-green-500/10 border-green-500/20 text-green-600 line-through'
+                      : 'bg-secondary/5 border-secondary/10 text-secondary/50 cursor-pointer hover:border-primary/30'
+                  }`}
+                  onClick={!check.done ? () => { playTap(); setShowOrganiserEditProfile(true); } : undefined}
+                >
+                  {check.done ? '✓' : '○'} {check.label}
+                </span>
+              ))}
+            </div>
+          </motion.div>
+        );
+      })()}
+
       {/* Quick Actions */}
       <motion.div variants={itemVariants} className="flex gap-3">
         <button

@@ -17,6 +17,9 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Event filtering on organiser dashboard** — events are split into "Upcoming" and "Past" tabs with counts, making it easy to see what's active vs completed
 - **Event fill bar** — each event row on the organiser dashboard now shows a mini progress bar indicating how full the event is, with accent color when 80%+ filled
 - **Cover photo display** — organiser dashboard and profile header now display the cover photo when one is set
+- **Organiser overview on Home tab** — organisers see a quick stats banner (active events, attendees, total hosted) on the Home tab with a "New Event" shortcut and live "Today's Events" section
+- **Profile completeness indicator** — organiser dashboard shows a checklist with progress bar (display name, bio, categories, social links, first event) that disappears once 100% complete; incomplete items link to the edit sheet
+- **Social link validation** — edit profile sheet validates website URLs and username formats in real-time with inline error messages; invalid links prevent saving
 
 ### Changed
 - **Organiser dashboard loading skeleton** — replaced basic pulse blocks with a detailed skeleton that mirrors the actual dashboard structure (profile card, quick actions, stats grid, event list)
