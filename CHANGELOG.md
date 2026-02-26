@@ -13,6 +13,9 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 ## [Unreleased]
 
 ### Added
+- **Animated stat counters** — organiser dashboard stat cards now count up from 0 to their target value with a smooth ease-out animation on load
+- **Enhanced analytics empty state** — the "no analytics yet" state now features gradient background orbs, a spring-animated icon, and preview tags (Fill rates, Revenue, Audience) to hint at what's coming
+- **Enhanced events empty state** — the "no events yet" state features a gradient icon container with spring animation
 - **Share organiser profile** — "Share" button on public organiser profile copies the profile link to clipboard
 - **Public profile fill rate bars** — event rows on the public organiser profile now show a mini fill rate bar with color-coded progress
 - **Public profile total attendees** — quick stats grid expanded to 2x2 with a new "Attendees" stat showing total reach across all events

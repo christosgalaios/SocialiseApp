@@ -1030,17 +1030,37 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               </div>
             </div>
           ) : (
-            <div className="premium-card p-8 text-center">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-[20px] bg-accent/5 border border-accent/10 flex items-center justify-center">
-                <Sparkles size={28} className="text-accent/40" />
-              </div>
-              <h4 className="text-sm font-black text-secondary mb-1">No analytics yet</h4>
-              <p className="text-[11px] text-secondary/40 max-w-[220px] mx-auto mb-4">
-                Create your first event and watch your analytics come to life
+            <div className="premium-card p-8 text-center relative overflow-hidden">
+              <div className="absolute -right-8 -top-8 w-32 h-32 bg-accent/5 rounded-full blur-3xl" />
+              <div className="absolute -left-8 -bottom-8 w-32 h-32 bg-primary/5 rounded-full blur-3xl" />
+              <motion.div
+                initial={{ scale: 0, rotate: -20 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: 'spring', damping: 15, stiffness: 200 }}
+                className="w-20 h-20 mx-auto mb-4 rounded-[24px] bg-gradient-to-br from-accent/10 to-primary/10 border border-accent/10 flex items-center justify-center"
+              >
+                <Sparkles size={32} className="text-accent/50" />
+              </motion.div>
+              <h4 className="text-base font-black text-secondary mb-1">Your Analytics Await</h4>
+              <p className="text-[11px] text-secondary/40 max-w-[240px] mx-auto mb-2">
+                Create your first event and watch your dashboard come to life with real-time insights
               </p>
+              <div className="flex justify-center gap-4 mb-5">
+                {['Fill rates', 'Revenue', 'Audience'].map((item, i) => (
+                  <motion.span
+                    key={item}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 + i * 0.1 }}
+                    className="text-[9px] font-bold text-primary/50 bg-primary/5 px-2 py-0.5 rounded-full"
+                  >
+                    {item}
+                  </motion.span>
+                ))}
+              </div>
               <button
                 onClick={() => { playClick(); hapticTap(); onCreateEvent?.(); }}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-xs font-bold active:scale-95 transition-transform"
+                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-xs font-bold active:scale-95 transition-transform shadow-lg"
               >
                 <Plus size={14} />
                 Create Your First Event
@@ -1244,15 +1264,20 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
         )}
 
         {events.length === 0 ? (
-          <div className="text-center py-8">
-            <div className="w-16 h-16 mx-auto mb-3 rounded-[20px] bg-primary/5 border border-primary/10 flex items-center justify-center">
-              <Calendar size={28} className="text-primary/30" />
-            </div>
+          <div className="text-center py-8 relative">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: 'spring', damping: 15, stiffness: 200 }}
+              className="w-16 h-16 mx-auto mb-3 rounded-[20px] bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/10 flex items-center justify-center"
+            >
+              <Calendar size={28} className="text-primary/40" />
+            </motion.div>
             <p className="text-sm text-secondary/50 font-bold mb-1">No events yet</p>
             <p className="text-[11px] text-secondary/30 mb-4 max-w-[200px] mx-auto">Create your first event and start building your audience</p>
             <button
               onClick={() => { playClick(); hapticTap(); onCreateEvent?.(); }}
-              className="inline-flex items-center gap-1 px-4 py-2 rounded-xl bg-primary/10 border border-primary/20 text-primary text-xs font-bold hover:bg-primary/20 transition-colors"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary/10 border border-primary/20 text-primary text-xs font-bold hover:bg-primary/20 transition-colors"
             >
               <Plus size={14} />
               Create Event

@@ -1,5 +1,30 @@
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+
+function AnimatedNumber({ value }) {
+  const [display, setDisplay] = useState(0);
+  const rafRef = useRef(null);
+
+  useEffect(() => {
+    const numVal = typeof value === 'number' ? value : parseInt(value, 10);
+    if (isNaN(numVal) || numVal === 0) { setDisplay(value); return; }
+
+    const duration = 600;
+    const start = performance.now();
+    const animate = (now) => {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+      setDisplay(Math.round(numVal * eased));
+      if (progress < 1) rafRef.current = requestAnimationFrame(animate);
+    };
+    rafRef.current = requestAnimationFrame(animate);
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+  }, [value]);
+
+  return <>{typeof value === 'number' ? display : value}</>;
+}
 
 export default function OrganiserStatsCard({ icon: Icon, value, label, trend, color = 'text-primary', bgColor = 'bg-primary/10', borderColor = 'border-primary/20' }) {
   return (
@@ -31,7 +56,7 @@ export default function OrganiserStatsCard({ icon: Icon, value, label, trend, co
           animate={{ opacity: 1, scale: 1 }}
           transition={{ type: 'spring', damping: 20, stiffness: 300, delay: 0.1 }}
         >
-          {value}
+          <AnimatedNumber value={value} />
         </motion.span>
         <p className="text-[10px] font-bold text-secondary/40 uppercase tracking-widest mt-0.5">{label}</p>
       </div>
