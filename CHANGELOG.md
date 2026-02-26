@@ -35,6 +35,9 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Weekly activity bar hover scale** — individual bars in the weekly activity chart widen on hover with brightness boost for better data inspection
 - **Milestone card hover lift** — milestone cards lift up on hover and scale down on tap for consistent tactile feedback
 - **Attention alert icon pulse** — the warning icon on low-fill alerts gently pulses to draw organiser attention to urgent items
+- **Edit profile category hover scale** — unselected category chips scale up on hover for better discoverability before tapping
+- **Social link icon bounce** — the link icon container pulses when a social link is filled in, giving visual confirmation
+- **Preview toggle eye animation** — the Eye button tilts slightly when preview is active and has tap-scale feedback
 - **Community empty state polish** — spring-animated icon with gradient background, staggered "Engage / Grow / Connect" hint tags, subtle glow backdrop
 - **Profile stat badges staggered entrance** — the upcoming/past/communities/attendees badges in the organiser header animate in with spring scale stagger instead of appearing instantly
 - **Community card hover lift** — community cards in the dashboard now lift on hover and scale on tap for tactile feedback
