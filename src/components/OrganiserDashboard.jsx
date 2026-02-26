@@ -2,14 +2,14 @@ import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Calendar, Users, TrendingUp, Plus, Megaphone,
-  ChevronRight, BarChart3, Globe, Pencil, Clock, History,
+  ChevronRight, BarChart3, Globe, Pencil, Clock, History, RefreshCw,
 } from 'lucide-react';
 import useAuthStore from '../stores/authStore';
 import useUIStore from '../stores/uiStore';
 import useEventStore from '../stores/eventStore';
 import useCommunityStore from '../stores/communityStore';
 import OrganiserStatsCard from './OrganiserStatsCard';
-import { DEFAULT_AVATAR, ORGANISER_SOCIAL_PLATFORMS } from '../data/constants';
+import { DEFAULT_AVATAR, ORGANISER_SOCIAL_PLATFORMS, CATEGORIES } from '../data/constants';
 import { playTap, playClick, hapticTap } from '../utils/feedback';
 import api from '../api';
 
@@ -38,26 +38,35 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
   const [events, setEvents] = useState([]);
   const [communities, setCommunities] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [eventFilter, setEventFilter] = useState('upcoming');
+
+  const fetchDashboard = async (silent = false) => {
+    try {
+      const data = await api.getOrganiserStats();
+      setStats(data.stats);
+      setEvents(data.events);
+      setCommunities(data.communities);
+      if (!silent) showToast('Dashboard refreshed', 'success');
+    } catch {
+      if (!silent) showToast('Failed to load organiser stats', 'error');
+    }
+  };
 
   useEffect(() => {
     let cancelled = false;
-    const fetchStats = async () => {
-      try {
-        const data = await api.getOrganiserStats();
-        if (cancelled) return;
-        setStats(data.stats);
-        setEvents(data.events);
-        setCommunities(data.communities);
-      } catch {
-        if (!cancelled) showToast('Failed to load organiser stats', 'error');
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    };
-    fetchStats();
+    fetchDashboard(true)
+      .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleRefresh = async () => {
+    if (isRefreshing) return;
+    setIsRefreshing(true);
+    playClick(); hapticTap();
+    await fetchDashboard(false);
+    setIsRefreshing(false);
+  };
 
   const socialLinks = user?.organiserSocialLinks || {};
   const activeSocials = ORGANISER_SOCIAL_PLATFORMS.filter(p => socialLinks[p.key]?.trim());
@@ -160,17 +169,43 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               <span className="text-[10px] font-black text-accent uppercase tracking-widest">Organiser</span>
             </div>
           </div>
-          <button
-            onClick={() => { playTap(); hapticTap(); setShowOrganiserEditProfile(true); }}
-            className="w-10 h-10 rounded-2xl bg-secondary/5 border border-secondary/10 flex items-center justify-center hover:bg-secondary/10 transition-colors shrink-0"
-            aria-label="Edit organiser profile"
-          >
-            <Pencil size={16} className="text-secondary/60" />
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              className="w-10 h-10 rounded-2xl bg-secondary/5 border border-secondary/10 flex items-center justify-center hover:bg-secondary/10 transition-colors disabled:opacity-50"
+              aria-label="Refresh dashboard"
+            >
+              <RefreshCw size={16} className={`text-secondary/60 ${isRefreshing ? 'animate-spin' : ''}`} />
+            </button>
+            <button
+              onClick={() => { playTap(); hapticTap(); setShowOrganiserEditProfile(true); }}
+              className="w-10 h-10 rounded-2xl bg-secondary/5 border border-secondary/10 flex items-center justify-center hover:bg-secondary/10 transition-colors"
+              aria-label="Edit organiser profile"
+            >
+              <Pencil size={16} className="text-secondary/60" />
+            </button>
+          </div>
         </div>
 
         {user?.organiserBio && (
           <p className="text-sm text-secondary/60 font-medium leading-relaxed mb-3">{user.organiserBio}</p>
+        )}
+
+        {/* Category chips */}
+        {user?.organiserCategories?.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {user.organiserCategories.map((catId) => {
+              const cat = CATEGORIES.find(c => c.id === catId);
+              const Icon = cat?.icon;
+              return (
+                <span key={catId} className="inline-flex items-center gap-1 px-2.5 py-1 bg-primary/5 rounded-full border border-primary/10 text-[11px] font-bold text-primary">
+                  {Icon && <Icon size={10} />}
+                  {cat?.label || catId}
+                </span>
+              );
+            })}
+          </div>
         )}
 
         {activeSocials.length > 0 && (
@@ -555,9 +590,17 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold text-secondary truncate">{community.name}</p>
-                    <span className="text-[10px] text-secondary/40 font-medium">
-                      {community.members ?? 0} members
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[10px] text-secondary/40 font-medium">
+                        {community.members ?? 0} members
+                      </span>
+                      {(community.members ?? 0) > 0 && (
+                        <span className="inline-flex items-center gap-0.5 text-[9px] font-bold text-green-600 bg-green-500/10 px-1.5 py-0.5 rounded-full">
+                          <TrendingUp size={8} />
+                          active
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <ChevronRight size={16} className="text-secondary/30 shrink-0" />
                 </button>

@@ -27,6 +27,10 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Clickable event rows** — event rows on the organiser dashboard now open the EventDetailSheet when tapped
 - **Clickable community rows** — community rows on the organiser dashboard now open the TribeSheet when tapped
 - **"Become an Organiser" feature preview** — the CTA card on the attendee profile now shows a 3-column preview of organiser features (Host Events, Communities, Analytics)
+- **Category chips on organiser dashboard** — organiser header now shows category badges (e.g. Food & Drinks, Outdoors) with matching icons so visitors instantly see what the organiser hosts
+- **Dashboard refresh button** — organisers can manually refresh their dashboard stats, events, and communities with a single tap
+- **"Hosting" badge on event cards** — events the organiser hosts now show a gold "HOSTING" badge with megaphone icon on both Home and Explore tabs, replacing the "GOING" badge
+- **Community activity indicator** — community rows on the organiser dashboard now show an "active" badge for communities with members
 
 ### Changed
 - **Public organiser profile redesign** — richer layout with cover photo, quick stats grid, "Connect" section for social links, "Hosts" section for categories, and improved loading skeleton

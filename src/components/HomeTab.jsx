@@ -264,7 +264,7 @@ export default function HomeTab({ onProfileClick, onCreateEvent, fetchAllData })
         </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {visible.map(event => (
-            <EventCard key={event.id} event={event} isJoined={joinedEvents.includes(event.id)} onClick={setSelectedEvent} />
+            <EventCard key={event.id} event={event} isJoined={joinedEvents.includes(event.id)} isHosting={event.host_id === user?.id} onClick={setSelectedEvent} />
           ))}
         </div>
         {hasMore && (

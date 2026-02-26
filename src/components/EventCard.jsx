@@ -1,9 +1,9 @@
 import { motion } from 'framer-motion';
-import { Check, Clock, Users, Calendar, MapPin } from 'lucide-react';
+import { Check, Clock, Users, Calendar, MapPin, Megaphone } from 'lucide-react';
 import { INCLUSIVITY_TAGS } from '../data/constants';
 import { playCardPress, hapticTap } from '../utils/feedback';
 
-const EventCard = ({ event, onClick, compact = false, isJoined = false }) => (
+const EventCard = ({ event, onClick, compact = false, isJoined = false, isHosting = false }) => (
   <motion.div
     whileTap={{ scale: 0.96 }}
     className={`premium-card overflow-hidden group ${compact ? 'flex gap-4 p-4' : 'mb-6 shadow-2xl'}`}
@@ -13,11 +13,15 @@ const EventCard = ({ event, onClick, compact = false, isJoined = false }) => (
       <>
         <div className="relative w-24 h-24 shrink-0 overflow-hidden rounded-2xl shadow-inner border border-paper/10">
           <img src={event.image} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={event.title} loading="lazy" />
-          {isJoined && (
+          {isHosting ? (
+            <div className="absolute inset-0 bg-accent/40 backdrop-blur-sm flex items-center justify-center">
+              <Megaphone className="text-white" size={22} strokeWidth={2.5} />
+            </div>
+          ) : isJoined ? (
             <div className="absolute inset-0 bg-primary/40 backdrop-blur-sm flex items-center justify-center">
               <Check className="text-white" size={24} strokeWidth={3} />
             </div>
-          )}
+          ) : null}
         </div>
         <div className="flex-1 py-1">
           <div className="flex justify-between items-start mb-1">
@@ -42,7 +46,8 @@ const EventCard = ({ event, onClick, compact = false, isJoined = false }) => (
           <div className="absolute inset-0 bg-gradient-to-t from-secondary/80 via-transparent to-transparent" />
           <div className="absolute top-4 left-4 right-4 flex flex-wrap gap-1.5">
             <span className="bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full text-[10px] font-black text-secondary uppercase tracking-widest shadow-lg">{event.category}</span>
-            {isJoined && <span className="bg-primary px-3 py-1.5 rounded-full text-[10px] font-black text-white uppercase tracking-widest shadow-lg">GOING</span>}
+            {isHosting && <span className="bg-accent px-3 py-1.5 rounded-full text-[10px] font-black text-white uppercase tracking-widest shadow-lg flex items-center gap-1"><Megaphone size={10} />HOSTING</span>}
+            {isJoined && !isHosting && <span className="bg-primary px-3 py-1.5 rounded-full text-[10px] font-black text-white uppercase tracking-widest shadow-lg">GOING</span>}
             {event.tags?.slice(0, 2).map(tagId => {
               const tag = INCLUSIVITY_TAGS.find(t => t.id === tagId);
               if (!tag) return null;
