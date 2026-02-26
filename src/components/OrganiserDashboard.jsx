@@ -926,15 +926,29 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                   Event Categories<span className="text-accent">.</span>
                 </h3>
                 <div className="space-y-3">
-                  {sorted.map(([cat, count]) => {
+                  {sorted.map(([cat, count], idx) => {
                     const pct = Math.round((count / total) * 100);
                     const catData = CATEGORIES.find(c => c.id === cat);
                     const Icon = catData?.icon;
+                    const isTop = idx === 0 && sorted.length > 1;
                     return (
-                      <div key={cat} className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-primary/5 border border-primary/10 flex items-center justify-center shrink-0">
-                          {Icon ? <Icon size={14} className="text-primary" /> : <Calendar size={14} className="text-primary" />}
-                        </div>
+                      <motion.div
+                        key={cat}
+                        initial={{ opacity: 0, x: -8 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.25, delay: idx * 0.06 }}
+                        className="flex items-center gap-3"
+                      >
+                        <motion.div
+                          initial={{ scale: 0.8, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          transition={{ type: 'spring', damping: 20, stiffness: 300, delay: 0.1 + idx * 0.06 }}
+                          className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border ${
+                            isTop ? 'bg-accent/10 border-accent/20' : 'bg-primary/5 border-primary/10'
+                          }`}
+                        >
+                          {Icon ? <Icon size={14} className={isTop ? 'text-accent' : 'text-primary'} /> : <Calendar size={14} className="text-primary" />}
+                        </motion.div>
                         <div className="flex-1 min-w-0">
                           <div className="flex justify-between mb-0.5">
                             <span className="text-[11px] font-bold text-secondary">{cat}</span>
@@ -942,14 +956,14 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                           </div>
                           <div className="w-full h-1.5 bg-secondary/10 rounded-full overflow-hidden">
                             <motion.div
-                              className="h-full rounded-full bg-primary/60"
+                              className={`h-full rounded-full ${isTop ? 'bg-accent/60' : 'bg-primary/60'}`}
                               initial={{ width: 0 }}
                               animate={{ width: `${pct}%` }}
-                              transition={{ duration: 0.5, ease: 'easeOut' }}
+                              transition={{ duration: 0.5, ease: 'easeOut', delay: 0.1 + idx * 0.06 }}
                             />
                           </div>
                         </div>
-                      </div>
+                      </motion.div>
                     );
                   })}
                 </div>
@@ -1108,23 +1122,31 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                 Event Fill Rates<span className="text-accent">.</span>
               </h3>
               <div className="space-y-3">
-                {events.slice(0, 6).map((event) => {
+                {events.slice(0, 6).map((event, idx) => {
                   const fillPct = event.spots > 0 ? Math.round((event.attendees / event.spots) * 100) : 0;
                   return (
-                    <div key={event.id}>
+                    <motion.div
+                      key={event.id}
+                      initial={{ opacity: 0, x: -6 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.2, delay: idx * 0.05 }}
+                    >
                       <div className="flex justify-between mb-1">
-                        <span className="text-[11px] font-bold text-secondary truncate max-w-[60%]">{event.title}</span>
-                        <span className={`text-[11px] font-black ${fillPct >= 80 ? 'text-accent' : fillPct >= 50 ? 'text-primary' : 'text-secondary/50'}`}>{fillPct}%</span>
+                        <span className="text-[11px] font-bold text-secondary truncate max-w-[55%]">{event.title}</span>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <span className="text-[9px] font-medium text-secondary/35">{event.attendees}/{event.spots}</span>
+                          <span className={`text-[11px] font-black ${fillPct >= 80 ? 'text-accent' : fillPct >= 50 ? 'text-primary' : 'text-secondary/50'}`}>{fillPct}%</span>
+                        </div>
                       </div>
                       <div className="w-full h-2 bg-secondary/10 rounded-full overflow-hidden">
                         <motion.div
                           className={`h-full rounded-full ${fillPct >= 80 ? 'bg-accent' : fillPct >= 50 ? 'bg-primary' : 'bg-secondary/30'}`}
                           initial={{ width: 0 }}
                           animate={{ width: `${Math.min(fillPct, 100)}%` }}
-                          transition={{ duration: 0.6, ease: 'easeOut', delay: 0.1 }}
+                          transition={{ duration: 0.6, ease: 'easeOut', delay: 0.1 + idx * 0.05 }}
                         />
                       </div>
-                    </div>
+                    </motion.div>
                   );
                 })}
               </div>
