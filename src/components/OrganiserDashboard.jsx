@@ -103,6 +103,25 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
 
   const filteredEvents = eventFilter === 'upcoming' ? upcomingEvents : pastEvents;
 
+  const nextEvent = useMemo(() => {
+    if (upcomingEvents.length === 0) return null;
+    const now = new Date();
+    const sorted = [...upcomingEvents]
+      .map(e => ({ ...e, _date: new Date(e.date) }))
+      .filter(e => !isNaN(e._date.getTime()) && e._date >= now)
+      .sort((a, b) => a._date - b._date);
+    if (sorted.length === 0) return null;
+    const next = sorted[0];
+    const diffMs = next._date - now;
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    let countdown = '';
+    if (diffDays > 0) countdown = `${diffDays}d ${diffHours}h`;
+    else if (diffHours > 0) countdown = `${diffHours}h`;
+    else countdown = 'Starting soon';
+    return { ...next, countdown };
+  }, [upcomingEvents]);
+
   if (loading) {
     return (
       <div className="space-y-5 animate-pulse">
@@ -401,6 +420,86 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
             </div>
           </div>
 
+          {/* Top Performer */}
+          {events.length > 0 && (() => {
+            const best = [...events].sort((a, b) => {
+              const fillA = a.spots > 0 ? a.attendees / a.spots : 0;
+              const fillB = b.spots > 0 ? b.attendees / b.spots : 0;
+              return fillB - fillA;
+            })[0];
+            const bestFill = best?.spots > 0 ? Math.round((best.attendees / best.spots) * 100) : 0;
+            return (
+              <div className="premium-card p-5 relative overflow-hidden">
+                <div className="absolute -right-6 -top-6 w-24 h-24 bg-accent/5 rounded-full blur-2xl" />
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center">
+                    <TrendingUp size={16} className="text-accent" />
+                  </div>
+                  <h3 className="text-xs font-black text-accent uppercase tracking-widest">Top Performer</h3>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-14 h-14 rounded-2xl overflow-hidden bg-secondary/10 shrink-0">
+                    {best?.image && <img src={best.image} className="w-full h-full object-cover" alt="" loading="lazy" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-black text-secondary truncate">{best?.title}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-[11px] font-bold text-accent">{bestFill}% filled</span>
+                      <span className="text-secondary/20">|</span>
+                      <span className="text-[11px] font-medium text-secondary/50">{best?.attendees}/{best?.spots} spots</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* Category Distribution */}
+          {events.length > 0 && (() => {
+            const catCounts = {};
+            events.forEach(e => {
+              const cat = e.category || 'Other';
+              catCounts[cat] = (catCounts[cat] || 0) + 1;
+            });
+            const sorted = Object.entries(catCounts).sort(([, a], [, b]) => b - a);
+            const total = events.length;
+            return (
+              <div className="premium-card p-6">
+                <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-4">
+                  Event Categories<span className="text-accent">.</span>
+                </h3>
+                <div className="space-y-3">
+                  {sorted.map(([cat, count]) => {
+                    const pct = Math.round((count / total) * 100);
+                    const catData = CATEGORIES.find(c => c.id === cat);
+                    const Icon = catData?.icon;
+                    return (
+                      <div key={cat} className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-primary/5 border border-primary/10 flex items-center justify-center shrink-0">
+                          {Icon ? <Icon size={14} className="text-primary" /> : <Calendar size={14} className="text-primary" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex justify-between mb-0.5">
+                            <span className="text-[11px] font-bold text-secondary">{cat}</span>
+                            <span className="text-[10px] font-black text-secondary/50">{count} event{count !== 1 ? 's' : ''} ({pct}%)</span>
+                          </div>
+                          <div className="w-full h-1.5 bg-secondary/10 rounded-full overflow-hidden">
+                            <motion.div
+                              className="h-full rounded-full bg-primary/60"
+                              initial={{ width: 0 }}
+                              animate={{ width: `${pct}%` }}
+                              transition={{ duration: 0.5, ease: 'easeOut' }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })()}
+
           {/* Attendance rate */}
           {events.length > 0 ? (
             <div className="premium-card p-6">
@@ -456,6 +555,26 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
         </motion.div>
       ) : (
       <>
+
+      {/* Next Event Countdown */}
+      {nextEvent && (
+        <motion.div variants={itemVariants} className="premium-card p-4 relative overflow-hidden">
+          <div className="absolute -right-4 -top-4 w-20 h-20 bg-green-500/5 rounded-full blur-2xl" />
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl overflow-hidden bg-secondary/10 shrink-0">
+              {nextEvent.image && <img src={nextEvent.image} className="w-full h-full object-cover" alt="" loading="lazy" />}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[9px] font-black text-green-600 uppercase tracking-widest mb-0.5">Next Event</p>
+              <p className="text-sm font-bold text-secondary truncate">{nextEvent.title}</p>
+            </div>
+            <div className="text-right shrink-0">
+              <p className="text-lg font-black text-primary leading-tight">{nextEvent.countdown}</p>
+              <p className="text-[9px] font-bold text-secondary/40 uppercase tracking-widest">until start</p>
+            </div>
+          </div>
+        </motion.div>
+      )}
 
       {/* Stats Grid */}
       <motion.div variants={itemVariants}>

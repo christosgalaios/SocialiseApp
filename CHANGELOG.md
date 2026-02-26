@@ -35,6 +35,9 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Share profile quick action** — organisers can copy their profile link to clipboard with a single tap from the dashboard
 - **Empty analytics state** — analytics tab shows a motivational empty state with a "Create Your First Event" CTA when no events exist
 - **Dashboard header summary** — organiser profile card now shows a compact "X upcoming, Y past, Z communities" summary at a glance
+- **Top performer card** — analytics tab highlights the event with the highest fill rate, showing title, fill percentage, and attendee count
+- **Next event countdown** — overview tab shows a countdown banner (e.g. "3d 5h until start") for the organiser's next upcoming event
+- **Event category distribution** — analytics tab shows a breakdown of which categories the organiser hosts most, with animated progress bars and matching category icons
 
 ### Changed
 - **Public organiser profile redesign** — richer layout with cover photo, quick stats grid, "Connect" section for social links, "Hosts" section for categories, and improved loading skeleton
