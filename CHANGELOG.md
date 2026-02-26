@@ -13,6 +13,8 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 ## [Unreleased]
 
 ### Added
+- **Widget settings panel animation** — settings gear icon spins in on open, toggle items stagger in with slide animation, checkbox icons pulse on toggle
+- **Community empty state polish** — spring-animated icon with gradient background, staggered "Engage / Grow / Connect" hint tags, subtle glow backdrop
 - **Profile stat badges staggered entrance** — the upcoming/past/communities/attendees badges in the organiser header animate in with spring scale stagger instead of appearing instantly
 - **Community card hover lift** — community cards in the dashboard now lift on hover and scale on tap for tactile feedback
 - **Social link chip interactions** — social link chips animate in with staggered fade, scale on hover/tap, and highlight with primary color on hover
