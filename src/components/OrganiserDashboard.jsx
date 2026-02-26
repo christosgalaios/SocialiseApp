@@ -598,23 +598,33 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           </div>
         )}
 
-        {/* Event count summary */}
-        {events.length > 0 && (
-          <div className="flex items-center gap-3 mb-3">
-            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-green-600">
-              <Clock size={10} />
-              {upcomingEvents.length} upcoming
-            </span>
-            <span className="text-secondary/20">|</span>
-            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-secondary/40">
-              <History size={10} />
-              {pastEvents.length} past
-            </span>
-            <span className="text-secondary/20">|</span>
-            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-secondary/40">
-              <Users size={10} />
-              {communities.length} communities
-            </span>
+        {/* Stat badges */}
+        {stats && (
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {upcomingEvents.length > 0 && (
+              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-green-500/5 border border-green-500/10 text-[10px] font-bold text-green-600">
+                <Clock size={10} />
+                {upcomingEvents.length} upcoming
+              </span>
+            )}
+            {pastEvents.length > 0 && (
+              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-secondary/5 border border-secondary/10 text-[10px] font-bold text-secondary/40">
+                <History size={10} />
+                {pastEvents.length} past
+              </span>
+            )}
+            {communities.length > 0 && (
+              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-secondary/5 border border-secondary/10 text-[10px] font-bold text-secondary/40">
+                <Users size={10} />
+                {communities.length} communities
+              </span>
+            )}
+            {(stats.totalAttendees ?? 0) > 0 && (
+              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-primary/5 border border-primary/10 text-[10px] font-bold text-primary">
+                <TrendingUp size={10} />
+                {stats.totalAttendees} total attendees
+              </span>
+            )}
           </div>
         )}
 
@@ -1094,16 +1104,31 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
       <>
 
       {/* Next Event Countdown */}
-      {isWidgetVisible('countdown') && nextEvent && (
+      {isWidgetVisible('countdown') && nextEvent && (() => {
+        const nextFillPct = nextEvent.spots > 0 ? Math.round((nextEvent.attendees / nextEvent.spots) * 100) : 0;
+        return (
         <motion.div variants={itemVariants} className="premium-card p-4 relative overflow-hidden">
           <div className="absolute -right-4 -top-4 w-20 h-20 bg-green-500/5 rounded-full blur-2xl" />
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl overflow-hidden bg-secondary/10 shrink-0">
+            <div className="w-12 h-12 rounded-2xl overflow-hidden bg-secondary/10 shrink-0 relative">
               {nextEvent.image && <img src={nextEvent.image} className="w-full h-full object-cover" alt="" loading="lazy" />}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-[9px] font-black text-green-600 uppercase tracking-widest mb-0.5">Next Event</p>
               <p className="text-sm font-bold text-secondary truncate">{nextEvent.title}</p>
+              <div className="flex items-center gap-2 mt-1">
+                <span className={`text-[10px] font-bold ${nextFillPct >= 80 ? 'text-accent' : 'text-primary'}`}>
+                  {nextEvent.attendees}/{nextEvent.spots} spots
+                </span>
+                <div className="flex-1 max-w-[80px] h-1 bg-secondary/10 rounded-full overflow-hidden">
+                  <motion.div
+                    className={`h-full rounded-full ${nextFillPct >= 100 ? 'bg-red-500' : nextFillPct >= 80 ? 'bg-accent' : 'bg-primary/60'}`}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${Math.min(nextFillPct, 100)}%` }}
+                    transition={{ duration: 0.5, ease: 'easeOut', delay: 0.3 }}
+                  />
+                </div>
+              </div>
             </div>
             <div className="text-right shrink-0">
               <motion.p
@@ -1118,7 +1143,8 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
             </div>
           </div>
         </motion.div>
-      )}
+        );
+      })()}
 
       {/* Weekly Activity */}
       {isWidgetVisible('activity') && events.length > 0 && (
@@ -1634,7 +1660,10 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold text-secondary truncate">{community.name}</p>
-                    <div className="flex items-center gap-1.5">
+                    {community.description && (
+                      <p className="text-[10px] text-secondary/40 truncate mt-0.5">{community.description}</p>
+                    )}
+                    <div className="flex items-center gap-1.5 mt-0.5">
                       <span className="text-[10px] text-secondary/40 font-medium">
                         {memberCount} members
                       </span>
@@ -1642,6 +1671,11 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                         <ArrowUpRight size={8} />
                         {sizeLabel}
                       </span>
+                      {community.category && (
+                        <span className="text-[9px] font-bold text-primary/50 bg-primary/5 px-1.5 py-0.5 rounded-full">
+                          {community.category}
+                        </span>
+                      )}
                     </div>
                     {/* Member growth bar */}
                     <div className="w-full h-1 bg-secondary/10 rounded-full mt-1.5 overflow-hidden">

@@ -13,6 +13,9 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 ## [Unreleased]
 
 ### Added
+- **Next event countdown fill bar** — the "Next Event" widget now shows attendee count and an animated fill progress bar with color-coded status
+- **Community description previews** — community rows on the organiser dashboard now show a one-line description snippet and category tag
+- **Profile header stat badges** — organiser profile header now shows pill-shaped badges for upcoming events, past events, communities, and total attendees with color-coded styling
 - **Validation shake on edit profile** — save button now shakes when tapped with incomplete fields (display name too short or no category selected) instead of silently doing nothing
 - **4-column quick actions grid** — dashboard quick actions expanded from 3 to 4 buttons with a new "Edit Profile" shortcut, hover lift animations, and keyboard shortcut hints on all buttons (N/C/E)
 - **Keyboard shortcuts for community & edit** — press "C" to open community discovery and "E" to open edit profile from the organiser dashboard
