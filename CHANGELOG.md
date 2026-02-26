@@ -94,6 +94,7 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Decorative elements aria-hidden** — all decorative glow/blur divs, chevron indicators, hover overlays, pulse backgrounds, and ExternalLink icons across all organiser components now have `aria-hidden="true"` to prevent screen reader noise (13 elements total)
 - **Alert view button transition** — the "View" link on attention alerts now has smooth transition-all instead of instant hover underline appearance
 - **Edit profile lazy images** — preview cover photo, preview avatar, and cover photo display images now have `loading="lazy"` for consistent deferred loading
+- **Safe area insets** — edit profile, setup flow, and profile sheet footer/content areas now respect `env(safe-area-inset-bottom)` to prevent content being clipped by the iOS home bar
 - **Dashboard community section focus rings** — create community toggle, community card rows, and "View all events" button now show focus rings for keyboard accessibility
 - **Community empty state polish** — spring-animated icon with gradient background, staggered "Engage / Grow / Connect" hint tags, subtle glow backdrop
 - **Profile stat badges staggered entrance** — the upcoming/past/communities/attendees badges in the organiser header animate in with spring scale stagger instead of appearing instantly

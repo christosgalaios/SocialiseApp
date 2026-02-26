@@ -177,7 +177,7 @@ export default function OrganiserProfileSheet() {
                     </div>
                   )}
 
-                  <div className="p-6 space-y-6">
+                  <div className="p-6 space-y-6" style={{ paddingBottom: 'max(24px, env(safe-area-inset-bottom))' }}>
                     {/* Profile header */}
                     <div className="flex items-center gap-4">
                       <div className={`w-20 h-20 rounded-[24px] overflow-hidden border-2 border-primary/20 shadow-lg shrink-0 ${profile.organiserCoverPhoto ? '-mt-10 relative z-10 ring-4 ring-paper' : ''}`}>

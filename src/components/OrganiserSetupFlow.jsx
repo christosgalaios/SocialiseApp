@@ -353,7 +353,7 @@ export default function OrganiserSetupFlow() {
       </div>
 
       {/* Footer */}
-      <div className="p-6 pb-10 flex gap-3">
+      <div className="p-6 flex gap-3 pb-[max(40px,env(safe-area-inset-bottom))]">
         {step > 0 && (
           <motion.button
             onClick={() => { playTap(); setStep(step - 1); }}
