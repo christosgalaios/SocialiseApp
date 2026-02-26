@@ -71,6 +71,9 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Edit profile cover photo hover** — the dashed upload border transitions to primary color on hover for better discoverability
 - **Edit profile input hover borders** — display name and bio inputs darken their border on hover before focus
 - **Public profile event tab hover** — Upcoming/Past event tab buttons show a subtle background on hover and focus ring for keyboard nav
+- **Setup flow close button hover** — the X close button now shows a darker background on hover
+- **Setup flow category card focus ring** — category cards in step 2 show a focus ring when navigated via keyboard
+- **Edit profile verification button focus ring** — the "Request" verification button shows a focus ring for keyboard accessibility
 - **Community empty state polish** — spring-animated icon with gradient background, staggered "Engage / Grow / Connect" hint tags, subtle glow backdrop
 - **Profile stat badges staggered entrance** — the upcoming/past/communities/attendees badges in the organiser header animate in with spring scale stagger instead of appearing instantly
 - **Community card hover lift** — community cards in the dashboard now lift on hover and scale on tap for tactile feedback
