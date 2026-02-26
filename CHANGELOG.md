@@ -19,6 +19,7 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Text overflow in bug/feature modals** — both BugReportModal and FeatureRequestModal now consistently handle long text with word-break, overflow-wrap, and overscroll containment (BUG-1772022766344)
 
 ### Added
+- **Stats card icon wobble** — stat card icons tilt and scale up on hover, value text shifts to primary color, label brightens — adds tactile feedback across both dashboard tabs
 - **Public profile stat cards hover lift** — quick stats grid on the public organiser profile lifts on hover with staggered entrance animation
 - **Public profile category chips stagger** — category chips on the public profile spring in with staggered scale animation
 - **Public profile empty state polish** — the "hasn't hosted anything yet" message now shows a spring-animated icon in a styled container with helper text
