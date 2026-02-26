@@ -103,6 +103,7 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Safe area insets** — edit profile, setup flow, and profile sheet footer/content areas now respect `env(safe-area-inset-bottom)` to prevent content being clipped by the iOS home bar
 - **Branded text selection** — selecting text anywhere in the app now highlights with a warm terracotta tint instead of the default browser blue
 - **Selectable organiser content** — organiser display name, bio, stats values, and event notes can now be selected and copied (overrides the global `user-select: none` for content-heavy areas)
+- **Touch target expansion** — small icon buttons (dismiss alert 24px, clear search 20px, pin/duplicate/note 28px, remove cover 28px, create community 28px) now have invisible 44px hit areas via CSS pseudo-elements for easier tapping on mobile
 - **Dashboard community section focus rings** — create community toggle, community card rows, and "View all events" button now show focus rings for keyboard accessibility
 - **Community empty state polish** — spring-animated icon with gradient background, staggered "Engage / Grow / Connect" hint tags, subtle glow backdrop
 - **Profile stat badges staggered entrance** — the upcoming/past/communities/attendees badges in the organiser header animate in with spring scale stagger instead of appearing instantly

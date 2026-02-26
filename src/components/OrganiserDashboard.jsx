@@ -573,7 +573,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               </button>
               <button
                 onClick={(e) => { e.stopPropagation(); setDismissedAlerts(prev => [...prev, i]); }}
-                className="w-6 h-6 rounded-lg flex items-center justify-center text-secondary/30 hover:text-secondary/50 hover:bg-secondary/10 transition-colors shrink-0 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+                className="w-6 h-6 rounded-lg flex items-center justify-center text-secondary/30 hover:text-secondary/50 hover:bg-secondary/10 transition-colors shrink-0 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none relative before:absolute before:inset-[-10px] before:content-['']"
                 aria-label="Dismiss alert"
               >
                 <X size={12} />
@@ -1594,7 +1594,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
             {eventSearch && (
               <button
                 onClick={() => setEventSearch('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none before:absolute before:inset-[-12px] before:content-['']"
                 aria-label="Clear search"
               >
                 <X size={10} className="text-secondary/50" />
@@ -1734,7 +1734,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                           tabIndex={0}
                           onClick={(e) => { e.stopPropagation(); togglePin(event.id); }}
                           onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); togglePin(event.id); } }}
-                          className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${
+                          className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none relative before:absolute before:inset-[-8px] before:content-[''] ${
                             isPinned ? 'bg-accent/10 text-accent' : 'text-secondary/20 hover:text-secondary/40'
                           }`}
                           aria-label={isPinned ? 'Unpin event' : 'Pin event'}
@@ -1746,7 +1746,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                           tabIndex={0}
                           onClick={(e) => { e.stopPropagation(); handleDuplicateEvent(event); }}
                           onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); handleDuplicateEvent(event); } }}
-                          className="w-7 h-7 rounded-lg flex items-center justify-center text-secondary/20 hover:text-secondary/40 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+                          className="w-7 h-7 rounded-lg flex items-center justify-center text-secondary/20 hover:text-secondary/40 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none relative before:absolute before:inset-[-8px] before:content-['']"
                           aria-label="Duplicate event"
                         >
                           <Copy size={12} />
@@ -1760,7 +1760,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                             setNoteText(eventNotes[event.id] || '');
                           }}
                           onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); setEditingNoteId(editingNoteId === event.id ? null : event.id); setNoteText(eventNotes[event.id] || ''); } }}
-                          className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${
+                          className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none relative before:absolute before:inset-[-8px] before:content-[''] ${
                             note ? 'bg-primary/10 text-primary' : 'text-secondary/20 hover:text-secondary/40'
                           }`}
                           aria-label={note ? 'Edit note' : 'Add note'}
@@ -1893,7 +1893,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
             </span>
             <button
               onClick={() => { playTap(); setShowCreateCommunity(!showCreateCommunity); }}
-              className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${
+              className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none relative before:absolute before:inset-[-8px] before:content-[''] ${
                 showCreateCommunity ? 'bg-primary/10 text-primary' : 'bg-secondary/5 border border-secondary/10 text-secondary/40 hover:text-secondary/60'
               }`}
               aria-label="Create community"
