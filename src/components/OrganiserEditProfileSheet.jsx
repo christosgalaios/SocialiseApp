@@ -414,7 +414,7 @@ export default function OrganiserEditProfileSheet() {
                                   value={socialLinks[platform.key] || ''}
                                   onChange={(e) => updateSocialLink(platform.key, e.target.value)}
                                   className={`w-full bg-secondary/5 border rounded-xl px-3 py-2 text-sm font-medium text-[var(--text)] focus:outline-none transition-all placeholder:text-secondary/40 ${
-                                    error ? 'border-red-400 focus:border-red-500' : hasValue ? 'border-green-500/30 focus:border-green-500' : 'border-secondary/20 focus:border-primary'
+                                    error ? 'border-red-400 focus:border-red-500' : hasValue ? 'border-green-500/30 focus:border-green-500' : 'border-secondary/20 focus:border-primary hover:border-secondary/30'
                                   }`}
                                 />
                                 {error && <p className="text-[10px] text-red-500/70 mt-0.5 font-medium">{error}</p>}
