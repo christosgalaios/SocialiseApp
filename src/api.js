@@ -249,20 +249,6 @@ const api = {
         return fetchWithAuth('/users/me', { method: 'DELETE' });
     },
 
-    // ── Reviews ──────────────────────────────────────────────────────────
-
-    getOrganiserReviews(organiserId) {
-        return fetchWithAuth(`/reviews/${organiserId}`);
-    },
-
-    submitOrganiserReview(organiserId, data) {
-        return fetchWithAuth(`/reviews/${organiserId}`, { method: 'POST', body: data });
-    },
-
-    deleteOrganiserReview(organiserId) {
-        return fetchWithAuth(`/reviews/${organiserId}`, { method: 'DELETE' });
-    },
-
     // ── Bugs & Feature Requests ───────────────────────────────────────────
 
     reportBug(data) {

@@ -557,7 +557,6 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
         <motion.div
           variants={itemVariants}
           className="premium-card p-6 flex items-center gap-6 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer relative overflow-hidden group"
-          onClick={() => { playTap(); hapticTap(); setShowBookings(true); }}
         >
           <div className="absolute -right-8 -top-8 w-32 h-32 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors" />
           <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20">
@@ -567,7 +566,6 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
             <span className="text-3xl font-black text-secondary">{joinedEvents.length}</span>
             <p className="text-[10px] font-black uppercase tracking-widest text-secondary/60 mt-1">Connections</p>
           </div>
-          <ChevronRight size={20} className="ml-auto text-secondary/30" />
         </motion.div>
 
         {/* Become an Organiser CTA */}

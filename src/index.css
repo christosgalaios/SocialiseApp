@@ -317,12 +317,6 @@ body:has([role="alertdialog"]) #main-content {
   }
 }
 
-/* Branded text selection highlight */
-::selection {
-  background-color: rgba(226, 114, 91, 0.2);
-  color: inherit;
-}
-
 /* Screen reader only utility */
 .sr-only {
   position: absolute;

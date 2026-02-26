@@ -33,7 +33,6 @@ import ChangelogSheet from './ChangelogSheet';
 const OrganiserProfileSheet = React.lazy(() => import('./OrganiserProfileSheet'));
 const OrganiserEditProfileSheet = React.lazy(() => import('./OrganiserEditProfileSheet'));
 const OrganiserSetupFlow = React.lazy(() => import('./OrganiserSetupFlow'));
-const OrganiserReviewSheet = React.lazy(() => import('./OrganiserReviewSheet'));
 
 // Match Analysis Modal (inline component)
 const MatchAnalysisModal = ({ event, onConfirm, onCancel }) => (
@@ -119,7 +118,6 @@ export default function AppModals({ handleJoin, sendMessage }) {
   const showOrganiserSetup = useUIStore((s) => s.showOrganiserSetup);
   const showOrganiserProfile = useUIStore((s) => s.showOrganiserProfile);
   const showOrganiserEditProfile = useUIStore((s) => s.showOrganiserEditProfile);
-  const showOrganiserReview = useUIStore((s) => s.showOrganiserReview);
   const savedEventsData = useEventStore((s) => s.savedEvents);
 
   const handleAvatarCropSave = async (croppedDataUrl) => {
@@ -477,11 +475,6 @@ export default function AppModals({ handleJoin, sendMessage }) {
       {showOrganiserEditProfile && (
         <Suspense fallback={null}>
           <OrganiserEditProfileSheet key="organiser-edit-profile" />
-        </Suspense>
-      )}
-      {showOrganiserReview && (
-        <Suspense fallback={null}>
-          <OrganiserReviewSheet key="organiser-review" />
         </Suspense>
       )}
     </AnimatePresence>
