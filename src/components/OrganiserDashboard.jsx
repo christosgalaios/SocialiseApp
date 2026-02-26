@@ -721,7 +721,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
 
         <button
           onClick={() => { playTap(); onSwitchToAttendee(); }}
-          className="text-[10px] font-black text-secondary/40 uppercase tracking-widest hover:text-secondary/60 transition-colors"
+          className="text-[10px] font-black text-secondary/40 uppercase tracking-widest hover:text-secondary/60 hover:underline underline-offset-2 transition-colors"
         >
           Switch to attendee view
         </button>
