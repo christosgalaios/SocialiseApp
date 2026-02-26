@@ -161,15 +161,18 @@ export default function OrganiserEditProfileSheet() {
                 )}
               </div>
               <div className="flex items-center gap-2">
-                <button
+                <motion.button
                   onClick={() => { playTap(); setShowPreview(!showPreview); }}
+                  whileTap={{ scale: 0.9 }}
                   className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
                     showPreview ? 'bg-primary/10 text-primary' : 'bg-secondary/10 text-secondary/60'
                   }`}
                   aria-label={showPreview ? 'Hide preview' : 'Show preview'}
                 >
-                  <Eye size={18} />
-                </button>
+                  <motion.div animate={{ rotate: showPreview ? 8 : 0 }} transition={{ duration: 0.2 }}>
+                    <Eye size={18} />
+                  </motion.div>
+                </motion.button>
                 <button
                   onPointerDown={() => { playTap(); close(); }}
                   className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center"
@@ -337,6 +340,7 @@ export default function OrganiserEditProfileSheet() {
                         key={cat.id}
                         onClick={() => { toggleCategory(cat.id); playTap(); }}
                         whileTap={{ scale: 0.92 }}
+                        whileHover={!isSelected ? { scale: 1.03, transition: { duration: 0.12 } } : {}}
                         animate={isSelected ? { scale: [1, 1.05, 1] } : {}}
                         transition={{ duration: 0.2 }}
                         className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border-2 text-sm font-bold transition-colors ${
@@ -393,11 +397,15 @@ export default function OrganiserEditProfileSheet() {
                           const hasValue = socialLinks[platform.key]?.trim();
                           return (
                             <div key={platform.key} className="flex items-center gap-3">
-                              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border transition-colors ${
-                                hasValue ? 'bg-green-500/5 border-green-500/20' : 'bg-secondary/5 border-secondary/10'
-                              }`}>
+                              <motion.div
+                                animate={hasValue ? { scale: [1, 1.1, 1] } : { scale: 1 }}
+                                transition={{ duration: 0.25 }}
+                                className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border transition-colors ${
+                                  hasValue ? 'bg-green-500/5 border-green-500/20' : 'bg-secondary/5 border-secondary/10'
+                                }`}
+                              >
                                 <Link2 size={16} className={hasValue ? 'text-green-600' : 'text-secondary/50'} />
-                              </div>
+                              </motion.div>
                               <div className="flex-1">
                                 <span className="text-[10px] font-bold text-secondary/40 uppercase tracking-wider">{platform.label}</span>
                                 <input
