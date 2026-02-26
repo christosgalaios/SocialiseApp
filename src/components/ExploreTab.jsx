@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, Calendar, Users, ChevronLeft, ChevronRight } from 'lucide-react';
 import { playTap, hapticTap } from '../utils/feedback';
+import useAuthStore from '../stores/authStore';
 import useEventStore from '../stores/eventStore';
 import useUIStore from '../stores/uiStore';
 import EventCard from './EventCard';
@@ -105,6 +106,7 @@ const InlineReelCard = ({ event, onClick }) => {
 };
 
 export default function ExploreTab({ filteredEvents }) {
+  const user = useAuthStore((s) => s.user);
   const joinedEvents = useEventStore((s) => s.joinedEvents);
   const setSelectedEvent = useEventStore((s) => s.setSelectedEvent);
   const searchQuery = useUIStore((s) => s.searchQuery);
@@ -214,7 +216,7 @@ export default function ExploreTab({ filteredEvents }) {
       {/* Events Grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {filteredEvents.slice(0, exploreLimit).map(event => (
-          <EventCard key={event.id} event={event} isJoined={joinedEvents.includes(event.id)} onClick={setSelectedEvent} />
+          <EventCard key={event.id} event={event} isJoined={joinedEvents.includes(event.id)} isHosting={event.host_id === user?.id} onClick={setSelectedEvent} />
         ))}
       </div>
       {exploreLimit < filteredEvents.length && (

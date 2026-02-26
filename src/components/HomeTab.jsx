@@ -1,8 +1,8 @@
-import { useCallback, useState } from 'react';
-import { Heart, Zap, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
+import { useCallback, useState, useEffect, useMemo } from 'react';
+import { Heart, Zap, ChevronLeft, ChevronRight, RefreshCw, Megaphone, Calendar, Users, Plus } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { formatError } from '../errorUtils';
-import { playTap, hapticTap } from '../utils/feedback';
+import { playTap, playClick, hapticTap } from '../utils/feedback';
 import useAuthStore from '../stores/authStore';
 import useEventStore from '../stores/eventStore';
 import useUIStore from '../stores/uiStore';
@@ -10,6 +10,7 @@ import { DEFAULT_AVATAR } from '../data/constants';
 import VideoWall from './VideoWall';
 import MicroMeetCard from './MicroMeetCard';
 import EventCard from './EventCard';
+import api from '../api';
 
 const getGreeting = () => {
   const hour = new Date().getHours();
@@ -36,7 +37,7 @@ const itemVariants = {
   show: { opacity: 1, y: 0, transition: { type: 'spring', damping: 25, stiffness: 400 } },
 };
 
-export default function HomeTab({ onProfileClick, fetchAllData }) {
+export default function HomeTab({ onProfileClick, onCreateEvent, fetchAllData }) {
   const user = useAuthStore((s) => s.user);
   const events = useEventStore((s) => s.events);
   const joinedEvents = useEventStore((s) => s.joinedEvents);
@@ -48,6 +49,27 @@ export default function HomeTab({ onProfileClick, fetchAllData }) {
   const userPreferences = useUIStore((s) => s.userPreferences);
   const showToast = useUIStore((s) => s.showToast);
   const [isRefreshingRecs, setIsRefreshingRecs] = useState(false);
+
+  const isOrganiser = user?.role === 'organiser' && user?.organiserSetupComplete;
+  const [organiserStats, setOrganiserStats] = useState(null);
+
+  useEffect(() => {
+    if (!isOrganiser) return;
+    let cancelled = false;
+    api.getOrganiserStats()
+      .then(data => { if (!cancelled) setOrganiserStats(data); })
+      .catch(() => { /* silent — home tab stats are optional */ });
+    return () => { cancelled = true; };
+  }, [isOrganiser]);
+
+  const todayEvents = useMemo(() => {
+    if (!organiserStats?.events) return [];
+    const today = new Date().toDateString();
+    return organiserStats.events.filter(e => {
+      const d = new Date(e.date);
+      return d.toDateString() === today;
+    });
+  }, [organiserStats]);
 
   const refreshRecommendations = useCallback(() => {
     if (isRefreshingRecs) return;
@@ -87,10 +109,18 @@ export default function HomeTab({ onProfileClick, fetchAllData }) {
     >
       <motion.header variants={itemVariants} className="flex justify-between items-center mb-8">
         <div>
-          <p className="text-[10px] font-black text-secondary/60 uppercase tracking-widest mb-1">{getFormattedDate()}</p>
+          <div className="flex items-center gap-2 mb-1">
+            <p className="text-[10px] font-black text-secondary/60 uppercase tracking-widest">{getFormattedDate()}</p>
+            {isOrganiser && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-accent/10 rounded-full border border-accent/20">
+                <Megaphone size={8} className="text-accent" />
+                <span className="text-[8px] font-black text-accent uppercase tracking-widest">Organiser</span>
+              </span>
+            )}
+          </div>
           <h1 className="text-3xl md:text-5xl font-black tracking-tighter leading-tight text-primary">
             {getGreeting()}<span className="text-accent">,</span><br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary drop-shadow-sm filter animate-text-gradient">{user?.name?.split(' ')[0]}</span><span className="text-accent">.</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary drop-shadow-sm filter animate-text-gradient">{isOrganiser ? (user?.organiserDisplayName?.split(' ')[0] || user?.name?.split(' ')[0]) : user?.name?.split(' ')[0]}</span><span className="text-accent">.</span>
           </h1>
         </div>
         <motion.button
@@ -103,6 +133,60 @@ export default function HomeTab({ onProfileClick, fetchAllData }) {
           {experimentalFeatures && proEnabled && <div className="absolute -bottom-1 -right-1 z-20 bg-amber-500 text-[8px] font-black px-1.5 py-0.5 rounded-md text-white shadow-lg border border-white/20">PRO</div>}
         </motion.button>
       </motion.header>
+
+      {/* Organiser Quick Stats Banner */}
+      {isOrganiser && organiserStats && (
+        <motion.div variants={itemVariants} className="premium-card p-5 relative overflow-hidden">
+          <div className="absolute -right-8 -top-8 w-32 h-32 bg-accent/5 rounded-full blur-3xl" />
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-9 h-9 rounded-xl bg-accent/10 flex items-center justify-center border border-accent/20">
+              <Megaphone size={18} className="text-accent" />
+            </div>
+            <div>
+              <h3 className="text-sm font-black text-secondary">Organiser Overview</h3>
+              <p className="text-[10px] text-secondary/40 font-medium">Your hosting at a glance</p>
+            </div>
+            <button
+              onClick={() => { playClick(); hapticTap(); onCreateEvent?.(); }}
+              className="ml-auto flex items-center gap-1 px-3 py-1.5 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-[11px] font-bold active:scale-95 transition-transform"
+            >
+              <Plus size={12} />
+              New Event
+            </button>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="p-3 rounded-2xl bg-secondary/5 border border-secondary/10 text-center">
+              <Calendar size={14} className="text-primary mx-auto mb-1" />
+              <span className="text-lg font-black text-secondary block">{organiserStats.stats?.activeEvents ?? 0}</span>
+              <p className="text-[9px] font-bold text-secondary/40 uppercase tracking-widest">Active</p>
+            </div>
+            <div className="p-3 rounded-2xl bg-secondary/5 border border-secondary/10 text-center">
+              <Users size={14} className="text-secondary mx-auto mb-1" />
+              <span className="text-lg font-black text-secondary block">{organiserStats.stats?.totalAttendees ?? 0}</span>
+              <p className="text-[9px] font-bold text-secondary/40 uppercase tracking-widest">Attendees</p>
+            </div>
+            <div className="p-3 rounded-2xl bg-secondary/5 border border-secondary/10 text-center">
+              <Megaphone size={14} className="text-accent mx-auto mb-1" />
+              <span className="text-lg font-black text-secondary block">{organiserStats.stats?.eventsHosted ?? 0}</span>
+              <p className="text-[9px] font-bold text-secondary/40 uppercase tracking-widest">Hosted</p>
+            </div>
+          </div>
+          {todayEvents.length > 0 && (
+            <div className="mt-3 pt-3 border-t border-secondary/10">
+              <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-2">
+                Today&apos;s Events
+              </p>
+              {todayEvents.map(event => (
+                <div key={event.id} className="flex items-center gap-2 py-1.5">
+                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                  <span className="text-sm font-bold text-secondary truncate flex-1">{event.title}</span>
+                  <span className="text-[10px] text-primary font-bold">{event.attendees}/{event.spots}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </motion.div>
+      )}
 
       {/* Video Wall */}
       <VideoWall
@@ -180,7 +264,7 @@ export default function HomeTab({ onProfileClick, fetchAllData }) {
         </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {visible.map(event => (
-            <EventCard key={event.id} event={event} isJoined={joinedEvents.includes(event.id)} onClick={setSelectedEvent} />
+            <EventCard key={event.id} event={event} isJoined={joinedEvents.includes(event.id)} isHosting={event.host_id === user?.id} onClick={setSelectedEvent} />
           ))}
         </div>
         {hasMore && (

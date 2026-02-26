@@ -37,9 +37,29 @@ export default function OrganiserSetupFlow() {
     setSocialLinks(prev => ({ ...prev, [key]: value }));
   };
 
+  const validateSocialLink = (key, value) => {
+    if (!value?.trim()) return null;
+    const v = value.trim();
+    if (key === 'website') {
+      if (!/^https?:\/\/.+\..+/.test(v)) return 'Enter a valid URL (https://...)';
+    } else {
+      if (/\s/.test(v)) return 'Usernames cannot contain spaces';
+    }
+    return null;
+  };
+
+  const socialErrors = ORGANISER_SOCIAL_PLATFORMS.reduce((acc, p) => {
+    const err = validateSocialLink(p.key, socialLinks[p.key]);
+    if (err) acc[p.key] = err;
+    return acc;
+  }, {});
+
+  const hasSocialErrors = Object.keys(socialErrors).length > 0;
+
   const canProceed = () => {
     if (step === 0) return displayName.trim().length >= 2;
     if (step === 1) return selectedCategories.length >= 1;
+    if (step === 2) return !hasSocialErrors;
     return true;
   };
 
@@ -105,15 +125,20 @@ export default function OrganiserSetupFlow() {
       <div className="p-6 pt-12">
         <div className="flex items-center justify-between mb-6">
           <div className="flex gap-2 flex-1">
-            {[0, 1, 2].map(i => (
-              <motion.div key={i} className="h-1 flex-1 rounded-full overflow-hidden bg-secondary/10">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: i <= step ? '100%' : '0%' }}
-                  transition={{ duration: 0.3 }}
-                  className="h-full bg-primary"
-                />
-              </motion.div>
+            {['Identity', 'Categories', 'Details'].map((label, i) => (
+              <div key={i} className="flex-1">
+                <motion.div className="h-1.5 rounded-full overflow-hidden bg-secondary/10">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: i <= step ? '100%' : '0%' }}
+                    transition={{ duration: 0.3 }}
+                    className="h-full bg-primary rounded-full"
+                  />
+                </motion.div>
+                <p className={`text-[8px] font-bold uppercase tracking-widest mt-1 text-center transition-colors ${
+                  i <= step ? 'text-primary' : 'text-secondary/30'
+                }`}>{label}</p>
+              </div>
             ))}
           </div>
           <button
@@ -188,8 +213,22 @@ export default function OrganiserSetupFlow() {
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -50 }}
-              className="grid grid-cols-2 gap-3"
+              className="space-y-4"
             >
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-[10px] font-bold text-secondary/40">Tap to select</p>
+                <motion.span
+                  key={selectedCategories.length}
+                  initial={{ scale: 1.3 }}
+                  animate={{ scale: 1 }}
+                  className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
+                    selectedCategories.length >= 1 ? 'text-green-600 bg-green-500/10' : 'text-secondary/40 bg-secondary/5'
+                  }`}
+                >
+                  {selectedCategories.length} selected
+                </motion.span>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
               {categories.map((cat) => {
                 const isSelected = selectedCategories.includes(cat.id);
                 const Icon = cat.icon;
@@ -218,6 +257,7 @@ export default function OrganiserSetupFlow() {
                   </motion.button>
                 );
               })}
+              </div>
             </motion.div>
           )}
 
@@ -241,7 +281,18 @@ export default function OrganiserSetupFlow() {
                   maxLength={300}
                   style={{ overflowWrap: 'break-word', wordBreak: 'break-words' }}
                 />
-                <p className="text-[10px] text-secondary/40 mt-1 font-medium">{organiserBio.length}/300 characters</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <div className="flex-1 h-0.5 bg-secondary/10 rounded-full overflow-hidden">
+                    <motion.div
+                      className={`h-full rounded-full ${organiserBio.length > 250 ? 'bg-amber-500/60' : 'bg-primary/40'}`}
+                      animate={{ width: `${Math.min((organiserBio.length / 300) * 100, 100)}%` }}
+                      transition={{ duration: 0.2 }}
+                    />
+                  </div>
+                  <span className={`text-[10px] font-bold ${organiserBio.length > 250 ? 'text-amber-500' : 'text-secondary/40'}`}>
+                    {organiserBio.length}/300
+                  </span>
+                </div>
               </div>
 
               <div>
@@ -249,20 +300,28 @@ export default function OrganiserSetupFlow() {
                   Social Links <span className="text-secondary/30">(optional)</span>
                 </label>
                 <div className="space-y-3">
-                  {ORGANISER_SOCIAL_PLATFORMS.map((platform) => (
-                    <div key={platform.key} className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-secondary/5 border border-secondary/10 flex items-center justify-center shrink-0">
-                        <Link2 size={16} className="text-secondary/50" />
+                  {ORGANISER_SOCIAL_PLATFORMS.map((platform) => {
+                    const error = socialErrors[platform.key];
+                    return (
+                      <div key={platform.key}>
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-secondary/5 border border-secondary/10 flex items-center justify-center shrink-0">
+                            <Link2 size={16} className="text-secondary/50" />
+                          </div>
+                          <input
+                            type="text"
+                            placeholder={platform.placeholder}
+                            value={socialLinks[platform.key] || ''}
+                            onChange={(e) => updateSocialLink(platform.key, e.target.value)}
+                            className={`flex-1 bg-secondary/5 border rounded-xl px-3 py-2.5 text-sm font-medium text-[var(--text)] focus:outline-none transition-all placeholder:text-secondary/40 ${
+                              error ? 'border-red-400 focus:border-red-500' : 'border-secondary/20 focus:border-primary'
+                            }`}
+                          />
+                        </div>
+                        {error && <p className="text-[10px] text-red-500/70 mt-0.5 ml-[52px] font-medium">{error}</p>}
                       </div>
-                      <input
-                        type="text"
-                        placeholder={platform.placeholder}
-                        value={socialLinks[platform.key] || ''}
-                        onChange={(e) => updateSocialLink(platform.key, e.target.value)}
-                        className="flex-1 bg-secondary/5 border border-secondary/20 rounded-xl px-3 py-2.5 text-sm font-medium text-[var(--text)] focus:outline-none focus:border-primary transition-all placeholder:text-secondary/40"
-                      />
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </motion.div>

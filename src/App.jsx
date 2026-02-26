@@ -614,6 +614,7 @@ function App() {
                       contentReady ? (
                         <HomeTab
                           onProfileClick={() => setActiveTabWithEffects('profile')}
+                          onCreateEvent={() => useUIStore.getState().showToast('Event creation coming soon!', 'info')}
                           fetchAllData={fetchAllData}
                         />
                       ) : (<HomeSkeleton />)
