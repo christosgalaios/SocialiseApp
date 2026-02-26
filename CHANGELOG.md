@@ -13,8 +13,15 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 ## [Unreleased]
 
 ### Added
+- **Clickable top event on public profile** — the "Top Event" highlight on the public organiser profile is now a button that opens the event detail sheet, with fill rate percentage badge and progress bar
+- **Event category and price on public profile** — event rows on the public organiser profile now show category tags and ticket price
+- **Community descriptions on public profile** — community rows on the public organiser profile now display a one-line description and category tag
+- **Platform-specific social link colors** — social links on the public profile use platform-specific color accents (pink for Instagram, sky for Twitter, etc.) instead of uniform gray
 - **Next event countdown fill bar** — the "Next Event" widget now shows attendee count and an animated fill progress bar with color-coded status
 - **Community description previews** — community rows on the organiser dashboard now show a one-line description snippet and category tag
+
+### Changed
+- **OrganiserProfileSheet lazy-loaded** — the public organiser profile sheet is now code-split into its own 17KB chunk, reducing the main bundle from 500KB to 483KB
 - **Profile header stat badges** — organiser profile header now shows pill-shaped badges for upcoming events, past events, communities, and total attendees with color-coded styling
 - **Validation shake on edit profile** — save button now shakes when tapped with incomplete fields (display name too short or no category selected) instead of silently doing nothing
 - **4-column quick actions grid** — dashboard quick actions expanded from 3 to 4 buttons with a new "Edit Profile" shortcut, hover lift animations, and keyboard shortcut hints on all buttons (N/C/E)

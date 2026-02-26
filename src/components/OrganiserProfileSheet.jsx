@@ -22,6 +22,13 @@ const SOCIAL_URLS = {
   website: (v) => v.startsWith('http') ? v : `https://${v}`,
 };
 
+const SOCIAL_STYLES = {
+  instagram: { color: 'text-pink-600', bg: 'bg-pink-500/5', border: 'border-pink-500/10', hoverBg: 'hover:bg-pink-500/10' },
+  tiktok: { color: 'text-secondary', bg: 'bg-secondary/5', border: 'border-secondary/10', hoverBg: 'hover:bg-secondary/10' },
+  twitter: { color: 'text-sky-500', bg: 'bg-sky-500/5', border: 'border-sky-500/10', hoverBg: 'hover:bg-sky-500/10' },
+  website: { color: 'text-primary', bg: 'bg-primary/5', border: 'border-primary/10', hoverBg: 'hover:bg-primary/10' },
+};
+
 export default function OrganiserProfileSheet() {
   const userId = useUIStore((s) => s.showOrganiserProfile);
   const setShowOrganiserProfile = useUIStore((s) => s.setShowOrganiserProfile);
@@ -276,12 +283,23 @@ export default function OrganiserProfileSheet() {
                     )}
 
                     {/* Highlight Event */}
-                    {highlightEvent && (
-                      <div className="premium-card p-4 rounded-[20px] relative overflow-hidden">
+                    {highlightEvent && (() => {
+                      const hlFill = highlightEvent.spots > 0 ? Math.round((highlightEvent.attendees / highlightEvent.spots) * 100) : 0;
+                      return (
+                      <button
+                        onClick={() => {
+                          const fullEvent = allEvents.find(e => e.id === highlightEvent.id) || highlightEvent;
+                          playTap(); hapticTap(); setSelectedEvent(fullEvent);
+                        }}
+                        className="w-full premium-card p-4 rounded-[20px] relative overflow-hidden text-left hover:bg-secondary/5 transition-colors"
+                      >
                         <div className="absolute -right-4 -top-4 w-16 h-16 bg-accent/5 rounded-full blur-2xl" />
-                        <div className="flex items-center gap-1.5 mb-2">
-                          <Star size={12} className="text-accent" />
-                          <span className="text-[9px] font-black text-accent uppercase tracking-widest">Top Event</span>
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-1.5">
+                            <Star size={12} className="text-accent" />
+                            <span className="text-[9px] font-black text-accent uppercase tracking-widest">Top Event</span>
+                          </div>
+                          <span className={`text-[10px] font-black ${hlFill >= 80 ? 'text-accent' : 'text-primary'}`}>{hlFill}%</span>
                         </div>
                         <div className="flex items-center gap-3">
                           <div className="w-12 h-12 rounded-xl overflow-hidden bg-secondary/10 shrink-0">
@@ -289,13 +307,26 @@ export default function OrganiserProfileSheet() {
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-bold text-secondary truncate">{highlightEvent.title}</p>
-                            <p className="text-[10px] text-secondary/40">
-                              {highlightEvent.attendees}/{highlightEvent.spots} spots filled
-                            </p>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <span className="text-[10px] text-secondary/40">
+                                {highlightEvent.attendees}/{highlightEvent.spots} spots
+                              </span>
+                              {highlightEvent.category && (
+                                <span className="text-[9px] font-bold text-primary/50 bg-primary/5 px-1.5 py-0.5 rounded-full">{highlightEvent.category}</span>
+                              )}
+                            </div>
+                            <div className="w-full h-1 bg-secondary/10 rounded-full mt-1.5 overflow-hidden">
+                              <div
+                                className={`h-full rounded-full transition-all ${hlFill >= 100 ? 'bg-red-500' : hlFill >= 80 ? 'bg-accent' : 'bg-primary/50'}`}
+                                style={{ width: `${Math.min(hlFill, 100)}%` }}
+                              />
+                            </div>
                           </div>
+                          <ChevronRight size={14} className="text-secondary/30 shrink-0" />
                         </div>
-                      </div>
-                    )}
+                      </button>
+                      );
+                    })()}
 
                     {/* Social links — clickable */}
                     {activeSocials.length > 0 && (
@@ -306,15 +337,17 @@ export default function OrganiserProfileSheet() {
                         <div className="flex flex-wrap gap-2">
                           {activeSocials.map(p => {
                             const url = SOCIAL_URLS[p.key]?.(socialLinks[p.key]);
+                            const style = SOCIAL_STYLES[p.key] || SOCIAL_STYLES.website;
                             return (
                               <a
                                 key={p.key}
                                 href={url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-secondary/5 rounded-full border border-secondary/10 text-[11px] font-bold text-secondary/60 hover:bg-primary/5 hover:border-primary/20 hover:text-primary transition-all group"
+                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[11px] font-bold transition-all group ${style.bg} ${style.border} ${style.color} ${style.hoverBg}`}
                               >
                                 <Globe size={10} />
+                                <span className="capitalize text-[9px] font-black opacity-50 mr-0.5">{p.key}</span>
                                 {socialLinks[p.key]}
                                 <ExternalLink size={8} className="opacity-0 group-hover:opacity-100 transition-opacity" />
                               </a>
@@ -397,11 +430,17 @@ export default function OrganiserProfileSheet() {
                                   </div>
                                   <div className="flex-1 min-w-0">
                                     <p className="text-sm font-bold text-secondary truncate">{event.title}</p>
-                                    <div className="flex items-center gap-2 mt-0.5">
+                                    <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                                       <span className="text-[10px] text-secondary/40 font-medium">{event.date}</span>
                                       <span className={`text-[10px] font-bold ${fillPct >= 80 ? 'text-accent' : 'text-primary'}`}>
                                         {event.attendees}/{event.spots} spots
                                       </span>
+                                      {event.category && (
+                                        <span className="text-[9px] font-bold text-primary/50 bg-primary/5 px-1.5 py-0.5 rounded-full">{event.category}</span>
+                                      )}
+                                      {parseFloat(event.price) > 0 && (
+                                        <span className="text-[9px] font-bold text-green-600">${event.price}</span>
+                                      )}
                                     </div>
                                     <div className="w-full h-1 bg-secondary/10 rounded-full mt-1.5 overflow-hidden">
                                       <div
@@ -443,7 +482,15 @@ export default function OrganiserProfileSheet() {
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <p className="text-sm font-bold text-secondary truncate">{c.name}</p>
-                                  <span className="text-[10px] text-secondary/40">{c.members ?? 0} members</span>
+                                  {c.description && (
+                                    <p className="text-[10px] text-secondary/40 truncate">{c.description}</p>
+                                  )}
+                                  <div className="flex items-center gap-1.5 mt-0.5">
+                                    <span className="text-[10px] text-secondary/40">{c.members ?? 0} members</span>
+                                    {c.category && (
+                                      <span className="text-[9px] font-bold text-primary/50 bg-primary/5 px-1.5 py-0.5 rounded-full">{c.category}</span>
+                                    )}
+                                  </div>
                                 </div>
                                 <ChevronRight size={14} className="text-secondary/30 shrink-0" />
                               </button>

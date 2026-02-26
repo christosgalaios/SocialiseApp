@@ -30,7 +30,7 @@ import AvatarCropModal from './AvatarCropModal';
 import BugReportModal from './BugReportModal';
 import FeatureRequestModal from './FeatureRequestModal';
 import ChangelogSheet from './ChangelogSheet';
-import OrganiserProfileSheet from './OrganiserProfileSheet';
+const OrganiserProfileSheet = React.lazy(() => import('./OrganiserProfileSheet'));
 const OrganiserEditProfileSheet = React.lazy(() => import('./OrganiserEditProfileSheet'));
 const OrganiserSetupFlow = React.lazy(() => import('./OrganiserSetupFlow'));
 
@@ -116,6 +116,7 @@ export default function AppModals({ handleJoin, sendMessage }) {
   const showChangelog = useUIStore((s) => s.showChangelog);
   const setShowChangelog = useUIStore((s) => s.setShowChangelog);
   const showOrganiserSetup = useUIStore((s) => s.showOrganiserSetup);
+  const showOrganiserProfile = useUIStore((s) => s.showOrganiserProfile);
   const showOrganiserEditProfile = useUIStore((s) => s.showOrganiserEditProfile);
   const savedEventsData = useEventStore((s) => s.savedEvents);
 
@@ -466,7 +467,11 @@ export default function AppModals({ handleJoin, sendMessage }) {
           <OrganiserSetupFlow key="organiser-setup" />
         </Suspense>
       )}
-      <OrganiserProfileSheet key="organiser-profile" />
+      {showOrganiserProfile && (
+        <Suspense fallback={null}>
+          <OrganiserProfileSheet key="organiser-profile" />
+        </Suspense>
+      )}
       {showOrganiserEditProfile && (
         <Suspense fallback={null}>
           <OrganiserEditProfileSheet key="organiser-edit-profile" />
