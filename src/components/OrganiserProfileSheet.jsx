@@ -230,7 +230,7 @@ export default function OrganiserProfileSheet() {
                       <motion.button
                         whileTap={{ scale: 0.92 }}
                         onClick={handleShareProfile}
-                        className="w-12 py-3 rounded-2xl bg-secondary/5 border-2 border-secondary/20 flex items-center justify-center hover:bg-secondary/10 transition-colors"
+                        className="w-12 py-3 rounded-2xl bg-secondary/5 border-2 border-secondary/20 flex items-center justify-center hover:bg-secondary/10 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                         aria-label="Share profile"
                       >
                         <Share2 size={18} className="text-secondary/60" />
@@ -534,6 +534,71 @@ export default function OrganiserProfileSheet() {
                             );
                           })}
                         </div>
+                      </motion.div>
+                    )}
+
+                    {/* Reviews / Vibe Tags */}
+                    {reviewData && reviewData.topTags?.length > 0 && (
+                      <motion.div {...sectionAnim(7)}>
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="text-xs font-black text-primary uppercase tracking-widest">
+                            Vibes<span className="text-accent">.</span>
+                          </h4>
+                          <button
+                            onClick={() => {
+                              playTap(); hapticTap();
+                              setShowOrganiserReview({
+                                organiserId: userId,
+                                organiserName: profile?.organiserDisplayName || profile?.name,
+                              });
+                            }}
+                            className="text-[10px] font-bold text-primary hover:text-accent transition-colors flex items-center gap-1"
+                          >
+                            <Sparkles size={10} />
+                            Leave a review
+                          </button>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {reviewData.topTags.map(({ tag, count }) => {
+                            const tagDef = ORGANISER_VIBE_TAGS.find(t => t.id === tag);
+                            if (!tagDef) return null;
+                            return (
+                              <span
+                                key={tag}
+                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold border transition-transform hover:scale-105 ${tagDef.color}`}
+                              >
+                                <span>{tagDef.emoji}</span>
+                                {tagDef.label}
+                                {count > 1 && (
+                                  <span className="ml-0.5 text-[9px] font-black opacity-60">{count}</span>
+                                )}
+                              </span>
+                            );
+                          })}
+                        </div>
+                        <p className="text-[10px] text-secondary/30 font-medium mt-2">
+                          {reviewData.totalReviews} {reviewData.totalReviews === 1 ? 'review' : 'reviews'}
+                        </p>
+                      </motion.div>
+                    )}
+
+                    {/* Leave review CTA — show even when no reviews exist yet */}
+                    {reviewData && reviewData.topTags?.length === 0 && (
+                      <motion.div {...sectionAnim(7)}>
+                        <button
+                          onClick={() => {
+                            playTap(); hapticTap();
+                            setShowOrganiserReview({
+                              organiserId: userId,
+                              organiserName: profile?.organiserDisplayName || profile?.name,
+                            });
+                          }}
+                          className="w-full p-4 rounded-2xl bg-primary/5 border border-primary/10 hover:bg-primary/10 transition-colors text-center focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+                        >
+                          <Sparkles size={20} className="text-primary mx-auto mb-1.5" />
+                          <p className="text-sm font-bold text-secondary">Leave a vibe review</p>
+                          <p className="text-[10px] text-secondary/40 font-medium mt-0.5">Share your experience with this organiser</p>
+                        </button>
                       </motion.div>
                     )}
 
