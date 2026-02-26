@@ -204,6 +204,7 @@ export default function OrganiserProfileSheet() {
                     {/* Follow + Share buttons */}
                     <div className="flex gap-2">
                       <motion.button
+                        whileHover={{ scale: 1.02, transition: { duration: 0.12 } }}
                         whileTap={{ scale: 0.96 }}
                         onClick={() => {
                           playClick(); hapticTap();
@@ -302,7 +303,9 @@ export default function OrganiserProfileSheet() {
                     {highlightEvent && (() => {
                       const hlFill = highlightEvent.spots > 0 ? Math.round((highlightEvent.attendees / highlightEvent.spots) * 100) : 0;
                       return (
-                      <button
+                      <motion.button
+                        whileHover={{ y: -2, transition: { duration: 0.15 } }}
+                        whileTap={{ scale: 0.98 }}
                         onClick={() => {
                           const fullEvent = allEvents.find(e => e.id === highlightEvent.id) || highlightEvent;
                           playTap(); hapticTap(); setSelectedEvent(fullEvent);
@@ -340,7 +343,7 @@ export default function OrganiserProfileSheet() {
                           </div>
                           <ChevronRight size={14} className="text-secondary/30 shrink-0" />
                         </div>
-                      </button>
+                      </motion.button>
                       );
                     })()}
 
@@ -360,7 +363,7 @@ export default function OrganiserProfileSheet() {
                                 href={url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[11px] font-bold transition-all group ${style.bg} ${style.border} ${style.color} ${style.hoverBg}`}
+                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[11px] font-bold transition-all group hover:scale-105 active:scale-95 ${style.bg} ${style.border} ${style.color} ${style.hoverBg}`}
                               >
                                 <Globe size={10} />
                                 <span className="capitalize text-[9px] font-black opacity-50 mr-0.5">{p.key}</span>
