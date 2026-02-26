@@ -19,6 +19,8 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Text overflow in bug/feature modals** — both BugReportModal and FeatureRequestModal now consistently handle long text with word-break, overflow-wrap, and overscroll containment (BUG-1772022766344)
 
 ### Added
+- **Public profile event card hover** — event cards on the public organiser profile nudge right on hover and scale on tap for tactile feedback
+- **Public profile community card hover** — community cards on the public profile gain matching hover nudge and tap scale
 - **Profile completeness chip stagger** — completeness check chips now stagger in with scale animation, incomplete items have hover background and tap scale for better affordance
 - **View all events button animation** — the expand/collapse button now has hover scale, tap feedback, and smooth text transition between "View all" and "Show less"
 - **Revenue active income indicator** — a pulsing green dot appears next to the "% paid" label in Revenue Insights, indicating active income

@@ -456,8 +456,12 @@ export default function OrganiserProfileSheet() {
                             {displayedEvents.length > 0 ? displayedEvents.map(event => {
                               const fillPct = event.spots > 0 ? Math.round((event.attendees / event.spots) * 100) : 0;
                               return (
-                                <button
+                                <motion.button
                                   key={event.id}
+                                  initial={{ opacity: 0, x: -4 }}
+                                  animate={{ opacity: 1, x: 0 }}
+                                  whileHover={{ x: 2, transition: { duration: 0.12 } }}
+                                  whileTap={{ scale: 0.98 }}
                                   onClick={() => {
                                     const fullEvent = allEvents.find(e => e.id === event.id) || event;
                                     playTap(); hapticTap(); setSelectedEvent(fullEvent);
@@ -489,7 +493,7 @@ export default function OrganiserProfileSheet() {
                                     </div>
                                   </div>
                                   <ChevronRight size={14} className="text-secondary/30 shrink-0" />
-                                </button>
+                                </motion.button>
                               );
                             }) : (
                               <p className="text-center py-4 text-[11px] text-secondary/40 font-medium">
@@ -511,8 +515,10 @@ export default function OrganiserProfileSheet() {
                           {profile.communities.map(c => {
                             const fullCommunity = allCommunities.find(ac => ac.id === c.id) || c;
                             return (
-                              <button
+                              <motion.button
                                 key={c.id}
+                                whileHover={{ x: 2, transition: { duration: 0.12 } }}
+                                whileTap={{ scale: 0.98 }}
                                 onClick={() => { playTap(); hapticTap(); setSelectedTribe(fullCommunity); }}
                                 className="w-full flex items-center gap-3 p-3 rounded-2xl bg-secondary/5 border border-secondary/10 hover:bg-secondary/10 transition-colors text-left"
                               >
@@ -532,7 +538,7 @@ export default function OrganiserProfileSheet() {
                                   </div>
                                 </div>
                                 <ChevronRight size={14} className="text-secondary/30 shrink-0" />
-                              </button>
+                              </motion.button>
                             );
                           })}
                         </div>
