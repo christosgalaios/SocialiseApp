@@ -164,7 +164,7 @@ export default function OrganiserEditProfileSheet() {
                 <motion.button
                   onClick={() => { playTap(); setShowPreview(!showPreview); }}
                   whileTap={{ scale: 0.9 }}
-                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
+                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${
                     showPreview ? 'bg-primary/10 text-primary' : 'bg-secondary/10 text-secondary/60'
                   }`}
                   aria-label={showPreview ? 'Hide preview' : 'Show preview'}
@@ -175,7 +175,7 @@ export default function OrganiserEditProfileSheet() {
                 </motion.button>
                 <button
                   onPointerDown={() => { playTap(); close(); }}
-                  className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
+                  className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                   aria-label="Close"
                 >
                   <X size={20} className="text-secondary/60" />
@@ -240,7 +240,7 @@ export default function OrganiserEditProfileSheet() {
                       <img src={coverPhotoPreview} className="w-full h-full object-cover" alt="Cover" />
                       <button
                         onClick={() => setCoverPhotoPreview('')}
-                        className="absolute top-2 right-2 w-7 h-7 rounded-full bg-secondary/80 flex items-center justify-center hover:bg-secondary transition-colors"
+                        className="absolute top-2 right-2 w-7 h-7 rounded-full bg-secondary/80 flex items-center justify-center hover:bg-secondary transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
                         aria-label="Remove cover photo"
                       >
                         <X size={14} className="text-white" />
@@ -343,7 +343,7 @@ export default function OrganiserEditProfileSheet() {
                         whileHover={!isSelected ? { scale: 1.03, transition: { duration: 0.12 } } : {}}
                         animate={isSelected ? { scale: [1, 1.05, 1] } : {}}
                         transition={{ duration: 0.2 }}
-                        className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border-2 text-sm font-bold transition-colors ${
+                        className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border-2 text-sm font-bold transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${
                           isSelected
                             ? 'bg-primary/10 border-primary text-primary'
                             : 'bg-secondary/5 border-secondary/20 text-secondary/70 hover:border-secondary/40'
@@ -483,7 +483,7 @@ export default function OrganiserEditProfileSheet() {
                 whileTap={canSave ? { scale: 0.98 } : {}}
                 animate={!canSave && shakeKey > 0 ? { x: [0, -6, 6, -4, 4, 0] } : {}}
                 transition={{ duration: 0.3 }}
-                className={`w-full h-14 rounded-2xl font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all relative overflow-hidden ${
+                className={`w-full h-14 rounded-2xl font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all relative overflow-hidden focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${
                   canSave
                     ? 'bg-gradient-to-r from-primary to-accent text-white'
                     : 'bg-secondary/20 text-secondary/40 cursor-not-allowed'

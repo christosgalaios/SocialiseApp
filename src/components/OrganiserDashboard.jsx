@@ -760,7 +760,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.15, delay: idx * 0.04 }}
                   onClick={() => toggleWidget(widget.id)}
-                  className="w-full flex items-center gap-2 p-2 rounded-xl hover:bg-secondary/5 transition-colors text-left"
+                  className="w-full flex items-center gap-2 p-2 rounded-xl hover:bg-secondary/5 transition-colors text-left focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                 >
                   <motion.div
                     animate={{ scale: isWidgetVisible(widget.id) ? [1, 1.15, 1] : 1 }}
@@ -837,7 +837,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           whileHover={{ y: -2 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => { playClick(); hapticTap(); onCreateEvent?.(); }}
-          className="p-3 rounded-2xl bg-gradient-to-br from-primary to-accent text-white font-black text-sm flex flex-col items-center justify-center gap-1.5 shadow-lg relative overflow-hidden group"
+          className="p-3 rounded-2xl bg-gradient-to-br from-primary to-accent text-white font-black text-sm flex flex-col items-center justify-center gap-1.5 shadow-lg relative overflow-hidden group focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
         >
           <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors" />
           <Plus size={20} />
