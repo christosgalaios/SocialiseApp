@@ -45,6 +45,9 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Cover photo editing** — edit profile sheet now lets organisers set or remove a cover photo via URL
 - **Verification request** — edit profile sheet shows a "Get Verified" section that submits a verification request; verified organisers see a green badge instead
 - **Trend arrows on stat cards** — OrganiserStatsCard now shows TrendingUp/TrendingDown/Minus icons alongside percentage trends for clearer visual feedback
+- **Follow button on public organiser profiles** — visitors can follow/unfollow organisers from the profile sheet with a gradient CTA button and visual state toggle
+- **Public profile event tabs** — events on the public organiser profile are now split into "Upcoming" and "Past" tabs with counts and animated transitions
+- **Animated stats on public profiles** — quick stats (events, communities, members) now animate with a spring pop-in effect when the profile loads
 
 ### Changed
 - **Public organiser profile redesign** — richer layout with cover photo, quick stats grid, "Connect" section for social links, "Hosts" section for categories, and improved loading skeleton
