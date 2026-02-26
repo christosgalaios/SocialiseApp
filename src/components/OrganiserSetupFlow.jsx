@@ -143,7 +143,7 @@ export default function OrganiserSetupFlow() {
           </div>
           <button
             onPointerDown={close}
-            className="ml-4 w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
+            className="ml-4 w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
             aria-label="Close"
           >
             <X size={20} className="text-secondary/60" />
@@ -197,7 +197,7 @@ export default function OrganiserSetupFlow() {
                   placeholder="How attendees will see you"
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  className="w-full bg-secondary/5 border-2 border-secondary/20 rounded-2xl px-4 py-4 text-lg font-medium text-[var(--text)] focus:outline-none focus:border-primary transition-all placeholder:text-secondary/40"
+                  className="w-full bg-secondary/5 border-2 border-secondary/20 rounded-2xl px-4 py-4 text-lg font-medium text-[var(--text)] focus:outline-none focus:border-primary hover:border-secondary/30 transition-all placeholder:text-secondary/40"
                   maxLength={50}
                   autoFocus
                 />
@@ -359,7 +359,7 @@ export default function OrganiserSetupFlow() {
             onClick={() => { playTap(); setStep(step - 1); }}
             whileHover={{ scale: 1.05, transition: { duration: 0.12 } }}
             whileTap={{ scale: 0.93 }}
-            className="w-14 h-14 rounded-2xl bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
+            className="w-14 h-14 rounded-2xl bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
             aria-label="Go back"
           >
             <ChevronLeft size={24} className="text-secondary" />
@@ -369,7 +369,7 @@ export default function OrganiserSetupFlow() {
           onClick={() => { playTap(); step < 2 ? setStep(step + 1) : handleComplete(); }}
           disabled={!canProceed() || isSubmitting}
           whileTap={canProceed() && !isSubmitting ? { scale: 0.97 } : {}}
-          className="flex-1 h-14 rounded-2xl bg-gradient-to-r from-primary to-accent text-white font-black uppercase tracking-widest flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-transform relative overflow-hidden"
+          className="flex-1 h-14 rounded-2xl bg-gradient-to-r from-primary to-accent text-white font-black uppercase tracking-widest flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-transform relative overflow-hidden focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
         >
           {step === 2 && canProceed() && !isSubmitting && (
             <motion.div
