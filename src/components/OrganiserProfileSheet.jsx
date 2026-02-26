@@ -563,7 +563,7 @@ export default function OrganiserProfileSheet() {
                                 organiserName: profile?.organiserDisplayName || profile?.name,
                               });
                             }}
-                            className="text-[10px] font-bold text-primary hover:text-accent transition-colors flex items-center gap-1"
+                            className="text-[10px] font-bold text-primary hover:text-accent transition-colors flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none rounded"
                           >
                             <Sparkles size={10} />
                             Leave a review
