@@ -567,7 +567,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                   const fullEvent = allEvents.find(e => e.id === alert.event.id) || alert.event;
                   playTap(); hapticTap(); setSelectedEvent(fullEvent);
                 }}
-                className="text-[10px] font-bold text-primary hover:underline shrink-0 rounded focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+                className="text-[10px] font-bold text-primary hover:underline shrink-0 rounded transition-all focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
               >
                 View
               </button>
