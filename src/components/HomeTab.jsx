@@ -174,34 +174,54 @@ export default function HomeTab({ onProfileClick, onCreateEvent, fetchAllData })
             </button>
           </div>
           <div className="grid grid-cols-3 gap-3">
-            <div className="p-3 rounded-2xl bg-secondary/5 border border-secondary/10 text-center">
-              <Calendar size={14} className="text-primary mx-auto mb-1" />
-              <span className="text-lg font-black text-secondary block">{organiserStats.stats?.activeEvents ?? 0}</span>
-              <p className="text-[9px] font-bold text-secondary/40 uppercase tracking-widest">Active</p>
-            </div>
-            <div className="p-3 rounded-2xl bg-secondary/5 border border-secondary/10 text-center">
-              <Users size={14} className="text-secondary mx-auto mb-1" />
-              <span className="text-lg font-black text-secondary block">{organiserStats.stats?.totalAttendees ?? 0}</span>
-              <p className="text-[9px] font-bold text-secondary/40 uppercase tracking-widest">Attendees</p>
-            </div>
-            <div className="p-3 rounded-2xl bg-secondary/5 border border-secondary/10 text-center">
-              <Megaphone size={14} className="text-accent mx-auto mb-1" />
-              <span className="text-lg font-black text-secondary block">{organiserStats.stats?.eventsHosted ?? 0}</span>
-              <p className="text-[9px] font-bold text-secondary/40 uppercase tracking-widest">Hosted</p>
-            </div>
+            {[
+              { icon: Calendar, value: organiserStats.stats?.activeEvents ?? 0, label: 'Active', color: 'text-primary' },
+              { icon: Users, value: organiserStats.stats?.totalAttendees ?? 0, label: 'Attendees', color: 'text-secondary' },
+              { icon: Megaphone, value: organiserStats.stats?.eventsHosted ?? 0, label: 'Hosted', color: 'text-accent' },
+            ].map((stat, i) => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ type: 'spring', damping: 20, stiffness: 300, delay: 0.1 + i * 0.06 }}
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.96 }}
+                className="p-3 rounded-2xl bg-secondary/5 border border-secondary/10 text-center"
+              >
+                <stat.icon size={14} className={`${stat.color} mx-auto mb-1`} />
+                <span className="text-lg font-black text-secondary block">{stat.value}</span>
+                <p className="text-[9px] font-bold text-secondary/40 uppercase tracking-widest">{stat.label}</p>
+              </motion.div>
+            ))}
           </div>
           {todayEvents.length > 0 && (
             <div className="mt-3 pt-3 border-t border-secondary/10">
               <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-2">
                 Today&apos;s Events
               </p>
-              {todayEvents.map(event => (
-                <div key={event.id} className="flex items-center gap-2 py-1.5">
-                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-sm font-bold text-secondary truncate flex-1">{event.title}</span>
-                  <span className="text-[10px] text-primary font-bold">{event.attendees}/{event.spots}</span>
+              {todayEvents.map(event => {
+                const fillPct = event.spots > 0 ? Math.round((event.attendees / event.spots) * 100) : 0;
+                const isSoldOut = fillPct >= 100;
+                return (
+                <div key={event.id} className="py-1.5">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse shrink-0" />
+                    <span className="text-sm font-bold text-secondary truncate flex-1">{event.title}</span>
+                    {isSoldOut ? (
+                      <span className="text-[8px] font-black text-red-600 bg-red-500/10 px-1.5 py-0.5 rounded-full border border-red-500/20 uppercase shrink-0">Full</span>
+                    ) : (
+                      <span className={`text-[10px] font-bold shrink-0 ${fillPct >= 80 ? 'text-accent' : 'text-primary'}`}>{event.attendees}/{event.spots}</span>
+                    )}
+                  </div>
+                  <div className="ml-4 mt-1 w-full h-1 bg-secondary/10 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all ${isSoldOut ? 'bg-red-500' : fillPct >= 80 ? 'bg-accent' : 'bg-green-500/60'}`}
+                      style={{ width: `${Math.min(fillPct, 100)}%` }}
+                    />
+                  </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </motion.div>

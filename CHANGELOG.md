@@ -19,6 +19,8 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Text overflow in bug/feature modals** — both BugReportModal and FeatureRequestModal now consistently handle long text with word-break, overflow-wrap, and overscroll containment (BUG-1772022766344)
 
 ### Added
+- **HomeTab today's events fill bars** — today's events in the organiser overview now show mini progress bars with color-coded status and a "Full" badge when sold out
+- **HomeTab stat cards animation** — the organiser overview stat grid on the Home tab now has staggered spring entry, hover lift, and tap scale animations
 - **Public profile event tab pill** — the Upcoming/Past event tabs on the public organiser profile now use a smooth sliding pill animation, matching the dashboard's tab design
 - **Follow button animation** — the Follow/Unfollow button on public profiles now has a spring tap animation and a smooth icon+text transition when toggling state
 - **Audience insights progress bars** — average per event and overall fill rate metrics now show animated progress bars for quick visual comparison
