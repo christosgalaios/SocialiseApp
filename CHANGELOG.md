@@ -13,6 +13,9 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 ## [Unreleased]
 
 ### Added
+- **Public profile stat cards hover lift** — quick stats grid on the public organiser profile lifts on hover with staggered entrance animation
+- **Public profile category chips stagger** — category chips on the public profile spring in with staggered scale animation
+- **Public profile empty state polish** — the "hasn't hosted anything yet" message now shows a spring-animated icon in a styled container with helper text
 - **Event card hover nudge** — event cards in the dashboard list subtly nudge right on hover for tactile feedback
 - **Empty filter state icon** — the "No upcoming/past events" message now shows a contextual icon (clock or history) with spring entrance and search hint
 - **Create community form header** — the Quick Create form now has a spring-animated Plus icon beside the header for better visual hierarchy
