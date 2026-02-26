@@ -805,18 +805,22 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               />
             </div>
             <div className="flex flex-wrap gap-2">
-              {checks.map((check) => (
-                <span
+              {checks.map((check, idx) => (
+                <motion.span
                   key={check.label}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.3 + idx * 0.05 }}
+                  whileTap={!check.done ? { scale: 0.95 } : {}}
                   className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold border transition-all ${
                     check.done
                       ? 'bg-green-500/10 border-green-500/20 text-green-600 line-through'
-                      : 'bg-secondary/5 border-secondary/10 text-secondary/50 cursor-pointer hover:border-primary/30'
+                      : 'bg-secondary/5 border-secondary/10 text-secondary/50 cursor-pointer hover:border-primary/30 hover:bg-primary/5'
                   }`}
                   onClick={!check.done ? () => { playTap(); setShowOrganiserEditProfile(true); } : undefined}
                 >
                   {check.done ? '✓' : '○'} {check.label}
-                </span>
+                </motion.span>
               ))}
             </div>
           </motion.div>
@@ -1837,12 +1841,21 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                 );
               })}
               {sortedFilteredEvents.length > 5 && (
-                <button
+                <motion.button
                   onClick={() => { playTap(); setShowAllEvents(!showAllEvents); }}
-                  className="w-full py-2 text-[10px] text-center text-primary/70 font-bold hover:text-primary transition-colors"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full py-2.5 text-[10px] text-center text-primary/70 font-bold hover:text-primary hover:bg-primary/5 rounded-xl transition-colors"
                 >
-                  {showAllEvents ? 'Show less' : `View all ${sortedFilteredEvents.length} events`}
-                </button>
+                  <motion.span
+                    key={showAllEvents ? 'less' : 'more'}
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.15 }}
+                  >
+                    {showAllEvents ? 'Show less' : `View all ${sortedFilteredEvents.length} events`}
+                  </motion.span>
+                </motion.button>
               )}
             </motion.div>
           </AnimatePresence>

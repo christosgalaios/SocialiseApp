@@ -13,6 +13,8 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 ## [Unreleased]
 
 ### Added
+- **Profile completeness chip stagger** — completeness check chips now stagger in with scale animation, incomplete items have hover background and tap scale for better affordance
+- **View all events button animation** — the expand/collapse button now has hover scale, tap feedback, and smooth text transition between "View all" and "Show less"
 - **Revenue active income indicator** — a pulsing green dot appears next to the "% paid" label in Revenue Insights, indicating active income
 - **Most Popular Event tappable** — the "Most Popular Event" in Audience Insights is now a button that opens the event detail, with hover highlight and chevron
 - **Edit profile unsaved indicator** — a pulsing amber dot appears next to "Edit Profile" header when there are unsaved changes, and the Save button gains a warm glow shadow
