@@ -81,6 +81,7 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Edit profile remove cover hover** — the "Remove cover photo" X button darkens on hover
 - **Public profile close button hover** — the close button on the public profile sheet darkens on hover
 - **Event action buttons focus rings** — the pin, duplicate, and note buttons on event cards now show focus rings for keyboard accessibility
+- **Event action buttons cursor pointer** — the pin, duplicate, and note div-buttons now show pointer cursor on hover for clear affordance
 - **Community empty state polish** — spring-animated icon with gradient background, staggered "Engage / Grow / Connect" hint tags, subtle glow backdrop
 - **Profile stat badges staggered entrance** — the upcoming/past/communities/attendees badges in the organiser header animate in with spring scale stagger instead of appearing instantly
 - **Community card hover lift** — community cards in the dashboard now lift on hover and scale on tap for tactile feedback

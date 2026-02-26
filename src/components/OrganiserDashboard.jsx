@@ -1734,7 +1734,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                           tabIndex={0}
                           onClick={(e) => { e.stopPropagation(); togglePin(event.id); }}
                           onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); togglePin(event.id); } }}
-                          className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${
+                          className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${
                             isPinned ? 'bg-accent/10 text-accent' : 'text-secondary/20 hover:text-secondary/40'
                           }`}
                           aria-label={isPinned ? 'Unpin event' : 'Pin event'}
@@ -1746,7 +1746,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                           tabIndex={0}
                           onClick={(e) => { e.stopPropagation(); handleDuplicateEvent(event); }}
                           onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); handleDuplicateEvent(event); } }}
-                          className="w-7 h-7 rounded-lg flex items-center justify-center text-secondary/20 hover:text-secondary/40 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+                          className="w-7 h-7 rounded-lg flex items-center justify-center text-secondary/20 hover:text-secondary/40 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                           aria-label="Duplicate event"
                         >
                           <Copy size={12} />
@@ -1760,7 +1760,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                             setNoteText(eventNotes[event.id] || '');
                           }}
                           onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); setEditingNoteId(editingNoteId === event.id ? null : event.id); setNoteText(eventNotes[event.id] || ''); } }}
-                          className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${
+                          className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${
                             note ? 'bg-primary/10 text-primary' : 'text-secondary/20 hover:text-secondary/40'
                           }`}
                           aria-label={note ? 'Edit note' : 'Add note'}
