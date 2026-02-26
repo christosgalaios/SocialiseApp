@@ -1856,7 +1856,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                   onClick={() => { playTap(); setShowAllEvents(!showAllEvents); }}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="w-full py-2.5 text-[10px] text-center text-primary/70 font-bold hover:text-primary hover:bg-primary/5 rounded-xl transition-colors"
+                  className="w-full py-2.5 text-[10px] text-center text-primary/70 font-bold hover:text-primary hover:bg-primary/5 rounded-xl transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                 >
                   <motion.span
                     key={showAllEvents ? 'less' : 'more'}
@@ -1893,7 +1893,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
             </span>
             <button
               onClick={() => { playTap(); setShowCreateCommunity(!showCreateCommunity); }}
-              className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${
+              className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${
                 showCreateCommunity ? 'bg-primary/10 text-primary' : 'bg-secondary/5 border border-secondary/10 text-secondary/40 hover:text-secondary/60'
               }`}
               aria-label="Create community"
@@ -2010,7 +2010,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                   whileTap={{ scale: 0.98 }}
                   transition={{ duration: 0.2, delay: idx * 0.05 }}
                   onClick={() => { playTap(); hapticTap(); setSelectedTribe(fullCommunity); }}
-                  className="w-full flex items-center gap-3 p-3 rounded-2xl bg-secondary/5 border border-secondary/10 hover:bg-secondary/10 transition-colors text-left"
+                  className="w-full flex items-center gap-3 p-3 rounded-2xl bg-secondary/5 border border-secondary/10 hover:bg-secondary/10 transition-colors text-left focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                 >
                   <div className="w-10 h-10 rounded-xl overflow-hidden bg-secondary/10 shrink-0 flex items-center justify-center text-lg">
                     {community.avatar || '🏘️'}
