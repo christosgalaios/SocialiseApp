@@ -135,7 +135,7 @@ export default function OrganiserSetupFlow() {
                     className="h-full bg-primary rounded-full"
                   />
                 </motion.div>
-                <p className={`text-[8px] font-bold uppercase tracking-widest mt-1 text-center transition-colors ${
+                <p className={`text-[8px] font-bold uppercase tracking-widest mt-1 text-center transition-colors duration-300 ${
                   i <= step ? 'text-primary' : 'text-secondary/30'
                 }`}>{label}</p>
               </div>
@@ -215,7 +215,7 @@ export default function OrganiserSetupFlow() {
                 </div>
               </div>
 
-              <div className="premium-card p-4 rounded-[24px]">
+              <div className="premium-card p-4 rounded-[24px] border border-transparent hover:border-primary/10 transition-colors duration-200">
                 <p className="text-sm text-secondary/70 font-medium leading-relaxed">
                   As an organiser, you can create events, build communities, and track your performance.
                   You can switch back to attendee mode any time.

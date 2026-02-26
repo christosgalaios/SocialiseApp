@@ -53,6 +53,9 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Quick action keyboard focus rings** — Community, Edit, and Share quick action buttons now show a primary-colored ring when focused via keyboard
 - **Keyboard shortcut badge hover** — the `C` and `E` shortcut badges on quick actions brighten on hover
 - **Community size label transition** — the "Starting/Growing/Large" size label now transitions smoothly between color states
+- **Setup flow progress label transition** — step labels ("Identity", "Categories", "Details") now smooth-transition color over 300ms instead of snapping
+- **Edit profile social links focus ring** — the collapsible "Social Links" section header shows a focus ring when navigated via keyboard
+- **Setup flow info card hover border** — the organiser benefits card on step 1 shows a subtle primary border on hover
 - **Community empty state polish** — spring-animated icon with gradient background, staggered "Engage / Grow / Connect" hint tags, subtle glow backdrop
 - **Profile stat badges staggered entrance** — the upcoming/past/communities/attendees badges in the organiser header animate in with spring scale stagger instead of appearing instantly
 - **Community card hover lift** — community cards in the dashboard now lift on hover and scale on tap for tactile feedback
