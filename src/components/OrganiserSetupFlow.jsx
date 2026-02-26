@@ -201,7 +201,18 @@ export default function OrganiserSetupFlow() {
                   maxLength={50}
                   autoFocus
                 />
-                <p className="text-[10px] text-secondary/40 mt-1 font-medium">{displayName.length}/50 characters</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <div className="flex-1 h-0.5 bg-secondary/10 rounded-full overflow-hidden">
+                    <motion.div
+                      className={`h-full rounded-full ${displayName.length >= 2 ? 'bg-green-500/60' : 'bg-primary/40'}`}
+                      animate={{ width: `${Math.min((displayName.length / 50) * 100, 100)}%` }}
+                      transition={{ duration: 0.2 }}
+                    />
+                  </div>
+                  <span className={`text-[10px] font-bold ${displayName.length >= 2 ? 'text-green-600' : 'text-secondary/40'}`}>
+                    {displayName.length}/50
+                  </span>
+                </div>
               </div>
 
               <div className="premium-card p-4 rounded-[24px]">
@@ -311,11 +322,14 @@ export default function OrganiserSetupFlow() {
                 <div className="space-y-3">
                   {ORGANISER_SOCIAL_PLATFORMS.map((platform) => {
                     const error = socialErrors[platform.key];
+                    const hasValue = socialLinks[platform.key]?.trim();
                     return (
                       <div key={platform.key}>
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-secondary/5 border border-secondary/10 flex items-center justify-center shrink-0">
-                            <Link2 size={16} className="text-secondary/50" />
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border transition-colors ${
+                            hasValue ? 'bg-green-500/5 border-green-500/20' : 'bg-secondary/5 border-secondary/10'
+                          }`}>
+                            <Link2 size={16} className={hasValue ? 'text-green-600' : 'text-secondary/50'} />
                           </div>
                           <input
                             type="text"
@@ -341,13 +355,15 @@ export default function OrganiserSetupFlow() {
       {/* Footer */}
       <div className="p-6 pb-10 flex gap-3">
         {step > 0 && (
-          <button
+          <motion.button
             onClick={() => { playTap(); setStep(step - 1); }}
+            whileHover={{ scale: 1.05, transition: { duration: 0.12 } }}
+            whileTap={{ scale: 0.93 }}
             className="w-14 h-14 rounded-2xl bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
             aria-label="Go back"
           >
             <ChevronLeft size={24} className="text-secondary" />
-          </button>
+          </motion.button>
         )}
         <motion.button
           onClick={() => { playTap(); step < 2 ? setStep(step + 1) : handleComplete(); }}
