@@ -457,7 +457,7 @@ export default function OrganiserEditProfileSheet() {
                     </div>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2 p-3 rounded-2xl bg-green-500/5 border border-green-500/10">
+                  <div className="flex items-center gap-2 p-3 rounded-2xl bg-green-500/5 border border-green-500/10 hover:border-green-500/20 hover:shadow-sm transition-all duration-200">
                     <ShieldCheck size={16} className="text-green-600" />
                     <span className="text-sm font-bold text-green-600">Verified Organiser</span>
                   </div>
