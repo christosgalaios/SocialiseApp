@@ -13,6 +13,8 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 ## [Unreleased]
 
 ### Added
+- **Audience insights progress bars** — average per event and overall fill rate metrics now show animated progress bars for quick visual comparison
+- **Community total members count** — the "My Communities" section header now displays the combined member count across all your communities
 - **Revenue paid vs free split bar** — revenue insights section now shows a visual bar indicating the proportion of paid to free events, with a percentage label
 - **Event filter tab sliding pill** — the Upcoming/Past event filter buttons now have a smooth animated pill that slides between options when switching
 - **Dynamic motivational tagline** — the organiser dashboard greeting now shows a context-aware subtitle that adapts to your stats (events running, people reached, upcoming count, etc.)
