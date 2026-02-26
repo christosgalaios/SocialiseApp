@@ -183,7 +183,7 @@ export default function OrganiserSetupFlow() {
                   transition={{ type: 'spring', damping: 12, stiffness: 200 }}
                   className="w-24 h-24 rounded-[32px] bg-primary/10 border-2 border-primary/20 flex items-center justify-center relative"
                 >
-                  <div className="absolute inset-0 bg-primary/5 rounded-[32px] animate-pulse" />
+                  <div className="absolute inset-0 bg-primary/5 rounded-[32px] animate-pulse" aria-hidden="true" />
                   <Megaphone size={40} className="text-primary relative" />
                 </motion.div>
               </div>
