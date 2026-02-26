@@ -13,6 +13,9 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 ## [Unreleased]
 
 ### Added
+- **Setup flow step labels** — the organiser onboarding progress bar now shows step names (Identity, Categories, Details) with color-coded active state
+- **Category selection counter** — step 2 of setup shows an animated "X selected" counter that scales on change and turns green when requirement is met
+- **Bio character progress bar** — step 3 of setup shows an animated progress bar below the bio textarea that turns amber near the limit
 - **Clickable top event on public profile** — the "Top Event" highlight on the public organiser profile is now a button that opens the event detail sheet, with fill rate percentage badge and progress bar
 - **Event category and price on public profile** — event rows on the public organiser profile now show category tags and ticket price
 - **Community descriptions on public profile** — community rows on the public organiser profile now display a one-line description and category tag
