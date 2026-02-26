@@ -19,6 +19,9 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Text overflow in bug/feature modals** — both BugReportModal and FeatureRequestModal now consistently handle long text with word-break, overflow-wrap, and overscroll containment (BUG-1772022766344)
 
 ### Added
+- **Profile stat badges staggered entrance** — the upcoming/past/communities/attendees badges in the organiser header animate in with spring scale stagger instead of appearing instantly
+- **Community card hover lift** — community cards in the dashboard now lift on hover and scale on tap for tactile feedback
+- **Social link chip interactions** — social link chips animate in with staggered fade, scale on hover/tap, and highlight with primary color on hover
 - **Dismissable attention alerts** — alerts now have an X dismiss button with exit animation; sold-out events use a Zap icon (green) instead of the generic warning triangle
 - **Organiser tier badge** — profile header now shows a spring-animated tier badge (Bronze/Silver/Gold) with matching colors and icon based on events hosted
 - **Milestones staggered animation** — milestone cards animate in with staggered scale + fade, unlocked icons pulse, progress bars animate from zero with current/target counts
