@@ -149,7 +149,17 @@ export default function OrganiserEditProfileSheet() {
 
             {/* Header */}
             <div className="px-6 pb-4 flex items-center justify-between border-b border-secondary/10">
-              <h2 className="text-lg font-black text-secondary">Edit Profile</h2>
+              <div className="flex items-center gap-2">
+                <h2 className="text-lg font-black text-secondary">Edit Profile</h2>
+                {hasUnsavedChanges() && (
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="w-2 h-2 rounded-full bg-amber-500"
+                    style={{ boxShadow: '0 0 6px rgba(245, 158, 11, 0.4)' }}
+                  />
+                )}
+              </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => { playTap(); setShowPreview(!showPreview); }}
@@ -413,11 +423,16 @@ export default function OrganiserEditProfileSheet() {
               {/* Verification Request */}
               <motion.div custom={5} variants={sectionVariants} initial="hidden" animate="show">
                 {!user?.organiserVerified ? (
-                  <div className="premium-card p-4 rounded-2xl">
+                  <div className="premium-card p-4 rounded-2xl relative overflow-hidden">
+                    <div className="absolute -right-6 -top-6 w-20 h-20 bg-primary/5 rounded-full blur-2xl" />
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
+                      <motion.div
+                        whileHover={{ rotate: [0, -5, 5, 0] }}
+                        transition={{ duration: 0.4 }}
+                        className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0"
+                      >
                         <ShieldCheck size={18} className="text-primary" />
-                      </div>
+                      </motion.div>
                       <div className="flex-1">
                         <p className="text-sm font-bold text-secondary">Get Verified</p>
                         <p className="text-[10px] text-secondary/40">Verified organisers get a badge on their profile</p>
@@ -460,11 +475,12 @@ export default function OrganiserEditProfileSheet() {
                 whileTap={canSave ? { scale: 0.98 } : {}}
                 animate={!canSave && shakeKey > 0 ? { x: [0, -6, 6, -4, 4, 0] } : {}}
                 transition={{ duration: 0.3 }}
-                className={`w-full h-14 rounded-2xl font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
+                className={`w-full h-14 rounded-2xl font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all relative overflow-hidden ${
                   canSave
                     ? 'bg-gradient-to-r from-primary to-accent text-white'
                     : 'bg-secondary/20 text-secondary/40 cursor-not-allowed'
                 } ${isSubmitting ? 'opacity-50' : ''}`}
+                style={canSave && hasUnsavedChanges() ? { boxShadow: '0 4px 20px rgba(226, 114, 91, 0.3)' } : {}}
               >
                 {isSubmitting ? (
                   <motion.div
