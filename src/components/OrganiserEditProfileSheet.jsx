@@ -199,12 +199,12 @@ export default function OrganiserEditProfileSheet() {
                       <p className="text-[9px] font-black text-primary/60 uppercase tracking-widest mb-3">Preview</p>
                       {coverPhotoPreview && (
                         <div className="-mx-4 -mt-8 mb-3 h-16 overflow-hidden rounded-t-2xl">
-                          <img src={coverPhotoPreview} className="w-full h-full object-cover opacity-60" alt="" />
+                          <img src={coverPhotoPreview} className="w-full h-full object-cover opacity-60" alt="" loading="lazy" />
                         </div>
                       )}
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl overflow-hidden bg-secondary/10 shrink-0">
-                          <img src={user?.avatar} className="w-full h-full object-cover" alt="" />
+                          <img src={user?.avatar} className="w-full h-full object-cover" alt="" loading="lazy" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-black text-secondary truncate">
@@ -237,7 +237,7 @@ export default function OrganiserEditProfileSheet() {
                 <div className="relative h-24 rounded-2xl overflow-hidden bg-secondary/5 border-2 border-dashed border-secondary/20 hover:border-primary/30 transition-colors duration-200">
                   {coverPhotoPreview ? (
                     <>
-                      <img src={coverPhotoPreview} className="w-full h-full object-cover" alt="Cover" />
+                      <img src={coverPhotoPreview} className="w-full h-full object-cover" alt="Cover" loading="lazy" />
                       <button
                         onClick={() => setCoverPhotoPreview('')}
                         className="absolute top-2 right-2 w-7 h-7 rounded-full bg-secondary/80 flex items-center justify-center hover:bg-secondary transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
