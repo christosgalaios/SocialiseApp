@@ -36,7 +36,7 @@ export default function OrganiserStatsCard({ icon: Icon, value, label, trend, co
       transition={{ type: 'spring', damping: 25, stiffness: 400 }}
       className="premium-card p-5 relative overflow-hidden group cursor-default"
     >
-      <div className="absolute -right-6 -bottom-6 w-24 h-24 rounded-full opacity-0 group-hover:opacity-[0.08] transition-opacity duration-300" style={{ background: `radial-gradient(circle, var(--primary) 0%, transparent 70%)` }} />
+      <div className="absolute -right-6 -bottom-6 w-24 h-24 rounded-full opacity-0 group-hover:opacity-[0.08] transition-opacity duration-300" style={{ background: `radial-gradient(circle, var(--primary) 0%, transparent 70%)` }} aria-hidden="true" />
       <div className="flex items-start justify-between">
         <div className={`w-11 h-11 rounded-2xl ${bgColor} flex items-center justify-center border ${borderColor} group-hover:scale-110 transition-transform duration-200`}>
           {Icon && <Icon size={22} className={`${color} group-hover:rotate-[-8deg] transition-transform duration-200`} />}

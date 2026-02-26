@@ -379,7 +379,7 @@ export default function OrganiserProfileSheet() {
                                 <Globe size={10} />
                                 <span className="capitalize text-[9px] font-black opacity-50 mr-0.5">{p.key}</span>
                                 {socialLinks[p.key]}
-                                <ExternalLink size={8} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                                <ExternalLink size={8} className="opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true" />
                               </a>
                             );
                           })}

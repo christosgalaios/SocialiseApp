@@ -839,7 +839,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           onClick={() => { playClick(); hapticTap(); onCreateEvent?.(); }}
           className="p-3 rounded-2xl bg-gradient-to-br from-primary to-accent text-white font-black text-sm flex flex-col items-center justify-center gap-1.5 shadow-lg relative overflow-hidden group focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
         >
-          <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors" />
+          <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors" aria-hidden="true" />
           <Plus size={20} />
           <span className="text-[10px]">New Event</span>
           <kbd className="hidden md:inline text-[8px] font-mono text-white/50 bg-white/10 px-1 rounded">N</kbd>
