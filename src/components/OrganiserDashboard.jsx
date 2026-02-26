@@ -549,14 +549,18 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                   : 'bg-green-500/5 border-green-500/20'
               }`}
             >
-              <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
-                alert.type === 'low-fill' ? 'bg-amber-500/10' : 'bg-green-500/10'
-              }`}>
+              <motion.div
+                animate={alert.type === 'low-fill' ? { scale: [1, 1.08, 1] } : {}}
+                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
+                  alert.type === 'low-fill' ? 'bg-amber-500/10' : 'bg-green-500/10'
+                }`}
+              >
                 {alert.type === 'low-fill'
                   ? <AlertTriangle size={14} className="text-amber-500" />
                   : <Zap size={14} className="text-green-600" />
                 }
-              </div>
+              </motion.div>
               <p className="text-[11px] font-medium text-secondary/70 flex-1">{alert.message}</p>
               <button
                 onClick={() => {
@@ -1386,17 +1390,18 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               const isToday = i === weeklyActivity.days.length - 1;
               const barColor = isToday ? 'bg-accent' : day.events > 0 ? 'bg-primary/60' : 'bg-secondary/20';
               return (
-              <div key={i} className="flex-1 flex flex-col items-center gap-1 relative group">
+              <div key={i} className="flex-1 flex flex-col items-center gap-1 relative group cursor-default">
                 {day.attendees > 0 && (
                   <div className="absolute -top-5 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                     <span className="text-[8px] font-black text-primary bg-primary/10 px-1.5 py-0.5 rounded-full whitespace-nowrap">{day.attendees}</span>
                   </div>
                 )}
                 <motion.div
-                  className={`w-full rounded-t-lg ${barColor}`}
+                  className={`w-full rounded-t-lg ${barColor} group-hover:brightness-110 transition-[filter] duration-150`}
                   style={{ minHeight: 2 }}
                   initial={{ height: 0 }}
                   animate={{ height: `${Math.max((day.attendees / weeklyActivity.maxAttendees) * 100, 5)}%` }}
+                  whileHover={{ scaleX: 1.15, transition: { duration: 0.12 } }}
                   transition={{ duration: 0.4, ease: 'easeOut', delay: i * 0.05 }}
                   title={`${day.attendees} attendees, ${day.events} event${day.events !== 1 ? 's' : ''}`}
                 />
@@ -1440,8 +1445,10 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                 key={m.label}
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
+                whileHover={{ y: -2, transition: { duration: 0.15 } }}
+                whileTap={{ scale: 0.97 }}
                 transition={{ duration: 0.25, delay: idx * 0.06 }}
-                className={`shrink-0 w-24 p-3 rounded-2xl border text-center transition-all relative overflow-hidden ${
+                className={`shrink-0 w-24 p-3 rounded-2xl border text-center transition-all relative overflow-hidden cursor-default ${
                   m.unlocked ? 'bg-accent/5 border-accent/20' : 'bg-secondary/5 border-secondary/10'
                 }`}
               >
