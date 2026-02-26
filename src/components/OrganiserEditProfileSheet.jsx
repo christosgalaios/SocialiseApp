@@ -199,12 +199,12 @@ export default function OrganiserEditProfileSheet() {
                       <p className="text-[9px] font-black text-primary/60 uppercase tracking-widest mb-3">Preview</p>
                       {coverPhotoPreview && (
                         <div className="-mx-4 -mt-8 mb-3 h-16 overflow-hidden rounded-t-2xl">
-                          <img src={coverPhotoPreview} className="w-full h-full object-cover opacity-60" alt="" loading="lazy" />
+                          <img src={coverPhotoPreview} className="w-full h-full object-cover opacity-60" alt="Cover photo preview" loading="lazy" />
                         </div>
                       )}
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl overflow-hidden bg-secondary/10 shrink-0">
-                          <img src={user?.avatar} className="w-full h-full object-cover" alt="" loading="lazy" />
+                          <img src={user?.avatar} className="w-full h-full object-cover" alt="Avatar preview" loading="lazy" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-black text-secondary truncate">
