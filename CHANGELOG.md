@@ -22,6 +22,7 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Event card hover nudge** — event cards in the dashboard list subtly nudge right on hover for tactile feedback
 - **Empty filter state icon** — the "No upcoming/past events" message now shows a contextual icon (clock or history) with spring entrance and search hint
 - **Create community form header** — the Quick Create form now has a spring-animated Plus icon beside the header for better visual hierarchy
+- **Organiser setup flow polish** — the Megaphone icon on step 1 springs in with rotation and has a breathing pulse; category grid items stagger in with scale; "Start Organising" button gets a pulsing glow on the final step
 - **Widget settings panel animation** — settings gear icon spins in on open, toggle items stagger in with slide animation, checkbox icons pulse on toggle
 - **Community empty state polish** — spring-animated icon with gradient background, staggered "Engage / Grow / Connect" hint tags, subtle glow backdrop
 - **Profile stat badges staggered entrance** — the upcoming/past/communities/attendees badges in the organiser header animate in with spring scale stagger instead of appearing instantly

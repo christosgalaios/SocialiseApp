@@ -177,9 +177,15 @@ export default function OrganiserSetupFlow() {
             >
               {/* Organiser icon */}
               <div className="flex justify-center">
-                <div className="w-24 h-24 rounded-[32px] bg-primary/10 border-2 border-primary/20 flex items-center justify-center">
-                  <Megaphone size={40} className="text-primary" />
-                </div>
+                <motion.div
+                  initial={{ scale: 0, rotate: -20 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ type: 'spring', damping: 12, stiffness: 200 }}
+                  className="w-24 h-24 rounded-[32px] bg-primary/10 border-2 border-primary/20 flex items-center justify-center relative"
+                >
+                  <div className="absolute inset-0 bg-primary/5 rounded-[32px] animate-pulse" />
+                  <Megaphone size={40} className="text-primary relative" />
+                </motion.div>
               </div>
 
               <div>
@@ -229,12 +235,15 @@ export default function OrganiserSetupFlow() {
                 </motion.span>
               </div>
               <div className="grid grid-cols-2 gap-3">
-              {categories.map((cat) => {
+              {categories.map((cat, catIdx) => {
                 const isSelected = selectedCategories.includes(cat.id);
                 const Icon = cat.icon;
                 return (
                   <motion.button
                     key={cat.id}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.2, delay: catIdx * 0.03 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => toggleCategory(cat.id)}
                     className={`p-4 rounded-2xl border-2 flex flex-col items-center gap-2 transition-all ${
@@ -340,11 +349,19 @@ export default function OrganiserSetupFlow() {
             <ChevronLeft size={24} className="text-secondary" />
           </button>
         )}
-        <button
+        <motion.button
           onClick={() => { playTap(); step < 2 ? setStep(step + 1) : handleComplete(); }}
           disabled={!canProceed() || isSubmitting}
-          className="flex-1 h-14 rounded-2xl bg-gradient-to-r from-primary to-accent text-white font-black uppercase tracking-widest flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] transition-transform"
+          whileTap={canProceed() && !isSubmitting ? { scale: 0.97 } : {}}
+          className="flex-1 h-14 rounded-2xl bg-gradient-to-r from-primary to-accent text-white font-black uppercase tracking-widest flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-transform relative overflow-hidden"
         >
+          {step === 2 && canProceed() && !isSubmitting && (
+            <motion.div
+              className="absolute inset-0 bg-white/10 rounded-2xl"
+              animate={{ opacity: [0, 0.3, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+            />
+          )}
           {isSubmitting ? (
             <motion.div
               animate={{ rotate: 360 }}
@@ -362,7 +379,7 @@ export default function OrganiserSetupFlow() {
               <Megaphone size={20} />
             </>
           )}
-        </button>
+        </motion.button>
       </div>
     </motion.div>
   );
