@@ -1567,9 +1567,21 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           </div>
         ) : sortedFilteredEvents.length === 0 ? (
           <div className="text-center py-6">
-            <p className="text-sm text-secondary/40 font-medium">
-              No {eventFilter} events
-            </p>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+            >
+              <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-secondary/5 border border-secondary/10 flex items-center justify-center">
+                {eventFilter === 'upcoming' ? <Clock size={18} className="text-secondary/25" /> : <History size={18} className="text-secondary/25" />}
+              </div>
+              <p className="text-sm text-secondary/40 font-medium">
+                No {eventFilter} events
+              </p>
+              {eventSearch.trim() && (
+                <p className="text-[10px] text-secondary/30 mt-1">Try a different search term</p>
+              )}
+            </motion.div>
           </div>
         ) : (
           <AnimatePresence mode="wait">
@@ -1595,6 +1607,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                     key={event.id}
                     initial={{ opacity: 0, x: -6 }}
                     animate={{ opacity: 1, x: 0 }}
+                    whileHover={{ x: 2, transition: { duration: 0.12 } }}
                     transition={{ duration: 0.2, delay: idx * 0.04 }}
                     className="space-y-1"
                   >
@@ -1828,7 +1841,17 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               className="overflow-hidden mb-4"
             >
               <div className="p-4 rounded-2xl bg-primary/5 border border-primary/10 space-y-3">
-                <p className="text-[10px] font-black text-primary uppercase tracking-widest">Quick Create</p>
+                <div className="flex items-center gap-2">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: 'spring', damping: 12, stiffness: 200 }}
+                    className="w-6 h-6 rounded-lg bg-primary/10 flex items-center justify-center"
+                  >
+                    <Plus size={12} className="text-primary" />
+                  </motion.div>
+                  <p className="text-[10px] font-black text-primary uppercase tracking-widest">Quick Create</p>
+                </div>
                 <input
                   type="text"
                   value={newCommunityName}
