@@ -12,6 +12,12 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 
 ## [Unreleased]
 
+### Fixed
+- **Desktop sidebar branding** — sidebar now shows Socialise logo and tagline instead of blank space, improving desktop navigation clarity (BUG-1771935219235)
+- **Mango drag bounds on resize** — Mango's draggable area now auto-updates when the window resizes, using a viewport-anchored constraint ref instead of manual calculations (BUG-1771935652026)
+- **Connections card now tappable** — the "Connections" card on the profile page now opens your bookings when tapped, instead of being a dead button (BUG-1771954500334)
+- **Text overflow in bug/feature modals** — both BugReportModal and FeatureRequestModal now consistently handle long text with word-break, overflow-wrap, and overscroll containment (BUG-1772022766344)
+
 ### Added
 - **Setup flow step labels** — the organiser onboarding progress bar now shows step names (Identity, Categories, Details) with color-coded active state
 - **Category selection counter** — step 2 of setup shows an animated "X selected" counter that scales on change and turns green when requirement is met
