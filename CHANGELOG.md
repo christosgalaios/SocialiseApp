@@ -13,6 +13,9 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 ## [Unreleased]
 
 ### Added
+- **Clickable events on public profiles** — tapping an event on the public organiser profile now opens the event detail sheet with full info and chat
+- **Clickable communities on public profiles** — tapping a community on the public organiser profile now opens the community sheet
+- **"View All" events button** — dashboard event list now shows a "View all X events" toggle when there are more than 5 events, expanding to show the full list
 - **Event time in dashboard rows** — event rows on the organiser dashboard now show the event time alongside the relative date
 - **Event price in dashboard rows** — paid events display their ticket price inline in the event row metadata
 - **Search result count** — event search bar shows the number of matching results when filtering

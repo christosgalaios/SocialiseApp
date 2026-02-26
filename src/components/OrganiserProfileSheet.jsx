@@ -4,6 +4,8 @@ import { X, Calendar, Users, Globe, Megaphone, ChevronRight, ExternalLink, UserP
 import { DEFAULT_AVATAR, ORGANISER_SOCIAL_PLATFORMS, CATEGORIES } from '../data/constants';
 import { playTap, playClick, hapticTap } from '../utils/feedback';
 import useUIStore from '../stores/uiStore';
+import useEventStore from '../stores/eventStore';
+import useCommunityStore from '../stores/communityStore';
 import { useEscapeKey, useFocusTrap, useSwipeToClose } from '../hooks/useAccessibility';
 import api from '../api';
 
@@ -24,6 +26,10 @@ export default function OrganiserProfileSheet() {
   const userId = useUIStore((s) => s.showOrganiserProfile);
   const setShowOrganiserProfile = useUIStore((s) => s.setShowOrganiserProfile);
   const showToast = useUIStore((s) => s.showToast);
+  const setSelectedEvent = useEventStore((s) => s.setSelectedEvent);
+  const allEvents = useEventStore((s) => s.events);
+  const setSelectedTribe = useCommunityStore((s) => s.setSelectedTribe);
+  const allCommunities = useCommunityStore((s) => s.communities);
 
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -378,7 +384,14 @@ export default function OrganiserProfileSheet() {
                             {displayedEvents.length > 0 ? displayedEvents.map(event => {
                               const fillPct = event.spots > 0 ? Math.round((event.attendees / event.spots) * 100) : 0;
                               return (
-                                <div key={event.id} className="flex items-center gap-3 p-3 rounded-2xl bg-secondary/5 border border-secondary/10">
+                                <button
+                                  key={event.id}
+                                  onClick={() => {
+                                    const fullEvent = allEvents.find(e => e.id === event.id) || event;
+                                    playTap(); hapticTap(); setSelectedEvent(fullEvent);
+                                  }}
+                                  className="w-full flex items-center gap-3 p-3 rounded-2xl bg-secondary/5 border border-secondary/10 hover:bg-secondary/10 transition-colors text-left"
+                                >
                                   <div className="w-11 h-11 rounded-xl overflow-hidden bg-secondary/10 shrink-0">
                                     {event.image && <img src={event.image} className="w-full h-full object-cover" alt="" loading="lazy" />}
                                   </div>
@@ -398,7 +411,7 @@ export default function OrganiserProfileSheet() {
                                     </div>
                                   </div>
                                   <ChevronRight size={14} className="text-secondary/30 shrink-0" />
-                                </div>
+                                </button>
                               );
                             }) : (
                               <p className="text-center py-4 text-[11px] text-secondary/40 font-medium">
@@ -417,17 +430,25 @@ export default function OrganiserProfileSheet() {
                           Communities<span className="text-accent">.</span>
                         </h4>
                         <div className="space-y-2">
-                          {profile.communities.map(c => (
-                            <div key={c.id} className="flex items-center gap-3 p-3 rounded-2xl bg-secondary/5 border border-secondary/10">
-                              <div className="w-10 h-10 rounded-xl bg-secondary/10 shrink-0 flex items-center justify-center text-base">
-                                {c.avatar || '🏘️'}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-bold text-secondary truncate">{c.name}</p>
-                                <span className="text-[10px] text-secondary/40">{c.members ?? 0} members</span>
-                              </div>
-                            </div>
-                          ))}
+                          {profile.communities.map(c => {
+                            const fullCommunity = allCommunities.find(ac => ac.id === c.id) || c;
+                            return (
+                              <button
+                                key={c.id}
+                                onClick={() => { playTap(); hapticTap(); setSelectedTribe(fullCommunity); }}
+                                className="w-full flex items-center gap-3 p-3 rounded-2xl bg-secondary/5 border border-secondary/10 hover:bg-secondary/10 transition-colors text-left"
+                              >
+                                <div className="w-10 h-10 rounded-xl bg-secondary/10 shrink-0 flex items-center justify-center text-base">
+                                  {c.avatar || '🏘️'}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-bold text-secondary truncate">{c.name}</p>
+                                  <span className="text-[10px] text-secondary/40">{c.members ?? 0} members</span>
+                                </div>
+                                <ChevronRight size={14} className="text-secondary/30 shrink-0" />
+                              </button>
+                            );
+                          })}
                         </div>
                       </motion.div>
                     )}

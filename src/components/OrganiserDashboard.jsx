@@ -83,6 +83,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
     } catch { return {}; }
   });
   const [expandedChecklist, setExpandedChecklist] = useState(null);
+  const [showAllEvents, setShowAllEvents] = useState(false);
   const [showCreateCommunity, setShowCreateCommunity] = useState(false);
   const [newCommunityName, setNewCommunityName] = useState('');
   const [newCommunityDesc, setNewCommunityDesc] = useState('');
@@ -1313,7 +1314,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               transition={{ duration: 0.15 }}
               className="space-y-3"
             >
-              {sortedFilteredEvents.slice(0, 5).map((event, idx) => {
+              {(showAllEvents ? sortedFilteredEvents : sortedFilteredEvents.slice(0, 5)).map((event, idx) => {
                 const fillPct = event.spots > 0 ? Math.round((event.attendees / event.spots) * 100) : 0;
                 const fullEvent = allEvents.find(e => e.id === event.id) || event;
                 const relDate = getRelativeDate(event.date);
@@ -1495,9 +1496,12 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                 );
               })}
               {sortedFilteredEvents.length > 5 && (
-                <p className="text-[10px] text-center text-secondary/40 font-bold pt-1">
-                  +{sortedFilteredEvents.length - 5} more
-                </p>
+                <button
+                  onClick={() => { playTap(); setShowAllEvents(!showAllEvents); }}
+                  className="w-full py-2 text-[10px] text-center text-primary/70 font-bold hover:text-primary transition-colors"
+                >
+                  {showAllEvents ? 'Show less' : `View all ${sortedFilteredEvents.length} events`}
+                </button>
               )}
             </motion.div>
           </AnimatePresence>
