@@ -87,6 +87,8 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Review comment progress bar** — the comment textarea now shows a thin progress bar that turns amber near the 200-character limit
 - **Review tag counter transition** — the "X/5 selected" counter now smoothly transitions color when tags are added or removed
 - **Community section focus rings** — create community toggle, community card rows, and view all events button now show focus rings for keyboard accessibility
+- **Widget settings and quick actions focus rings** — widget toggle buttons, "New Event" quick action button now show focus rings for keyboard accessibility
+- **Edit profile complete focus audit** — preview toggle, close, remove cover photo, category chips, and save button all now show focus rings for keyboard accessibility
 - **Dashboard community section focus rings** — create community toggle, community card rows, and "View all events" button now show focus rings for keyboard accessibility
 - **Community empty state polish** — spring-animated icon with gradient background, staggered "Engage / Grow / Connect" hint tags, subtle glow backdrop
 - **Profile stat badges staggered entrance** — the upcoming/past/communities/attendees badges in the organiser header animate in with spring scale stagger instead of appearing instantly
