@@ -89,6 +89,7 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Community section focus rings** — create community toggle, community card rows, and view all events button now show focus rings for keyboard accessibility
 - **Widget settings and quick actions focus rings** — widget toggle buttons, "New Event" quick action button now show focus rings for keyboard accessibility
 - **Edit profile complete focus audit** — preview toggle, close, remove cover photo, category chips, and save button all now show focus rings for keyboard accessibility
+- **Setup flow complete focus audit** — close, back, continue/submit buttons all now show focus rings; display name input gets hover border for pre-focus affordance
 - **Dashboard community section focus rings** — create community toggle, community card rows, and "View all events" button now show focus rings for keyboard accessibility
 - **Community empty state polish** — spring-animated icon with gradient background, staggered "Engage / Grow / Connect" hint tags, subtle glow backdrop
 - **Profile stat badges staggered entrance** — the upcoming/past/communities/attendees badges in the organiser header animate in with spring scale stagger instead of appearing instantly
