@@ -240,7 +240,7 @@ export default function OrganiserEditProfileSheet() {
                       <img src={coverPhotoPreview} className="w-full h-full object-cover" alt="Cover" loading="lazy" />
                       <button
                         onClick={() => setCoverPhotoPreview('')}
-                        className="absolute top-2 right-2 w-7 h-7 rounded-full bg-secondary/80 flex items-center justify-center hover:bg-secondary transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
+                        className="absolute top-2 right-2 w-7 h-7 rounded-full bg-secondary/80 flex items-center justify-center hover:bg-secondary transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none before:absolute before:inset-[-8px] before:content-['']"
                         aria-label="Remove cover photo"
                       >
                         <X size={14} className="text-white" />
