@@ -4,7 +4,7 @@ import {
   Calendar, Users, TrendingUp, Plus, Megaphone,
   ChevronRight, BarChart3, Globe, Pencil, Clock, History, RefreshCw, Share2, Sparkles,
   Pin, DollarSign, UserCheck, Repeat, Copy, StickyNote, Activity, Search, Download, ArrowUpRight,
-  AlertTriangle, Award, Target, Zap,
+  AlertTriangle, Award, Target, Zap, Settings, CheckSquare, Square, ChevronDown,
 } from 'lucide-react';
 import useAuthStore from '../stores/authStore';
 import useUIStore from '../stores/uiStore';
@@ -71,6 +71,18 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
   const [editingNoteId, setEditingNoteId] = useState(null);
   const [noteText, setNoteText] = useState('');
   const [eventSearch, setEventSearch] = useState('');
+  const [hiddenWidgets, setHiddenWidgets] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('socialise_hidden_widgets') || '[]');
+    } catch { return []; }
+  });
+  const [showWidgetSettings, setShowWidgetSettings] = useState(false);
+  const [eventChecklists, setEventChecklists] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('socialise_event_checklists') || '{}');
+    } catch { return {}; }
+  });
+  const [expandedChecklist, setExpandedChecklist] = useState(null);
 
   const fetchDashboard = useCallback(async (silent = false) => {
     try {
@@ -300,6 +312,37 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
     playClick();
   }, [user, stats, events, revenueInsights, showToast]);
 
+  const toggleWidget = useCallback((widgetId) => {
+    setHiddenWidgets(prev => {
+      const next = prev.includes(widgetId) ? prev.filter(w => w !== widgetId) : [...prev, widgetId];
+      localStorage.setItem('socialise_hidden_widgets', JSON.stringify(next));
+      return next;
+    });
+  }, []);
+
+  const isWidgetVisible = useCallback((widgetId) => !hiddenWidgets.includes(widgetId), [hiddenWidgets]);
+
+  const DEFAULT_CHECKLIST = [
+    { id: 'venue', label: 'Confirm venue' },
+    { id: 'promo', label: 'Share on socials' },
+    { id: 'remind', label: 'Send reminders' },
+    { id: 'prep', label: 'Prepare materials' },
+  ];
+
+  const getChecklist = useCallback((eventId) => {
+    return eventChecklists[eventId] || DEFAULT_CHECKLIST.map(item => ({ ...item, done: false }));
+  }, [eventChecklists]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const toggleChecklistItem = useCallback((eventId, itemId) => {
+    setEventChecklists(prev => {
+      const list = prev[eventId] || DEFAULT_CHECKLIST.map(item => ({ ...item, done: false }));
+      const next = { ...prev, [eventId]: list.map(item => item.id === itemId ? { ...item, done: !item.done } : item) };
+      localStorage.setItem('socialise_event_checklists', JSON.stringify(next));
+      return next;
+    });
+    playTap();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Keyboard shortcuts
   const handleKeyboard = useCallback((e) => {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
@@ -397,7 +440,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
       </motion.div>
 
       {/* Attention Alerts */}
-      {attentionAlerts.length > 0 && (
+      {isWidgetVisible('alerts') && attentionAlerts.length > 0 && (
         <motion.div variants={itemVariants} className="space-y-2">
           {attentionAlerts.map((alert, i) => (
             <motion.div
@@ -460,22 +503,31 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               <span className="text-[10px] font-black text-accent uppercase tracking-widest">Organiser</span>
             </div>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              onClick={() => { playTap(); setShowWidgetSettings(!showWidgetSettings); }}
+              className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${
+                showWidgetSettings ? 'bg-primary/10 text-primary' : 'bg-secondary/5 border border-secondary/10 text-secondary/60 hover:bg-secondary/10'
+              }`}
+              aria-label="Dashboard settings"
+            >
+              <Settings size={14} />
+            </button>
             <button
               onClick={handleRefresh}
               disabled={isRefreshing}
-              className="w-10 h-10 rounded-2xl bg-secondary/5 border border-secondary/10 flex items-center justify-center hover:bg-secondary/10 transition-colors disabled:opacity-50"
+              className="w-9 h-9 rounded-xl bg-secondary/5 border border-secondary/10 flex items-center justify-center hover:bg-secondary/10 transition-colors disabled:opacity-50"
               aria-label="Refresh dashboard (R)"
               title="Refresh (R)"
             >
-              <RefreshCw size={16} className={`text-secondary/60 ${isRefreshing ? 'animate-spin' : ''}`} />
+              <RefreshCw size={14} className={`text-secondary/60 ${isRefreshing ? 'animate-spin' : ''}`} />
             </button>
             <button
               onClick={() => { playTap(); hapticTap(); setShowOrganiserEditProfile(true); }}
-              className="w-10 h-10 rounded-2xl bg-secondary/5 border border-secondary/10 flex items-center justify-center hover:bg-secondary/10 transition-colors"
+              className="w-9 h-9 rounded-xl bg-secondary/5 border border-secondary/10 flex items-center justify-center hover:bg-secondary/10 transition-colors"
               aria-label="Edit organiser profile"
             >
-              <Pencil size={16} className="text-secondary/60" />
+              <Pencil size={14} className="text-secondary/60" />
             </button>
           </div>
         </div>
@@ -539,8 +591,44 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
         </button>
       </motion.div>
 
+      {/* Widget Settings Panel */}
+      <AnimatePresence>
+        {showWidgetSettings && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="premium-card p-4 space-y-2">
+              <h4 className="text-[10px] font-black text-secondary/40 uppercase tracking-widest mb-2">Show/Hide Sections</h4>
+              {[
+                { id: 'alerts', label: 'Attention Alerts' },
+                { id: 'completeness', label: 'Profile Completeness' },
+                { id: 'milestones', label: 'Milestones' },
+                { id: 'activity', label: 'Weekly Activity' },
+                { id: 'countdown', label: 'Next Event Countdown' },
+              ].map(widget => (
+                <button
+                  key={widget.id}
+                  onClick={() => toggleWidget(widget.id)}
+                  className="w-full flex items-center gap-2 p-2 rounded-xl hover:bg-secondary/5 transition-colors text-left"
+                >
+                  {isWidgetVisible(widget.id) ? (
+                    <CheckSquare size={14} className="text-primary shrink-0" />
+                  ) : (
+                    <Square size={14} className="text-secondary/30 shrink-0" />
+                  )}
+                  <span className={`text-xs font-bold ${isWidgetVisible(widget.id) ? 'text-secondary' : 'text-secondary/40'}`}>{widget.label}</span>
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Profile Completeness */}
-      {(() => {
+      {isWidgetVisible('completeness') && (() => {
         const checks = [
           { label: 'Display name', done: !!user?.organiserDisplayName?.trim() },
           { label: 'Bio', done: !!user?.organiserBio?.trim() },
@@ -933,7 +1021,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
       <>
 
       {/* Next Event Countdown */}
-      {nextEvent && (
+      {isWidgetVisible('countdown') && nextEvent && (
         <motion.div variants={itemVariants} className="premium-card p-4 relative overflow-hidden">
           <div className="absolute -right-4 -top-4 w-20 h-20 bg-green-500/5 rounded-full blur-2xl" />
           <div className="flex items-center gap-3">
@@ -953,7 +1041,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
       )}
 
       {/* Weekly Activity */}
-      {events.length > 0 && (
+      {isWidgetVisible('activity') && events.length > 0 && (
         <motion.div variants={itemVariants} className="premium-card p-5 relative overflow-hidden">
           <div className="flex items-center gap-2 mb-4">
             <div className="w-8 h-8 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
@@ -984,6 +1072,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
       )}
 
       {/* Milestones */}
+      {isWidgetVisible('milestones') && (
       <motion.div variants={itemVariants} className="premium-card p-5">
         <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-3">
           Milestones<span className="text-accent">.</span>
@@ -1017,6 +1106,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           })}
         </div>
       </motion.div>
+      )}
 
       {/* Stats Grid */}
       <motion.div variants={itemVariants}>
@@ -1265,6 +1355,45 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                         >
                           Save
                         </button>
+                      </div>
+                    )}
+                    {/* Event Checklist */}
+                    {eventFilter === 'upcoming' && (
+                      <div className="ml-3">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setExpandedChecklist(expandedChecklist === event.id ? null : event.id); playTap(); }}
+                          className="flex items-center gap-1 text-[10px] font-bold text-secondary/40 hover:text-secondary/60 transition-colors"
+                        >
+                          <ChevronDown size={10} className={`transition-transform ${expandedChecklist === event.id ? 'rotate-180' : ''}`} />
+                          Pre-event checklist ({getChecklist(event.id).filter(i => i.done).length}/{getChecklist(event.id).length})
+                        </button>
+                        <AnimatePresence>
+                          {expandedChecklist === event.id && (
+                            <motion.div
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: 'auto' }}
+                              exit={{ opacity: 0, height: 0 }}
+                              className="overflow-hidden mt-1.5 space-y-1"
+                            >
+                              {getChecklist(event.id).map(item => (
+                                <button
+                                  key={item.id}
+                                  onClick={(e) => { e.stopPropagation(); toggleChecklistItem(event.id, item.id); }}
+                                  className="w-full flex items-center gap-2 p-1.5 rounded-lg hover:bg-secondary/5 transition-colors text-left"
+                                >
+                                  {item.done ? (
+                                    <CheckSquare size={12} className="text-green-600 shrink-0" />
+                                  ) : (
+                                    <Square size={12} className="text-secondary/30 shrink-0" />
+                                  )}
+                                  <span className={`text-[11px] font-medium ${item.done ? 'text-secondary/40 line-through' : 'text-secondary/70'}`}>
+                                    {item.label}
+                                  </span>
+                                </button>
+                              ))}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </div>
                     )}
                   </div>

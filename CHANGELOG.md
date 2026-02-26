@@ -66,6 +66,8 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Public profile tier badge** — organiser profile sheet now shows Bronze/Silver/Gold tier badge instead of plain "Organiser" label
 - **Public profile engagement stats** — average fill rate displayed prominently on the public organiser profile
 - **Public profile top event highlight** — the best-performing event is showcased with an accent card on the public profile
+- **Dashboard widget settings** — gear icon opens a panel to show/hide dashboard sections (alerts, completeness, milestones, activity chart, countdown)
+- **Event pre-checklist** — each upcoming event has a collapsible 4-item checklist (Confirm venue, Share on socials, Send reminders, Prepare materials) with completion tracking persisted locally
 
 ### Changed
 - **Organiser dashboard lazy-loaded** — OrganiserDashboard is now loaded on demand via React.lazy(), reducing the main bundle from 520KB to 494KB (26KB saved) with a matching loading skeleton
