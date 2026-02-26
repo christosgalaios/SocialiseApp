@@ -1268,19 +1268,33 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
       })()}
 
       {/* Weekly Activity */}
-      {isWidgetVisible('activity') && events.length > 0 && (
+      {isWidgetVisible('activity') && events.length > 0 && (() => {
+        const totalWeekAttendees = weeklyActivity.days.reduce((s, d) => s + d.attendees, 0);
+        const totalWeekEvents = weeklyActivity.days.reduce((s, d) => s + d.events, 0);
+        return (
         <motion.div variants={itemVariants} className="premium-card p-5 relative overflow-hidden">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-8 h-8 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-              <Activity size={16} className="text-primary" />
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+                <Activity size={16} className="text-primary" />
+              </div>
+              <h3 className="text-xs font-black text-primary uppercase tracking-widest">This Week</h3>
             </div>
-            <h3 className="text-xs font-black text-primary uppercase tracking-widest">This Week</h3>
+            <span className="text-[9px] font-bold text-secondary/35">{totalWeekEvents} events · {totalWeekAttendees} attendees</span>
           </div>
-          <div className="flex items-end justify-between gap-1 h-16">
-            {weeklyActivity.days.map((day, i) => (
-              <div key={i} className="flex-1 flex flex-col items-center gap-1">
+          <div className="flex items-end justify-between gap-1 h-20">
+            {weeklyActivity.days.map((day, i) => {
+              const isToday = i === weeklyActivity.days.length - 1;
+              const barColor = isToday ? 'bg-accent' : day.events > 0 ? 'bg-primary/60' : 'bg-secondary/20';
+              return (
+              <div key={i} className="flex-1 flex flex-col items-center gap-1 relative group">
+                {day.attendees > 0 && (
+                  <div className="absolute -top-5 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                    <span className="text-[8px] font-black text-primary bg-primary/10 px-1.5 py-0.5 rounded-full whitespace-nowrap">{day.attendees}</span>
+                  </div>
+                )}
                 <motion.div
-                  className="w-full rounded-t-lg bg-primary/60"
+                  className={`w-full rounded-t-lg ${barColor}`}
                   style={{ minHeight: 2 }}
                   initial={{ height: 0 }}
                   animate={{ height: `${Math.max((day.attendees / weeklyActivity.maxAttendees) * 100, 5)}%` }}
@@ -1288,15 +1302,23 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                   title={`${day.attendees} attendees, ${day.events} event${day.events !== 1 ? 's' : ''}`}
                 />
               </div>
-            ))}
+              );
+            })}
           </div>
           <div className="flex justify-between mt-1.5">
-            {weeklyActivity.days.map((day, i) => (
-              <span key={i} className="flex-1 text-center text-[8px] font-bold text-secondary/30 uppercase">{day.label}</span>
-            ))}
+            {weeklyActivity.days.map((day, i) => {
+              const isToday = i === weeklyActivity.days.length - 1;
+              return (
+              <div key={i} className="flex-1 text-center">
+                <span className={`text-[8px] font-bold uppercase ${isToday ? 'text-accent' : 'text-secondary/30'}`}>{day.label}</span>
+                {day.events > 0 && <div className={`w-1.5 h-1.5 rounded-full mx-auto mt-0.5 ${isToday ? 'bg-accent' : 'bg-green-500/50'}`} />}
+              </div>
+              );
+            })}
           </div>
         </motion.div>
-      )}
+        );
+      })()}
 
       {/* Milestones */}
       {isWidgetVisible('milestones') && (
