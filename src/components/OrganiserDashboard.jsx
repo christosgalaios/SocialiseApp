@@ -848,21 +848,21 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           whileHover={{ y: -2 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => { playTap(); hapticTap(); setShowTribeDiscovery(true); }}
-          className="p-3 rounded-2xl bg-secondary/5 border border-secondary/10 font-bold text-sm text-secondary flex flex-col items-center justify-center gap-1.5 hover:bg-secondary/10 transition-colors"
+          className="p-3 rounded-2xl bg-secondary/5 border border-secondary/10 font-bold text-sm text-secondary flex flex-col items-center justify-center gap-1.5 hover:bg-secondary/10 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
         >
           <Users size={20} />
           <span className="text-[10px]">Community</span>
-          <kbd className="hidden md:inline text-[8px] font-mono text-secondary/30 bg-secondary/5 px-1 rounded">C</kbd>
+          <kbd className="hidden md:inline text-[8px] font-mono text-secondary/30 bg-secondary/5 px-1 rounded group-hover:text-secondary/50 transition-colors">C</kbd>
         </motion.button>
         <motion.button
           whileHover={{ y: -2 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => { playTap(); hapticTap(); setShowOrganiserEditProfile(true); }}
-          className="p-3 rounded-2xl bg-secondary/5 border border-secondary/10 font-bold text-sm text-secondary flex flex-col items-center justify-center gap-1.5 hover:bg-secondary/10 transition-colors"
+          className="p-3 rounded-2xl bg-secondary/5 border border-secondary/10 font-bold text-sm text-secondary flex flex-col items-center justify-center gap-1.5 hover:bg-secondary/10 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
         >
           <Pencil size={20} />
           <span className="text-[10px]">Edit</span>
-          <kbd className="hidden md:inline text-[8px] font-mono text-secondary/30 bg-secondary/5 px-1 rounded">E</kbd>
+          <kbd className="hidden md:inline text-[8px] font-mono text-secondary/30 bg-secondary/5 px-1 rounded group-hover:text-secondary/50 transition-colors">E</kbd>
         </motion.button>
         <motion.button
           whileHover={{ y: -2 }}
@@ -874,7 +874,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               .then(() => showToast('Profile link copied!', 'success'))
               .catch(() => showToast('Could not copy link', 'error'));
           }}
-          className="p-3 rounded-2xl bg-secondary/5 border border-secondary/10 font-bold text-sm text-secondary flex flex-col items-center justify-center gap-1.5 hover:bg-secondary/10 transition-colors"
+          className="p-3 rounded-2xl bg-secondary/5 border border-secondary/10 font-bold text-sm text-secondary flex flex-col items-center justify-center gap-1.5 hover:bg-secondary/10 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
         >
           <Share2 size={20} />
           <span className="text-[10px]">Share</span>
@@ -2024,7 +2024,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                       <span className="text-[10px] text-secondary/40 font-medium">
                         {memberCount} members
                       </span>
-                      <span className={`inline-flex items-center gap-0.5 text-[9px] font-bold ${sizeColor} bg-current/10 px-1.5 py-0.5 rounded-full`}>
+                      <span className={`inline-flex items-center gap-0.5 text-[9px] font-bold ${sizeColor} bg-current/10 px-1.5 py-0.5 rounded-full transition-colors duration-200`}>
                         <ArrowUpRight size={8} />
                         {sizeLabel}
                       </span>

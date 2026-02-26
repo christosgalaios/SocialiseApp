@@ -56,6 +56,9 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Stats card glow fix** — the subtle radial glow on stat cards now properly appears on hover instead of being stuck at a faint static opacity
 - **Stats card trend badge hover** — the trend percentage badge (e.g. "+12%") subtly scales up on hover for visual polish
 - **Switch to attendee hover underline** — the "Switch to attendee view" link shows an underline on hover for better affordance
+- **Quick action keyboard focus rings** — Community, Edit, and Share quick action buttons now show a primary-colored ring when focused via keyboard
+- **Keyboard shortcut badge hover** — the `C` and `E` shortcut badges on quick actions brighten on hover
+- **Community size label transition** — the "Starting/Growing/Large" size label now transitions smoothly between color states
 - **Community empty state polish** — spring-animated icon with gradient background, staggered "Engage / Grow / Connect" hint tags, subtle glow backdrop
 - **Profile stat badges staggered entrance** — the upcoming/past/communities/attendees badges in the organiser header animate in with spring scale stagger instead of appearing instantly
 - **Community card hover lift** — community cards in the dashboard now lift on hover and scale on tap for tactile feedback
