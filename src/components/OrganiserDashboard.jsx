@@ -417,9 +417,19 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
 
   if (loading) {
     return (
-      <div className="space-y-5 animate-pulse">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+        className="space-y-5"
+      >
         {/* Profile header skeleton */}
-        <div className="premium-card p-6 rounded-[24px]">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0 }}
+          className="premium-card p-6 rounded-[24px] animate-pulse"
+        >
           <div className="flex items-center gap-4 mb-4">
             <div className="w-16 h-16 rounded-[24px] bg-secondary/10" />
             <div className="flex-1 space-y-2">
@@ -429,28 +439,49 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           </div>
           <div className="h-4 w-full bg-secondary/10 rounded-full mb-2" />
           <div className="h-4 w-3/4 bg-secondary/10 rounded-full" />
-        </div>
+        </motion.div>
         {/* Quick actions skeleton */}
         <div className="grid grid-cols-4 gap-2">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-[76px] rounded-2xl bg-secondary/10" />
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.1 + i * 0.05 }}
+              className="h-[76px] rounded-2xl bg-secondary/10 animate-pulse"
+            />
           ))}
         </div>
         {/* Stats grid skeleton */}
-        <div>
-          <div className="h-3 w-32 bg-secondary/10 rounded-full mb-3" />
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <div className="h-3 w-32 bg-secondary/10 rounded-full mb-3 animate-pulse" />
           <div className="grid grid-cols-2 gap-3">
             {[0, 1, 2, 3].map(i => (
-              <div key={i} className="premium-card p-5 rounded-[24px]">
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35 + i * 0.06 }}
+                className="premium-card p-5 rounded-[24px] animate-pulse"
+              >
                 <div className="w-11 h-11 rounded-2xl bg-secondary/10 mb-3" />
                 <div className="h-7 w-12 bg-secondary/10 rounded-full mb-1" />
                 <div className="h-2.5 w-20 bg-secondary/10 rounded-full" />
-              </div>
+              </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
         {/* Events section skeleton */}
-        <div className="premium-card p-6 rounded-[24px]">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="premium-card p-6 rounded-[24px] animate-pulse"
+        >
           <div className="h-3 w-24 bg-secondary/10 rounded-full mb-4" />
           {[0, 1, 2].map(i => (
             <div key={i} className="flex items-center gap-3 p-3 mb-2">
@@ -461,8 +492,8 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               </div>
             </div>
           ))}
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     );
   }
 
@@ -1277,6 +1308,13 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
         return (
         <motion.div variants={itemVariants} className="premium-card p-4 relative overflow-hidden">
           <div className="absolute -right-4 -top-4 w-20 h-20 bg-green-500/5 rounded-full blur-2xl" />
+          {nextEvent.countdown === 'Starting soon' && (
+            <motion.div
+              className="absolute inset-0 rounded-[24px] border-2 border-green-500/20"
+              animate={{ opacity: [0.3, 0.7, 0.3] }}
+              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+            />
+          )}
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-2xl overflow-hidden bg-secondary/10 shrink-0 relative">
               {nextEvent.image && <img src={nextEvent.image} className="w-full h-full object-cover" alt="" loading="lazy" />}

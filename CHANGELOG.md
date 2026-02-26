@@ -19,6 +19,8 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Text overflow in bug/feature modals** — both BugReportModal and FeatureRequestModal now consistently handle long text with word-break, overflow-wrap, and overscroll containment (BUG-1772022766344)
 
 ### Added
+- **Dashboard loading skeleton cascade** — skeleton elements now stagger in with individual fade-up animations instead of a single pulse, with quick actions scaling in individually and stat cards cascading
+- **Next Event countdown urgency pulse** — when the countdown says "Starting soon", a green border pulse animation appears around the card to draw attention
 - **Stats card icon wobble** — stat card icons tilt and scale up on hover, value text shifts to primary color, label brightens — adds tactile feedback across both dashboard tabs
 - **Public profile stat cards hover lift** — quick stats grid on the public organiser profile lifts on hover with staggered entrance animation
 - **Public profile category chips stagger** — category chips on the public profile spring in with staggered scale animation
