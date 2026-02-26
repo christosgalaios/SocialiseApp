@@ -4,7 +4,7 @@ import {
   Calendar, Users, TrendingUp, Plus, Megaphone,
   ChevronRight, BarChart3, Globe, Pencil, Clock, History, RefreshCw, Share2, Sparkles,
   Pin, DollarSign, UserCheck, Repeat, Copy, StickyNote, Activity, Search, Download, ArrowUpRight,
-  AlertTriangle, Award, Target, Zap, Settings, CheckSquare, Square, ChevronDown, X,
+  AlertTriangle, Award, Target, Zap, Settings, CheckSquare, Square, ChevronDown, X, Check,
 } from 'lucide-react';
 import useAuthStore from '../stores/authStore';
 import useUIStore from '../stores/uiStore';
@@ -88,6 +88,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
   const [newCommunityName, setNewCommunityName] = useState('');
   const [newCommunityDesc, setNewCommunityDesc] = useState('');
   const [isCreatingCommunity, setIsCreatingCommunity] = useState(false);
+  const [exportDone, setExportDone] = useState(false);
 
   const fetchDashboard = useCallback(async (silent = false) => {
     try {
@@ -315,6 +316,8 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
     URL.revokeObjectURL(url);
     showToast('Analytics exported', 'success');
     playClick();
+    setExportDone(true);
+    setTimeout(() => setExportDone(false), 1500);
   }, [user, stats, events, revenueInsights, showToast]);
 
   const handleCreateCommunity = useCallback(async () => {
@@ -832,14 +835,17 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               <h3 className="text-xs font-black text-primary uppercase tracking-widest">
                 Your Performance<span className="text-accent">.</span>
               </h3>
-              <button
+              <motion.button
                 onClick={exportAnalytics}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-secondary/5 border border-secondary/10 text-[10px] font-bold text-secondary/50 hover:text-secondary/70 transition-colors"
+                whileTap={{ scale: 0.94 }}
+                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border text-[10px] font-bold transition-colors ${
+                  exportDone ? 'bg-green-500/10 border-green-500/20 text-green-600' : 'bg-secondary/5 border-secondary/10 text-secondary/50 hover:text-secondary/70'
+                }`}
                 aria-label="Export analytics"
               >
-                <Download size={10} />
-                Export
-              </button>
+                {exportDone ? <Check size={10} /> : <Download size={10} />}
+                {exportDone ? 'Done' : 'Export'}
+              </motion.button>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <OrganiserStatsCard
@@ -888,11 +894,21 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
             return (
               <div className="premium-card p-5 relative overflow-hidden">
                 <div className="absolute -right-6 -top-6 w-24 h-24 bg-accent/5 rounded-full blur-2xl" />
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center">
-                    <TrendingUp size={16} className="text-accent" />
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center">
+                      <TrendingUp size={16} className="text-accent" />
+                    </div>
+                    <h3 className="text-xs font-black text-accent uppercase tracking-widest">Top Performer</h3>
                   </div>
-                  <h3 className="text-xs font-black text-accent uppercase tracking-widest">Top Performer</h3>
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: 'spring', damping: 15, stiffness: 300 }}
+                    className={`text-[10px] font-black px-2 py-0.5 rounded-full ${bestFill >= 80 ? 'text-accent bg-accent/10 border border-accent/20' : 'text-primary bg-primary/10 border border-primary/20'}`}
+                  >
+                    {bestFill}%
+                  </motion.span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-14 h-14 rounded-2xl overflow-hidden bg-secondary/10 shrink-0">
@@ -900,10 +916,19 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-black text-secondary truncate">{best?.title}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-[11px] font-bold text-accent">{bestFill}% filled</span>
-                      <span className="text-secondary/20">|</span>
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
                       <span className="text-[11px] font-medium text-secondary/50">{best?.attendees}/{best?.spots} spots</span>
+                      {best?.category && (
+                        <span className="text-[9px] font-bold text-primary/50 bg-primary/5 px-1.5 py-0.5 rounded-full">{best.category}</span>
+                      )}
+                    </div>
+                    <div className="w-full h-1.5 bg-secondary/10 rounded-full mt-2 overflow-hidden">
+                      <motion.div
+                        className={`h-full rounded-full ${bestFill >= 80 ? 'bg-accent/60' : 'bg-primary/50'}`}
+                        initial={{ width: 0 }}
+                        animate={{ width: `${Math.min(bestFill, 100)}%` }}
+                        transition={{ duration: 0.6, ease: 'easeOut', delay: 0.2 }}
+                      />
                     </div>
                   </div>
                 </div>

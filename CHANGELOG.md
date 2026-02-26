@@ -13,6 +13,8 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 ## [Unreleased]
 
 ### Added
+- **Top performer fill bar and category tag** — the Top Performer card now shows an animated fill progress bar and category tag with a badge-style percentage
+- **Export analytics success state** — the Export button shows a brief green checkmark + "Done" state after exporting with a tap scale animation
 - **Category distribution staggered bars** — analytics category bars now cascade in with staggered slide animation; the top category is highlighted with accent gold color
 - **Fill rate bar spot counts** — event fill rate bars now show attendee/spot counts alongside percentages with staggered entry animations
 - **HomeTab today's events fill bars** — today's events in the organiser overview now show mini progress bars with color-coded status and a "Full" badge when sold out
