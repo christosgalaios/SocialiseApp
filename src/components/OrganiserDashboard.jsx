@@ -567,13 +567,13 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                   const fullEvent = allEvents.find(e => e.id === alert.event.id) || alert.event;
                   playTap(); hapticTap(); setSelectedEvent(fullEvent);
                 }}
-                className="text-[10px] font-bold text-primary hover:underline shrink-0"
+                className="text-[10px] font-bold text-primary hover:underline shrink-0 rounded focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
               >
                 View
               </button>
               <button
                 onClick={(e) => { e.stopPropagation(); setDismissedAlerts(prev => [...prev, i]); }}
-                className="w-6 h-6 rounded-lg flex items-center justify-center text-secondary/30 hover:text-secondary/50 hover:bg-secondary/10 transition-colors shrink-0"
+                className="w-6 h-6 rounded-lg flex items-center justify-center text-secondary/30 hover:text-secondary/50 hover:bg-secondary/10 transition-colors shrink-0 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                 aria-label="Dismiss alert"
               >
                 <X size={12} />
@@ -628,7 +628,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           <div className="flex items-center gap-1.5 shrink-0">
             <button
               onClick={() => { playTap(); setShowWidgetSettings(!showWidgetSettings); }}
-              className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${
+              className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${
                 showWidgetSettings ? 'bg-primary/10 text-primary' : 'bg-secondary/5 border border-secondary/10 text-secondary/60 hover:bg-secondary/10'
               }`}
               aria-label="Dashboard settings"
@@ -638,7 +638,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
             <button
               onClick={handleRefresh}
               disabled={isRefreshing}
-              className="w-9 h-9 rounded-xl bg-secondary/5 border border-secondary/10 flex items-center justify-center hover:bg-secondary/10 transition-colors disabled:opacity-50"
+              className="w-9 h-9 rounded-xl bg-secondary/5 border border-secondary/10 flex items-center justify-center hover:bg-secondary/10 transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
               aria-label="Refresh dashboard (R)"
               title="Refresh (R)"
             >
@@ -646,7 +646,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
             </button>
             <button
               onClick={() => { playTap(); hapticTap(); setShowOrganiserEditProfile(true); }}
-              className="w-9 h-9 rounded-xl bg-secondary/5 border border-secondary/10 flex items-center justify-center hover:bg-secondary/10 transition-colors"
+              className="w-9 h-9 rounded-xl bg-secondary/5 border border-secondary/10 flex items-center justify-center hover:bg-secondary/10 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
               aria-label="Edit organiser profile"
             >
               <Pencil size={14} className="text-secondary/60" />
@@ -721,7 +721,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
 
         <button
           onClick={() => { playTap(); onSwitchToAttendee(); }}
-          className="text-[10px] font-black text-secondary/40 uppercase tracking-widest hover:text-secondary/60 hover:underline underline-offset-2 transition-colors"
+          className="text-[10px] font-black text-secondary/40 uppercase tracking-widest hover:text-secondary/60 hover:underline underline-offset-2 transition-colors rounded focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
         >
           Switch to attendee view
         </button>
@@ -1216,7 +1216,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                       const fullEvent = allEvents.find(e => e.id === audienceInsights.bestEvent.id) || audienceInsights.bestEvent;
                       playTap(); hapticTap(); setSelectedEvent(fullEvent);
                     }}
-                    className="w-full pt-3 mt-3 border-t border-secondary/10 text-left hover:bg-secondary/5 -mx-1 px-1 rounded-xl transition-colors"
+                    className="w-full pt-3 mt-3 border-t border-secondary/10 text-left hover:bg-secondary/5 -mx-1 px-1 rounded-xl transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                   >
                     <p className="text-[9px] font-black text-accent uppercase tracking-widest mb-1.5">Most Popular Event</p>
                     <div className="flex items-center gap-3">
@@ -1313,7 +1313,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               </div>
               <button
                 onClick={() => { playClick(); hapticTap(); onCreateEvent?.(); }}
-                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-xs font-bold active:scale-95 transition-transform shadow-lg"
+                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-xs font-bold active:scale-95 transition-transform shadow-lg focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
               >
                 <Plus size={14} />
                 Create Your First Event
@@ -1594,7 +1594,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
             {eventSearch && (
               <button
                 onClick={() => setEventSearch('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                 aria-label="Clear search"
               >
                 <X size={10} className="text-secondary/50" />
@@ -1622,7 +1622,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
             <p className="text-[11px] text-secondary/30 mb-4 max-w-[200px] mx-auto">Create your first event and start building your audience</p>
             <button
               onClick={() => { playClick(); hapticTap(); onCreateEvent?.(); }}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary/10 border border-primary/20 text-primary text-xs font-bold hover:bg-primary/20 transition-colors"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary/10 border border-primary/20 text-primary text-xs font-bold hover:bg-primary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
             >
               <Plus size={14} />
               Create Event
@@ -1676,7 +1676,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                   >
                     <button
                       onClick={() => { playTap(); hapticTap(); setSelectedEvent(fullEvent); }}
-                      className={`w-full flex items-center gap-3 p-3 rounded-2xl border hover:bg-secondary/10 transition-colors text-left ${
+                      className={`w-full flex items-center gap-3 p-3 rounded-2xl border hover:bg-secondary/10 transition-colors text-left focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${
                         isPinned ? 'bg-accent/5 border-accent/20' : 'bg-secondary/5 border-secondary/10'
                       }`}
                     >
@@ -1988,7 +1988,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
             </div>
             <button
               onClick={() => { playTap(); setShowCreateCommunity(true); }}
-              className="inline-flex items-center gap-1 px-4 py-2 rounded-xl bg-primary/10 border border-primary/20 text-primary text-xs font-bold hover:bg-primary/20 transition-colors"
+              className="inline-flex items-center gap-1 px-4 py-2 rounded-xl bg-primary/10 border border-primary/20 text-primary text-xs font-bold hover:bg-primary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
             >
               <Plus size={14} />
               Create Community
