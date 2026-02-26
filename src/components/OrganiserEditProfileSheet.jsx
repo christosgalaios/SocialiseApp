@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Link2, Check } from 'lucide-react';
+import { X, Link2, Check, Camera, ShieldCheck } from 'lucide-react';
 import { CATEGORIES, ORGANISER_SOCIAL_PLATFORMS } from '../data/constants';
 import { playTap, playSuccess } from '../utils/feedback';
 import useAuthStore from '../stores/authStore';
@@ -19,6 +19,7 @@ export default function OrganiserEditProfileSheet() {
   const [organiserBio, setOrganiserBio] = useState(user?.organiserBio || '');
   const [selectedCategories, setSelectedCategories] = useState(user?.organiserCategories || []);
   const [socialLinks, setSocialLinks] = useState(user?.organiserSocialLinks || {});
+  const [coverPhotoPreview, setCoverPhotoPreview] = useState(user?.organiserCoverPhoto || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const close = () => setShowOrganiserEditProfile(false);
@@ -70,6 +71,7 @@ export default function OrganiserEditProfileSheet() {
         organiserSocialLinks: Object.fromEntries(
           Object.entries(socialLinks).filter(([, v]) => v?.trim())
         ),
+        organiserCoverPhoto: coverPhotoPreview.trim() || null,
       });
       setUser(updated);
       playSuccess();
@@ -125,6 +127,39 @@ export default function OrganiserEditProfileSheet() {
 
             {/* Scrollable content */}
             <div className="flex-1 overflow-y-auto p-6 space-y-6" style={{ overscrollBehavior: 'contain' }}>
+              {/* Cover Photo */}
+              <div>
+                <label className="text-xs font-black text-secondary/60 uppercase tracking-widest mb-2 block">
+                  Cover Photo
+                </label>
+                <div className="relative h-24 rounded-2xl overflow-hidden bg-secondary/5 border-2 border-dashed border-secondary/20">
+                  {coverPhotoPreview ? (
+                    <>
+                      <img src={coverPhotoPreview} className="w-full h-full object-cover" alt="Cover" />
+                      <button
+                        onClick={() => setCoverPhotoPreview('')}
+                        className="absolute top-2 right-2 w-7 h-7 rounded-full bg-secondary/80 flex items-center justify-center"
+                        aria-label="Remove cover photo"
+                      >
+                        <X size={14} className="text-white" />
+                      </button>
+                    </>
+                  ) : (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-1">
+                      <Camera size={20} className="text-secondary/30" />
+                      <span className="text-[10px] font-bold text-secondary/30">Paste image URL below</span>
+                    </div>
+                  )}
+                </div>
+                <input
+                  type="text"
+                  placeholder="https://example.com/cover-photo.jpg"
+                  value={coverPhotoPreview}
+                  onChange={(e) => setCoverPhotoPreview(e.target.value)}
+                  className="w-full mt-2 bg-secondary/5 border border-secondary/20 rounded-xl px-3 py-2 text-sm font-medium text-[var(--text)] focus:outline-none focus:border-primary transition-all placeholder:text-secondary/40"
+                />
+              </div>
+
               {/* Display Name */}
               <div>
                 <label className="text-xs font-black text-secondary/60 uppercase tracking-widest mb-2 block">
@@ -219,6 +254,36 @@ export default function OrganiserEditProfileSheet() {
                   })}
                 </div>
               </div>
+
+              {/* Verification Request */}
+              {!user?.organiserVerified && (
+                <div className="premium-card p-4 rounded-2xl">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
+                      <ShieldCheck size={18} className="text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-bold text-secondary">Get Verified</p>
+                      <p className="text-[10px] text-secondary/40">Verified organisers get a badge on their profile</p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        playTap();
+                        showToast('Verification request submitted! We\'ll review your profile.', 'success');
+                      }}
+                      className="px-3 py-1.5 rounded-xl bg-primary/10 border border-primary/20 text-primary text-[11px] font-bold hover:bg-primary/20 transition-colors"
+                    >
+                      Request
+                    </button>
+                  </div>
+                </div>
+              )}
+              {user?.organiserVerified && (
+                <div className="flex items-center gap-2 p-3 rounded-2xl bg-green-500/5 border border-green-500/10">
+                  <ShieldCheck size={16} className="text-green-600" />
+                  <span className="text-sm font-bold text-green-600">Verified Organiser</span>
+                </div>
+              )}
             </div>
 
             {/* Footer with save button */}

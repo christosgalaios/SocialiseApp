@@ -42,6 +42,9 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Community quick action** — "Community" button on the organiser dashboard now opens the tribe discovery modal to browse and join communities
 - **Responsive dashboard grid** — events and communities sections display side-by-side on wide screens (lg breakpoint) for better desktop experience
 - **3-column quick actions** — dashboard quick actions reorganised into a 3-column grid (New Event, Community, Share) with icon + label layout
+- **Cover photo editing** — edit profile sheet now lets organisers set or remove a cover photo via URL
+- **Verification request** — edit profile sheet shows a "Get Verified" section that submits a verification request; verified organisers see a green badge instead
+- **Trend arrows on stat cards** — OrganiserStatsCard now shows TrendingUp/TrendingDown/Minus icons alongside percentage trends for clearer visual feedback
 
 ### Changed
 - **Public organiser profile redesign** — richer layout with cover photo, quick stats grid, "Connect" section for social links, "Hosts" section for categories, and improved loading skeleton

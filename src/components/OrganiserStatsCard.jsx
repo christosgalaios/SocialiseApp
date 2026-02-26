@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 
 export default function OrganiserStatsCard({ icon: Icon, value, label, trend, color = 'text-primary', bgColor = 'bg-primary/10', borderColor = 'border-primary/20' }) {
   return (
@@ -15,9 +16,10 @@ export default function OrganiserStatsCard({ icon: Icon, value, label, trend, co
           {Icon && <Icon size={22} className={color} />}
         </div>
         {trend != null && (
-          <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${
+          <span className={`inline-flex items-center gap-0.5 text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${
             trend > 0 ? 'text-green-600 bg-green-500/10' : trend < 0 ? 'text-red-500 bg-red-500/10' : 'text-secondary/40 bg-secondary/5'
           }`}>
+            {trend > 0 ? <TrendingUp size={10} /> : trend < 0 ? <TrendingDown size={10} /> : <Minus size={10} />}
             {trend > 0 ? '+' : ''}{trend}%
           </span>
         )}
