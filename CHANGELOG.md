@@ -50,6 +50,9 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Public profile top event hover lift** — the "Top Event" highlight card lifts on hover and compresses on tap for consistent card feedback
 - **Public profile social link hover scale** — social link chips scale up on hover and compress on tap for better affordance
 - **Public profile follow button hover** — the Follow/Following button subtly scales up on hover before the tap compression
+- **Category distribution hover nudge** — category rows in analytics slide right on hover for easier data scanning
+- **Fill rate row hover nudge** — event fill rate rows in analytics slide right on hover for consistent interaction
+- **Export analytics hover scale** — the Export button scales up on hover for better affordance
 - **Community empty state polish** — spring-animated icon with gradient background, staggered "Engage / Grow / Connect" hint tags, subtle glow backdrop
 - **Profile stat badges staggered entrance** — the upcoming/past/communities/attendees badges in the organiser header animate in with spring scale stagger instead of appearing instantly
 - **Community card hover lift** — community cards in the dashboard now lift on hover and scale on tap for tactile feedback
