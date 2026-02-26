@@ -28,6 +28,10 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Platform-specific social link colors** — social links on the public profile use platform-specific color accents (pink for Instagram, sky for Twitter, etc.) instead of uniform gray
 - **Next event countdown fill bar** — the "Next Event" widget now shows attendee count and an animated fill progress bar with color-coded status
 - **Community description previews** — community rows on the organiser dashboard now show a one-line description snippet and category tag
+- **Your Next Event card** — home tab now shows your next upcoming RSVP'd event at the top with countdown, time, location, and attendee fill bar (FEAT-1772137506380)
+- **Organiser vibe reviews** — users can now leave vibe tags (welcoming, chill, fun vibe, etc.) and optional comments on organiser profiles to share their experience (FEAT-1772137892222)
+- **Review tags on organiser profiles** — public organiser profiles display aggregated vibe tags with frequency counts from all reviewers
+- **Review organiser from event details** — "Review Organiser" button in the Hosted By section of event details opens the review sheet
 
 ### Changed
 - **OrganiserProfileSheet lazy-loaded** — the public organiser profile sheet is now code-split into its own 17KB chunk, reducing the main bundle from 500KB to 483KB

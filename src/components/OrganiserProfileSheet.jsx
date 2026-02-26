@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, Users, Globe, Megaphone, ChevronRight, ExternalLink, UserPlus, UserCheck, Clock, History, Star, TrendingUp, Share2, MessageCircle } from 'lucide-react';
-import { DEFAULT_AVATAR, ORGANISER_SOCIAL_PLATFORMS, CATEGORIES } from '../data/constants';
+import { X, Calendar, Users, Globe, Megaphone, ChevronRight, ExternalLink, UserPlus, UserCheck, Clock, History, Star, TrendingUp, Share2, MessageCircle, Sparkles } from 'lucide-react';
+import { DEFAULT_AVATAR, ORGANISER_SOCIAL_PLATFORMS, CATEGORIES, ORGANISER_VIBE_TAGS } from '../data/constants';
 import { playTap, playClick, hapticTap } from '../utils/feedback';
 import useUIStore from '../stores/uiStore';
 import useEventStore from '../stores/eventStore';
@@ -38,10 +38,13 @@ export default function OrganiserProfileSheet() {
   const setSelectedTribe = useCommunityStore((s) => s.setSelectedTribe);
   const allCommunities = useCommunityStore((s) => s.communities);
 
+  const setShowOrganiserReview = useUIStore((s) => s.setShowOrganiserReview);
+
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
   const [eventTab, setEventTab] = useState('upcoming');
+  const [reviewData, setReviewData] = useState(null);
 
   const close = () => setShowOrganiserProfile(null);
   useEscapeKey(close);
@@ -52,8 +55,16 @@ export default function OrganiserProfileSheet() {
     if (!userId) return;
     let cancelled = false;
     setLoading(true);
-    api.getOrganiserProfile(userId)
-      .then(data => { if (!cancelled) setProfile(data); })
+    setReviewData(null);
+    Promise.all([
+      api.getOrganiserProfile(userId),
+      api.getOrganiserReviews(userId).catch(() => null),
+    ])
+      .then(([profileData, reviews]) => {
+        if (cancelled) return;
+        setProfile(profileData);
+        if (reviews) setReviewData(reviews);
+      })
       .catch(err => { if (!cancelled) showToast(err.message || 'Failed to load profile', 'error'); })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
@@ -497,6 +508,71 @@ export default function OrganiserProfileSheet() {
                             );
                           })}
                         </div>
+                      </motion.div>
+                    )}
+
+                    {/* Reviews / Vibe Tags */}
+                    {reviewData && reviewData.topTags?.length > 0 && (
+                      <motion.div {...sectionAnim(7)}>
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="text-xs font-black text-primary uppercase tracking-widest">
+                            Vibes<span className="text-accent">.</span>
+                          </h4>
+                          <button
+                            onClick={() => {
+                              playTap(); hapticTap();
+                              setShowOrganiserReview({
+                                organiserId: userId,
+                                organiserName: profile?.organiserDisplayName || profile?.name,
+                              });
+                            }}
+                            className="text-[10px] font-bold text-primary hover:text-accent transition-colors flex items-center gap-1"
+                          >
+                            <Sparkles size={10} />
+                            Leave a review
+                          </button>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {reviewData.topTags.map(({ tag, count }) => {
+                            const tagDef = ORGANISER_VIBE_TAGS.find(t => t.id === tag);
+                            if (!tagDef) return null;
+                            return (
+                              <span
+                                key={tag}
+                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold border ${tagDef.color}`}
+                              >
+                                <span>{tagDef.emoji}</span>
+                                {tagDef.label}
+                                {count > 1 && (
+                                  <span className="ml-0.5 text-[9px] font-black opacity-60">{count}</span>
+                                )}
+                              </span>
+                            );
+                          })}
+                        </div>
+                        <p className="text-[10px] text-secondary/30 font-medium mt-2">
+                          {reviewData.totalReviews} {reviewData.totalReviews === 1 ? 'review' : 'reviews'}
+                        </p>
+                      </motion.div>
+                    )}
+
+                    {/* Leave review CTA — show even when no reviews exist yet */}
+                    {reviewData && reviewData.topTags?.length === 0 && (
+                      <motion.div {...sectionAnim(7)}>
+                        <button
+                          onClick={() => {
+                            playTap(); hapticTap();
+                            setShowOrganiserReview({
+                              organiserId: userId,
+                              organiserName: profile?.organiserDisplayName || profile?.name,
+                            });
+                          }}
+                          className="w-full p-4 rounded-2xl bg-primary/5 border border-primary/10 hover:bg-primary/10 transition-colors text-center"
+                        >
+                          <Sparkles size={20} className="text-primary mx-auto mb-1.5" />
+                          <p className="text-sm font-bold text-secondary">Leave a vibe review</p>
+                          <p className="text-[10px] text-secondary/40 font-medium mt-0.5">Share your experience with this organiser</p>
+                        </button>
                       </motion.div>
                     )}
 
