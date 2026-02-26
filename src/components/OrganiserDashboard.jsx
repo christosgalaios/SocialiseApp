@@ -4,7 +4,7 @@ import {
   Calendar, Users, TrendingUp, Plus, Megaphone,
   ChevronRight, BarChart3, Globe, Pencil, Clock, History, RefreshCw, Share2, Sparkles,
   Pin, DollarSign, UserCheck, Repeat, Copy, StickyNote, Activity, Search, Download, ArrowUpRight,
-  AlertTriangle, Award, Target, Zap, Settings, CheckSquare, Square, ChevronDown, X, Check,
+  AlertTriangle, Award, Target, Zap, Settings, CheckSquare, Square, ChevronDown, X,
 } from 'lucide-react';
 import useAuthStore from '../stores/authStore';
 import useUIStore from '../stores/uiStore';
@@ -88,8 +88,6 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
   const [newCommunityName, setNewCommunityName] = useState('');
   const [newCommunityDesc, setNewCommunityDesc] = useState('');
   const [isCreatingCommunity, setIsCreatingCommunity] = useState(false);
-  const [exportDone, setExportDone] = useState(false);
-  const [dismissedAlerts, setDismissedAlerts] = useState([]);
 
   const fetchDashboard = useCallback(async (silent = false) => {
     try {
@@ -317,8 +315,6 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
     URL.revokeObjectURL(url);
     showToast('Analytics exported', 'success');
     playClick();
-    setExportDone(true);
-    setTimeout(() => setExportDone(false), 1500);
   }, [user, stats, events, revenueInsights, showToast]);
 
   const handleCreateCommunity = useCallback(async () => {
@@ -395,19 +391,6 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
     return 'Good Evening';
   };
 
-  const getTagline = () => {
-    const hosted = stats?.eventsHosted ?? 0;
-    const attendees = stats?.totalAttendees ?? 0;
-    const active = stats?.activeEvents ?? 0;
-    if (hosted === 0) return 'Ready to create your first event?';
-    if (active >= 3) return `${active} events running — you're on fire`;
-    if (attendees >= 100) return `${attendees} people reached and counting`;
-    if (upcomingEvents.length > 0) return `${upcomingEvents.length} upcoming — keep the momentum`;
-    if (hosted >= 10) return 'A seasoned organiser — impressive';
-    if (attendees > 0) return `${attendees} people connected through your events`;
-    return 'Your community is waiting';
-  };
-
   const getOrganiserTier = () => {
     const hosted = stats?.eventsHosted ?? 0;
     if (hosted >= 20) return { label: 'Gold', color: 'text-amber-500', bg: 'bg-amber-500/10', border: 'border-amber-500/20', icon: '👑' };
@@ -417,19 +400,9 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
 
   if (loading) {
     return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.3 }}
-        className="space-y-5"
-      >
+      <div className="space-y-5 animate-pulse">
         {/* Profile header skeleton */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0 }}
-          className="premium-card p-6 rounded-[24px] animate-pulse"
-        >
+        <div className="premium-card p-6 rounded-[24px]">
           <div className="flex items-center gap-4 mb-4">
             <div className="w-16 h-16 rounded-[24px] bg-secondary/10" />
             <div className="flex-1 space-y-2">
@@ -439,49 +412,28 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           </div>
           <div className="h-4 w-full bg-secondary/10 rounded-full mb-2" />
           <div className="h-4 w-3/4 bg-secondary/10 rounded-full" />
-        </motion.div>
+        </div>
         {/* Quick actions skeleton */}
         <div className="grid grid-cols-4 gap-2">
           {[...Array(4)].map((_, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.1 + i * 0.05 }}
-              className="h-[76px] rounded-2xl bg-secondary/10 animate-pulse"
-            />
+            <div key={i} className="h-[76px] rounded-2xl bg-secondary/10" />
           ))}
         </div>
         {/* Stats grid skeleton */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
-          <div className="h-3 w-32 bg-secondary/10 rounded-full mb-3 animate-pulse" />
+        <div>
+          <div className="h-3 w-32 bg-secondary/10 rounded-full mb-3" />
           <div className="grid grid-cols-2 gap-3">
             {[0, 1, 2, 3].map(i => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.35 + i * 0.06 }}
-                className="premium-card p-5 rounded-[24px] animate-pulse"
-              >
+              <div key={i} className="premium-card p-5 rounded-[24px]">
                 <div className="w-11 h-11 rounded-2xl bg-secondary/10 mb-3" />
                 <div className="h-7 w-12 bg-secondary/10 rounded-full mb-1" />
                 <div className="h-2.5 w-20 bg-secondary/10 rounded-full" />
-              </motion.div>
+              </div>
             ))}
           </div>
-        </motion.div>
+        </div>
         {/* Events section skeleton */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="premium-card p-6 rounded-[24px] animate-pulse"
-        >
+        <div className="premium-card p-6 rounded-[24px]">
           <div className="h-3 w-24 bg-secondary/10 rounded-full mb-4" />
           {[0, 1, 2].map(i => (
             <div key={i} className="flex items-center gap-3 p-3 mb-2">
@@ -492,8 +444,8 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               </div>
             </div>
           ))}
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     );
   }
 
@@ -506,16 +458,6 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           <h1 className="text-2xl font-black text-secondary tracking-tight">
             {getGreeting()}<span className="text-accent">,</span> {(user?.organiserDisplayName || user?.name)?.split(' ')[0]}<span className="text-accent">.</span>
           </h1>
-          {stats && (
-            <motion.p
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.4 }}
-              className="text-[11px] font-medium text-secondary/40 mt-0.5"
-            >
-              {getTagline()}
-            </motion.p>
-          )}
         </div>
         {stats && (() => {
           const tier = getOrganiserTier();
@@ -535,13 +477,11 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
       {/* Attention Alerts */}
       {isWidgetVisible('alerts') && attentionAlerts.length > 0 && (
         <motion.div variants={itemVariants} className="space-y-2">
-          <AnimatePresence>
-          {attentionAlerts.filter((_, i) => !dismissedAlerts.includes(i)).map((alert, i) => (
+          {attentionAlerts.map((alert, i) => (
             <motion.div
-              key={`alert-${i}`}
+              key={i}
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 10, height: 0, marginBottom: 0, padding: 0 }}
               transition={{ delay: i * 0.1 }}
               className={`flex items-center gap-3 p-3 rounded-2xl border ${
                 alert.type === 'low-fill'
@@ -549,44 +489,29 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                   : 'bg-green-500/5 border-green-500/20'
               }`}
             >
-              <motion.div
-                animate={alert.type === 'low-fill' ? { scale: [1, 1.08, 1] } : {}}
-                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
-                  alert.type === 'low-fill' ? 'bg-amber-500/10' : 'bg-green-500/10'
-                }`}
-              >
-                {alert.type === 'low-fill'
-                  ? <AlertTriangle size={14} className="text-amber-500" />
-                  : <Zap size={14} className="text-green-600" />
-                }
-              </motion.div>
+              <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
+                alert.type === 'low-fill' ? 'bg-amber-500/10' : 'bg-green-500/10'
+              }`}>
+                <AlertTriangle size={14} className={alert.type === 'low-fill' ? 'text-amber-500' : 'text-green-600'} />
+              </div>
               <p className="text-[11px] font-medium text-secondary/70 flex-1">{alert.message}</p>
               <button
                 onClick={() => {
                   const fullEvent = allEvents.find(e => e.id === alert.event.id) || alert.event;
                   playTap(); hapticTap(); setSelectedEvent(fullEvent);
                 }}
-                className="text-[10px] font-bold text-primary hover:underline shrink-0 rounded transition-all focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+                className="text-[10px] font-bold text-primary hover:underline shrink-0"
               >
                 View
               </button>
-              <button
-                onClick={(e) => { e.stopPropagation(); setDismissedAlerts(prev => [...prev, i]); }}
-                className="w-6 h-6 rounded-lg flex items-center justify-center text-secondary/30 hover:text-secondary/50 hover:bg-secondary/10 transition-colors shrink-0 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none relative before:absolute before:inset-[-10px] before:content-['']"
-                aria-label="Dismiss alert"
-              >
-                <X size={12} />
-              </button>
             </motion.div>
           ))}
-          </AnimatePresence>
         </motion.div>
       )}
 
       {/* Organiser Header */}
       <motion.div variants={itemVariants} className="premium-card p-6 relative overflow-hidden">
-        <div className="absolute -right-12 -top-12 w-48 h-48 bg-primary/5 rounded-full blur-3xl" aria-hidden="true" />
+        <div className="absolute -right-12 -top-12 w-48 h-48 bg-primary/5 rounded-full blur-3xl" />
 
         {/* Cover photo area */}
         {user?.organiserCoverPhoto && (
@@ -601,34 +526,22 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <h2 className="text-xl font-black text-secondary truncate select-text">
+              <h2 className="text-xl font-black text-secondary truncate">
                 {user?.organiserDisplayName || user?.name}
               </h2>
               {user?.organiserVerified && (
                 <span className="text-[10px] font-black text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">Verified</span>
               )}
             </div>
-            <div className="flex items-center gap-1.5 mt-1">
-              {(() => {
-                const tier = getOrganiserTier();
-                return (
-                  <motion.span
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ type: 'spring', damping: 15, stiffness: 300 }}
-                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full ${tier.bg} border ${tier.border} text-[9px] font-black ${tier.color} uppercase tracking-widest`}
-                  >
-                    <span>{tier.icon}</span>
-                    {tier.label}
-                  </motion.span>
-                );
-              })()}
+            <div className="flex items-center gap-1 mt-1">
+              <Megaphone size={12} className="text-accent" />
+              <span className="text-[10px] font-black text-accent uppercase tracking-widest">Organiser</span>
             </div>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
             <button
               onClick={() => { playTap(); setShowWidgetSettings(!showWidgetSettings); }}
-              className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${
+              className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${
                 showWidgetSettings ? 'bg-primary/10 text-primary' : 'bg-secondary/5 border border-secondary/10 text-secondary/60 hover:bg-secondary/10'
               }`}
               aria-label="Dashboard settings"
@@ -638,7 +551,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
             <button
               onClick={handleRefresh}
               disabled={isRefreshing}
-              className="w-9 h-9 rounded-xl bg-secondary/5 border border-secondary/10 flex items-center justify-center hover:bg-secondary/10 transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+              className="w-9 h-9 rounded-xl bg-secondary/5 border border-secondary/10 flex items-center justify-center hover:bg-secondary/10 transition-colors disabled:opacity-50"
               aria-label="Refresh dashboard (R)"
               title="Refresh (R)"
             >
@@ -646,7 +559,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
             </button>
             <button
               onClick={() => { playTap(); hapticTap(); setShowOrganiserEditProfile(true); }}
-              className="w-9 h-9 rounded-xl bg-secondary/5 border border-secondary/10 flex items-center justify-center hover:bg-secondary/10 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+              className="w-9 h-9 rounded-xl bg-secondary/5 border border-secondary/10 flex items-center justify-center hover:bg-secondary/10 transition-colors"
               aria-label="Edit organiser profile"
             >
               <Pencil size={14} className="text-secondary/60" />
@@ -655,7 +568,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
         </div>
 
         {user?.organiserBio && (
-          <p className="text-sm text-secondary/60 font-medium leading-relaxed mb-3 select-text">{user.organiserBio}</p>
+          <p className="text-sm text-secondary/60 font-medium leading-relaxed mb-3">{user.organiserBio}</p>
         )}
 
         {/* Category chips */}
@@ -676,52 +589,48 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
 
         {activeSocials.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-3">
-            {activeSocials.map((p, idx) => (
-              <motion.span
-                key={p.key}
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.2, delay: idx * 0.05 }}
-                whileHover={{ scale: 1.05, transition: { duration: 0.12 } }}
-                whileTap={{ scale: 0.95 }}
-                className="inline-flex items-center gap-1 px-2.5 py-1 bg-secondary/5 rounded-full border border-secondary/10 text-[11px] font-bold text-secondary/60 hover:border-primary/20 hover:text-primary cursor-pointer transition-colors"
-              >
+            {activeSocials.map(p => (
+              <span key={p.key} className="inline-flex items-center gap-1 px-2.5 py-1 bg-secondary/5 rounded-full border border-secondary/10 text-[11px] font-bold text-secondary/60">
                 <Globe size={10} />
                 {socialLinks[p.key]}
-              </motion.span>
+              </span>
             ))}
           </div>
         )}
 
         {/* Stat badges */}
-        {stats && (() => {
-          const badges = [
-            upcomingEvents.length > 0 && { icon: Clock, label: `${upcomingEvents.length} upcoming`, bg: 'bg-green-500/5', border: 'border-green-500/10', color: 'text-green-600' },
-            pastEvents.length > 0 && { icon: History, label: `${pastEvents.length} past`, bg: 'bg-secondary/5', border: 'border-secondary/10', color: 'text-secondary/40' },
-            communities.length > 0 && { icon: Users, label: `${communities.length} communities`, bg: 'bg-secondary/5', border: 'border-secondary/10', color: 'text-secondary/40' },
-            (stats.totalAttendees ?? 0) > 0 && { icon: TrendingUp, label: `${stats.totalAttendees} total attendees`, bg: 'bg-primary/5', border: 'border-primary/10', color: 'text-primary' },
-          ].filter(Boolean);
-          return badges.length > 0 ? (
-            <div className="flex flex-wrap gap-1.5 mb-3">
-              {badges.map((badge, idx) => (
-                <motion.span
-                  key={badge.label}
-                  initial={{ opacity: 0, scale: 0.85 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ type: 'spring', damping: 20, stiffness: 300, delay: 0.1 + idx * 0.06 }}
-                  className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg ${badge.bg} border ${badge.border} text-[10px] font-bold ${badge.color}`}
-                >
-                  <badge.icon size={10} />
-                  {badge.label}
-                </motion.span>
-              ))}
-            </div>
-          ) : null;
-        })()}
+        {stats && (
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {upcomingEvents.length > 0 && (
+              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-green-500/5 border border-green-500/10 text-[10px] font-bold text-green-600">
+                <Clock size={10} />
+                {upcomingEvents.length} upcoming
+              </span>
+            )}
+            {pastEvents.length > 0 && (
+              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-secondary/5 border border-secondary/10 text-[10px] font-bold text-secondary/40">
+                <History size={10} />
+                {pastEvents.length} past
+              </span>
+            )}
+            {communities.length > 0 && (
+              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-secondary/5 border border-secondary/10 text-[10px] font-bold text-secondary/40">
+                <Users size={10} />
+                {communities.length} communities
+              </span>
+            )}
+            {(stats.totalAttendees ?? 0) > 0 && (
+              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-primary/5 border border-primary/10 text-[10px] font-bold text-primary">
+                <TrendingUp size={10} />
+                {stats.totalAttendees} total attendees
+              </span>
+            )}
+          </div>
+        )}
 
         <button
           onClick={() => { playTap(); onSwitchToAttendee(); }}
-          className="text-[10px] font-black text-secondary/40 uppercase tracking-widest hover:text-secondary/60 hover:underline underline-offset-2 transition-colors rounded focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+          className="text-[10px] font-black text-secondary/40 uppercase tracking-widest hover:text-secondary/60 transition-colors"
         >
           Switch to attendee view
         </button>
@@ -736,44 +645,27 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
             exit={{ opacity: 0, height: 0 }}
             className="overflow-hidden"
           >
-            <div className="premium-card p-4 space-y-1">
-              <div className="flex items-center gap-2 mb-2">
-                <motion.div
-                  initial={{ rotate: -30 }}
-                  animate={{ rotate: 0 }}
-                  transition={{ type: 'spring', damping: 12, stiffness: 200 }}
-                >
-                  <Settings size={12} className="text-secondary/40" />
-                </motion.div>
-                <h4 className="text-[10px] font-black text-secondary/40 uppercase tracking-widest">Show/Hide Sections</h4>
-              </div>
+            <div className="premium-card p-4 space-y-2">
+              <h4 className="text-[10px] font-black text-secondary/40 uppercase tracking-widest mb-2">Show/Hide Sections</h4>
               {[
                 { id: 'alerts', label: 'Attention Alerts' },
                 { id: 'completeness', label: 'Profile Completeness' },
                 { id: 'milestones', label: 'Milestones' },
                 { id: 'activity', label: 'Weekly Activity' },
                 { id: 'countdown', label: 'Next Event Countdown' },
-              ].map((widget, idx) => (
-                <motion.button
+              ].map(widget => (
+                <button
                   key={widget.id}
-                  initial={{ opacity: 0, x: -6 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.15, delay: idx * 0.04 }}
                   onClick={() => toggleWidget(widget.id)}
-                  className="w-full flex items-center gap-2 p-2 rounded-xl hover:bg-secondary/5 transition-colors text-left focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+                  className="w-full flex items-center gap-2 p-2 rounded-xl hover:bg-secondary/5 transition-colors text-left"
                 >
-                  <motion.div
-                    animate={{ scale: isWidgetVisible(widget.id) ? [1, 1.15, 1] : 1 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    {isWidgetVisible(widget.id) ? (
-                      <CheckSquare size={14} className="text-primary shrink-0" />
-                    ) : (
-                      <Square size={14} className="text-secondary/30 shrink-0" />
-                    )}
-                  </motion.div>
+                  {isWidgetVisible(widget.id) ? (
+                    <CheckSquare size={14} className="text-primary shrink-0" />
+                  ) : (
+                    <Square size={14} className="text-secondary/30 shrink-0" />
+                  )}
                   <span className={`text-xs font-bold ${isWidgetVisible(widget.id) ? 'text-secondary' : 'text-secondary/40'}`}>{widget.label}</span>
-                </motion.button>
+                </button>
               ))}
             </div>
           </motion.div>
@@ -809,22 +701,18 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               />
             </div>
             <div className="flex flex-wrap gap-2">
-              {checks.map((check, idx) => (
-                <motion.span
+              {checks.map((check) => (
+                <span
                   key={check.label}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.3 + idx * 0.05 }}
-                  whileTap={!check.done ? { scale: 0.95 } : {}}
                   className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold border transition-all ${
                     check.done
                       ? 'bg-green-500/10 border-green-500/20 text-green-600 line-through'
-                      : 'bg-secondary/5 border-secondary/10 text-secondary/50 cursor-pointer hover:border-primary/30 hover:bg-primary/5'
+                      : 'bg-secondary/5 border-secondary/10 text-secondary/50 cursor-pointer hover:border-primary/30'
                   }`}
                   onClick={!check.done ? () => { playTap(); setShowOrganiserEditProfile(true); } : undefined}
                 >
                   {check.done ? '✓' : '○'} {check.label}
-                </motion.span>
+                </span>
               ))}
             </div>
           </motion.div>
@@ -837,9 +725,9 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           whileHover={{ y: -2 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => { playClick(); hapticTap(); onCreateEvent?.(); }}
-          className="p-3 rounded-2xl bg-gradient-to-br from-primary to-accent text-white font-black text-sm flex flex-col items-center justify-center gap-1.5 shadow-lg relative overflow-hidden group focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+          className="p-3 rounded-2xl bg-gradient-to-br from-primary to-accent text-white font-black text-sm flex flex-col items-center justify-center gap-1.5 shadow-lg relative overflow-hidden group"
         >
-          <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors" aria-hidden="true" />
+          <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors" />
           <Plus size={20} />
           <span className="text-[10px]">New Event</span>
           <kbd className="hidden md:inline text-[8px] font-mono text-white/50 bg-white/10 px-1 rounded">N</kbd>
@@ -848,21 +736,21 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           whileHover={{ y: -2 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => { playTap(); hapticTap(); setShowTribeDiscovery(true); }}
-          className="p-3 rounded-2xl bg-secondary/5 border border-secondary/10 font-bold text-sm text-secondary flex flex-col items-center justify-center gap-1.5 hover:bg-secondary/10 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+          className="p-3 rounded-2xl bg-secondary/5 border border-secondary/10 font-bold text-sm text-secondary flex flex-col items-center justify-center gap-1.5 hover:bg-secondary/10 transition-colors"
         >
           <Users size={20} />
           <span className="text-[10px]">Community</span>
-          <kbd className="hidden md:inline text-[8px] font-mono text-secondary/30 bg-secondary/5 px-1 rounded group-hover:text-secondary/50 transition-colors">C</kbd>
+          <kbd className="hidden md:inline text-[8px] font-mono text-secondary/30 bg-secondary/5 px-1 rounded">C</kbd>
         </motion.button>
         <motion.button
           whileHover={{ y: -2 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => { playTap(); hapticTap(); setShowOrganiserEditProfile(true); }}
-          className="p-3 rounded-2xl bg-secondary/5 border border-secondary/10 font-bold text-sm text-secondary flex flex-col items-center justify-center gap-1.5 hover:bg-secondary/10 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+          className="p-3 rounded-2xl bg-secondary/5 border border-secondary/10 font-bold text-sm text-secondary flex flex-col items-center justify-center gap-1.5 hover:bg-secondary/10 transition-colors"
         >
           <Pencil size={20} />
           <span className="text-[10px]">Edit</span>
-          <kbd className="hidden md:inline text-[8px] font-mono text-secondary/30 bg-secondary/5 px-1 rounded group-hover:text-secondary/50 transition-colors">E</kbd>
+          <kbd className="hidden md:inline text-[8px] font-mono text-secondary/30 bg-secondary/5 px-1 rounded">E</kbd>
         </motion.button>
         <motion.button
           whileHover={{ y: -2 }}
@@ -874,7 +762,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               .then(() => showToast('Profile link copied!', 'success'))
               .catch(() => showToast('Could not copy link', 'error'));
           }}
-          className="p-3 rounded-2xl bg-secondary/5 border border-secondary/10 font-bold text-sm text-secondary flex flex-col items-center justify-center gap-1.5 hover:bg-secondary/10 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+          className="p-3 rounded-2xl bg-secondary/5 border border-secondary/10 font-bold text-sm text-secondary flex flex-col items-center justify-center gap-1.5 hover:bg-secondary/10 transition-colors"
         >
           <Share2 size={20} />
           <span className="text-[10px]">Share</span>
@@ -882,7 +770,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
       </motion.div>
 
       {/* Dashboard Tabs */}
-      <motion.div variants={itemVariants} className="flex gap-1 p-1 bg-secondary/5 rounded-2xl border border-secondary/10 relative">
+      <motion.div variants={itemVariants} className="flex gap-1 p-1 bg-secondary/5 rounded-2xl border border-secondary/10">
         {[
           { key: 'overview', label: 'Overview' },
           { key: 'analytics', label: 'Analytics' },
@@ -890,20 +778,13 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           <button
             key={tab.key}
             onClick={() => { playTap(); setOrganiserDashboardTab(tab.key); }}
-            className="flex-1 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-colors relative z-[1] focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
-            style={{ color: organiserDashboardTab === tab.key ? 'var(--primary)' : undefined }}
+            className={`flex-1 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+              organiserDashboardTab === tab.key
+                ? 'bg-paper text-primary shadow-sm'
+                : 'text-secondary/40 hover:text-secondary/60'
+            }`}
           >
-            {organiserDashboardTab === tab.key && (
-              <motion.div
-                layoutId="dashboard-tab-pill"
-                className="absolute inset-0 bg-paper rounded-xl shadow-sm"
-                transition={{ type: 'spring', damping: 30, stiffness: 400 }}
-                style={{ zIndex: -1 }}
-              />
-            )}
-            <span className={organiserDashboardTab === tab.key ? '' : 'text-secondary/40 hover:text-secondary/60'}>
-              {tab.label}
-            </span>
+            {tab.label}
           </button>
         ))}
       </motion.div>
@@ -921,18 +802,14 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               <h3 className="text-xs font-black text-primary uppercase tracking-widest">
                 Your Performance<span className="text-accent">.</span>
               </h3>
-              <motion.button
+              <button
                 onClick={exportAnalytics}
-                whileHover={{ scale: 1.05, transition: { duration: 0.12 } }}
-                whileTap={{ scale: 0.94 }}
-                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border text-[10px] font-bold transition-colors ${
-                  exportDone ? 'bg-green-500/10 border-green-500/20 text-green-600' : 'bg-secondary/5 border-secondary/10 text-secondary/50 hover:text-secondary/70'
-                }`}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-secondary/5 border border-secondary/10 text-[10px] font-bold text-secondary/50 hover:text-secondary/70 transition-colors"
                 aria-label="Export analytics"
               >
-                {exportDone ? <Check size={10} /> : <Download size={10} />}
-                {exportDone ? 'Done' : 'Export'}
-              </motion.button>
+                <Download size={10} />
+                Export
+              </button>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <OrganiserStatsCard
@@ -980,42 +857,23 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
             const bestFill = best?.spots > 0 ? Math.round((best.attendees / best.spots) * 100) : 0;
             return (
               <div className="premium-card p-5 relative overflow-hidden">
-                <div className="absolute -right-6 -top-6 w-24 h-24 bg-accent/5 rounded-full blur-2xl" aria-hidden="true" />
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center">
-                      <TrendingUp size={16} className="text-accent" />
-                    </div>
-                    <h3 className="text-xs font-black text-accent uppercase tracking-widest">Top Performer</h3>
+                <div className="absolute -right-6 -top-6 w-24 h-24 bg-accent/5 rounded-full blur-2xl" />
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center">
+                    <TrendingUp size={16} className="text-accent" />
                   </div>
-                  <motion.span
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: 'spring', damping: 15, stiffness: 300 }}
-                    className={`text-[10px] font-black px-2 py-0.5 rounded-full ${bestFill >= 80 ? 'text-accent bg-accent/10 border border-accent/20' : 'text-primary bg-primary/10 border border-primary/20'}`}
-                  >
-                    {bestFill}%
-                  </motion.span>
+                  <h3 className="text-xs font-black text-accent uppercase tracking-widest">Top Performer</h3>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-14 h-14 rounded-2xl overflow-hidden bg-secondary/10 shrink-0">
-                    {best?.image && <img src={best.image} className="w-full h-full object-cover" alt={best?.title || 'Event'} loading="lazy" />}
+                    {best?.image && <img src={best.image} className="w-full h-full object-cover" alt="" loading="lazy" />}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-black text-secondary truncate">{best?.title}</p>
-                    <div className="flex items-center gap-2 mt-1 flex-wrap">
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-[11px] font-bold text-accent">{bestFill}% filled</span>
+                      <span className="text-secondary/20">|</span>
                       <span className="text-[11px] font-medium text-secondary/50">{best?.attendees}/{best?.spots} spots</span>
-                      {best?.category && (
-                        <span className="text-[9px] font-bold text-primary/50 bg-primary/5 px-1.5 py-0.5 rounded-full">{best.category}</span>
-                      )}
-                    </div>
-                    <div className="w-full h-1.5 bg-secondary/10 rounded-full mt-2 overflow-hidden">
-                      <motion.div
-                        className={`h-full rounded-full ${bestFill >= 80 ? 'bg-accent/60' : 'bg-primary/50'}`}
-                        initial={{ width: 0 }}
-                        animate={{ width: `${Math.min(bestFill, 100)}%` }}
-                        transition={{ duration: 0.6, ease: 'easeOut', delay: 0.2 }}
-                      />
                     </div>
                   </div>
                 </div>
@@ -1038,30 +896,15 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                   Event Categories<span className="text-accent">.</span>
                 </h3>
                 <div className="space-y-3">
-                  {sorted.map(([cat, count], idx) => {
+                  {sorted.map(([cat, count]) => {
                     const pct = Math.round((count / total) * 100);
                     const catData = CATEGORIES.find(c => c.id === cat);
                     const Icon = catData?.icon;
-                    const isTop = idx === 0 && sorted.length > 1;
                     return (
-                      <motion.div
-                        key={cat}
-                        initial={{ opacity: 0, x: -8 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        whileHover={{ x: 3, transition: { duration: 0.12 } }}
-                        transition={{ duration: 0.25, delay: idx * 0.06 }}
-                        className="flex items-center gap-3 cursor-default"
-                      >
-                        <motion.div
-                          initial={{ scale: 0.8, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          transition={{ type: 'spring', damping: 20, stiffness: 300, delay: 0.1 + idx * 0.06 }}
-                          className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border ${
-                            isTop ? 'bg-accent/10 border-accent/20' : 'bg-primary/5 border-primary/10'
-                          }`}
-                        >
-                          {Icon ? <Icon size={14} className={isTop ? 'text-accent' : 'text-primary'} /> : <Calendar size={14} className="text-primary" />}
-                        </motion.div>
+                      <div key={cat} className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-primary/5 border border-primary/10 flex items-center justify-center shrink-0">
+                          {Icon ? <Icon size={14} className="text-primary" /> : <Calendar size={14} className="text-primary" />}
+                        </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex justify-between mb-0.5">
                             <span className="text-[11px] font-bold text-secondary">{cat}</span>
@@ -1069,14 +912,14 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                           </div>
                           <div className="w-full h-1.5 bg-secondary/10 rounded-full overflow-hidden">
                             <motion.div
-                              className={`h-full rounded-full ${isTop ? 'bg-accent/60' : 'bg-primary/60'}`}
+                              className="h-full rounded-full bg-primary/60"
                               initial={{ width: 0 }}
                               animate={{ width: `${pct}%` }}
-                              transition={{ duration: 0.5, ease: 'easeOut', delay: 0.1 + idx * 0.06 }}
+                              transition={{ duration: 0.5, ease: 'easeOut' }}
                             />
                           </div>
                         </div>
-                      </motion.div>
+                      </div>
                     );
                   })}
                 </div>
@@ -1085,22 +928,14 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           })()}
 
           {/* Revenue Insights */}
-          {revenueInsights && revenueInsights.paidEvents > 0 && (() => {
-            const paidPct = events.length > 0 ? Math.round((revenueInsights.paidEvents / events.length) * 100) : 0;
-            return (
+          {revenueInsights && revenueInsights.paidEvents > 0 && (
             <div className="premium-card p-6 relative overflow-hidden">
-              <div className="absolute -left-6 -bottom-6 w-24 h-24 bg-green-500/5 rounded-full blur-2xl" aria-hidden="true" />
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center justify-center">
-                    <DollarSign size={16} className="text-green-600" />
-                  </div>
-                  <h3 className="text-xs font-black text-green-600 uppercase tracking-widest">Revenue Insights</h3>
+              <div className="absolute -left-6 -bottom-6 w-24 h-24 bg-green-500/5 rounded-full blur-2xl" />
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center justify-center">
+                  <DollarSign size={16} className="text-green-600" />
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-[9px] font-bold text-green-600/50">{paidPct}% paid</span>
-                </div>
+                <h3 className="text-xs font-black text-green-600 uppercase tracking-widest">Revenue Insights</h3>
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div>
@@ -1137,31 +972,13 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                   <p className="text-[9px] font-bold text-secondary/40 uppercase tracking-widest mt-0.5">Avg Ticket</p>
                 </div>
               </div>
-              {/* Paid vs free split bar */}
-              <div className="mt-4 pt-3 border-t border-secondary/10">
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-[9px] font-bold text-secondary/40">Paid vs Free</span>
-                  <span className="text-[9px] font-bold text-secondary/40">{revenueInsights.paidEvents} paid · {events.length - revenueInsights.paidEvents} free</span>
-                </div>
-                <div className="w-full h-2 bg-secondary/10 rounded-full overflow-hidden flex">
-                  <motion.div
-                    className="h-full bg-green-500/60 rounded-l-full"
-                    initial={{ width: 0 }}
-                    animate={{ width: `${paidPct}%` }}
-                    transition={{ duration: 0.6, ease: 'easeOut' }}
-                  />
-                </div>
-              </div>
             </div>
-            );
-          })()}
+          )}
 
           {/* Audience Insights */}
-          {audienceInsights && (() => {
-            const maxSpots = Math.max(...events.map(e => e.spots ?? 0), 1);
-            return (
+          {audienceInsights && (
             <div className="premium-card p-6 relative overflow-hidden">
-              <div className="absolute -right-6 -top-6 w-24 h-24 bg-primary/5 rounded-full blur-2xl" aria-hidden="true" />
+              <div className="absolute -right-6 -top-6 w-24 h-24 bg-primary/5 rounded-full blur-2xl" />
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-8 h-8 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
                   <UserCheck size={16} className="text-primary" />
@@ -1169,39 +986,19 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                 <h3 className="text-xs font-black text-primary uppercase tracking-widest">Audience Insights</h3>
               </div>
               <div className="space-y-4">
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <div className="flex items-center gap-2">
-                      <Users size={14} className="text-secondary/40" />
-                      <span className="text-[11px] font-bold text-secondary">Avg. per event</span>
-                    </div>
-                    <span className="text-sm font-black text-primary">{audienceInsights.avgPerEvent}</span>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Users size={14} className="text-secondary/40" />
+                    <span className="text-[11px] font-bold text-secondary">Avg. per event</span>
                   </div>
-                  <div className="w-full h-1.5 bg-secondary/10 rounded-full overflow-hidden">
-                    <motion.div
-                      className="h-full bg-primary/50 rounded-full"
-                      initial={{ width: 0 }}
-                      animate={{ width: `${Math.min((audienceInsights.avgPerEvent / maxSpots) * 100, 100)}%` }}
-                      transition={{ duration: 0.5, ease: 'easeOut' }}
-                    />
-                  </div>
+                  <span className="text-sm font-black text-primary">{audienceInsights.avgPerEvent} attendees</span>
                 </div>
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <div className="flex items-center gap-2">
-                      <BarChart3 size={14} className="text-secondary/40" />
-                      <span className="text-[11px] font-bold text-secondary">Overall fill rate</span>
-                    </div>
-                    <span className={`text-sm font-black ${audienceInsights.overallFill >= 70 ? 'text-accent' : 'text-primary'}`}>{audienceInsights.overallFill}%</span>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <BarChart3 size={14} className="text-secondary/40" />
+                    <span className="text-[11px] font-bold text-secondary">Overall fill rate</span>
                   </div>
-                  <div className="w-full h-1.5 bg-secondary/10 rounded-full overflow-hidden">
-                    <motion.div
-                      className={`h-full rounded-full ${audienceInsights.overallFill >= 70 ? 'bg-accent/60' : 'bg-primary/50'}`}
-                      initial={{ width: 0 }}
-                      animate={{ width: `${audienceInsights.overallFill}%` }}
-                      transition={{ duration: 0.5, ease: 'easeOut', delay: 0.1 }}
-                    />
-                  </div>
+                  <span className={`text-sm font-black ${audienceInsights.overallFill >= 70 ? 'text-accent' : 'text-primary'}`}>{audienceInsights.overallFill}%</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -1211,32 +1008,24 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                   <span className="text-sm font-black text-secondary">{audienceInsights.totalAttendees} people</span>
                 </div>
                 {audienceInsights.bestEvent && (
-                  <button
-                    onClick={() => {
-                      const fullEvent = allEvents.find(e => e.id === audienceInsights.bestEvent.id) || audienceInsights.bestEvent;
-                      playTap(); hapticTap(); setSelectedEvent(fullEvent);
-                    }}
-                    className="w-full pt-3 mt-3 border-t border-secondary/10 text-left hover:bg-secondary/5 -mx-1 px-1 rounded-xl transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
-                  >
+                  <div className="pt-3 mt-3 border-t border-secondary/10">
                     <p className="text-[9px] font-black text-accent uppercase tracking-widest mb-1.5">Most Popular Event</p>
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-xl overflow-hidden bg-secondary/10 shrink-0">
                         {audienceInsights.bestEvent.image && (
-                          <img src={audienceInsights.bestEvent.image} className="w-full h-full object-cover" alt={audienceInsights.bestEvent.title || 'Event'} loading="lazy" />
+                          <img src={audienceInsights.bestEvent.image} className="w-full h-full object-cover" alt="" loading="lazy" />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-bold text-secondary truncate">{audienceInsights.bestEvent.title}</p>
                         <p className="text-[10px] text-secondary/40">{audienceInsights.bestEvent.attendees} attendees</p>
                       </div>
-                      <ChevronRight size={12} className="text-secondary/20 shrink-0" aria-hidden="true" />
                     </div>
-                  </button>
+                  </div>
                 )}
               </div>
             </div>
-            );
-          })()}
+          )}
 
           {/* Attendance rate */}
           {events.length > 0 ? (
@@ -1245,33 +1034,23 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                 Event Fill Rates<span className="text-accent">.</span>
               </h3>
               <div className="space-y-3">
-                {events.slice(0, 6).map((event, idx) => {
+                {events.slice(0, 6).map((event) => {
                   const fillPct = event.spots > 0 ? Math.round((event.attendees / event.spots) * 100) : 0;
                   return (
-                    <motion.div
-                      key={event.id}
-                      initial={{ opacity: 0, x: -6 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      whileHover={{ x: 3, transition: { duration: 0.12 } }}
-                      transition={{ duration: 0.2, delay: idx * 0.05 }}
-                      className="cursor-default"
-                    >
+                    <div key={event.id}>
                       <div className="flex justify-between mb-1">
-                        <span className="text-[11px] font-bold text-secondary truncate max-w-[55%]">{event.title}</span>
-                        <div className="flex items-center gap-1.5 shrink-0">
-                          <span className="text-[9px] font-medium text-secondary/35">{event.attendees}/{event.spots}</span>
-                          <span className={`text-[11px] font-black ${fillPct >= 80 ? 'text-accent' : fillPct >= 50 ? 'text-primary' : 'text-secondary/50'}`}>{fillPct}%</span>
-                        </div>
+                        <span className="text-[11px] font-bold text-secondary truncate max-w-[60%]">{event.title}</span>
+                        <span className={`text-[11px] font-black ${fillPct >= 80 ? 'text-accent' : fillPct >= 50 ? 'text-primary' : 'text-secondary/50'}`}>{fillPct}%</span>
                       </div>
                       <div className="w-full h-2 bg-secondary/10 rounded-full overflow-hidden">
                         <motion.div
                           className={`h-full rounded-full ${fillPct >= 80 ? 'bg-accent' : fillPct >= 50 ? 'bg-primary' : 'bg-secondary/30'}`}
                           initial={{ width: 0 }}
                           animate={{ width: `${Math.min(fillPct, 100)}%` }}
-                          transition={{ duration: 0.6, ease: 'easeOut', delay: 0.1 + idx * 0.05 }}
+                          transition={{ duration: 0.6, ease: 'easeOut', delay: 0.1 }}
                         />
                       </div>
-                    </motion.div>
+                    </div>
                   );
                 })}
               </div>
@@ -1284,8 +1063,8 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
             </div>
           ) : (
             <div className="premium-card p-8 text-center relative overflow-hidden">
-              <div className="absolute -right-8 -top-8 w-32 h-32 bg-accent/5 rounded-full blur-3xl" aria-hidden="true" />
-              <div className="absolute -left-8 -bottom-8 w-32 h-32 bg-primary/5 rounded-full blur-3xl" aria-hidden="true" />
+              <div className="absolute -right-8 -top-8 w-32 h-32 bg-accent/5 rounded-full blur-3xl" />
+              <div className="absolute -left-8 -bottom-8 w-32 h-32 bg-primary/5 rounded-full blur-3xl" />
               <motion.div
                 initial={{ scale: 0, rotate: -20 }}
                 animate={{ scale: 1, rotate: 0 }}
@@ -1313,7 +1092,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               </div>
               <button
                 onClick={() => { playClick(); hapticTap(); onCreateEvent?.(); }}
-                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-xs font-bold active:scale-95 transition-transform shadow-lg focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-xs font-bold active:scale-95 transition-transform shadow-lg"
               >
                 <Plus size={14} />
                 Create Your First Event
@@ -1329,17 +1108,10 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
         const nextFillPct = nextEvent.spots > 0 ? Math.round((nextEvent.attendees / nextEvent.spots) * 100) : 0;
         return (
         <motion.div variants={itemVariants} className="premium-card p-4 relative overflow-hidden">
-          <div className="absolute -right-4 -top-4 w-20 h-20 bg-green-500/5 rounded-full blur-2xl" aria-hidden="true" />
-          {nextEvent.countdown === 'Starting soon' && (
-            <motion.div
-              className="absolute inset-0 rounded-[24px] border-2 border-green-500/20"
-              animate={{ opacity: [0.3, 0.7, 0.3] }}
-              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-            />
-          )}
+          <div className="absolute -right-4 -top-4 w-20 h-20 bg-green-500/5 rounded-full blur-2xl" />
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-2xl overflow-hidden bg-secondary/10 shrink-0 relative">
-              {nextEvent.image && <img src={nextEvent.image} className="w-full h-full object-cover" alt={nextEvent.title || 'Next event'} loading="lazy" />}
+              {nextEvent.image && <img src={nextEvent.image} className="w-full h-full object-cover" alt="" loading="lazy" />}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-[9px] font-black text-green-600 uppercase tracking-widest mb-0.5">Next Event</p>
@@ -1375,121 +1147,72 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
       })()}
 
       {/* Weekly Activity */}
-      {isWidgetVisible('activity') && events.length > 0 && (() => {
-        const totalWeekAttendees = weeklyActivity.days.reduce((s, d) => s + d.attendees, 0);
-        const totalWeekEvents = weeklyActivity.days.reduce((s, d) => s + d.events, 0);
-        return (
+      {isWidgetVisible('activity') && events.length > 0 && (
         <motion.div variants={itemVariants} className="premium-card p-5 relative overflow-hidden">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-                <Activity size={16} className="text-primary" />
-              </div>
-              <h3 className="text-xs font-black text-primary uppercase tracking-widest">This Week</h3>
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-8 h-8 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+              <Activity size={16} className="text-primary" />
             </div>
-            <span className="text-[9px] font-bold text-secondary/35">{totalWeekEvents} events · {totalWeekAttendees} attendees</span>
+            <h3 className="text-xs font-black text-primary uppercase tracking-widest">This Week</h3>
           </div>
-          <div className="flex items-end justify-between gap-1 h-20">
-            {weeklyActivity.days.map((day, i) => {
-              const isToday = i === weeklyActivity.days.length - 1;
-              const barColor = isToday ? 'bg-accent' : day.events > 0 ? 'bg-primary/60' : 'bg-secondary/20';
-              return (
-              <div key={i} className="flex-1 flex flex-col items-center gap-1 relative group cursor-default">
-                {day.attendees > 0 && (
-                  <div className="absolute -top-5 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                    <span className="text-[8px] font-black text-primary bg-primary/10 px-1.5 py-0.5 rounded-full whitespace-nowrap">{day.attendees}</span>
-                  </div>
-                )}
+          <div className="flex items-end justify-between gap-1 h-16">
+            {weeklyActivity.days.map((day, i) => (
+              <div key={i} className="flex-1 flex flex-col items-center gap-1">
                 <motion.div
-                  className={`w-full rounded-t-lg ${barColor} group-hover:brightness-110 transition-[filter] duration-150`}
+                  className="w-full rounded-t-lg bg-primary/60"
                   style={{ minHeight: 2 }}
                   initial={{ height: 0 }}
                   animate={{ height: `${Math.max((day.attendees / weeklyActivity.maxAttendees) * 100, 5)}%` }}
-                  whileHover={{ scaleX: 1.15, transition: { duration: 0.12 } }}
                   transition={{ duration: 0.4, ease: 'easeOut', delay: i * 0.05 }}
                   title={`${day.attendees} attendees, ${day.events} event${day.events !== 1 ? 's' : ''}`}
                 />
               </div>
-              );
-            })}
+            ))}
           </div>
           <div className="flex justify-between mt-1.5">
-            {weeklyActivity.days.map((day, i) => {
-              const isToday = i === weeklyActivity.days.length - 1;
-              return (
-              <div key={i} className="flex-1 text-center">
-                <span className={`text-[8px] font-bold uppercase ${isToday ? 'text-accent' : 'text-secondary/30'}`}>{day.label}</span>
-                {day.events > 0 && <div className={`w-1.5 h-1.5 rounded-full mx-auto mt-0.5 ${isToday ? 'bg-accent' : 'bg-green-500/50'}`} />}
-              </div>
-              );
-            })}
+            {weeklyActivity.days.map((day, i) => (
+              <span key={i} className="flex-1 text-center text-[8px] font-bold text-secondary/30 uppercase">{day.label}</span>
+            ))}
           </div>
         </motion.div>
-        );
-      })()}
+      )}
 
       {/* Milestones */}
-      {isWidgetVisible('milestones') && (() => {
-        const unlockedCount = milestones.filter(m => m.unlocked).length;
-        return (
+      {isWidgetVisible('milestones') && (
       <motion.div variants={itemVariants} className="premium-card p-5">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-xs font-black text-primary uppercase tracking-widest">
-            Milestones<span className="text-accent">.</span>
-          </h3>
-          <span className={`text-[9px] font-bold ${unlockedCount === milestones.length ? 'text-accent' : 'text-secondary/35'}`}>
-            {unlockedCount}/{milestones.length} unlocked
-          </span>
-        </div>
-        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 snap-x snap-mandatory">
-          {milestones.map((m, idx) => {
+        <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-3">
+          Milestones<span className="text-accent">.</span>
+        </h3>
+        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+          {milestones.map((m) => {
             const pct = Math.min(Math.round((m.current / m.target) * 100), 100);
             return (
-              <motion.div
+              <div
                 key={m.label}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                whileHover={{ y: -2, transition: { duration: 0.15 } }}
-                whileTap={{ scale: 0.97 }}
-                transition={{ duration: 0.25, delay: idx * 0.06 }}
-                className={`shrink-0 w-24 p-3 rounded-2xl border text-center transition-all relative overflow-hidden cursor-default snap-start ${
+                className={`shrink-0 w-24 p-3 rounded-2xl border text-center transition-all ${
                   m.unlocked ? 'bg-accent/5 border-accent/20' : 'bg-secondary/5 border-secondary/10'
                 }`}
               >
-                {m.unlocked && <div className="absolute inset-0 bg-gradient-to-t from-accent/5 to-transparent" />}
-                <motion.div
-                  animate={m.unlocked ? { scale: [1, 1.1, 1] } : {}}
-                  transition={{ duration: 0.6, delay: 0.3 + idx * 0.06 }}
-                  className={`w-10 h-10 mx-auto rounded-xl flex items-center justify-center mb-2 relative ${
-                    m.unlocked ? 'bg-accent/10' : 'bg-secondary/10'
-                  }`}
-                >
+                <div className={`w-10 h-10 mx-auto rounded-xl flex items-center justify-center mb-2 ${
+                  m.unlocked ? 'bg-accent/10' : 'bg-secondary/10'
+                }`}>
                   <m.icon size={18} className={m.unlocked ? 'text-accent' : 'text-secondary/30'} />
-                </motion.div>
+                </div>
                 <p className={`text-[9px] font-black uppercase tracking-widest mb-1 ${m.unlocked ? 'text-accent' : 'text-secondary/40'}`}>
                   {m.label}
                 </p>
                 {!m.unlocked && (
-                  <>
-                    <div className="w-full h-1 bg-secondary/10 rounded-full overflow-hidden mb-0.5">
-                      <motion.div
-                        className="h-full bg-primary/40 rounded-full"
-                        initial={{ width: 0 }}
-                        animate={{ width: `${pct}%` }}
-                        transition={{ duration: 0.4, delay: 0.1 + idx * 0.06 }}
-                      />
-                    </div>
-                    <p className="text-[7px] font-medium text-secondary/30">{m.current}/{m.target}</p>
-                  </>
+                  <div className="w-full h-1 bg-secondary/10 rounded-full overflow-hidden">
+                    <div className="h-full bg-primary/40 rounded-full" style={{ width: `${pct}%` }} />
+                  </div>
                 )}
-                {m.unlocked && <p className="text-[8px] font-bold text-accent relative">Unlocked</p>}
-              </motion.div>
+                {m.unlocked && <p className="text-[8px] font-bold text-accent">Unlocked</p>}
+              </div>
             );
           })}
         </div>
       </motion.div>
-        );
-      })()}
+      )}
 
       {/* Stats Grid */}
       <motion.div variants={itemVariants}>
@@ -1556,24 +1279,18 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               <button
                 key={tab.key}
                 onClick={() => { playTap(); setEventFilter(tab.key); }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold transition-colors relative focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all ${
+                  eventFilter === tab.key
+                    ? 'bg-primary/10 text-primary border border-primary/20'
+                    : 'bg-secondary/5 text-secondary/50 border border-secondary/10 hover:bg-secondary/10'
+                }`}
               >
-                {eventFilter === tab.key && (
-                  <motion.div
-                    layoutId="event-filter-pill"
-                    className="absolute inset-0 bg-primary/10 border border-primary/20 rounded-xl"
-                    transition={{ type: 'spring', damping: 30, stiffness: 400 }}
-                    style={{ zIndex: 0 }}
-                  />
-                )}
-                <span className={`relative z-[1] flex items-center gap-1.5 ${eventFilter === tab.key ? 'text-primary' : 'text-secondary/50'}`}>
-                  <tab.icon size={12} />
-                  {tab.label}
-                  <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-black ${
-                    eventFilter === tab.key ? 'bg-primary/20 text-primary' : 'bg-secondary/10 text-secondary/40'
-                  }`}>
-                    {tab.count}
-                  </span>
+                <tab.icon size={12} />
+                {tab.label}
+                <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-black ${
+                  eventFilter === tab.key ? 'bg-primary/20 text-primary' : 'bg-secondary/10 text-secondary/40'
+                }`}>
+                  {tab.count}
                 </span>
               </button>
             ))}
@@ -1589,12 +1306,12 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               value={eventSearch}
               onChange={(e) => setEventSearch(e.target.value)}
               placeholder="Search events..."
-              className={`w-full pl-9 py-2 rounded-xl bg-secondary/5 border border-secondary/10 text-xs text-[var(--text)] placeholder:text-secondary/30 outline-none focus:border-primary/30 hover:border-secondary/20 transition-colors ${eventSearch ? 'pr-8' : 'pr-3'}`}
+              className={`w-full pl-9 py-2 rounded-xl bg-secondary/5 border border-secondary/10 text-xs text-[var(--text)] placeholder:text-secondary/30 outline-none focus:border-primary/30 transition-colors ${eventSearch ? 'pr-8' : 'pr-3'}`}
             />
             {eventSearch && (
               <button
                 onClick={() => setEventSearch('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none before:absolute before:inset-[-12px] before:content-['']"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
                 aria-label="Clear search"
               >
                 <X size={10} className="text-secondary/50" />
@@ -1622,7 +1339,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
             <p className="text-[11px] text-secondary/30 mb-4 max-w-[200px] mx-auto">Create your first event and start building your audience</p>
             <button
               onClick={() => { playClick(); hapticTap(); onCreateEvent?.(); }}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary/10 border border-primary/20 text-primary text-xs font-bold hover:bg-primary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary/10 border border-primary/20 text-primary text-xs font-bold hover:bg-primary/20 transition-colors"
             >
               <Plus size={14} />
               Create Event
@@ -1630,21 +1347,9 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           </div>
         ) : sortedFilteredEvents.length === 0 ? (
           <div className="text-center py-6">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-            >
-              <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-secondary/5 border border-secondary/10 flex items-center justify-center">
-                {eventFilter === 'upcoming' ? <Clock size={18} className="text-secondary/25" /> : <History size={18} className="text-secondary/25" />}
-              </div>
-              <p className="text-sm text-secondary/40 font-medium">
-                No {eventFilter} events
-              </p>
-              {eventSearch.trim() && (
-                <p className="text-[10px] text-secondary/30 mt-1">Try a different search term</p>
-              )}
-            </motion.div>
+            <p className="text-sm text-secondary/40 font-medium">
+              No {eventFilter} events
+            </p>
           </div>
         ) : (
           <AnimatePresence mode="wait">
@@ -1670,18 +1375,17 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                     key={event.id}
                     initial={{ opacity: 0, x: -6 }}
                     animate={{ opacity: 1, x: 0 }}
-                    whileHover={{ x: 2, transition: { duration: 0.12 } }}
                     transition={{ duration: 0.2, delay: idx * 0.04 }}
                     className="space-y-1"
                   >
                     <button
                       onClick={() => { playTap(); hapticTap(); setSelectedEvent(fullEvent); }}
-                      className={`w-full flex items-center gap-3 p-3 rounded-2xl border hover:bg-secondary/10 transition-colors text-left focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${
+                      className={`w-full flex items-center gap-3 p-3 rounded-2xl border hover:bg-secondary/10 transition-colors text-left ${
                         isPinned ? 'bg-accent/5 border-accent/20' : 'bg-secondary/5 border-secondary/10'
                       }`}
                     >
                       <div className="w-12 h-12 rounded-xl overflow-hidden bg-secondary/10 shrink-0 relative">
-                        {event.image && <img src={event.image} className="w-full h-full object-cover" alt={event.title || 'Event'} loading="lazy" />}
+                        {event.image && <img src={event.image} className="w-full h-full object-cover" alt="" loading="lazy" />}
                         {isLive && (
                           <div className="absolute top-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-paper animate-pulse" />
                         )}
@@ -1734,7 +1438,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                           tabIndex={0}
                           onClick={(e) => { e.stopPropagation(); togglePin(event.id); }}
                           onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); togglePin(event.id); } }}
-                          className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none relative before:absolute before:inset-[-8px] before:content-[''] ${
+                          className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${
                             isPinned ? 'bg-accent/10 text-accent' : 'text-secondary/20 hover:text-secondary/40'
                           }`}
                           aria-label={isPinned ? 'Unpin event' : 'Pin event'}
@@ -1746,7 +1450,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                           tabIndex={0}
                           onClick={(e) => { e.stopPropagation(); handleDuplicateEvent(event); }}
                           onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); handleDuplicateEvent(event); } }}
-                          className="w-7 h-7 rounded-lg flex items-center justify-center text-secondary/20 hover:text-secondary/40 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none relative before:absolute before:inset-[-8px] before:content-['']"
+                          className="w-7 h-7 rounded-lg flex items-center justify-center text-secondary/20 hover:text-secondary/40 transition-colors"
                           aria-label="Duplicate event"
                         >
                           <Copy size={12} />
@@ -1760,7 +1464,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                             setNoteText(eventNotes[event.id] || '');
                           }}
                           onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); setEditingNoteId(editingNoteId === event.id ? null : event.id); setNoteText(eventNotes[event.id] || ''); } }}
-                          className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none relative before:absolute before:inset-[-8px] before:content-[''] ${
+                          className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${
                             note ? 'bg-primary/10 text-primary' : 'text-secondary/20 hover:text-secondary/40'
                           }`}
                           aria-label={note ? 'Edit note' : 'Add note'}
@@ -1768,13 +1472,12 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                           <StickyNote size={12} />
                         </div>
                       </div>
-                      <ChevronRight size={16} className="text-secondary/30 shrink-0" aria-hidden="true" />
+                      <ChevronRight size={16} className="text-secondary/30 shrink-0" />
                     </button>
                     {/* Note display */}
                     {note && editingNoteId !== event.id && (
-                      <div className="ml-3 flex items-start gap-2 p-2 rounded-xl bg-primary/5 border border-primary/10">
-                        <StickyNote size={10} className="text-primary/40 shrink-0 mt-0.5" />
-                        <p className="text-[10px] text-secondary/60 italic leading-relaxed select-text">{note}</p>
+                      <div className="ml-15 pl-3 border-l-2 border-primary/20">
+                        <p className="text-[10px] text-secondary/50 italic">{note}</p>
                       </div>
                     )}
                     {/* Note editor */}
@@ -1786,37 +1489,26 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                           onChange={(e) => setNoteText(e.target.value)}
                           onKeyDown={(e) => { if (e.key === 'Enter') saveNote(event.id); if (e.key === 'Escape') setEditingNoteId(null); }}
                           placeholder="Add a quick note..."
-                          className="flex-1 text-xs px-3 py-2 rounded-xl bg-secondary/5 border border-secondary/10 text-[var(--text)] placeholder:text-secondary/30 outline-none focus:border-primary/30 hover:border-secondary/20 transition-colors"
+                          className="flex-1 text-xs px-3 py-2 rounded-xl bg-secondary/5 border border-secondary/10 text-[var(--text)] placeholder:text-secondary/30 outline-none focus:border-primary/30"
                           autoFocus
                         />
                         <button
                           onClick={() => saveNote(event.id)}
-                          className="px-3 py-2 rounded-xl bg-primary/10 text-primary text-[10px] font-bold hover:bg-primary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+                          className="px-3 py-2 rounded-xl bg-primary/10 text-primary text-[10px] font-bold hover:bg-primary/20 transition-colors"
                         >
                           Save
                         </button>
                       </div>
                     )}
                     {/* Event Checklist */}
-                    {eventFilter === 'upcoming' && (() => {
-                      const cl = getChecklist(event.id);
-                      const doneCount = cl.filter(i => i.done).length;
-                      const allDone = doneCount === cl.length;
-                      return (
+                    {eventFilter === 'upcoming' && (
                       <div className="ml-3">
                         <button
                           onClick={(e) => { e.stopPropagation(); setExpandedChecklist(expandedChecklist === event.id ? null : event.id); playTap(); }}
-                          className="flex items-center gap-1.5 text-[10px] font-bold text-secondary/40 hover:text-secondary/60 transition-colors rounded-lg px-1 -mx-1 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+                          className="flex items-center gap-1 text-[10px] font-bold text-secondary/40 hover:text-secondary/60 transition-colors"
                         >
                           <ChevronDown size={10} className={`transition-transform ${expandedChecklist === event.id ? 'rotate-180' : ''}`} />
-                          <span>Pre-event checklist</span>
-                          <span className={`${allDone ? 'text-green-600' : ''}`}>({doneCount}/{cl.length})</span>
-                          <div className="w-12 h-1 bg-secondary/10 rounded-full overflow-hidden ml-0.5">
-                            <div
-                              className={`h-full rounded-full transition-all ${allDone ? 'bg-green-500' : 'bg-primary/50'}`}
-                              style={{ width: `${cl.length > 0 ? (doneCount / cl.length) * 100 : 0}%` }}
-                            />
-                          </div>
+                          Pre-event checklist ({getChecklist(event.id).filter(i => i.done).length}/{getChecklist(event.id).length})
                         </button>
                         <AnimatePresence>
                           {expandedChecklist === event.id && (
@@ -1830,7 +1522,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                                 <button
                                   key={item.id}
                                   onClick={(e) => { e.stopPropagation(); toggleChecklistItem(event.id, item.id); }}
-                                  className="w-full flex items-center gap-2 p-1.5 rounded-lg hover:bg-secondary/5 transition-colors text-left focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+                                  className="w-full flex items-center gap-2 p-1.5 rounded-lg hover:bg-secondary/5 transition-colors text-left"
                                 >
                                   {item.done ? (
                                     <CheckSquare size={12} className="text-green-600 shrink-0" />
@@ -1846,27 +1538,17 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                           )}
                         </AnimatePresence>
                       </div>
-                      );
-                    })()}
+                    )}
                   </motion.div>
                 );
               })}
               {sortedFilteredEvents.length > 5 && (
-                <motion.button
+                <button
                   onClick={() => { playTap(); setShowAllEvents(!showAllEvents); }}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full py-2.5 text-[10px] text-center text-primary/70 font-bold hover:text-primary hover:bg-primary/5 rounded-xl transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+                  className="w-full py-2 text-[10px] text-center text-primary/70 font-bold hover:text-primary transition-colors"
                 >
-                  <motion.span
-                    key={showAllEvents ? 'less' : 'more'}
-                    initial={{ opacity: 0, y: 4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.15 }}
-                  >
-                    {showAllEvents ? 'Show less' : `View all ${sortedFilteredEvents.length} events`}
-                  </motion.span>
-                </motion.button>
+                  {showAllEvents ? 'Show less' : `View all ${sortedFilteredEvents.length} events`}
+                </button>
               )}
             </motion.div>
           </AnimatePresence>
@@ -1876,24 +1558,16 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
       {/* My Communities */}
       <motion.div variants={itemVariants} className="premium-card p-6">
         <div className="flex items-center justify-between mb-4">
-          <div>
-            <h3 className="text-xs font-black text-primary uppercase tracking-widest">
-              My Communities<span className="text-accent">.</span>
-            </h3>
-            {communities.length > 0 && (() => {
-              const totalMembers = communities.reduce((sum, c) => sum + (c.members ?? 0), 0);
-              return totalMembers > 0 ? (
-                <p className="text-[9px] font-medium text-secondary/35 mt-0.5">{totalMembers} total members</p>
-              ) : null;
-            })()}
-          </div>
+          <h3 className="text-xs font-black text-primary uppercase tracking-widest">
+            My Communities<span className="text-accent">.</span>
+          </h3>
           <div className="flex items-center gap-2">
             <span className="text-[9px] font-bold text-secondary/30 uppercase tracking-widest">
               {communities.length} communities
             </span>
             <button
               onClick={() => { playTap(); setShowCreateCommunity(!showCreateCommunity); }}
-              className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none relative before:absolute before:inset-[-8px] before:content-[''] ${
+              className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${
                 showCreateCommunity ? 'bg-primary/10 text-primary' : 'bg-secondary/5 border border-secondary/10 text-secondary/40 hover:text-secondary/60'
               }`}
               aria-label="Create community"
@@ -1913,23 +1587,13 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               className="overflow-hidden mb-4"
             >
               <div className="p-4 rounded-2xl bg-primary/5 border border-primary/10 space-y-3">
-                <div className="flex items-center gap-2">
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: 'spring', damping: 12, stiffness: 200 }}
-                    className="w-6 h-6 rounded-lg bg-primary/10 flex items-center justify-center"
-                  >
-                    <Plus size={12} className="text-primary" />
-                  </motion.div>
-                  <p className="text-[10px] font-black text-primary uppercase tracking-widest">Quick Create</p>
-                </div>
+                <p className="text-[10px] font-black text-primary uppercase tracking-widest">Quick Create</p>
                 <input
                   type="text"
                   value={newCommunityName}
                   onChange={(e) => setNewCommunityName(e.target.value)}
                   placeholder="Community name..."
-                  className="w-full px-3 py-2.5 rounded-xl bg-paper border border-secondary/20 text-sm font-medium text-[var(--text)] placeholder:text-secondary/30 outline-none focus:border-primary hover:border-secondary/30 transition-colors"
+                  className="w-full px-3 py-2.5 rounded-xl bg-paper border border-secondary/20 text-sm font-medium text-[var(--text)] placeholder:text-secondary/30 outline-none focus:border-primary transition-colors"
                   maxLength={50}
                 />
                 <input
@@ -1937,20 +1601,20 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                   value={newCommunityDesc}
                   onChange={(e) => setNewCommunityDesc(e.target.value)}
                   placeholder="Short description (optional)..."
-                  className="w-full px-3 py-2 rounded-xl bg-paper border border-secondary/20 text-xs font-medium text-[var(--text)] placeholder:text-secondary/30 outline-none focus:border-primary hover:border-secondary/30 transition-colors"
+                  className="w-full px-3 py-2 rounded-xl bg-paper border border-secondary/20 text-xs font-medium text-[var(--text)] placeholder:text-secondary/30 outline-none focus:border-primary transition-colors"
                   maxLength={200}
                 />
                 <div className="flex gap-2">
                   <button
                     onClick={handleCreateCommunity}
                     disabled={!newCommunityName.trim() || isCreatingCommunity}
-                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-xs font-black uppercase tracking-widest disabled:opacity-50 transition-all active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-xs font-black uppercase tracking-widest disabled:opacity-50 transition-all active:scale-[0.98]"
                   >
                     {isCreatingCommunity ? 'Creating...' : 'Create'}
                   </button>
                   <button
                     onClick={() => { setShowCreateCommunity(false); setNewCommunityName(''); setNewCommunityDesc(''); }}
-                    className="px-4 py-2.5 rounded-xl bg-secondary/5 border border-secondary/10 text-xs font-bold text-secondary/50 hover:text-secondary/70 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+                    className="px-4 py-2.5 rounded-xl bg-secondary/5 border border-secondary/10 text-xs font-bold text-secondary/50 hover:text-secondary/70 transition-colors"
                   >
                     Cancel
                   </button>
@@ -1961,34 +1625,15 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
         </AnimatePresence>
 
         {communities.length === 0 && !showCreateCommunity ? (
-          <div className="text-center py-8 relative overflow-hidden">
-            <div className="absolute -right-8 -top-8 w-28 h-28 bg-secondary/5 rounded-full blur-3xl" aria-hidden="true" />
-            <motion.div
-              initial={{ scale: 0, rotate: -15 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ type: 'spring', damping: 15, stiffness: 200 }}
-              className="w-16 h-16 mx-auto mb-3 rounded-[20px] bg-gradient-to-br from-secondary/5 to-primary/5 border border-secondary/10 flex items-center justify-center"
-            >
+          <div className="text-center py-8">
+            <div className="w-16 h-16 mx-auto mb-3 rounded-[20px] bg-secondary/5 border border-secondary/10 flex items-center justify-center">
               <Users size={28} className="text-secondary/30" />
-            </motion.div>
-            <p className="text-sm text-secondary/50 font-bold mb-1">No communities yet</p>
-            <p className="text-[11px] text-secondary/30 mb-3 max-w-[200px] mx-auto">Build your tribe by creating a community around your events</p>
-            <div className="flex justify-center gap-2 mb-4">
-              {['Engage', 'Grow', 'Connect'].map((hint, i) => (
-                <motion.span
-                  key={hint}
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 + i * 0.08 }}
-                  className="text-[9px] font-bold text-secondary/30 bg-secondary/5 px-2 py-0.5 rounded-full"
-                >
-                  {hint}
-                </motion.span>
-              ))}
             </div>
+            <p className="text-sm text-secondary/50 font-bold mb-1">No communities yet</p>
+            <p className="text-[11px] text-secondary/30 max-w-[200px] mx-auto mb-4">Build your tribe by creating a community around your events</p>
             <button
               onClick={() => { playTap(); setShowCreateCommunity(true); }}
-              className="inline-flex items-center gap-1 px-4 py-2 rounded-xl bg-primary/10 border border-primary/20 text-primary text-xs font-bold hover:bg-primary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+              className="inline-flex items-center gap-1 px-4 py-2 rounded-xl bg-primary/10 border border-primary/20 text-primary text-xs font-bold hover:bg-primary/20 transition-colors"
             >
               <Plus size={14} />
               Create Community
@@ -2006,11 +1651,9 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                   key={community.id}
                   initial={{ opacity: 0, x: -8 }}
                   animate={{ opacity: 1, x: 0 }}
-                  whileHover={{ y: -2, transition: { duration: 0.15 } }}
-                  whileTap={{ scale: 0.98 }}
                   transition={{ duration: 0.2, delay: idx * 0.05 }}
                   onClick={() => { playTap(); hapticTap(); setSelectedTribe(fullCommunity); }}
-                  className="w-full flex items-center gap-3 p-3 rounded-2xl bg-secondary/5 border border-secondary/10 hover:bg-secondary/10 transition-colors text-left focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+                  className="w-full flex items-center gap-3 p-3 rounded-2xl bg-secondary/5 border border-secondary/10 hover:bg-secondary/10 transition-colors text-left"
                 >
                   <div className="w-10 h-10 rounded-xl overflow-hidden bg-secondary/10 shrink-0 flex items-center justify-center text-lg">
                     {community.avatar || '🏘️'}
@@ -2024,7 +1667,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                       <span className="text-[10px] text-secondary/40 font-medium">
                         {memberCount} members
                       </span>
-                      <span className={`inline-flex items-center gap-0.5 text-[9px] font-bold ${sizeColor} bg-current/10 px-1.5 py-0.5 rounded-full transition-colors duration-200`}>
+                      <span className={`inline-flex items-center gap-0.5 text-[9px] font-bold ${sizeColor} bg-current/10 px-1.5 py-0.5 rounded-full`}>
                         <ArrowUpRight size={8} />
                         {sizeLabel}
                       </span>
@@ -2042,7 +1685,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                       />
                     </div>
                   </div>
-                  <ChevronRight size={16} className="text-secondary/30 shrink-0" aria-hidden="true" />
+                  <ChevronRight size={16} className="text-secondary/30 shrink-0" />
                 </motion.button>
               );
             })}

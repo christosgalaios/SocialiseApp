@@ -149,33 +149,20 @@ export default function OrganiserEditProfileSheet() {
 
             {/* Header */}
             <div className="px-6 pb-4 flex items-center justify-between border-b border-secondary/10">
+              <h2 className="text-lg font-black text-secondary">Edit Profile</h2>
               <div className="flex items-center gap-2">
-                <h2 className="text-lg font-black text-secondary">Edit Profile</h2>
-                {hasUnsavedChanges() && (
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="w-2 h-2 rounded-full bg-amber-500"
-                    style={{ boxShadow: '0 0 6px rgba(245, 158, 11, 0.4)' }}
-                  />
-                )}
-              </div>
-              <div className="flex items-center gap-2">
-                <motion.button
+                <button
                   onClick={() => { playTap(); setShowPreview(!showPreview); }}
-                  whileTap={{ scale: 0.9 }}
-                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${
+                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
                     showPreview ? 'bg-primary/10 text-primary' : 'bg-secondary/10 text-secondary/60'
                   }`}
                   aria-label={showPreview ? 'Hide preview' : 'Show preview'}
                 >
-                  <motion.div animate={{ rotate: showPreview ? 8 : 0 }} transition={{ duration: 0.2 }}>
-                    <Eye size={18} />
-                  </motion.div>
-                </motion.button>
+                  <Eye size={18} />
+                </button>
                 <button
                   onPointerDown={() => { playTap(); close(); }}
-                  className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+                  className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center"
                   aria-label="Close"
                 >
                   <X size={20} className="text-secondary/60" />
@@ -199,12 +186,12 @@ export default function OrganiserEditProfileSheet() {
                       <p className="text-[9px] font-black text-primary/60 uppercase tracking-widest mb-3">Preview</p>
                       {coverPhotoPreview && (
                         <div className="-mx-4 -mt-8 mb-3 h-16 overflow-hidden rounded-t-2xl">
-                          <img src={coverPhotoPreview} className="w-full h-full object-cover opacity-60" alt="Cover photo preview" loading="lazy" />
+                          <img src={coverPhotoPreview} className="w-full h-full object-cover opacity-60" alt="" />
                         </div>
                       )}
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl overflow-hidden bg-secondary/10 shrink-0">
-                          <img src={user?.avatar} className="w-full h-full object-cover" alt="Avatar preview" loading="lazy" />
+                          <img src={user?.avatar} className="w-full h-full object-cover" alt="" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-black text-secondary truncate">
@@ -234,13 +221,13 @@ export default function OrganiserEditProfileSheet() {
                 <label className="text-xs font-black text-secondary/60 uppercase tracking-widest mb-2 block">
                   Cover Photo
                 </label>
-                <div className="relative h-24 rounded-2xl overflow-hidden bg-secondary/5 border-2 border-dashed border-secondary/20 hover:border-primary/30 transition-colors duration-200">
+                <div className="relative h-24 rounded-2xl overflow-hidden bg-secondary/5 border-2 border-dashed border-secondary/20">
                   {coverPhotoPreview ? (
                     <>
-                      <img src={coverPhotoPreview} className="w-full h-full object-cover" alt="Cover" loading="lazy" />
+                      <img src={coverPhotoPreview} className="w-full h-full object-cover" alt="Cover" />
                       <button
                         onClick={() => setCoverPhotoPreview('')}
-                        className="absolute top-2 right-2 w-7 h-7 rounded-full bg-secondary/80 flex items-center justify-center hover:bg-secondary transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none before:absolute before:inset-[-8px] before:content-['']"
+                        className="absolute top-2 right-2 w-7 h-7 rounded-full bg-secondary/80 flex items-center justify-center"
                         aria-label="Remove cover photo"
                       >
                         <X size={14} className="text-white" />
@@ -258,7 +245,7 @@ export default function OrganiserEditProfileSheet() {
                   placeholder="https://example.com/cover-photo.jpg"
                   value={coverPhotoPreview}
                   onChange={(e) => setCoverPhotoPreview(e.target.value)}
-                  className="w-full mt-2 bg-secondary/5 border border-secondary/20 rounded-xl px-3 py-2 text-sm font-medium text-[var(--text)] focus:outline-none focus:border-primary hover:border-secondary/30 transition-all placeholder:text-secondary/40"
+                  className="w-full mt-2 bg-secondary/5 border border-secondary/20 rounded-xl px-3 py-2 text-sm font-medium text-[var(--text)] focus:outline-none focus:border-primary transition-all placeholder:text-secondary/40"
                 />
               </motion.div>
 
@@ -277,7 +264,7 @@ export default function OrganiserEditProfileSheet() {
                   placeholder="How attendees will see you"
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  className="w-full bg-secondary/5 border-2 border-secondary/20 rounded-2xl px-4 py-3.5 text-base font-medium text-[var(--text)] focus:outline-none focus:border-primary hover:border-secondary/30 transition-all placeholder:text-secondary/40"
+                  className="w-full bg-secondary/5 border-2 border-secondary/20 rounded-2xl px-4 py-3.5 text-base font-medium text-[var(--text)] focus:outline-none focus:border-primary transition-all placeholder:text-secondary/40"
                   maxLength={50}
                 />
                 {displayName.trim().length > 0 && displayName.trim().length < 2 && (
@@ -307,7 +294,7 @@ export default function OrganiserEditProfileSheet() {
                   placeholder="Tell people what kind of events you host..."
                   value={organiserBio}
                   onChange={(e) => setOrganiserBio(e.target.value)}
-                  className="w-full bg-secondary/5 border-2 border-secondary/20 rounded-2xl px-4 py-3 text-sm font-medium text-[var(--text)] focus:outline-none focus:border-primary hover:border-secondary/30 transition-all placeholder:text-secondary/40 min-h-[100px] resize-none"
+                  className="w-full bg-secondary/5 border-2 border-secondary/20 rounded-2xl px-4 py-3 text-sm font-medium text-[var(--text)] focus:outline-none focus:border-primary transition-all placeholder:text-secondary/40 min-h-[100px] resize-none"
                   maxLength={300}
                   style={{ overflowWrap: 'break-word', wordBreak: 'break-words' }}
                 />
@@ -340,10 +327,9 @@ export default function OrganiserEditProfileSheet() {
                         key={cat.id}
                         onClick={() => { toggleCategory(cat.id); playTap(); }}
                         whileTap={{ scale: 0.92 }}
-                        whileHover={!isSelected ? { scale: 1.03, transition: { duration: 0.12 } } : {}}
                         animate={isSelected ? { scale: [1, 1.05, 1] } : {}}
                         transition={{ duration: 0.2 }}
-                        className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border-2 text-sm font-bold transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${
+                        className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border-2 text-sm font-bold transition-colors ${
                           isSelected
                             ? 'bg-primary/10 border-primary text-primary'
                             : 'bg-secondary/5 border-secondary/20 text-secondary/70 hover:border-secondary/40'
@@ -369,7 +355,7 @@ export default function OrganiserEditProfileSheet() {
               <motion.div custom={4} variants={sectionVariants} initial="hidden" animate="show">
                 <button
                   onClick={() => { setShowSocialLinks(!showSocialLinks); playTap(); }}
-                  className="w-full flex items-center justify-between mb-3 rounded-xl px-1 -mx-1 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none transition-all"
+                  className="w-full flex items-center justify-between mb-3"
                 >
                   <label className="text-xs font-black text-secondary/60 uppercase tracking-widest pointer-events-none">
                     Social Links <span className="text-secondary/30">(optional)</span>
@@ -397,15 +383,11 @@ export default function OrganiserEditProfileSheet() {
                           const hasValue = socialLinks[platform.key]?.trim();
                           return (
                             <div key={platform.key} className="flex items-center gap-3">
-                              <motion.div
-                                animate={hasValue ? { scale: [1, 1.1, 1] } : { scale: 1 }}
-                                transition={{ duration: 0.25 }}
-                                className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border transition-colors ${
-                                  hasValue ? 'bg-green-500/5 border-green-500/20' : 'bg-secondary/5 border-secondary/10'
-                                }`}
-                              >
+                              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border transition-colors ${
+                                hasValue ? 'bg-green-500/5 border-green-500/20' : 'bg-secondary/5 border-secondary/10'
+                              }`}>
                                 <Link2 size={16} className={hasValue ? 'text-green-600' : 'text-secondary/50'} />
-                              </motion.div>
+                              </div>
                               <div className="flex-1">
                                 <span className="text-[10px] font-bold text-secondary/40 uppercase tracking-wider">{platform.label}</span>
                                 <input
@@ -414,7 +396,7 @@ export default function OrganiserEditProfileSheet() {
                                   value={socialLinks[platform.key] || ''}
                                   onChange={(e) => updateSocialLink(platform.key, e.target.value)}
                                   className={`w-full bg-secondary/5 border rounded-xl px-3 py-2 text-sm font-medium text-[var(--text)] focus:outline-none transition-all placeholder:text-secondary/40 ${
-                                    error ? 'border-red-400 focus:border-red-500' : hasValue ? 'border-green-500/30 focus:border-green-500' : 'border-secondary/20 focus:border-primary hover:border-secondary/30'
+                                    error ? 'border-red-400 focus:border-red-500' : hasValue ? 'border-green-500/30 focus:border-green-500' : 'border-secondary/20 focus:border-primary'
                                   }`}
                                 />
                                 {error && <p className="text-[10px] text-red-500/70 mt-0.5 font-medium">{error}</p>}
@@ -431,16 +413,11 @@ export default function OrganiserEditProfileSheet() {
               {/* Verification Request */}
               <motion.div custom={5} variants={sectionVariants} initial="hidden" animate="show">
                 {!user?.organiserVerified ? (
-                  <div className="premium-card p-4 rounded-2xl relative overflow-hidden">
-                    <div className="absolute -right-6 -top-6 w-20 h-20 bg-primary/5 rounded-full blur-2xl" aria-hidden="true" />
+                  <div className="premium-card p-4 rounded-2xl">
                     <div className="flex items-center gap-3">
-                      <motion.div
-                        whileHover={{ rotate: [0, -5, 5, 0] }}
-                        transition={{ duration: 0.4 }}
-                        className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0"
-                      >
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
                         <ShieldCheck size={18} className="text-primary" />
-                      </motion.div>
+                      </div>
                       <div className="flex-1">
                         <p className="text-sm font-bold text-secondary">Get Verified</p>
                         <p className="text-[10px] text-secondary/40">Verified organisers get a badge on their profile</p>
@@ -450,14 +427,14 @@ export default function OrganiserEditProfileSheet() {
                           playTap();
                           showToast('Verification request submitted! We\'ll review your profile.', 'success');
                         }}
-                        className="px-3 py-1.5 rounded-xl bg-primary/10 border border-primary/20 text-primary text-[11px] font-bold hover:bg-primary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+                        className="px-3 py-1.5 rounded-xl bg-primary/10 border border-primary/20 text-primary text-[11px] font-bold hover:bg-primary/20 transition-colors"
                       >
                         Request
                       </button>
                     </div>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2 p-3 rounded-2xl bg-green-500/5 border border-green-500/10 hover:border-green-500/20 hover:shadow-sm transition-all duration-200">
+                  <div className="flex items-center gap-2 p-3 rounded-2xl bg-green-500/5 border border-green-500/10">
                     <ShieldCheck size={16} className="text-green-600" />
                     <span className="text-sm font-bold text-green-600">Verified Organiser</span>
                   </div>
@@ -466,7 +443,7 @@ export default function OrganiserEditProfileSheet() {
             </div>
 
             {/* Footer with save button */}
-            <div className="p-6 border-t border-secondary/10 pb-[max(32px,env(safe-area-inset-bottom))]">
+            <div className="p-6 pb-8 border-t border-secondary/10">
               {hasUnsavedChanges() && (
                 <motion.p
                   initial={{ opacity: 0, y: 4 }}
@@ -483,12 +460,11 @@ export default function OrganiserEditProfileSheet() {
                 whileTap={canSave ? { scale: 0.98 } : {}}
                 animate={!canSave && shakeKey > 0 ? { x: [0, -6, 6, -4, 4, 0] } : {}}
                 transition={{ duration: 0.3 }}
-                className={`w-full h-14 rounded-2xl font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all relative overflow-hidden focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${
+                className={`w-full h-14 rounded-2xl font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
                   canSave
                     ? 'bg-gradient-to-r from-primary to-accent text-white'
                     : 'bg-secondary/20 text-secondary/40 cursor-not-allowed'
                 } ${isSubmitting ? 'opacity-50' : ''}`}
-                style={canSave && hasUnsavedChanges() ? { boxShadow: '0 4px 20px rgba(226, 114, 91, 0.3)' } : {}}
               >
                 {isSubmitting ? (
                   <motion.div

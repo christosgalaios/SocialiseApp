@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, Wand2, Calendar, Clock, MapPin,
   ChevronRight, Zap, ShieldCheck, Heart, Megaphone,
-  MessageCircle, Check, Send, Mountain, Ruler, TrendingUp, Footprints, Sparkles
+  MessageCircle, Check, Send, Mountain, Ruler, TrendingUp, Footprints
 } from 'lucide-react';
 import { INCLUSIVITY_TAGS, CATEGORY_ATTRIBUTES, DEFAULT_AVATAR } from '../data/constants';
 import { useEscapeKey, useFocusTrap, useSwipeToClose } from '../hooks/useAccessibility';
@@ -133,22 +133,6 @@ const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMe
                       </div>
                       <ChevronRight size={14} className="text-secondary/30 shrink-0" />
                     </button>
-                    {event.host_id && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          playTap(); hapticTap();
-                          useUIStore.getState().setShowOrganiserReview({
-                            organiserId: event.host_id,
-                            organiserName: event.host,
-                          });
-                        }}
-                        className="mt-2 w-full flex items-center justify-center gap-2 py-2.5 rounded-2xl bg-primary/5 border border-primary/10 hover:bg-primary/10 transition-colors text-xs font-bold text-primary"
-                      >
-                        <Sparkles size={14} />
-                        Review Organiser
-                      </button>
-                    )}
                   </div>
                 )}
 

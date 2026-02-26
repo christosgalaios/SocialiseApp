@@ -10,13 +10,7 @@ const navTabs = [
 
 const Sidebar = ({ experimentalFeatures, activeTab, setActiveTab }) => {
     return (
-        <nav className="hidden md:flex flex-col w-64 h-full bg-paper border-r border-secondary/10 p-6 pt-8 shrink-0 transition-colors" aria-label="Desktop navigation">
-            {/* App Branding */}
-            <div className="mb-8 px-2">
-                <h1 className="text-2xl font-heading font-black tracking-tighter text-primary">Socialise<span className="text-accent">.</span></h1>
-                <p className="text-[10px] font-medium text-secondary/40 tracking-wide mt-0.5">Discover your tribe</p>
-            </div>
-
+        <nav className="hidden md:flex flex-col w-64 h-full bg-paper border-r border-secondary/10 p-6 pt-24 shrink-0 transition-colors" aria-label="Desktop navigation">
             {/* Primary Navigation */}
             <div className="mb-6">
                 <h3 className="text-xs font-heading font-black text-secondary/70 uppercase tracking-widest mb-4 px-2">Navigate</h3>

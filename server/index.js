@@ -53,7 +53,6 @@ app.use('/api/events', mutationLimiter);
 app.use('/api/communities', mutationLimiter);
 app.use('/api/feed', mutationLimiter);
 app.use('/api/users', mutationLimiter);
-app.use('/api/reviews', mutationLimiter);
 
 // Healthcheck — used by Railway; must return 200 with no auth
 app.get('/api/health', (_req, res) => res.sendStatus(200));
@@ -66,7 +65,6 @@ const communitiesRouter = require('./routes/communities');
 const feedRouter = require('./routes/feed');
 const usersRouter = require('./routes/users');
 const bugsRouter = require('./routes/bugs');
-const reviewsRouter = require('./routes/reviews');
 
 app.use('/api/auth', authRouter);
 app.use('/api/events', eventsRouter);
@@ -74,7 +72,6 @@ app.use('/api/communities', communitiesRouter);
 app.use('/api/feed', feedRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/bugs', bugsRouter);
-app.use('/api/reviews', reviewsRouter);
 
 // --- Global error handler (CORS rejections, JSON parse errors, etc.) ---
 // Express error-handling middleware must have exactly 4 params
