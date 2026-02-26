@@ -52,6 +52,9 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Time-based dashboard greeting** — organiser dashboard header now shows "Good Morning/Afternoon/Evening, [name]" based on the current time of day
 - **Organiser tier badges** — dashboard displays a Bronze/Silver/Gold tier badge based on events hosted (Bronze < 5, Silver < 20, Gold 20+) with matching colors and icons
 - **Dashboard keyboard shortcuts** — press N to create a new event and R to refresh the dashboard (disabled when typing in inputs); New Event button shows a keyboard hint on desktop
+- **Pin events** — organisers can pin important events to the top of their dashboard event list; pinned events show a gold highlight and pin icon, persisted to localStorage
+- **Revenue insights** — analytics tab shows estimated revenue, paid event count, and average ticket price for organisers with paid events
+- **Audience insights** — analytics tab shows average attendees per event, overall fill rate, total reach, and highlights the most popular event
 
 ### Changed
 - **Organiser dashboard lazy-loaded** — OrganiserDashboard is now loaded on demand via React.lazy(), reducing the main bundle from 520KB to 494KB (26KB saved) with a matching loading skeleton

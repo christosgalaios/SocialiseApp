@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Calendar, Users, TrendingUp, Plus, Megaphone,
   ChevronRight, BarChart3, Globe, Pencil, Clock, History, RefreshCw, Share2, Sparkles,
+  Pin, DollarSign, UserCheck, Repeat,
 } from 'lucide-react';
 import useAuthStore from '../stores/authStore';
 import useUIStore from '../stores/uiStore';
@@ -56,6 +57,11 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [eventFilter, setEventFilter] = useState('upcoming');
+  const [pinnedEventIds, setPinnedEventIds] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('socialise_pinned_events') || '[]');
+    } catch { return []; }
+  });
 
   const fetchDashboard = useCallback(async (silent = false) => {
     try {
@@ -125,6 +131,46 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
     else countdown = 'Starting soon';
     return { ...next, countdown };
   }, [upcomingEvents]);
+
+  const togglePin = useCallback((eventId) => {
+    setPinnedEventIds(prev => {
+      const next = prev.includes(eventId) ? prev.filter(id => id !== eventId) : [...prev, eventId];
+      localStorage.setItem('socialise_pinned_events', JSON.stringify(next));
+      return next;
+    });
+    playTap(); hapticTap();
+  }, []);
+
+  const sortedFilteredEvents = useMemo(() => {
+    const pinned = filteredEvents.filter(e => pinnedEventIds.includes(e.id));
+    const unpinned = filteredEvents.filter(e => !pinnedEventIds.includes(e.id));
+    return [...pinned, ...unpinned];
+  }, [filteredEvents, pinnedEventIds]);
+
+  const revenueInsights = useMemo(() => {
+    if (events.length === 0) return null;
+    let totalRevenue = 0;
+    let paidEvents = 0;
+    events.forEach(e => {
+      const price = parseFloat(e.price);
+      if (price > 0) {
+        totalRevenue += price * (e.attendees ?? 0);
+        paidEvents++;
+      }
+    });
+    const avgTicket = paidEvents > 0 ? totalRevenue / events.reduce((sum, e) => sum + (parseFloat(e.price) > 0 ? e.attendees ?? 0 : 0), 0) : 0;
+    return { totalRevenue, paidEvents, avgTicket: Math.round(avgTicket * 100) / 100 };
+  }, [events]);
+
+  const audienceInsights = useMemo(() => {
+    if (events.length === 0) return null;
+    const totalAttendees = events.reduce((sum, e) => sum + (e.attendees ?? 0), 0);
+    const avgPerEvent = Math.round(totalAttendees / events.length);
+    const totalSpots = events.reduce((sum, e) => sum + (e.spots ?? 0), 0);
+    const overallFill = totalSpots > 0 ? Math.round((totalAttendees / totalSpots) * 100) : 0;
+    const bestEvent = [...events].sort((a, b) => (b.attendees ?? 0) - (a.attendees ?? 0))[0];
+    return { avgPerEvent, overallFill, totalAttendees, bestEvent };
+  }, [events]);
 
   // Keyboard shortcuts
   const handleKeyboard = useCallback((e) => {
@@ -557,6 +603,106 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
             );
           })()}
 
+          {/* Revenue Insights */}
+          {revenueInsights && revenueInsights.paidEvents > 0 && (
+            <div className="premium-card p-6 relative overflow-hidden">
+              <div className="absolute -left-6 -bottom-6 w-24 h-24 bg-green-500/5 rounded-full blur-2xl" />
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center justify-center">
+                  <DollarSign size={16} className="text-green-600" />
+                </div>
+                <h3 className="text-xs font-black text-green-600 uppercase tracking-widest">Revenue Insights</h3>
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <motion.p
+                    className="text-xl font-black text-secondary"
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+                  >
+                    ${Math.round(revenueInsights.totalRevenue).toLocaleString()}
+                  </motion.p>
+                  <p className="text-[9px] font-bold text-secondary/40 uppercase tracking-widest mt-0.5">Est. Revenue</p>
+                </div>
+                <div>
+                  <motion.p
+                    className="text-xl font-black text-secondary"
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ type: 'spring', damping: 20, stiffness: 300, delay: 0.1 }}
+                  >
+                    {revenueInsights.paidEvents}
+                  </motion.p>
+                  <p className="text-[9px] font-bold text-secondary/40 uppercase tracking-widest mt-0.5">Paid Events</p>
+                </div>
+                <div>
+                  <motion.p
+                    className="text-xl font-black text-secondary"
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ type: 'spring', damping: 20, stiffness: 300, delay: 0.2 }}
+                  >
+                    ${revenueInsights.avgTicket}
+                  </motion.p>
+                  <p className="text-[9px] font-bold text-secondary/40 uppercase tracking-widest mt-0.5">Avg Ticket</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Audience Insights */}
+          {audienceInsights && (
+            <div className="premium-card p-6 relative overflow-hidden">
+              <div className="absolute -right-6 -top-6 w-24 h-24 bg-primary/5 rounded-full blur-2xl" />
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+                  <UserCheck size={16} className="text-primary" />
+                </div>
+                <h3 className="text-xs font-black text-primary uppercase tracking-widest">Audience Insights</h3>
+              </div>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Users size={14} className="text-secondary/40" />
+                    <span className="text-[11px] font-bold text-secondary">Avg. per event</span>
+                  </div>
+                  <span className="text-sm font-black text-primary">{audienceInsights.avgPerEvent} attendees</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <BarChart3 size={14} className="text-secondary/40" />
+                    <span className="text-[11px] font-bold text-secondary">Overall fill rate</span>
+                  </div>
+                  <span className={`text-sm font-black ${audienceInsights.overallFill >= 70 ? 'text-accent' : 'text-primary'}`}>{audienceInsights.overallFill}%</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Repeat size={14} className="text-secondary/40" />
+                    <span className="text-[11px] font-bold text-secondary">Total reach</span>
+                  </div>
+                  <span className="text-sm font-black text-secondary">{audienceInsights.totalAttendees} people</span>
+                </div>
+                {audienceInsights.bestEvent && (
+                  <div className="pt-3 mt-3 border-t border-secondary/10">
+                    <p className="text-[9px] font-black text-accent uppercase tracking-widest mb-1.5">Most Popular Event</p>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl overflow-hidden bg-secondary/10 shrink-0">
+                        {audienceInsights.bestEvent.image && (
+                          <img src={audienceInsights.bestEvent.image} className="w-full h-full object-cover" alt="" loading="lazy" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-secondary truncate">{audienceInsights.bestEvent.title}</p>
+                        <p className="text-[10px] text-secondary/40">{audienceInsights.bestEvent.attendees} attendees</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Attendance rate */}
           {events.length > 0 ? (
             <div className="premium-card p-6">
@@ -731,7 +877,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               Create Event
             </button>
           </div>
-        ) : filteredEvents.length === 0 ? (
+        ) : sortedFilteredEvents.length === 0 ? (
           <div className="text-center py-6">
             <p className="text-sm text-secondary/40 font-medium">
               No {eventFilter} events
@@ -747,18 +893,21 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               transition={{ duration: 0.15 }}
               className="space-y-3"
             >
-              {filteredEvents.slice(0, 5).map((event) => {
+              {sortedFilteredEvents.slice(0, 5).map((event) => {
                 const fillPct = event.spots > 0 ? Math.round((event.attendees / event.spots) * 100) : 0;
                 const fullEvent = allEvents.find(e => e.id === event.id) || event;
                 const relDate = getRelativeDate(event.date);
                 const isLive = relDate === 'Today';
                 const isSoldOut = fillPct >= 100;
                 const isAlmostFull = fillPct >= 80 && !isSoldOut;
+                const isPinned = pinnedEventIds.includes(event.id);
                 return (
                   <button
                     key={event.id}
                     onClick={() => { playTap(); hapticTap(); setSelectedEvent(fullEvent); }}
-                    className="w-full flex items-center gap-3 p-3 rounded-2xl bg-secondary/5 border border-secondary/10 hover:bg-secondary/10 transition-colors text-left"
+                    className={`w-full flex items-center gap-3 p-3 rounded-2xl border hover:bg-secondary/10 transition-colors text-left ${
+                      isPinned ? 'bg-accent/5 border-accent/20' : 'bg-secondary/5 border-secondary/10'
+                    }`}
                   >
                     <div className="w-12 h-12 rounded-xl overflow-hidden bg-secondary/10 shrink-0 relative">
                       {event.image && <img src={event.image} className="w-full h-full object-cover" alt="" loading="lazy" />}
@@ -768,6 +917,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5">
+                        {isPinned && <Pin size={10} className="text-accent shrink-0" />}
                         <p className="text-sm font-bold text-secondary truncate">{event.title}</p>
                         {isSoldOut && (
                           <span className="shrink-0 text-[8px] font-black text-red-600 bg-red-500/10 px-1.5 py-0.5 rounded-full border border-red-500/20 uppercase">Sold Out</span>
@@ -795,13 +945,25 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                         />
                       </div>
                     </div>
+                    <div
+                      role="button"
+                      tabIndex={0}
+                      onClick={(e) => { e.stopPropagation(); togglePin(event.id); }}
+                      onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); togglePin(event.id); } }}
+                      className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                        isPinned ? 'bg-accent/10 text-accent' : 'bg-transparent text-secondary/20 hover:text-secondary/40'
+                      }`}
+                      aria-label={isPinned ? 'Unpin event' : 'Pin event'}
+                    >
+                      <Pin size={14} />
+                    </div>
                     <ChevronRight size={16} className="text-secondary/30 shrink-0" />
                   </button>
                 );
               })}
-              {filteredEvents.length > 5 && (
+              {sortedFilteredEvents.length > 5 && (
                 <p className="text-[10px] text-center text-secondary/40 font-bold pt-1">
-                  +{filteredEvents.length - 5} more
+                  +{sortedFilteredEvents.length - 5} more
                 </p>
               )}
             </motion.div>
