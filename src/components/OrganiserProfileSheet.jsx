@@ -152,7 +152,7 @@ export default function OrganiserProfileSheet() {
               <h2 className="text-lg font-black text-secondary">Organiser Profile</h2>
               <button
                 onPointerDown={() => { playTap(); close(); }}
-                className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
+                className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                 aria-label="Close"
               >
                 <X size={20} className="text-secondary/60" />
@@ -222,7 +222,7 @@ export default function OrganiserProfileSheet() {
                           setIsFollowing(!isFollowing);
                           showToast(isFollowing ? 'Unfollowed organiser' : 'Following organiser!', isFollowing ? 'info' : 'success');
                         }}
-                        className={`flex-1 py-3 rounded-2xl font-black text-sm flex items-center justify-center gap-2 transition-all ${
+                        className={`flex-1 py-3 rounded-2xl font-black text-sm flex items-center justify-center gap-2 transition-all focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${
                           isFollowing
                             ? 'bg-secondary/5 border-2 border-secondary/20 text-secondary'
                             : 'bg-gradient-to-r from-primary to-accent text-white shadow-lg'
@@ -321,7 +321,7 @@ export default function OrganiserProfileSheet() {
                           const fullEvent = allEvents.find(e => e.id === highlightEvent.id) || highlightEvent;
                           playTap(); hapticTap(); setSelectedEvent(fullEvent);
                         }}
-                        className="w-full premium-card p-4 rounded-[20px] relative overflow-hidden text-left hover:bg-secondary/5 transition-colors"
+                        className="w-full premium-card p-4 rounded-[20px] relative overflow-hidden text-left hover:bg-secondary/5 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                       >
                         <div className="absolute -right-4 -top-4 w-16 h-16 bg-accent/5 rounded-full blur-2xl" />
                         <div className="flex items-center justify-between mb-2">
@@ -374,7 +374,7 @@ export default function OrganiserProfileSheet() {
                                 href={url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[11px] font-bold transition-all group hover:scale-105 active:scale-95 ${style.bg} ${style.border} ${style.color} ${style.hoverBg}`}
+                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[11px] font-bold transition-all group hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${style.bg} ${style.border} ${style.color} ${style.hoverBg}`}
                               >
                                 <Globe size={10} />
                                 <span className="capitalize text-[9px] font-black opacity-50 mr-0.5">{p.key}</span>
@@ -469,7 +469,7 @@ export default function OrganiserProfileSheet() {
                                     const fullEvent = allEvents.find(e => e.id === event.id) || event;
                                     playTap(); hapticTap(); setSelectedEvent(fullEvent);
                                   }}
-                                  className="w-full flex items-center gap-3 p-3 rounded-2xl bg-secondary/5 border border-secondary/10 hover:bg-secondary/10 transition-colors text-left"
+                                  className="w-full flex items-center gap-3 p-3 rounded-2xl bg-secondary/5 border border-secondary/10 hover:bg-secondary/10 transition-colors text-left focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                                 >
                                   <div className="w-11 h-11 rounded-xl overflow-hidden bg-secondary/10 shrink-0">
                                     {event.image && <img src={event.image} className="w-full h-full object-cover" alt="" loading="lazy" />}
@@ -523,7 +523,7 @@ export default function OrganiserProfileSheet() {
                                 whileHover={{ x: 2, transition: { duration: 0.12 } }}
                                 whileTap={{ scale: 0.98 }}
                                 onClick={() => { playTap(); hapticTap(); setSelectedTribe(fullCommunity); }}
-                                className="w-full flex items-center gap-3 p-3 rounded-2xl bg-secondary/5 border border-secondary/10 hover:bg-secondary/10 transition-colors text-left"
+                                className="w-full flex items-center gap-3 p-3 rounded-2xl bg-secondary/5 border border-secondary/10 hover:bg-secondary/10 transition-colors text-left focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                               >
                                 <div className="w-10 h-10 rounded-xl bg-secondary/10 shrink-0 flex items-center justify-center text-base">
                                   {c.avatar || '🏘️'}
