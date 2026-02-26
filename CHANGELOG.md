@@ -71,6 +71,9 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Checklist toggle focus ring** — the "Pre-event checklist" expand/collapse button shows a focus ring for keyboard nav
 - **Note editor Save focus ring** — the event note Save button shows a focus ring for keyboard accessibility
 - **Create community form focus rings** — both the Create and Cancel buttons in the inline community form now show focus rings
+- **Edit profile close button hover** — the close button on the edit profile sheet darkens on hover
+- **Edit profile remove cover hover** — the "Remove cover photo" X button darkens on hover
+- **Public profile close button hover** — the close button on the public profile sheet darkens on hover
 - **Community empty state polish** — spring-animated icon with gradient background, staggered "Engage / Grow / Connect" hint tags, subtle glow backdrop
 - **Profile stat badges staggered entrance** — the upcoming/past/communities/attendees badges in the organiser header animate in with spring scale stagger instead of appearing instantly
 - **Community card hover lift** — community cards in the dashboard now lift on hover and scale on tap for tactile feedback

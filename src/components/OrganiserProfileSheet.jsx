@@ -141,7 +141,7 @@ export default function OrganiserProfileSheet() {
               <h2 className="text-lg font-black text-secondary">Organiser Profile</h2>
               <button
                 onPointerDown={() => { playTap(); close(); }}
-                className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center"
+                className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
                 aria-label="Close"
               >
                 <X size={20} className="text-secondary/60" />
