@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Calendar, Users, TrendingUp, Plus, Megaphone,
   ChevronRight, BarChart3, Globe, Pencil, Clock, History, RefreshCw, Share2, Sparkles,
-  Pin, DollarSign, UserCheck, Repeat,
+  Pin, DollarSign, UserCheck, Repeat, Copy, StickyNote, Activity,
 } from 'lucide-react';
 import useAuthStore from '../stores/authStore';
 import useUIStore from '../stores/uiStore';
@@ -62,6 +62,13 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
       return JSON.parse(localStorage.getItem('socialise_pinned_events') || '[]');
     } catch { return []; }
   });
+  const [eventNotes, setEventNotes] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('socialise_event_notes') || '{}');
+    } catch { return {}; }
+  });
+  const [editingNoteId, setEditingNoteId] = useState(null);
+  const [noteText, setNoteText] = useState('');
 
   const fetchDashboard = useCallback(async (silent = false) => {
     try {
@@ -140,6 +147,56 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
     });
     playTap(); hapticTap();
   }, []);
+
+  const handleDuplicateEvent = useCallback((event) => {
+    const duplicated = {
+      title: `${event.title} (Copy)`,
+      category: event.category,
+      location: event.location,
+      spots: event.spots,
+      price: event.price,
+      image: event.image,
+      description: event.description,
+    };
+    localStorage.setItem('socialise_prefill_event', JSON.stringify(duplicated));
+    onCreateEvent?.();
+    showToast('Event duplicated — edit and save', 'info');
+    playClick(); hapticTap();
+  }, [onCreateEvent, showToast]);
+
+  const saveNote = useCallback((eventId) => {
+    setEventNotes(prev => {
+      const next = { ...prev };
+      if (noteText.trim()) {
+        next[eventId] = noteText.trim();
+      } else {
+        delete next[eventId];
+      }
+      localStorage.setItem('socialise_event_notes', JSON.stringify(next));
+      return next;
+    });
+    setEditingNoteId(null);
+    setNoteText('');
+  }, [noteText]);
+
+  const weeklyActivity = useMemo(() => {
+    const days = [];
+    const now = new Date();
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - i);
+      const dayStr = d.toISOString().split('T')[0];
+      const dayEvents = events.filter(e => e.date?.startsWith(dayStr));
+      const attendees = dayEvents.reduce((sum, e) => sum + (e.attendees ?? 0), 0);
+      days.push({
+        label: d.toLocaleDateString('en-US', { weekday: 'short' }),
+        events: dayEvents.length,
+        attendees,
+      });
+    }
+    const maxAttendees = Math.max(...days.map(d => d.attendees), 1);
+    return { days, maxAttendees };
+  }, [events]);
 
   const sortedFilteredEvents = useMemo(() => {
     const pinned = filteredEvents.filter(e => pinnedEventIds.includes(e.id));
@@ -779,6 +836,37 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
         </motion.div>
       )}
 
+      {/* Weekly Activity */}
+      {events.length > 0 && (
+        <motion.div variants={itemVariants} className="premium-card p-5 relative overflow-hidden">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-8 h-8 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+              <Activity size={16} className="text-primary" />
+            </div>
+            <h3 className="text-xs font-black text-primary uppercase tracking-widest">This Week</h3>
+          </div>
+          <div className="flex items-end justify-between gap-1 h-16">
+            {weeklyActivity.days.map((day, i) => (
+              <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                <motion.div
+                  className="w-full rounded-t-lg bg-primary/60"
+                  style={{ minHeight: 2 }}
+                  initial={{ height: 0 }}
+                  animate={{ height: `${Math.max((day.attendees / weeklyActivity.maxAttendees) * 100, 5)}%` }}
+                  transition={{ duration: 0.4, ease: 'easeOut', delay: i * 0.05 }}
+                  title={`${day.attendees} attendees, ${day.events} event${day.events !== 1 ? 's' : ''}`}
+                />
+              </div>
+            ))}
+          </div>
+          <div className="flex justify-between mt-1.5">
+            {weeklyActivity.days.map((day, i) => (
+              <span key={i} className="flex-1 text-center text-[8px] font-bold text-secondary/30 uppercase">{day.label}</span>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
       {/* Stats Grid */}
       <motion.div variants={itemVariants}>
         <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-3">
@@ -901,64 +989,120 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                 const isSoldOut = fillPct >= 100;
                 const isAlmostFull = fillPct >= 80 && !isSoldOut;
                 const isPinned = pinnedEventIds.includes(event.id);
+                const note = eventNotes[event.id];
                 return (
-                  <button
-                    key={event.id}
-                    onClick={() => { playTap(); hapticTap(); setSelectedEvent(fullEvent); }}
-                    className={`w-full flex items-center gap-3 p-3 rounded-2xl border hover:bg-secondary/10 transition-colors text-left ${
-                      isPinned ? 'bg-accent/5 border-accent/20' : 'bg-secondary/5 border-secondary/10'
-                    }`}
-                  >
-                    <div className="w-12 h-12 rounded-xl overflow-hidden bg-secondary/10 shrink-0 relative">
-                      {event.image && <img src={event.image} className="w-full h-full object-cover" alt="" loading="lazy" />}
-                      {isLive && (
-                        <div className="absolute top-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-paper animate-pulse" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        {isPinned && <Pin size={10} className="text-accent shrink-0" />}
-                        <p className="text-sm font-bold text-secondary truncate">{event.title}</p>
-                        {isSoldOut && (
-                          <span className="shrink-0 text-[8px] font-black text-red-600 bg-red-500/10 px-1.5 py-0.5 rounded-full border border-red-500/20 uppercase">Sold Out</span>
-                        )}
-                        {isAlmostFull && (
-                          <span className="shrink-0 text-[8px] font-black text-accent bg-accent/10 px-1.5 py-0.5 rounded-full border border-accent/20 uppercase">Almost Full</span>
-                        )}
-                        {isLive && (
-                          <span className="shrink-0 text-[8px] font-black text-green-600 bg-green-500/10 px-1.5 py-0.5 rounded-full border border-green-500/20 uppercase">Live</span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <span className={`text-[10px] font-medium ${relDate === 'Today' ? 'text-green-600 font-bold' : relDate === 'Tomorrow' ? 'text-primary font-bold' : 'text-secondary/40'}`}>{relDate}</span>
-                        <span className="text-[10px] text-secondary/30">|</span>
-                        <span className={`text-[10px] font-bold ${fillPct >= 80 ? 'text-accent' : 'text-primary'}`}>
-                          <Users size={10} className="inline mr-0.5" />
-                          {event.attendees}/{event.spots}
-                        </span>
-                      </div>
-                      {/* Mini fill bar */}
-                      <div className="w-full h-1 bg-secondary/10 rounded-full mt-1.5 overflow-hidden">
-                        <div
-                          className={`h-full rounded-full transition-all ${isSoldOut ? 'bg-red-500' : fillPct >= 80 ? 'bg-accent' : 'bg-primary/60'}`}
-                          style={{ width: `${Math.min(fillPct, 100)}%` }}
-                        />
-                      </div>
-                    </div>
-                    <div
-                      role="button"
-                      tabIndex={0}
-                      onClick={(e) => { e.stopPropagation(); togglePin(event.id); }}
-                      onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); togglePin(event.id); } }}
-                      className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
-                        isPinned ? 'bg-accent/10 text-accent' : 'bg-transparent text-secondary/20 hover:text-secondary/40'
+                  <div key={event.id} className="space-y-1">
+                    <button
+                      onClick={() => { playTap(); hapticTap(); setSelectedEvent(fullEvent); }}
+                      className={`w-full flex items-center gap-3 p-3 rounded-2xl border hover:bg-secondary/10 transition-colors text-left ${
+                        isPinned ? 'bg-accent/5 border-accent/20' : 'bg-secondary/5 border-secondary/10'
                       }`}
-                      aria-label={isPinned ? 'Unpin event' : 'Pin event'}
                     >
-                      <Pin size={14} />
-                    </div>
-                    <ChevronRight size={16} className="text-secondary/30 shrink-0" />
-                  </button>
+                      <div className="w-12 h-12 rounded-xl overflow-hidden bg-secondary/10 shrink-0 relative">
+                        {event.image && <img src={event.image} className="w-full h-full object-cover" alt="" loading="lazy" />}
+                        {isLive && (
+                          <div className="absolute top-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-paper animate-pulse" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          {isPinned && <Pin size={10} className="text-accent shrink-0" />}
+                          <p className="text-sm font-bold text-secondary truncate">{event.title}</p>
+                          {isSoldOut && (
+                            <span className="shrink-0 text-[8px] font-black text-red-600 bg-red-500/10 px-1.5 py-0.5 rounded-full border border-red-500/20 uppercase">Sold Out</span>
+                          )}
+                          {isAlmostFull && (
+                            <span className="shrink-0 text-[8px] font-black text-accent bg-accent/10 px-1.5 py-0.5 rounded-full border border-accent/20 uppercase">Almost Full</span>
+                          )}
+                          {isLive && (
+                            <span className="shrink-0 text-[8px] font-black text-green-600 bg-green-500/10 px-1.5 py-0.5 rounded-full border border-green-500/20 uppercase">Live</span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className={`text-[10px] font-medium ${relDate === 'Today' ? 'text-green-600 font-bold' : relDate === 'Tomorrow' ? 'text-primary font-bold' : 'text-secondary/40'}`}>{relDate}</span>
+                          <span className="text-[10px] text-secondary/30">|</span>
+                          <span className={`text-[10px] font-bold ${fillPct >= 80 ? 'text-accent' : 'text-primary'}`}>
+                            <Users size={10} className="inline mr-0.5" />
+                            {event.attendees}/{event.spots}
+                          </span>
+                        </div>
+                        {/* Mini fill bar */}
+                        <div className="w-full h-1 bg-secondary/10 rounded-full mt-1.5 overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all ${isSoldOut ? 'bg-red-500' : fillPct >= 80 ? 'bg-accent' : 'bg-primary/60'}`}
+                            style={{ width: `${Math.min(fillPct, 100)}%` }}
+                          />
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-1 shrink-0">
+                        <div
+                          role="button"
+                          tabIndex={0}
+                          onClick={(e) => { e.stopPropagation(); togglePin(event.id); }}
+                          onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); togglePin(event.id); } }}
+                          className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${
+                            isPinned ? 'bg-accent/10 text-accent' : 'text-secondary/20 hover:text-secondary/40'
+                          }`}
+                          aria-label={isPinned ? 'Unpin event' : 'Pin event'}
+                        >
+                          <Pin size={12} />
+                        </div>
+                        <div
+                          role="button"
+                          tabIndex={0}
+                          onClick={(e) => { e.stopPropagation(); handleDuplicateEvent(event); }}
+                          onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); handleDuplicateEvent(event); } }}
+                          className="w-7 h-7 rounded-lg flex items-center justify-center text-secondary/20 hover:text-secondary/40 transition-colors"
+                          aria-label="Duplicate event"
+                        >
+                          <Copy size={12} />
+                        </div>
+                        <div
+                          role="button"
+                          tabIndex={0}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditingNoteId(editingNoteId === event.id ? null : event.id);
+                            setNoteText(eventNotes[event.id] || '');
+                          }}
+                          onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); setEditingNoteId(editingNoteId === event.id ? null : event.id); setNoteText(eventNotes[event.id] || ''); } }}
+                          className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${
+                            note ? 'bg-primary/10 text-primary' : 'text-secondary/20 hover:text-secondary/40'
+                          }`}
+                          aria-label={note ? 'Edit note' : 'Add note'}
+                        >
+                          <StickyNote size={12} />
+                        </div>
+                      </div>
+                      <ChevronRight size={16} className="text-secondary/30 shrink-0" />
+                    </button>
+                    {/* Note display */}
+                    {note && editingNoteId !== event.id && (
+                      <div className="ml-15 pl-3 border-l-2 border-primary/20">
+                        <p className="text-[10px] text-secondary/50 italic">{note}</p>
+                      </div>
+                    )}
+                    {/* Note editor */}
+                    {editingNoteId === event.id && (
+                      <div className="ml-3 flex gap-2 items-center" onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="text"
+                          value={noteText}
+                          onChange={(e) => setNoteText(e.target.value)}
+                          onKeyDown={(e) => { if (e.key === 'Enter') saveNote(event.id); if (e.key === 'Escape') setEditingNoteId(null); }}
+                          placeholder="Add a quick note..."
+                          className="flex-1 text-xs px-3 py-2 rounded-xl bg-secondary/5 border border-secondary/10 text-[var(--text)] placeholder:text-secondary/30 outline-none focus:border-primary/30"
+                          autoFocus
+                        />
+                        <button
+                          onClick={() => saveNote(event.id)}
+                          className="px-3 py-2 rounded-xl bg-primary/10 text-primary text-[10px] font-bold hover:bg-primary/20 transition-colors"
+                        >
+                          Save
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 );
               })}
               {sortedFilteredEvents.length > 5 && (

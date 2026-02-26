@@ -55,6 +55,9 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Pin events** — organisers can pin important events to the top of their dashboard event list; pinned events show a gold highlight and pin icon, persisted to localStorage
 - **Revenue insights** — analytics tab shows estimated revenue, paid event count, and average ticket price for organisers with paid events
 - **Audience insights** — analytics tab shows average attendees per event, overall fill rate, total reach, and highlights the most popular event
+- **Duplicate event** — tap the copy icon on any dashboard event row to pre-fill the Create Event form with that event's details (title, category, location, spots, price, image)
+- **Event quick notes** — tap the note icon on any event row to add a personal reminder; notes are persisted locally and shown inline below each event
+- **Weekly activity chart** — overview tab shows a 7-day bar chart of attendee activity, with animated bars and day labels
 
 ### Changed
 - **Organiser dashboard lazy-loaded** — OrganiserDashboard is now loaded on demand via React.lazy(), reducing the main bundle from 520KB to 494KB (26KB saved) with a matching loading skeleton
