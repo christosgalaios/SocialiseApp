@@ -19,6 +19,8 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Text overflow in bug/feature modals** — both BugReportModal and FeatureRequestModal now consistently handle long text with word-break, overflow-wrap, and overscroll containment (BUG-1772022766344)
 
 ### Added
+- **Category distribution staggered bars** — analytics category bars now cascade in with staggered slide animation; the top category is highlighted with accent gold color
+- **Fill rate bar spot counts** — event fill rate bars now show attendee/spot counts alongside percentages with staggered entry animations
 - **HomeTab today's events fill bars** — today's events in the organiser overview now show mini progress bars with color-coded status and a "Full" badge when sold out
 - **HomeTab stat cards animation** — the organiser overview stat grid on the Home tab now has staggered spring entry, hover lift, and tap scale animations
 - **Public profile event tab pill** — the Upcoming/Past event tabs on the public organiser profile now use a smooth sliding pill animation, matching the dashboard's tab design
