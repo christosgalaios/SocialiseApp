@@ -86,6 +86,8 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Review sheet loading skeleton cascade** — skeleton elements now stagger in with individual animation delays instead of a single parent pulse, plus additional skeleton elements for the comment area
 - **Review comment progress bar** — the comment textarea now shows a thin progress bar that turns amber near the 200-character limit
 - **Review tag counter transition** — the "X/5 selected" counter now smoothly transitions color when tags are added or removed
+- **Community section focus rings** — create community toggle, community card rows, and view all events button now show focus rings for keyboard accessibility
+- **Dashboard community section focus rings** — create community toggle, community card rows, and "View all events" button now show focus rings for keyboard accessibility
 - **Community empty state polish** — spring-animated icon with gradient background, staggered "Engage / Grow / Connect" hint tags, subtle glow backdrop
 - **Profile stat badges staggered entrance** — the upcoming/past/communities/attendees badges in the organiser header animate in with spring scale stagger instead of appearing instantly
 - **Community card hover lift** — community cards in the dashboard now lift on hover and scale on tap for tactile feedback
