@@ -109,10 +109,18 @@ export default function HomeTab({ onProfileClick, onCreateEvent, fetchAllData })
     >
       <motion.header variants={itemVariants} className="flex justify-between items-center mb-8">
         <div>
-          <p className="text-[10px] font-black text-secondary/60 uppercase tracking-widest mb-1">{getFormattedDate()}</p>
+          <div className="flex items-center gap-2 mb-1">
+            <p className="text-[10px] font-black text-secondary/60 uppercase tracking-widest">{getFormattedDate()}</p>
+            {isOrganiser && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-accent/10 rounded-full border border-accent/20">
+                <Megaphone size={8} className="text-accent" />
+                <span className="text-[8px] font-black text-accent uppercase tracking-widest">Organiser</span>
+              </span>
+            )}
+          </div>
           <h1 className="text-3xl md:text-5xl font-black tracking-tighter leading-tight text-primary">
             {getGreeting()}<span className="text-accent">,</span><br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary drop-shadow-sm filter animate-text-gradient">{user?.name?.split(' ')[0]}</span><span className="text-accent">.</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary drop-shadow-sm filter animate-text-gradient">{isOrganiser ? (user?.organiserDisplayName?.split(' ')[0] || user?.name?.split(' ')[0]) : user?.name?.split(' ')[0]}</span><span className="text-accent">.</span>
           </h1>
         </div>
         <motion.button

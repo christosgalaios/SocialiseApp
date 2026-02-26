@@ -331,9 +331,18 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
 
         {events.length === 0 ? (
           <div className="text-center py-8">
-            <Calendar size={32} className="text-secondary/20 mx-auto mb-2" />
-            <p className="text-sm text-secondary/40 font-medium">No events yet</p>
-            <p className="text-[11px] text-secondary/30">Create your first event to get started</p>
+            <div className="w-16 h-16 mx-auto mb-3 rounded-[20px] bg-primary/5 border border-primary/10 flex items-center justify-center">
+              <Calendar size={28} className="text-primary/30" />
+            </div>
+            <p className="text-sm text-secondary/50 font-bold mb-1">No events yet</p>
+            <p className="text-[11px] text-secondary/30 mb-4 max-w-[200px] mx-auto">Create your first event and start building your audience</p>
+            <button
+              onClick={() => { playClick(); hapticTap(); onCreateEvent?.(); }}
+              className="inline-flex items-center gap-1 px-4 py-2 rounded-xl bg-primary/10 border border-primary/20 text-primary text-xs font-bold hover:bg-primary/20 transition-colors"
+            >
+              <Plus size={14} />
+              Create Event
+            </button>
           </div>
         ) : filteredEvents.length === 0 ? (
           <div className="text-center py-6">
@@ -403,9 +412,11 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
 
         {communities.length === 0 ? (
           <div className="text-center py-8">
-            <Users size={32} className="text-secondary/20 mx-auto mb-2" />
-            <p className="text-sm text-secondary/40 font-medium">No communities yet</p>
-            <p className="text-[11px] text-secondary/30">Build your tribe by creating a community</p>
+            <div className="w-16 h-16 mx-auto mb-3 rounded-[20px] bg-secondary/5 border border-secondary/10 flex items-center justify-center">
+              <Users size={28} className="text-secondary/30" />
+            </div>
+            <p className="text-sm text-secondary/50 font-bold mb-1">No communities yet</p>
+            <p className="text-[11px] text-secondary/30 max-w-[200px] mx-auto">Build your tribe by creating a community around your events</p>
           </div>
         ) : (
           <div className="space-y-3">

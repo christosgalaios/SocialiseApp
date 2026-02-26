@@ -37,9 +37,29 @@ export default function OrganiserSetupFlow() {
     setSocialLinks(prev => ({ ...prev, [key]: value }));
   };
 
+  const validateSocialLink = (key, value) => {
+    if (!value?.trim()) return null;
+    const v = value.trim();
+    if (key === 'website') {
+      if (!/^https?:\/\/.+\..+/.test(v)) return 'Enter a valid URL (https://...)';
+    } else {
+      if (/\s/.test(v)) return 'Usernames cannot contain spaces';
+    }
+    return null;
+  };
+
+  const socialErrors = ORGANISER_SOCIAL_PLATFORMS.reduce((acc, p) => {
+    const err = validateSocialLink(p.key, socialLinks[p.key]);
+    if (err) acc[p.key] = err;
+    return acc;
+  }, {});
+
+  const hasSocialErrors = Object.keys(socialErrors).length > 0;
+
   const canProceed = () => {
     if (step === 0) return displayName.trim().length >= 2;
     if (step === 1) return selectedCategories.length >= 1;
+    if (step === 2) return !hasSocialErrors;
     return true;
   };
 
@@ -249,20 +269,28 @@ export default function OrganiserSetupFlow() {
                   Social Links <span className="text-secondary/30">(optional)</span>
                 </label>
                 <div className="space-y-3">
-                  {ORGANISER_SOCIAL_PLATFORMS.map((platform) => (
-                    <div key={platform.key} className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-secondary/5 border border-secondary/10 flex items-center justify-center shrink-0">
-                        <Link2 size={16} className="text-secondary/50" />
+                  {ORGANISER_SOCIAL_PLATFORMS.map((platform) => {
+                    const error = socialErrors[platform.key];
+                    return (
+                      <div key={platform.key}>
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-secondary/5 border border-secondary/10 flex items-center justify-center shrink-0">
+                            <Link2 size={16} className="text-secondary/50" />
+                          </div>
+                          <input
+                            type="text"
+                            placeholder={platform.placeholder}
+                            value={socialLinks[platform.key] || ''}
+                            onChange={(e) => updateSocialLink(platform.key, e.target.value)}
+                            className={`flex-1 bg-secondary/5 border rounded-xl px-3 py-2.5 text-sm font-medium text-[var(--text)] focus:outline-none transition-all placeholder:text-secondary/40 ${
+                              error ? 'border-red-400 focus:border-red-500' : 'border-secondary/20 focus:border-primary'
+                            }`}
+                          />
+                        </div>
+                        {error && <p className="text-[10px] text-red-500/70 mt-0.5 ml-[52px] font-medium">{error}</p>}
                       </div>
-                      <input
-                        type="text"
-                        placeholder={platform.placeholder}
-                        value={socialLinks[platform.key] || ''}
-                        onChange={(e) => updateSocialLink(platform.key, e.target.value)}
-                        className="flex-1 bg-secondary/5 border border-secondary/20 rounded-xl px-3 py-2.5 text-sm font-medium text-[var(--text)] focus:outline-none focus:border-primary transition-all placeholder:text-secondary/40"
-                      />
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </motion.div>

@@ -19,9 +19,13 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Cover photo display** — organiser dashboard and profile header now display the cover photo when one is set
 - **Organiser overview on Home tab** — organisers see a quick stats banner (active events, attendees, total hosted) on the Home tab with a "New Event" shortcut and live "Today's Events" section
 - **Profile completeness indicator** — organiser dashboard shows a checklist with progress bar (display name, bio, categories, social links, first event) that disappears once 100% complete; incomplete items link to the edit sheet
-- **Social link validation** — edit profile sheet validates website URLs and username formats in real-time with inline error messages; invalid links prevent saving
+- **Social link validation** — edit profile sheet and setup flow validate website URLs and username formats in real-time with inline error messages; invalid links prevent saving
+- **Clickable social links on public profiles** — social links on the organiser profile sheet now open the corresponding platform (Instagram, TikTok, X, Website) in a new tab with hover effects
+- **Organiser quick stats on public profile** — public organiser profile now shows events, communities, and member counts in a compact 3-column grid
+- **Organiser badge on Home tab** — organisers see a small "Organiser" badge next to the date and their organiser display name in the greeting
 
 ### Changed
+- **Public organiser profile redesign** — richer layout with cover photo, quick stats grid, "Connect" section for social links, "Hosts" section for categories, and improved loading skeleton
 - **Organiser dashboard loading skeleton** — replaced basic pulse blocks with a detailed skeleton that mirrors the actual dashboard structure (profile card, quick actions, stats grid, event list)
 - **Stats card polish** — stat cards now animate their values on mount and show a subtle hover lift effect
 
