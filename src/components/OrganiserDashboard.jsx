@@ -641,44 +641,48 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
 
         {activeSocials.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-3">
-            {activeSocials.map(p => (
-              <span key={p.key} className="inline-flex items-center gap-1 px-2.5 py-1 bg-secondary/5 rounded-full border border-secondary/10 text-[11px] font-bold text-secondary/60">
+            {activeSocials.map((p, idx) => (
+              <motion.span
+                key={p.key}
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2, delay: idx * 0.05 }}
+                whileHover={{ scale: 1.05, transition: { duration: 0.12 } }}
+                whileTap={{ scale: 0.95 }}
+                className="inline-flex items-center gap-1 px-2.5 py-1 bg-secondary/5 rounded-full border border-secondary/10 text-[11px] font-bold text-secondary/60 hover:border-primary/20 hover:text-primary cursor-pointer transition-colors"
+              >
                 <Globe size={10} />
                 {socialLinks[p.key]}
-              </span>
+              </motion.span>
             ))}
           </div>
         )}
 
         {/* Stat badges */}
-        {stats && (
-          <div className="flex flex-wrap gap-1.5 mb-3">
-            {upcomingEvents.length > 0 && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-green-500/5 border border-green-500/10 text-[10px] font-bold text-green-600">
-                <Clock size={10} />
-                {upcomingEvents.length} upcoming
-              </span>
-            )}
-            {pastEvents.length > 0 && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-secondary/5 border border-secondary/10 text-[10px] font-bold text-secondary/40">
-                <History size={10} />
-                {pastEvents.length} past
-              </span>
-            )}
-            {communities.length > 0 && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-secondary/5 border border-secondary/10 text-[10px] font-bold text-secondary/40">
-                <Users size={10} />
-                {communities.length} communities
-              </span>
-            )}
-            {(stats.totalAttendees ?? 0) > 0 && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-primary/5 border border-primary/10 text-[10px] font-bold text-primary">
-                <TrendingUp size={10} />
-                {stats.totalAttendees} total attendees
-              </span>
-            )}
-          </div>
-        )}
+        {stats && (() => {
+          const badges = [
+            upcomingEvents.length > 0 && { icon: Clock, label: `${upcomingEvents.length} upcoming`, bg: 'bg-green-500/5', border: 'border-green-500/10', color: 'text-green-600' },
+            pastEvents.length > 0 && { icon: History, label: `${pastEvents.length} past`, bg: 'bg-secondary/5', border: 'border-secondary/10', color: 'text-secondary/40' },
+            communities.length > 0 && { icon: Users, label: `${communities.length} communities`, bg: 'bg-secondary/5', border: 'border-secondary/10', color: 'text-secondary/40' },
+            (stats.totalAttendees ?? 0) > 0 && { icon: TrendingUp, label: `${stats.totalAttendees} total attendees`, bg: 'bg-primary/5', border: 'border-primary/10', color: 'text-primary' },
+          ].filter(Boolean);
+          return badges.length > 0 ? (
+            <div className="flex flex-wrap gap-1.5 mb-3">
+              {badges.map((badge, idx) => (
+                <motion.span
+                  key={badge.label}
+                  initial={{ opacity: 0, scale: 0.85 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ type: 'spring', damping: 20, stiffness: 300, delay: 0.1 + idx * 0.06 }}
+                  className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg ${badge.bg} border ${badge.border} text-[10px] font-bold ${badge.color}`}
+                >
+                  <badge.icon size={10} />
+                  {badge.label}
+                </motion.span>
+              ))}
+            </div>
+          ) : null;
+        })()}
 
         <button
           onClick={() => { playTap(); onSwitchToAttendee(); }}
@@ -1871,6 +1875,8 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                   key={community.id}
                   initial={{ opacity: 0, x: -8 }}
                   animate={{ opacity: 1, x: 0 }}
+                  whileHover={{ y: -2, transition: { duration: 0.15 } }}
+                  whileTap={{ scale: 0.98 }}
                   transition={{ duration: 0.2, delay: idx * 0.05 }}
                   onClick={() => { playTap(); hapticTap(); setSelectedTribe(fullCommunity); }}
                   className="w-full flex items-center gap-3 p-3 rounded-2xl bg-secondary/5 border border-secondary/10 hover:bg-secondary/10 transition-colors text-left"
