@@ -1603,8 +1603,9 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                     </button>
                     {/* Note display */}
                     {note && editingNoteId !== event.id && (
-                      <div className="ml-15 pl-3 border-l-2 border-primary/20">
-                        <p className="text-[10px] text-secondary/50 italic">{note}</p>
+                      <div className="ml-3 flex items-start gap-2 p-2 rounded-xl bg-primary/5 border border-primary/10">
+                        <StickyNote size={10} className="text-primary/40 shrink-0 mt-0.5" />
+                        <p className="text-[10px] text-secondary/60 italic leading-relaxed">{note}</p>
                       </div>
                     )}
                     {/* Note editor */}
@@ -1628,14 +1629,25 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                       </div>
                     )}
                     {/* Event Checklist */}
-                    {eventFilter === 'upcoming' && (
+                    {eventFilter === 'upcoming' && (() => {
+                      const cl = getChecklist(event.id);
+                      const doneCount = cl.filter(i => i.done).length;
+                      const allDone = doneCount === cl.length;
+                      return (
                       <div className="ml-3">
                         <button
                           onClick={(e) => { e.stopPropagation(); setExpandedChecklist(expandedChecklist === event.id ? null : event.id); playTap(); }}
-                          className="flex items-center gap-1 text-[10px] font-bold text-secondary/40 hover:text-secondary/60 transition-colors"
+                          className="flex items-center gap-1.5 text-[10px] font-bold text-secondary/40 hover:text-secondary/60 transition-colors"
                         >
                           <ChevronDown size={10} className={`transition-transform ${expandedChecklist === event.id ? 'rotate-180' : ''}`} />
-                          Pre-event checklist ({getChecklist(event.id).filter(i => i.done).length}/{getChecklist(event.id).length})
+                          <span>Pre-event checklist</span>
+                          <span className={`${allDone ? 'text-green-600' : ''}`}>({doneCount}/{cl.length})</span>
+                          <div className="w-12 h-1 bg-secondary/10 rounded-full overflow-hidden ml-0.5">
+                            <div
+                              className={`h-full rounded-full transition-all ${allDone ? 'bg-green-500' : 'bg-primary/50'}`}
+                              style={{ width: `${cl.length > 0 ? (doneCount / cl.length) * 100 : 0}%` }}
+                            />
+                          </div>
                         </button>
                         <AnimatePresence>
                           {expandedChecklist === event.id && (
@@ -1665,7 +1677,8 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                           )}
                         </AnimatePresence>
                       </div>
-                    )}
+                      );
+                    })()}
                   </motion.div>
                 );
               })}
