@@ -23,6 +23,10 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Clickable social links on public profiles** — social links on the organiser profile sheet now open the corresponding platform (Instagram, TikTok, X, Website) in a new tab with hover effects
 - **Organiser quick stats on public profile** — public organiser profile now shows events, communities, and member counts in a compact 3-column grid
 - **Organiser badge on Home tab** — organisers see a small "Organiser" badge next to the date and their organiser display name in the greeting
+- **Dashboard Overview/Analytics tabs** — organiser dashboard now has two tabs: Overview (events + communities) and Analytics (performance stats + event fill rate chart with average)
+- **Clickable event rows** — event rows on the organiser dashboard now open the EventDetailSheet when tapped
+- **Clickable community rows** — community rows on the organiser dashboard now open the TribeSheet when tapped
+- **"Become an Organiser" feature preview** — the CTA card on the attendee profile now shows a 3-column preview of organiser features (Host Events, Communities, Analytics)
 
 ### Changed
 - **Public organiser profile redesign** — richer layout with cover photo, quick stats grid, "Connect" section for social links, "Hosts" section for categories, and improved loading skeleton

@@ -6,6 +6,8 @@ import {
 } from 'lucide-react';
 import useAuthStore from '../stores/authStore';
 import useUIStore from '../stores/uiStore';
+import useEventStore from '../stores/eventStore';
+import useCommunityStore from '../stores/communityStore';
 import OrganiserStatsCard from './OrganiserStatsCard';
 import { DEFAULT_AVATAR, ORGANISER_SOCIAL_PLATFORMS } from '../data/constants';
 import { playTap, playClick, hapticTap } from '../utils/feedback';
@@ -25,6 +27,12 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
   const user = useAuthStore((s) => s.user);
   const showToast = useUIStore((s) => s.showToast);
   const setShowOrganiserEditProfile = useUIStore((s) => s.setShowOrganiserEditProfile);
+  const organiserDashboardTab = useUIStore((s) => s.organiserDashboardTab);
+  const setOrganiserDashboardTab = useUIStore((s) => s.setOrganiserDashboardTab);
+  const setSelectedEvent = useEventStore((s) => s.setSelectedEvent);
+  const allEvents = useEventStore((s) => s.events);
+  const setSelectedTribe = useCommunityStore((s) => s.setSelectedTribe);
+  const allCommunities = useCommunityStore((s) => s.communities);
 
   const [stats, setStats] = useState(null);
   const [events, setEvents] = useState([]);
@@ -249,6 +257,115 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
         </button>
       </motion.div>
 
+      {/* Dashboard Tabs */}
+      <motion.div variants={itemVariants} className="flex gap-1 p-1 bg-secondary/5 rounded-2xl border border-secondary/10">
+        {[
+          { key: 'overview', label: 'Overview' },
+          { key: 'analytics', label: 'Analytics' },
+        ].map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => { playTap(); setOrganiserDashboardTab(tab.key); }}
+            className={`flex-1 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+              organiserDashboardTab === tab.key
+                ? 'bg-paper text-primary shadow-sm'
+                : 'text-secondary/40 hover:text-secondary/60'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </motion.div>
+
+      {organiserDashboardTab === 'analytics' ? (
+        <motion.div
+          key="analytics"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-6"
+        >
+          {/* Stats Grid */}
+          <div>
+            <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-3">
+              Your Performance<span className="text-accent">.</span>
+            </h3>
+            <div className="grid grid-cols-2 gap-3">
+              <OrganiserStatsCard
+                icon={Calendar}
+                value={stats?.eventsHosted ?? 0}
+                label="Events Hosted"
+                color="text-primary"
+                bgColor="bg-primary/10"
+                borderColor="border-primary/20"
+              />
+              <OrganiserStatsCard
+                icon={Users}
+                value={stats?.totalAttendees ?? 0}
+                label="Total Attendees"
+                color="text-secondary"
+                bgColor="bg-secondary/10"
+                borderColor="border-secondary/20"
+              />
+              <OrganiserStatsCard
+                icon={TrendingUp}
+                value={stats?.activeEvents ?? 0}
+                label="Active Events"
+                color="text-accent"
+                bgColor="bg-accent/10"
+                borderColor="border-accent/20"
+              />
+              <OrganiserStatsCard
+                icon={BarChart3}
+                value={stats?.totalCommunityMembers ?? 0}
+                label="Community Members"
+                color="text-teal-600"
+                bgColor="bg-teal-500/10"
+                borderColor="border-teal-500/20"
+              />
+            </div>
+          </div>
+
+          {/* Attendance rate */}
+          {events.length > 0 && (
+            <div className="premium-card p-6">
+              <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-4">
+                Event Fill Rates<span className="text-accent">.</span>
+              </h3>
+              <div className="space-y-3">
+                {events.slice(0, 6).map((event) => {
+                  const fillPct = event.spots > 0 ? Math.round((event.attendees / event.spots) * 100) : 0;
+                  return (
+                    <div key={event.id}>
+                      <div className="flex justify-between mb-1">
+                        <span className="text-[11px] font-bold text-secondary truncate max-w-[60%]">{event.title}</span>
+                        <span className={`text-[11px] font-black ${fillPct >= 80 ? 'text-accent' : fillPct >= 50 ? 'text-primary' : 'text-secondary/50'}`}>{fillPct}%</span>
+                      </div>
+                      <div className="w-full h-2 bg-secondary/10 rounded-full overflow-hidden">
+                        <motion.div
+                          className={`h-full rounded-full ${fillPct >= 80 ? 'bg-accent' : fillPct >= 50 ? 'bg-primary' : 'bg-secondary/30'}`}
+                          initial={{ width: 0 }}
+                          animate={{ width: `${Math.min(fillPct, 100)}%` }}
+                          transition={{ duration: 0.6, ease: 'easeOut', delay: 0.1 }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              {events.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-secondary/10 flex items-center justify-between">
+                  <span className="text-[10px] font-bold text-secondary/40">Average fill rate</span>
+                  <span className="text-sm font-black text-primary">
+                    {Math.round(events.reduce((sum, e) => sum + (e.spots > 0 ? (e.attendees / e.spots) * 100 : 0), 0) / Math.max(events.length, 1))}%
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+        </motion.div>
+      ) : (
+      <>
+
       {/* Stats Grid */}
       <motion.div variants={itemVariants}>
         <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-3">
@@ -362,8 +479,13 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
             >
               {filteredEvents.slice(0, 5).map((event) => {
                 const fillPct = event.spots > 0 ? Math.round((event.attendees / event.spots) * 100) : 0;
+                const fullEvent = allEvents.find(e => e.id === event.id) || event;
                 return (
-                  <div key={event.id} className="flex items-center gap-3 p-3 rounded-2xl bg-secondary/5 border border-secondary/10">
+                  <button
+                    key={event.id}
+                    onClick={() => { playTap(); hapticTap(); setSelectedEvent(fullEvent); }}
+                    className="w-full flex items-center gap-3 p-3 rounded-2xl bg-secondary/5 border border-secondary/10 hover:bg-secondary/10 transition-colors text-left"
+                  >
                     <div className="w-12 h-12 rounded-xl overflow-hidden bg-secondary/10 shrink-0">
                       {event.image && <img src={event.image} className="w-full h-full object-cover" alt="" loading="lazy" />}
                     </div>
@@ -386,7 +508,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                       </div>
                     </div>
                     <ChevronRight size={16} className="text-secondary/30 shrink-0" />
-                  </div>
+                  </button>
                 );
               })}
               {filteredEvents.length > 5 && (
@@ -420,23 +542,32 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           </div>
         ) : (
           <div className="space-y-3">
-            {communities.map((community) => (
-              <div key={community.id} className="flex items-center gap-3 p-3 rounded-2xl bg-secondary/5 border border-secondary/10">
-                <div className="w-10 h-10 rounded-xl overflow-hidden bg-secondary/10 shrink-0 flex items-center justify-center text-lg">
-                  {community.avatar || '🏘️'}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-secondary truncate">{community.name}</p>
-                  <span className="text-[10px] text-secondary/40 font-medium">
-                    {community.members ?? 0} members
-                  </span>
-                </div>
-                <ChevronRight size={16} className="text-secondary/30 shrink-0" />
-              </div>
-            ))}
+            {communities.map((community) => {
+              const fullCommunity = allCommunities.find(c => c.id === community.id) || community;
+              return (
+                <button
+                  key={community.id}
+                  onClick={() => { playTap(); hapticTap(); setSelectedTribe(fullCommunity); }}
+                  className="w-full flex items-center gap-3 p-3 rounded-2xl bg-secondary/5 border border-secondary/10 hover:bg-secondary/10 transition-colors text-left"
+                >
+                  <div className="w-10 h-10 rounded-xl overflow-hidden bg-secondary/10 shrink-0 flex items-center justify-center text-lg">
+                    {community.avatar || '🏘️'}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-secondary truncate">{community.name}</p>
+                    <span className="text-[10px] text-secondary/40 font-medium">
+                      {community.members ?? 0} members
+                    </span>
+                  </div>
+                  <ChevronRight size={16} className="text-secondary/30 shrink-0" />
+                </button>
+              );
+            })}
           </div>
         )}
       </motion.div>
+      </>
+      )}
     </motion.div>
   );
 }
