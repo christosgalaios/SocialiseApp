@@ -145,11 +145,13 @@ export default function OrganiserReviewSheet() {
             {/* Content */}
             <div className="flex-1 overflow-y-auto p-6 space-y-6" style={{ overscrollBehavior: 'contain' }}>
               {loading ? (
-                <div className="space-y-3 animate-pulse">
-                  <div className="h-4 w-32 bg-secondary/10 rounded-full" />
+                <div className="space-y-3">
+                  <div className="h-4 w-32 bg-secondary/10 rounded-full animate-pulse" />
                   <div className="flex flex-wrap gap-2">
-                    {[1,2,3,4,5,6].map(i => <div key={i} className="h-10 w-24 bg-secondary/10 rounded-full" />)}
+                    {[1,2,3,4,5,6].map(i => <div key={i} className="h-10 w-24 bg-secondary/10 rounded-full animate-pulse" style={{ animationDelay: `${i * 0.08}s` }} />)}
                   </div>
+                  <div className="h-4 w-24 bg-secondary/10 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }} />
+                  <div className="h-20 bg-secondary/10 rounded-2xl animate-pulse" style={{ animationDelay: '0.6s' }} />
                 </div>
               ) : (
                 <>
@@ -159,7 +161,7 @@ export default function OrganiserReviewSheet() {
                       <h4 className="text-xs font-black text-primary uppercase tracking-widest">
                         Vibe Tags<span className="text-accent">.</span>
                       </h4>
-                      <span className={`text-[10px] font-bold ${selectedTags.length > 0 ? 'text-primary' : 'text-secondary/30'}`}>
+                      <span className={`text-[10px] font-bold transition-colors ${selectedTags.length > 0 ? 'text-primary' : 'text-secondary/30'}`}>
                         {selectedTags.length}/5 selected
                       </span>
                     </div>
@@ -203,7 +205,15 @@ export default function OrganiserReviewSheet() {
                       className="w-full bg-secondary/5 border border-secondary/10 rounded-2xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-primary hover:border-secondary/20 transition-all placeholder:text-secondary/30 text-[var(--text)] resize-none break-words"
                       style={{ overflowWrap: 'break-word' }}
                     />
-                    <p className="text-[10px] text-secondary/30 font-medium mt-1 text-right">{comment.length}/200</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <div className="flex-1 h-0.5 bg-secondary/10 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all duration-200 ${comment.length > 180 ? 'bg-amber-500/60' : 'bg-primary/40'}`}
+                          style={{ width: `${Math.min((comment.length / 200) * 100, 100)}%` }}
+                        />
+                      </div>
+                      <span className={`text-[10px] font-bold ${comment.length > 180 ? 'text-amber-500' : 'text-secondary/30'}`}>{comment.length}/200</span>
+                    </div>
                   </div>
                 </>
               )}
