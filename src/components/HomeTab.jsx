@@ -1,5 +1,5 @@
 import { useCallback, useState, useEffect, useMemo } from 'react';
-import { Heart, Zap, ChevronLeft, ChevronRight, RefreshCw, Megaphone, Calendar, Users, Plus } from 'lucide-react';
+import { Heart, Zap, ChevronLeft, ChevronRight, RefreshCw, Megaphone, Calendar, Clock, MapPin, Users, Plus } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { formatError } from '../errorUtils';
 import { playTap, playClick, hapticTap } from '../utils/feedback';
@@ -96,6 +96,30 @@ export default function HomeTab({ onProfileClick, onCreateEvent, fetchAllData })
   const visible = recommended.slice(0, recommendedLimit);
   const hasMore = recommendedLimit < recommended.length;
 
+  // Find the user's next upcoming RSVP'd event
+  const nextEvent = useMemo(() => {
+    const now = new Date();
+    return events
+      .filter(e => joinedEvents.includes(e.id))
+      .map(e => {
+        const eventDate = new Date(e.date);
+        return { ...e, _parsedDate: eventDate };
+      })
+      .filter(e => e._parsedDate >= now || isNaN(e._parsedDate.getTime()))
+      .sort((a, b) => a._parsedDate - b._parsedDate)[0] || null;
+  }, [events, joinedEvents]);
+
+  const nextEventCountdown = useMemo(() => {
+    if (!nextEvent?._parsedDate || isNaN(nextEvent._parsedDate.getTime())) return null;
+    const now = new Date();
+    const diff = nextEvent._parsedDate - now;
+    if (diff <= 0) return 'Today';
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    if (days === 0) return 'Today';
+    if (days === 1) return 'Tomorrow';
+    return `In ${days} days`;
+  }, [nextEvent]);
+
   const microMeets = events.filter(e => e.isMicroMeet || e.is_micro_meet).sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
 
   return (
@@ -185,6 +209,73 @@ export default function HomeTab({ onProfileClick, onCreateEvent, fetchAllData })
               ))}
             </div>
           )}
+        </motion.div>
+      )}
+
+      {/* Your Next Event */}
+      {nextEvent && (
+        <motion.div variants={itemVariants}>
+          <button
+            type="button"
+            onClick={() => { playTap(); hapticTap(); setSelectedEvent(nextEvent); }}
+            className="w-full premium-card p-5 relative overflow-hidden text-left group hover:shadow-lg transition-shadow"
+          >
+            <div className="absolute -right-8 -top-8 w-32 h-32 bg-primary/5 rounded-full blur-3xl" />
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
+                <Calendar size={16} className="text-primary" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-xs font-black text-primary uppercase tracking-widest">Your Next Event</h3>
+              </div>
+              {nextEventCountdown && (
+                <span className="text-[10px] font-black text-accent bg-accent/10 px-2.5 py-1 rounded-full border border-accent/20">
+                  {nextEventCountdown}
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-2xl overflow-hidden bg-secondary/10 shrink-0 border border-secondary/10">
+                {nextEvent.image && <img src={nextEvent.image} className="w-full h-full object-cover" alt="" loading="lazy" />}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-base font-black text-secondary truncate tracking-tight group-hover:text-primary transition-colors">{nextEvent.title}</p>
+                <div className="flex items-center gap-3 mt-1.5">
+                  <span className="flex items-center gap-1 text-[11px] text-secondary/50 font-medium">
+                    <Clock size={11} className="text-primary/60" />
+                    {nextEvent.date}{nextEvent.time ? ` · ${nextEvent.time}` : ''}
+                  </span>
+                </div>
+                {nextEvent.location && (
+                  <span className="flex items-center gap-1 text-[11px] text-secondary/40 font-medium mt-0.5">
+                    <MapPin size={11} className="text-primary/40" />
+                    <span className="truncate">{nextEvent.location?.split(',')[0]}</span>
+                  </span>
+                )}
+                {nextEvent.spots > 0 && (
+                  <div className="mt-2">
+                    <div className="flex items-center justify-between mb-0.5">
+                      <span className="text-[10px] font-bold text-secondary/40">
+                        {nextEvent.attendees || 0}/{nextEvent.spots} going
+                      </span>
+                      <span className={`text-[10px] font-black ${(nextEvent.attendees / nextEvent.spots) >= 0.8 ? 'text-accent' : 'text-primary'}`}>
+                        {Math.round(((nextEvent.attendees || 0) / nextEvent.spots) * 100)}%
+                      </span>
+                    </div>
+                    <div className="w-full h-1.5 bg-secondary/10 rounded-full overflow-hidden">
+                      <motion.div
+                        className={`h-full rounded-full ${(nextEvent.attendees / nextEvent.spots) >= 0.8 ? 'bg-accent' : 'bg-primary/60'}`}
+                        initial={{ width: 0 }}
+                        animate={{ width: `${Math.min(((nextEvent.attendees || 0) / nextEvent.spots) * 100, 100)}%` }}
+                        transition={{ duration: 0.6, ease: 'easeOut', delay: 0.2 }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+              <ChevronRight size={16} className="text-secondary/30 shrink-0" />
+            </div>
+          </button>
         </motion.div>
       )}
 

@@ -30,6 +30,21 @@ export const INCLUSIVITY_TAGS = [
   { id: 'sober', label: 'Sober Friendly', emoji: '🍃', color: 'bg-green-500/10 text-green-700 border-green-500/20' },
 ];
 
+// --- ORGANISER VIBE TAGS ---
+// Used for organiser reviews — users select vibe tags to describe the organiser
+export const ORGANISER_VIBE_TAGS = [
+  { id: 'welcoming', label: 'Welcoming', emoji: '🤗', color: 'bg-rose-500/10 text-rose-700 border-rose-500/20' },
+  { id: 'well-organized', label: 'Well-Organized', emoji: '📋', color: 'bg-blue-500/10 text-blue-700 border-blue-500/20' },
+  { id: 'fun-vibe', label: 'Fun Vibe', emoji: '🎉', color: 'bg-amber-500/10 text-amber-700 border-amber-500/20' },
+  { id: 'inclusive', label: 'Inclusive', emoji: '🌈', color: 'bg-purple-500/10 text-purple-700 border-purple-500/20' },
+  { id: 'creative', label: 'Creative', emoji: '✨', color: 'bg-pink-500/10 text-pink-700 border-pink-500/20' },
+  { id: 'chill', label: 'Chill', emoji: '😌', color: 'bg-teal-500/10 text-teal-700 border-teal-500/20' },
+  { id: 'energetic', label: 'Energetic', emoji: '⚡', color: 'bg-orange-500/10 text-orange-700 border-orange-500/20' },
+  { id: 'great-communicator', label: 'Great Communicator', emoji: '💬', color: 'bg-cyan-500/10 text-cyan-700 border-cyan-500/20' },
+  { id: 'supportive', label: 'Supportive', emoji: '🤝', color: 'bg-green-500/10 text-green-700 border-green-500/20' },
+  { id: 'inspiring', label: 'Inspiring', emoji: '🌟', color: 'bg-indigo-500/10 text-indigo-700 border-indigo-500/20' },
+];
+
 // --- CATEGORY-SPECIFIC ATTRIBUTES ---
 // Each category can define its own custom attributes shown on event detail
 export const CATEGORY_ATTRIBUTES = {
