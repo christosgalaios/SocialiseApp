@@ -69,6 +69,10 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Metadata row flex-wrap** — event and community metadata rows on the public profile sheet and dashboard wrap gracefully on narrow screens with vertical gap spacing instead of overflowing
 - **Profile sheet tabular-nums** — highlight event spots, community member counts, and event metadata now use fixed-width digits for stable numeric display
 - **Decorative icon aria-hidden** — section header icons (Activity, DollarSign, UserCheck, TrendingUp, Star, Megaphone, Camera, ShieldCheck, ChevronDown, Settings) across dashboard, profile sheet, and edit profile sheet are now marked `aria-hidden="true"` so screen readers skip them and only announce the adjacent text labels
+- **Dashboard bio line clamp + hyphens** — organiser bio on the dashboard is clamped to 4 lines with automatic hyphenation, matching the profile sheet treatment
+- **Category chip icon aria-hidden** — category chip icons on both dashboard and profile sheet are marked decorative for screen readers
+- **Alert text hyphenation** — attention alert messages on the dashboard use automatic hyphenation for graceful word breaking on narrow screens
+- **Event note hyphenation** — event note text on the dashboard uses automatic hyphenation for long notes
 - **Public profile event card hover** — event cards on the public organiser profile nudge right on hover and scale on tap for tactile feedback
 - **Public profile community card hover** — community cards on the public profile gain matching hover nudge and tap scale
 - **Profile completeness chip stagger** — completeness check chips now stagger in with scale animation, incomplete items have hover background and tap scale for better affordance

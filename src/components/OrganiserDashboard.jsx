@@ -561,7 +561,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                   : <Zap size={14} className="text-green-600" />
                 }
               </motion.div>
-              <p className="text-[11px] font-medium text-secondary/70 flex-1">{alert.message}</p>
+              <p className="text-[11px] font-medium text-secondary/70 flex-1 hyphens-auto" lang="en">{alert.message}</p>
               <button
                 onClick={() => {
                   const fullEvent = allEvents.find(e => e.id === alert.event.id) || alert.event;
@@ -655,7 +655,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
         </div>
 
         {user?.organiserBio && (
-          <p className="text-sm text-secondary/60 font-medium leading-relaxed mb-3 select-text">{user.organiserBio}</p>
+          <p className="text-sm text-secondary/60 font-medium leading-relaxed mb-3 select-text line-clamp-4 hyphens-auto" lang="en">{user.organiserBio}</p>
         )}
 
         {/* Category chips */}
@@ -666,7 +666,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               const Icon = cat?.icon;
               return (
                 <span key={catId} className="inline-flex items-center gap-1 px-2.5 py-1 bg-primary/5 rounded-full border border-primary/10 text-[11px] font-bold text-primary">
-                  {Icon && <Icon size={10} />}
+                  {Icon && <Icon size={10} aria-hidden="true" />}
                   {cat?.label || catId}
                 </span>
               );
@@ -1774,7 +1774,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                     {note && editingNoteId !== event.id && (
                       <div className="ml-3 flex items-start gap-2 p-2 rounded-xl bg-primary/5 border border-primary/10">
                         <StickyNote size={10} className="text-primary/40 shrink-0 mt-0.5" />
-                        <p className="text-[10px] text-secondary/60 italic leading-relaxed select-text">{note}</p>
+                        <p className="text-[10px] text-secondary/60 italic leading-relaxed select-text hyphens-auto" lang="en">{note}</p>
                       </div>
                     )}
                     {/* Note editor */}

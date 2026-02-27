@@ -395,7 +395,7 @@ export default function OrganiserProfileSheet() {
                                 transition={{ type: 'spring', damping: 20, stiffness: 300, delay: idx * 0.05 }}
                                 className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 rounded-full border border-primary/20 text-[11px] font-bold text-primary"
                               >
-                                {CatIcon && <CatIcon size={12} />}
+                                {CatIcon && <CatIcon size={12} aria-hidden="true" />}
                                 {catData?.label || catId}
                               </motion.span>
                             );
