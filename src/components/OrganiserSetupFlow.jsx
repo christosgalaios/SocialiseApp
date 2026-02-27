@@ -78,7 +78,7 @@ export default function OrganiserSetupFlow() {
         organiserBio: organiserBio.trim(),
         organiserCategories: selectedCategories,
         organiserSocialLinks: Object.fromEntries(
-          Object.entries(socialLinks).filter(([, v]) => v.trim())
+          Object.entries(socialLinks).filter(([, v]) => v?.trim())
         ),
         organiserSetupComplete: true,
       });

@@ -40,6 +40,7 @@ export default function OrganiserProfileSheet() {
 
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
   const [eventTab, setEventTab] = useState('upcoming');
 
@@ -52,12 +53,23 @@ export default function OrganiserProfileSheet() {
     if (!userId) return;
     let cancelled = false;
     setLoading(true);
+    setLoadError(false);
+    setProfile(null);
     api.getOrganiserProfile(userId)
       .then(data => { if (!cancelled) setProfile(data); })
-      .catch(err => { if (!cancelled) showToast(err.message || 'Failed to load profile', 'error'); })
+      .catch(() => { if (!cancelled) setLoadError(true); })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, [userId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [userId]);
+
+  const retryLoad = () => {
+    setLoading(true);
+    setLoadError(false);
+    api.getOrganiserProfile(userId)
+      .then(data => setProfile(data))
+      .catch(() => setLoadError(true))
+      .finally(() => setLoading(false));
+  };
 
   const { upcomingEvents, pastEvents } = useMemo(() => {
     if (!profile?.events?.length) return { upcomingEvents: [], pastEvents: [] };
@@ -556,8 +568,30 @@ export default function OrganiserProfileSheet() {
                   </div>
                 </div>
               ) : (
-                <div className="text-center py-12">
-                  <p className="text-sm text-secondary/40">Profile not found</p>
+                <div className="text-center py-12 px-6">
+                  <motion.div
+                    initial={{ scale: 0, rotate: -10 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ type: 'spring', damping: 15, stiffness: 200 }}
+                    className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center"
+                  >
+                    <Megaphone size={24} className="text-primary/40" aria-hidden="true" />
+                  </motion.div>
+                  <h4 className="text-sm font-bold text-secondary mb-1">
+                    {loadError ? 'Failed to load profile' : 'Profile not found'}
+                  </h4>
+                  <p className="text-[11px] text-secondary/40 mb-4 max-w-[200px] mx-auto text-balance">
+                    {loadError ? 'Something went wrong. Check your connection and try again.' : 'This organiser profile is not available.'}
+                  </p>
+                  {loadError && (
+                    <button
+                      onClick={() => { playTap(); retryLoad(); }}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary/10 border border-primary/20 text-primary text-xs font-bold hover:bg-primary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+                    >
+                      <Calendar size={14} />
+                      Try Again
+                    </button>
+                  )}
                 </div>
               )}
             </div>

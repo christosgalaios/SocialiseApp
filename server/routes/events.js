@@ -42,6 +42,17 @@ async function enrichEvents(events, userId) {
     const joinedSet = new Set((userRsvps || []).map(r => r.event_id));
     const savedSet = new Set((userSaved || []).map(r => r.event_id));
 
+    // Fetch host avatars from users table
+    const hostIds = [...new Set(events.map(e => e.host_id).filter(Boolean))];
+    const hostAvatarMap = {};
+    if (hostIds.length) {
+        const { data: hosts } = await supabase
+            .from('users')
+            .select('id, avatar')
+            .in('id', hostIds);
+        (hosts || []).forEach(h => { hostAvatarMap[h.id] = h.avatar; });
+    }
+
     // Get user profile for matching micro-meets
     let userProfile = null;
     if (userId) {
@@ -60,6 +71,7 @@ async function enrichEvents(events, userId) {
         spots: e.max_spots,
         image: e.image_url,
         host: e.host_name,
+        hostAvatar: hostAvatarMap[e.host_id] || '',
         isJoined: joinedSet.has(e.id),
         isSaved: savedSet.has(e.id),
     }));
@@ -158,7 +170,7 @@ router.post('/', authenticateToken, loadUserProfile, async (req, res) => {
         return res.status(500).json({ code: EVENT_CREATE_FAILED, message: 'Failed to create event: database insert rejected' });
     }
 
-    res.status(201).json({ ...data, attendees: 0, spots: data.max_spots, image: data.image_url, host: data.host_name, isJoined: false, isSaved: false });
+    res.status(201).json({ ...data, attendees: 0, spots: data.max_spots, image: data.image_url, host: data.host_name, hostAvatar: req.userProfile.avatar || '', isJoined: false, isSaved: false });
 });
 
 // --- PUT /api/events/:id --- (update — host only)
