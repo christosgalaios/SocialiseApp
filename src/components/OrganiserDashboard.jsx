@@ -1676,11 +1676,11 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                   >
                     <button
                       onClick={() => { playTap(); hapticTap(); setSelectedEvent(fullEvent); }}
-                      className={`w-full flex items-center gap-3 p-3 rounded-2xl border hover:bg-secondary/10 transition-colors text-left focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${
+                      className={`w-full flex items-center gap-3 p-3 rounded-2xl border hover:bg-secondary/10 transition-colors text-left group/event focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${
                         isPinned ? 'bg-accent/5 border-accent/20' : 'bg-secondary/5 border-secondary/10'
                       }`}
                     >
-                      <div className="w-12 h-12 rounded-xl overflow-hidden bg-secondary/10 shrink-0 relative">
+                      <div className="w-12 h-12 rounded-xl overflow-hidden bg-secondary/10 shrink-0 relative group-hover/event:ring-2 group-hover/event:ring-primary/10 transition-shadow">
                         {event.image && <img src={event.image} className="w-full h-full object-cover" alt={event.title || 'Event'} loading="lazy" />}
                         {isLive && (
                           <div className="absolute top-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-paper animate-pulse" />
@@ -1768,7 +1768,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                           <StickyNote size={12} />
                         </div>
                       </div>
-                      <ChevronRight size={16} className="text-secondary/30 shrink-0" aria-hidden="true" />
+                      <ChevronRight size={16} className="text-secondary/30 shrink-0 group-hover/event:translate-x-0.5 group-hover/event:text-secondary/50 transition-all" aria-hidden="true" />
                     </button>
                     {/* Note display */}
                     {note && editingNoteId !== event.id && (
@@ -2010,9 +2010,9 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                   whileTap={{ scale: 0.98 }}
                   transition={{ duration: 0.2, delay: idx * 0.05 }}
                   onClick={() => { playTap(); hapticTap(); setSelectedTribe(fullCommunity); }}
-                  className="w-full flex items-center gap-3 p-3 rounded-2xl bg-secondary/5 border border-secondary/10 hover:bg-secondary/10 transition-colors text-left focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+                  className="w-full flex items-center gap-3 p-3 rounded-2xl bg-secondary/5 border border-secondary/10 hover:bg-secondary/10 transition-colors text-left group/comm focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                 >
-                  <div className="w-10 h-10 rounded-xl overflow-hidden bg-secondary/10 shrink-0 flex items-center justify-center text-lg">
+                  <div className="w-10 h-10 rounded-xl overflow-hidden bg-secondary/10 shrink-0 flex items-center justify-center text-lg group-hover/comm:ring-2 group-hover/comm:ring-primary/10 transition-shadow">
                     {community.avatar || '🏘️'}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -2042,7 +2042,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                       />
                     </div>
                   </div>
-                  <ChevronRight size={16} className="text-secondary/30 shrink-0" aria-hidden="true" />
+                  <ChevronRight size={16} className="text-secondary/30 shrink-0 group-hover/comm:translate-x-0.5 group-hover/comm:text-secondary/50 transition-all" aria-hidden="true" />
                 </motion.button>
               );
             })}
