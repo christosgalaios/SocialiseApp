@@ -743,7 +743,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                   animate={{ rotate: 0 }}
                   transition={{ type: 'spring', damping: 12, stiffness: 200 }}
                 >
-                  <Settings size={12} className="text-secondary/40" />
+                  <Settings size={12} className="text-secondary/40" aria-hidden="true" />
                 </motion.div>
                 <h4 className="text-[10px] font-black text-secondary/40 uppercase tracking-widest">Show/Hide Sections</h4>
               </div>
@@ -984,7 +984,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center">
-                      <TrendingUp size={16} className="text-accent" />
+                      <TrendingUp size={16} className="text-accent" aria-hidden="true" />
                     </div>
                     <h3 className="text-xs font-black text-accent uppercase tracking-widest">Top Performer</h3>
                   </div>
@@ -1093,7 +1093,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center justify-center">
-                    <DollarSign size={16} className="text-green-600" />
+                    <DollarSign size={16} className="text-green-600" aria-hidden="true" />
                   </div>
                   <h3 className="text-xs font-black text-green-600 uppercase tracking-widest">Revenue Insights</h3>
                 </div>
@@ -1164,7 +1164,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               <div className="absolute -right-6 -top-6 w-24 h-24 bg-primary/5 rounded-full blur-2xl pointer-events-none" aria-hidden="true" />
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-8 h-8 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-                  <UserCheck size={16} className="text-primary" />
+                  <UserCheck size={16} className="text-primary" aria-hidden="true" />
                 </div>
                 <h3 className="text-xs font-black text-primary uppercase tracking-widest">Audience Insights</h3>
               </div>
@@ -1383,7 +1383,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-                <Activity size={16} className="text-primary" />
+                <Activity size={16} className="text-primary" aria-hidden="true" />
               </div>
               <h3 className="text-xs font-black text-primary uppercase tracking-widest">This Week</h3>
             </div>
@@ -1808,7 +1808,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                           onClick={(e) => { e.stopPropagation(); setExpandedChecklist(expandedChecklist === event.id ? null : event.id); playTap(); }}
                           className="flex items-center gap-1.5 text-[10px] font-bold text-secondary/40 hover:text-secondary/60 transition-colors rounded-lg px-1 -mx-1 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                         >
-                          <ChevronDown size={10} className={`transition-transform ${expandedChecklist === event.id ? 'rotate-180' : ''}`} />
+                          <ChevronDown size={10} className={`transition-transform ${expandedChecklist === event.id ? 'rotate-180' : ''}`} aria-hidden="true" />
                           <span>Pre-event checklist</span>
                           <span className={`tabular-nums ${allDone ? 'text-green-600' : ''}`}>({doneCount}/{cl.length})</span>
                           <div className="w-12 h-1 bg-secondary/10 rounded-full overflow-hidden ml-0.5">

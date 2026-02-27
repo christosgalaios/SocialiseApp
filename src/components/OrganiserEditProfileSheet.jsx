@@ -248,7 +248,7 @@ export default function OrganiserEditProfileSheet() {
                     </>
                   ) : (
                     <div className="absolute inset-0 flex flex-col items-center justify-center gap-1">
-                      <Camera size={20} className="text-secondary/30" />
+                      <Camera size={20} className="text-secondary/30" aria-hidden="true" />
                       <span className="text-[10px] font-bold text-secondary/30 text-balance">Paste image URL below</span>
                     </div>
                   )}
@@ -380,7 +380,7 @@ export default function OrganiserEditProfileSheet() {
                         {Object.values(socialLinks).filter(v => v?.trim()).length} linked
                       </span>
                     )}
-                    <ChevronDown size={14} className={`text-secondary/40 transition-transform ${showSocialLinks ? 'rotate-180' : ''}`} />
+                    <ChevronDown size={14} className={`text-secondary/40 transition-transform ${showSocialLinks ? 'rotate-180' : ''}`} aria-hidden="true" />
                   </div>
                 </button>
                 <AnimatePresence>
@@ -439,7 +439,7 @@ export default function OrganiserEditProfileSheet() {
                         transition={{ duration: 0.4 }}
                         className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0"
                       >
-                        <ShieldCheck size={18} className="text-primary" />
+                        <ShieldCheck size={18} className="text-primary" aria-hidden="true" />
                       </motion.div>
                       <div className="flex-1">
                         <p className="text-sm font-bold text-secondary">Get Verified</p>
@@ -458,7 +458,7 @@ export default function OrganiserEditProfileSheet() {
                   </div>
                 ) : (
                   <div className="flex items-center gap-2 p-3 rounded-2xl bg-green-500/5 border border-green-500/10 hover:border-green-500/20 hover:shadow-sm transition-all duration-200">
-                    <ShieldCheck size={16} className="text-green-600" />
+                    <ShieldCheck size={16} className="text-green-600" aria-hidden="true" />
                     <span className="text-sm font-bold text-green-600">Verified Organiser</span>
                   </div>
                 )}

@@ -68,6 +68,7 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Counter tabular-nums everywhere** — categories "selected" count, social links "linked" count, milestones "unlocked" count, events "total" count, and weekly activity summary all use fixed-width digits for layout stability
 - **Metadata row flex-wrap** — event and community metadata rows on the public profile sheet and dashboard wrap gracefully on narrow screens with vertical gap spacing instead of overflowing
 - **Profile sheet tabular-nums** — highlight event spots, community member counts, and event metadata now use fixed-width digits for stable numeric display
+- **Decorative icon aria-hidden** — section header icons (Activity, DollarSign, UserCheck, TrendingUp, Star, Megaphone, Camera, ShieldCheck, ChevronDown, Settings) across dashboard, profile sheet, and edit profile sheet are now marked `aria-hidden="true"` so screen readers skip them and only announce the adjacent text labels
 - **Public profile event card hover** — event cards on the public organiser profile nudge right on hover and scale on tap for tactile feedback
 - **Public profile community card hover** — community cards on the public profile gain matching hover nudge and tap scale
 - **Profile completeness chip stagger** — completeness check chips now stagger in with scale animation, incomplete items have hover background and tap scale for better affordance

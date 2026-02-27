@@ -194,7 +194,7 @@ export default function OrganiserProfileSheet() {
                         </div>
                         <div className="flex items-center gap-2 mt-1">
                           <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full ${organiserTier.bg} border ${organiserTier.border} text-[9px] font-black ${organiserTier.color} uppercase tracking-widest`}>
-                            <Megaphone size={9} />
+                            <Megaphone size={9} aria-hidden="true" />
                             {organiserTier.label}
                           </span>
                         </div>
@@ -282,7 +282,7 @@ export default function OrganiserProfileSheet() {
                     {totalEvents > 0 && (
                       <motion.div {...sectionAnim(2)} className="flex items-center justify-between p-3 rounded-2xl bg-primary/5 border border-primary/10" style={{ contain: 'layout style' }}>
                         <div className="flex items-center gap-2">
-                          <TrendingUp size={14} className="text-primary" />
+                          <TrendingUp size={14} className="text-primary" aria-hidden="true" />
                           <span className="text-[11px] font-bold text-secondary">Avg Fill Rate</span>
                         </div>
                         <div className="flex items-center gap-2">
@@ -316,7 +316,7 @@ export default function OrganiserProfileSheet() {
                         <div className="absolute -right-4 -top-4 w-16 h-16 bg-accent/5 rounded-full blur-2xl pointer-events-none" aria-hidden="true" />
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-1.5">
-                            <Star size={12} className="text-accent" />
+                            <Star size={12} className="text-accent" aria-hidden="true" />
                             <span className="text-[9px] font-black text-accent uppercase tracking-widest">Top Event</span>
                           </div>
                           <span className={`text-[10px] font-black tabular-nums ${hlFill >= 80 ? 'text-accent' : 'text-primary'}`}>{hlFill}%</span>
@@ -612,7 +612,7 @@ export default function OrganiserProfileSheet() {
                           transition={{ type: 'spring', damping: 15, stiffness: 200 }}
                           className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-secondary/5 border border-secondary/10 flex items-center justify-center"
                         >
-                          <Megaphone size={24} className="text-secondary/20" />
+                          <Megaphone size={24} className="text-secondary/20" aria-hidden="true" />
                         </motion.div>
                         <p className="text-sm text-secondary/40 font-medium text-balance">This organiser hasn&apos;t hosted anything yet</p>
                         <p className="text-[10px] text-secondary/40 mt-1 text-balance">Check back later for events</p>
