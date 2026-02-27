@@ -503,7 +503,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
       <motion.div variants={itemVariants} className="flex items-center justify-between">
         <div>
           <p className="text-[10px] font-black text-secondary/40 uppercase tracking-widest mb-0.5">Dashboard</p>
-          <h1 className="text-2xl font-black text-secondary tracking-tight">
+          <h1 className="text-2xl font-black text-secondary tracking-tight text-balance">
             {getGreeting()}<span className="text-accent">,</span> {(user?.organiserDisplayName || user?.name)?.split(' ')[0]}<span className="text-accent">.</span>
           </h1>
           {stats && (
@@ -1294,8 +1294,8 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               >
                 <Sparkles size={32} className="text-accent/50" />
               </motion.div>
-              <h4 className="text-base font-black text-secondary mb-1">Your Analytics Await</h4>
-              <p className="text-[11px] text-secondary/40 max-w-[240px] mx-auto mb-2">
+              <h4 className="text-base font-black text-secondary mb-1 text-balance">Your Analytics Await</h4>
+              <p className="text-[11px] text-secondary/40 max-w-[240px] mx-auto mb-2 text-balance">
                 Create your first event and watch your dashboard come to life with real-time insights
               </p>
               <div className="flex justify-center gap-4 mb-5">
@@ -1618,8 +1618,8 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
             >
               <Calendar size={28} className="text-primary/40" />
             </motion.div>
-            <p className="text-sm text-secondary/50 font-bold mb-1">No events yet</p>
-            <p className="text-[11px] text-secondary/30 mb-4 max-w-[200px] mx-auto">Create your first event and start building your audience</p>
+            <p className="text-sm text-secondary/50 font-bold mb-1 text-balance">No events yet</p>
+            <p className="text-[11px] text-secondary/30 mb-4 max-w-[200px] mx-auto text-balance">Create your first event and start building your audience</p>
             <button
               onClick={() => { playClick(); hapticTap(); onCreateEvent?.(); }}
               className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary/10 border border-primary/20 text-primary text-xs font-bold hover:bg-primary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
