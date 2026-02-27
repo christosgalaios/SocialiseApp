@@ -265,7 +265,7 @@ export default function OrganiserProfileSheet() {
                           <div className="flex items-center gap-2">
                             <stat.icon size={14} className={stat.color} />
                             <motion.span
-                              className="text-lg font-black text-secondary"
+                              className="text-lg font-black text-secondary tabular-nums"
                               initial={{ opacity: 0, scale: 0.5 }}
                               animate={{ opacity: 1, scale: 1 }}
                               transition={{ type: 'spring', damping: 20, stiffness: 300, delay: 0.15 + i * 0.05 }}

@@ -53,7 +53,7 @@ export default function OrganiserStatsCard({ icon: Icon, value, label, trend, co
       </div>
       <div className="mt-3">
         <motion.span
-          className="text-2xl font-black text-secondary block group-hover:text-primary transition-colors duration-200 select-text"
+          className="text-2xl font-black text-secondary block group-hover:text-primary transition-colors duration-200 select-text tabular-nums"
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ type: 'spring', damping: 20, stiffness: 300, delay: 0.1 }}

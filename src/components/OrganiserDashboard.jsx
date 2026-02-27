@@ -1105,7 +1105,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               <div className="grid grid-cols-3 gap-4">
                 <div>
                   <motion.p
-                    className="text-xl font-black text-secondary"
+                    className="text-xl font-black text-secondary tabular-nums"
                     initial={{ opacity: 0, scale: 0.5 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ type: 'spring', damping: 20, stiffness: 300 }}
@@ -1116,7 +1116,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                 </div>
                 <div>
                   <motion.p
-                    className="text-xl font-black text-secondary"
+                    className="text-xl font-black text-secondary tabular-nums"
                     initial={{ opacity: 0, scale: 0.5 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ type: 'spring', damping: 20, stiffness: 300, delay: 0.1 }}
@@ -1127,7 +1127,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                 </div>
                 <div>
                   <motion.p
-                    className="text-xl font-black text-secondary"
+                    className="text-xl font-black text-secondary tabular-nums"
                     initial={{ opacity: 0, scale: 0.5 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ type: 'spring', damping: 20, stiffness: 300, delay: 0.2 }}
@@ -1360,7 +1360,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
             </div>
             <div className="text-right shrink-0">
               <motion.p
-                className="text-lg font-black text-primary leading-tight"
+                className="text-lg font-black text-primary leading-tight tabular-nums"
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: 'spring', damping: 15, stiffness: 300, delay: 0.2 }}
@@ -1441,7 +1441,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
             {unlockedCount}/{milestones.length} unlocked
           </span>
         </div>
-        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 snap-x snap-mandatory" style={{ maskImage: 'linear-gradient(to right, black 85%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to right, black 85%, transparent 100%)' }}>
+        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 snap-x snap-mandatory touch-pan-x" style={{ maskImage: 'linear-gradient(to right, black 85%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to right, black 85%, transparent 100%)' }}>
           {milestones.map((m, idx) => {
             const pct = Math.min(Math.round((m.current / m.target) * 100), 100);
             return (
