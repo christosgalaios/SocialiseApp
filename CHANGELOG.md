@@ -56,6 +56,7 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Edit profile stacking isolation** — header buttons and footer area use `isolate` for clean z-index boundaries
 - **Safari flex scroll fix** — all four organiser sheet scroll containers (profile, edit profile, review, setup flow) add `min-h-0` to `flex-1` children, preventing Safari from ignoring `overflow-y: auto` inside flex layouts
 - **Tighter heading kerning** — organiser display names across dashboard, profile sheet, and edit profile preview use `tracking-tight` for a premium, tighter-set headline feel
+- **Touch-action manipulation** — all interactive elements (buttons, links, inputs, textareas) globally use `touch-action: manipulation` to disable the 300ms tap delay on mobile, making the entire app feel more responsive
 - **Public profile event card hover** — event cards on the public organiser profile nudge right on hover and scale on tap for tactile feedback
 - **Public profile community card hover** — community cards on the public profile gain matching hover nudge and tap scale
 - **Profile completeness chip stagger** — completeness check chips now stagger in with scale animation, incomplete items have hover background and tap scale for better affordance
