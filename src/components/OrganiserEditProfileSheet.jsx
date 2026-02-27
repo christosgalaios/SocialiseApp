@@ -184,7 +184,7 @@ export default function OrganiserEditProfileSheet() {
             </div>
 
             {/* Scrollable content */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6 scroll-smooth" style={{ overscrollBehavior: 'contain' }}>
+            <div className="flex-1 min-h-0 overflow-y-auto p-6 space-y-6 scroll-smooth" style={{ overscrollBehavior: 'contain' }}>
 
               {/* Live Preview */}
               <AnimatePresence>

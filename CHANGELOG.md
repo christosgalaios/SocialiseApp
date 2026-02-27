@@ -54,6 +54,7 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Automatic hyphenation on bios** — organiser bio text in profile sheet, edit profile preview, and setup flow info card uses `hyphens: auto` for graceful word breaking on narrow screens
 - **Unsaved changes pulse** — amber dot indicator in edit profile header gently pulses to draw attention to uncommitted changes
 - **Edit profile stacking isolation** — header buttons and footer area use `isolate` for clean z-index boundaries
+- **Safari flex scroll fix** — all four organiser sheet scroll containers (profile, edit profile, review, setup flow) add `min-h-0` to `flex-1` children, preventing Safari from ignoring `overflow-y: auto` inside flex layouts
 - **Public profile event card hover** — event cards on the public organiser profile nudge right on hover and scale on tap for tactile feedback
 - **Public profile community card hover** — community cards on the public profile gain matching hover nudge and tap scale
 - **Profile completeness chip stagger** — completeness check chips now stagger in with scale animation, incomplete items have hover background and tap scale for better affordance
