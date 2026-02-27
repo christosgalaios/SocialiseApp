@@ -56,6 +56,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
   const [events, setEvents] = useState([]);
   const [communities, setCommunities] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [eventFilter, setEventFilter] = useState('upcoming');
   const [pinnedEventIds, setPinnedEventIds] = useState(() => {
@@ -93,12 +94,14 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
 
   const fetchDashboard = useCallback(async (silent = false) => {
     try {
+      setLoadError(false);
       const data = await api.getOrganiserStats();
       setStats(data.stats);
       setEvents(data.events);
       setCommunities(data.communities);
       if (!silent) showToast('Dashboard refreshed', 'success');
     } catch {
+      setLoadError(true);
       if (!silent) showToast('Failed to load organiser stats', 'error');
     }
   }, [showToast]);
@@ -493,6 +496,31 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
             </div>
           ))}
         </motion.div>
+      </motion.div>
+    );
+  }
+
+  if (loadError && !stats) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-center py-16"
+      >
+        <div className="w-16 h-16 mx-auto mb-4 rounded-[24px] bg-primary/10 border border-primary/20 flex items-center justify-center">
+          <RefreshCw size={28} className="text-primary/40" />
+        </div>
+        <h3 className="text-base font-black text-secondary mb-1">Couldn&apos;t load dashboard</h3>
+        <p className="text-[11px] text-secondary/40 mb-4 max-w-[240px] mx-auto text-balance">
+          Something went wrong loading your organiser stats. Try refreshing.
+        </p>
+        <button
+          onClick={() => { playClick(); hapticTap(); fetchDashboard(false).finally(() => setLoading(false)); }}
+          className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-primary/10 border border-primary/20 text-primary text-xs font-bold hover:bg-primary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+        >
+          <RefreshCw size={14} />
+          Try Again
+        </button>
       </motion.div>
     );
   }
@@ -1322,7 +1350,12 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           )}
         </motion.div>
       ) : (
-      <>
+      <motion.div
+        key="overview"
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="space-y-6"
+      >
 
       {/* Next Event Countdown */}
       {isWidgetVisible('countdown') && nextEvent && (() => {
@@ -2051,7 +2084,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
       </motion.div>
 
       </div>{/* end responsive grid */}
-      </>
+      </motion.div>
       )}
     </motion.div>
   );
