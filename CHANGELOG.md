@@ -13,7 +13,7 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 ## [Unreleased]
 
 ### Fixed
-- **Organiser dashboard overview tab invisible** — the overview tab wrapper used explicit `initial`/`animate` props which broke Framer Motion's variant propagation chain to children. All inner sections (countdown, activity, milestones, stats, events, communities) were stuck at `opacity: 0`. Fixed by switching the wrapper to variant-based animation (`initial="hidden" animate="show"` with `staggerChildren`) so child `motion.div` elements with `variants={itemVariants}` correctly receive the "show" trigger
+- **Organiser dashboard content invisible** — the root container and overview tab wrapper animated their own `opacity: 0 → 1` alongside orchestrating children via `staggerChildren`. Children remained invisible because the parent's opacity spring hadn't settled, keeping the entire subtree transparent. Fixed by removing opacity from container variants (containers now only orchestrate stagger timing), so all sections (header, quick actions, tabs, stats, events, communities) render visible immediately
 - **Silent dashboard load failure** — added a visible error state with retry button when the organiser stats API fails, instead of silently showing an empty dashboard with no explanation
 - **Host avatar always showing default** — event detail host section now shows the actual host's avatar instead of always falling back to the default. Backend enriches all event responses with `hostAvatar` from the users table
 - **Organiser profile sheet error state** — replaced minimal "Profile not found" text with a proper error UI that distinguishes network errors from not-found, includes a retry button, and shows contextual messaging
