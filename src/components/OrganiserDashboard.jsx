@@ -1352,8 +1352,12 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
       ) : (
       <motion.div
         key="overview"
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
+        variants={{
+          hidden: { opacity: 0, y: 8 },
+          show: { opacity: 1, y: 0, transition: { staggerChildren: 0.06, delayChildren: 0.05 } },
+        }}
+        initial="hidden"
+        animate="show"
         className="space-y-6"
       >
 
