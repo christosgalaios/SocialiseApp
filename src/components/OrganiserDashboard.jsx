@@ -1536,7 +1536,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
       <div className="grid gap-6 lg:grid-cols-2">
 
       {/* My Events */}
-      <motion.div variants={itemVariants} className="premium-card p-6" style={{ contain: 'layout style' }}>
+      <motion.div variants={itemVariants} className="premium-card p-6" style={{ contain: 'layout style', contentVisibility: 'auto', containIntrinsicSize: 'auto 400px' }}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xs font-black text-primary uppercase tracking-widest">
             My Events<span className="text-accent">.</span>
@@ -1874,7 +1874,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
       </motion.div>
 
       {/* My Communities */}
-      <motion.div variants={itemVariants} className="premium-card p-6" style={{ contain: 'layout style' }}>
+      <motion.div variants={itemVariants} className="premium-card p-6" style={{ contain: 'layout style', contentVisibility: 'auto', containIntrinsicSize: 'auto 350px' }}>
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="text-xs font-black text-primary uppercase tracking-widest">

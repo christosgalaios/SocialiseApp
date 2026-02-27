@@ -59,6 +59,7 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Touch-action manipulation** — all interactive elements (buttons, links, inputs, textareas) globally use `touch-action: manipulation` to disable the 300ms tap delay on mobile, making the entire app feel more responsive
 - **Heading text rendering** — all headings (h1-h4) use `text-rendering: optimizeLegibility` for precise kerning and ligatures on the Outfit font
 - **Firefox font smoothing** — body uses `-moz-osx-font-smoothing: grayscale` alongside the existing `-webkit-font-smoothing: antialiased` for consistent thin-weight rendering across all browsers
+- **Content visibility on below-fold sections** — Events and Communities cards on the dashboard use `content-visibility: auto` with `contain-intrinsic-size` to defer rendering of off-screen content until scrolled into view, improving initial paint speed
 - **Public profile event card hover** — event cards on the public organiser profile nudge right on hover and scale on tap for tactile feedback
 - **Public profile community card hover** — community cards on the public profile gain matching hover nudge and tap scale
 - **Profile completeness chip stagger** — completeness check chips now stagger in with scale animation, incomplete items have hover background and tap scale for better affordance
