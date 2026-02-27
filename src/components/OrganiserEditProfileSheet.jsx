@@ -195,7 +195,7 @@ export default function OrganiserEditProfileSheet() {
                     exit={{ opacity: 0, height: 0 }}
                     className="overflow-hidden"
                   >
-                    <div className="premium-card p-4 rounded-2xl relative overflow-hidden mb-2">
+                    <div className="premium-card p-4 rounded-2xl relative overflow-hidden mb-2" style={{ contain: 'layout style' }}>
                       <p className="text-[9px] font-black text-primary/60 uppercase tracking-widest mb-3">Preview</p>
                       {coverPhotoPreview && (
                         <div className="-mx-4 -mt-8 mb-3 h-16 overflow-hidden rounded-t-2xl">
@@ -249,7 +249,7 @@ export default function OrganiserEditProfileSheet() {
                   ) : (
                     <div className="absolute inset-0 flex flex-col items-center justify-center gap-1">
                       <Camera size={20} className="text-secondary/30" />
-                      <span className="text-[10px] font-bold text-secondary/30">Paste image URL below</span>
+                      <span className="text-[10px] font-bold text-secondary/30 text-balance">Paste image URL below</span>
                     </div>
                   )}
                 </div>
@@ -258,7 +258,7 @@ export default function OrganiserEditProfileSheet() {
                   placeholder="https://example.com/cover-photo.jpg"
                   value={coverPhotoPreview}
                   onChange={(e) => setCoverPhotoPreview(e.target.value)}
-                  className="w-full mt-2 bg-secondary/5 border border-secondary/20 rounded-xl px-3 py-2 text-sm font-medium text-[var(--text)] focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 hover:border-secondary/30 transition-all placeholder:text-secondary/40"
+                  className="w-full mt-2 bg-secondary/5 border border-secondary/20 rounded-xl px-3 py-2 text-sm font-medium text-[var(--text)] focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 hover:border-secondary/30 transition-all placeholder:text-secondary/30"
                 />
               </motion.div>
 
@@ -307,7 +307,7 @@ export default function OrganiserEditProfileSheet() {
                   placeholder="Tell people what kind of events you host..."
                   value={organiserBio}
                   onChange={(e) => setOrganiserBio(e.target.value)}
-                  className="w-full bg-secondary/5 border-2 border-secondary/20 rounded-2xl px-4 py-3 text-sm font-medium text-[var(--text)] focus:outline-none focus:border-primary hover:border-secondary/30 transition-all placeholder:text-secondary/40 min-h-[100px] resize-none"
+                  className="w-full bg-secondary/5 border-2 border-secondary/20 rounded-2xl px-4 py-3 text-sm font-medium text-[var(--text)] focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 hover:border-secondary/30 transition-all placeholder:text-secondary/40 min-h-[100px] resize-none"
                   maxLength={300}
                   style={{ overflowWrap: 'break-word', wordBreak: 'break-words' }}
                 />
@@ -413,7 +413,7 @@ export default function OrganiserEditProfileSheet() {
                                   placeholder={platform.placeholder}
                                   value={socialLinks[platform.key] || ''}
                                   onChange={(e) => updateSocialLink(platform.key, e.target.value)}
-                                  className={`w-full bg-secondary/5 border rounded-xl px-3 py-2 text-sm font-medium text-[var(--text)] focus:outline-none transition-all placeholder:text-secondary/40 ${
+                                  className={`w-full bg-secondary/5 border rounded-xl px-3 py-2 text-sm font-medium text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all placeholder:text-secondary/40 ${
                                     error ? 'border-red-400 focus:border-red-500' : hasValue ? 'border-green-500/30 focus:border-green-500' : 'border-secondary/20 focus:border-primary hover:border-secondary/30'
                                   }`}
                                 />
@@ -431,7 +431,7 @@ export default function OrganiserEditProfileSheet() {
               {/* Verification Request */}
               <motion.div custom={5} variants={sectionVariants} initial="hidden" animate="show">
                 {!user?.organiserVerified ? (
-                  <div className="premium-card p-4 rounded-2xl relative overflow-hidden">
+                  <div className="premium-card p-4 rounded-2xl relative overflow-hidden" style={{ contain: 'layout style' }}>
                     <div className="absolute -right-6 -top-6 w-20 h-20 bg-primary/5 rounded-full blur-2xl" aria-hidden="true" />
                     <div className="flex items-center gap-3">
                       <motion.div
@@ -443,7 +443,7 @@ export default function OrganiserEditProfileSheet() {
                       </motion.div>
                       <div className="flex-1">
                         <p className="text-sm font-bold text-secondary">Get Verified</p>
-                        <p className="text-[10px] text-secondary/40">Verified organisers get a badge on their profile</p>
+                        <p className="text-[10px] text-secondary/40 text-balance">Verified organisers get a badge on their profile</p>
                       </div>
                       <button
                         onClick={() => {
