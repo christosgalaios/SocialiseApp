@@ -239,8 +239,8 @@ export default function OrganiserProfileSheet() {
 
                     {/* Bio */}
                     {(profile.organiserBio || profile.bio) && (
-                      <div className="premium-card p-4 rounded-[20px] border border-transparent hover:border-secondary/10 transition-colors duration-200">
-                        <p className="text-sm text-secondary/70 font-medium leading-relaxed select-text">
+                      <div className="premium-card p-4 rounded-[20px] border border-transparent hover:border-secondary/10 transition-colors duration-200" style={{ contain: 'layout style' }}>
+                        <p className="text-sm text-secondary/70 font-medium leading-relaxed select-text line-clamp-4">
                           {profile.organiserBio || profile.bio}
                         </p>
                       </div>
@@ -280,7 +280,7 @@ export default function OrganiserProfileSheet() {
 
                     {/* Engagement stats */}
                     {totalEvents > 0 && (
-                      <motion.div {...sectionAnim(2)} className="flex items-center justify-between p-3 rounded-2xl bg-primary/5 border border-primary/10">
+                      <motion.div {...sectionAnim(2)} className="flex items-center justify-between p-3 rounded-2xl bg-primary/5 border border-primary/10" style={{ contain: 'layout style' }}>
                         <div className="flex items-center gap-2">
                           <TrendingUp size={14} className="text-primary" />
                           <span className="text-[11px] font-bold text-secondary">Avg Fill Rate</span>
@@ -311,6 +311,7 @@ export default function OrganiserProfileSheet() {
                           playTap(); hapticTap(); setSelectedEvent(fullEvent);
                         }}
                         className="w-full premium-card p-4 rounded-[20px] relative overflow-hidden text-left hover:bg-secondary/5 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+                        style={{ contain: 'layout style' }}
                       >
                         <div className="absolute -right-4 -top-4 w-16 h-16 bg-accent/5 rounded-full blur-2xl" aria-hidden="true" />
                         <div className="flex items-center justify-between mb-2">
@@ -423,7 +424,7 @@ export default function OrganiserProfileSheet() {
                                 {eventTab === tab.key && (
                                   <motion.div
                                     layoutId="profile-event-tab-pill"
-                                    className="absolute inset-0 bg-primary/10 rounded-lg"
+                                    className="absolute inset-0 bg-primary/10 rounded-lg will-change-transform"
                                     transition={{ type: 'spring', damping: 30, stiffness: 400 }}
                                     style={{ zIndex: 0 }}
                                   />

@@ -29,7 +29,9 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Milestone scroller edge fade** — horizontal milestones row has a CSS mask-image gradient that fades out the right edge, hinting at more scrollable content
 - **Skeleton shimmer upgrade** — dashboard, profile sheet, and review sheet loading skeletons use a smooth shimmer animation instead of the old pulse effect, giving a more polished loading feel
 - **Layout containment on dashboard cards** — independent card sections (header, analytics, events, communities, weekly activity) use CSS `contain: layout style` to prevent reflow cascades across sections
-- **Smoother tab pill animation** — dashboard tab and event filter sliding pills use `will-change: transform` for GPU-accelerated layout transitions
+- **Smoother tab pill animation** — dashboard tab, event filter, and profile event tab sliding pills use `will-change: transform` for GPU-accelerated layout transitions
+- **Profile sheet layout containment** — bio card, engagement stats, and highlight event use `contain: layout style` to isolate reflows
+- **Bio line clamping** — organiser bio on the public profile sheet is clamped to 4 lines, preventing extra-long bios from dominating the view
 - **Public profile event card hover** — event cards on the public organiser profile nudge right on hover and scale on tap for tactile feedback
 - **Public profile community card hover** — community cards on the public profile gain matching hover nudge and tap scale
 - **Profile completeness chip stagger** — completeness check chips now stagger in with scale animation, incomplete items have hover background and tap scale for better affordance
