@@ -294,7 +294,7 @@ export default function OrganiserProfileSheet() {
                               transition={{ duration: 0.6, ease: 'easeOut', delay: 0.3 }}
                             />
                           </div>
-                          <span className={`text-sm font-black ${avgFill >= 70 ? 'text-accent' : 'text-primary'}`}>{avgFill}%</span>
+                          <span className={`text-sm font-black tabular-nums ${avgFill >= 70 ? 'text-accent' : 'text-primary'}`}>{avgFill}%</span>
                         </div>
                       </motion.div>
                     )}
@@ -319,7 +319,7 @@ export default function OrganiserProfileSheet() {
                             <Star size={12} className="text-accent" />
                             <span className="text-[9px] font-black text-accent uppercase tracking-widest">Top Event</span>
                           </div>
-                          <span className={`text-[10px] font-black ${hlFill >= 80 ? 'text-accent' : 'text-primary'}`}>{hlFill}%</span>
+                          <span className={`text-[10px] font-black tabular-nums ${hlFill >= 80 ? 'text-accent' : 'text-primary'}`}>{hlFill}%</span>
                         </div>
                         <div className="flex items-center gap-3">
                           <div className="w-12 h-12 rounded-xl overflow-hidden bg-secondary/10 shrink-0">

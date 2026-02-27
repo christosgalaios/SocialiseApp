@@ -798,7 +798,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               <h3 className="text-xs font-black text-primary uppercase tracking-widest">
                 Complete Your Profile<span className="text-accent">.</span>
               </h3>
-              <span className="text-[10px] font-black text-primary bg-primary/10 px-2 py-0.5 rounded-full">{pct}%</span>
+              <span className="text-[10px] font-black text-primary bg-primary/10 px-2 py-0.5 rounded-full tabular-nums">{pct}%</span>
             </div>
             <div className="w-full h-2 bg-secondary/10 rounded-full overflow-hidden mb-3">
               <motion.div
@@ -1065,7 +1065,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                         <div className="flex-1 min-w-0">
                           <div className="flex justify-between mb-0.5">
                             <span className="text-[11px] font-bold text-secondary">{cat}</span>
-                            <span className="text-[10px] font-black text-secondary/50">{count} event{count !== 1 ? 's' : ''} ({pct}%)</span>
+                            <span className="text-[10px] font-black text-secondary/50 tabular-nums">{count} event{count !== 1 ? 's' : ''} ({pct}%)</span>
                           </div>
                           <div className="w-full h-1.5 bg-secondary/10 rounded-full overflow-hidden">
                             <motion.div
@@ -1259,8 +1259,8 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                       <div className="flex justify-between mb-1">
                         <span className="text-[11px] font-bold text-secondary truncate max-w-[55%]">{event.title}</span>
                         <div className="flex items-center gap-1.5 shrink-0">
-                          <span className="text-[9px] font-medium text-secondary/35">{event.attendees}/{event.spots}</span>
-                          <span className={`text-[11px] font-black ${fillPct >= 80 ? 'text-accent' : fillPct >= 50 ? 'text-primary' : 'text-secondary/50'}`}>{fillPct}%</span>
+                          <span className="text-[9px] font-medium text-secondary/35 tabular-nums">{event.attendees}/{event.spots}</span>
+                          <span className={`text-[11px] font-black tabular-nums ${fillPct >= 80 ? 'text-accent' : fillPct >= 50 ? 'text-primary' : 'text-secondary/50'}`}>{fillPct}%</span>
                         </div>
                       </div>
                       <div className="w-full h-2 bg-secondary/10 rounded-full overflow-hidden">
@@ -1277,7 +1277,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               </div>
               <div className="mt-4 pt-4 border-t border-secondary/10 flex items-center justify-between">
                 <span className="text-[10px] font-bold text-secondary/40">Average fill rate</span>
-                <span className="text-sm font-black text-primary">
+                <span className="text-sm font-black text-primary tabular-nums">
                   {Math.round(events.reduce((sum, e) => sum + (e.spots > 0 ? (e.attendees / e.spots) * 100 : 0), 0) / Math.max(events.length, 1))}%
                 </span>
               </div>
@@ -1397,7 +1397,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               <div key={i} className="flex-1 flex flex-col items-center gap-1 relative group cursor-default">
                 {day.attendees > 0 && (
                   <div className="absolute -top-5 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                    <span className="text-[8px] font-black text-primary bg-primary/10 px-1.5 py-0.5 rounded-full whitespace-nowrap">{day.attendees}</span>
+                    <span className="text-[8px] font-black text-primary bg-primary/10 px-1.5 py-0.5 rounded-full whitespace-nowrap tabular-nums">{day.attendees}</span>
                   </div>
                 )}
                 <motion.div
@@ -1452,7 +1452,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                 whileHover={{ y: -2, transition: { duration: 0.15 } }}
                 whileTap={{ scale: 0.97 }}
                 transition={{ duration: 0.25, delay: idx * 0.06 }}
-                className={`shrink-0 w-24 p-3 rounded-2xl border text-center transition-all relative overflow-hidden cursor-default snap-start ${
+                className={`shrink-0 w-24 p-3 rounded-2xl border text-center transition-all relative overflow-hidden cursor-default snap-start snap-always ${
                   m.unlocked ? 'bg-accent/5 border-accent/20' : 'bg-secondary/5 border-secondary/10'
                 }`}
               >

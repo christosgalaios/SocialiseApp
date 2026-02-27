@@ -62,6 +62,8 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Content visibility on below-fold sections** — Events and Communities cards on the dashboard use `content-visibility: auto` with `contain-intrinsic-size` to defer rendering of off-screen content until scrolled into view, improving initial paint speed
 - **Social link truncation** — social link usernames/URLs on the public profile are truncated at 120px to prevent extra-long handles from breaking the layout
 - **Event metadata flex wrap** — event detail rows (date, time, spots, price) and status badge rows (Sold Out, Almost Full, Live) on the dashboard wrap gracefully on narrow screens with vertical gap spacing
+- **Milestone snap-stop** — milestone cards in the horizontal scroller use `scroll-snap-stop: always` so fast swipes still stop at each card instead of flying past multiple cards
+- **Tabular-nums on remaining numerics** — profile completeness percentage, category distribution counts, fill rate percentages, weekly activity tooltips, and profile sheet fill/highlight percentages now use fixed-width digits for stable layout during value changes
 - **Public profile event card hover** — event cards on the public organiser profile nudge right on hover and scale on tap for tactile feedback
 - **Public profile community card hover** — community cards on the public profile gain matching hover nudge and tap scale
 - **Profile completeness chip stagger** — completeness check chips now stagger in with scale animation, incomplete items have hover background and tap scale for better affordance
