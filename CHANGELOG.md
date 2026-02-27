@@ -68,6 +68,8 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Counter tabular-nums everywhere** — categories "selected" count, social links "linked" count, milestones "unlocked" count, events "total" count, and weekly activity summary all use fixed-width digits for layout stability
 - **Metadata row flex-wrap** — event and community metadata rows on the public profile sheet and dashboard wrap gracefully on narrow screens with vertical gap spacing instead of overflowing
 - **Profile sheet tabular-nums** — highlight event spots, community member counts, and event metadata now use fixed-width digits for stable numeric display
+- **Milestone overscroll containment** — horizontal milestones scroller uses `overscroll-behavior-x: contain` to prevent horizontal overscroll from propagating to the vertical page scroll
+- **Keyboard shortcut hints aria-hidden** — keyboard shortcut badges (N, C, E) on quick action buttons are hidden from screen readers since they're visual hints only
 - **Decorative icon aria-hidden** — section header icons (Activity, DollarSign, UserCheck, TrendingUp, Star, Megaphone, Camera, ShieldCheck, ChevronDown, Settings) across dashboard, profile sheet, and edit profile sheet are now marked `aria-hidden="true"` so screen readers skip them and only announce the adjacent text labels
 - **Dashboard bio line clamp + hyphens** — organiser bio on the dashboard is clamped to 4 lines with automatic hyphenation, matching the profile sheet treatment
 - **Category chip icon aria-hidden** — category chip icons on both dashboard and profile sheet are marked decorative for screen readers

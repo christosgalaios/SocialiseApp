@@ -842,7 +842,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors" aria-hidden="true" />
           <Plus size={20} aria-hidden="true" />
           <span className="text-[10px]">New Event</span>
-          <kbd className="hidden md:inline text-[8px] font-mono text-white/50 bg-white/10 px-1 rounded">N</kbd>
+          <kbd className="hidden md:inline text-[8px] font-mono text-white/50 bg-white/10 px-1 rounded" aria-hidden="true">N</kbd>
         </motion.button>
         <motion.button
           whileHover={{ y: -2 }}
@@ -852,7 +852,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
         >
           <Users size={20} aria-hidden="true" />
           <span className="text-[10px]">Community</span>
-          <kbd className="hidden md:inline text-[8px] font-mono text-secondary/30 bg-secondary/5 px-1 rounded group-hover:text-secondary/50 transition-colors">C</kbd>
+          <kbd className="hidden md:inline text-[8px] font-mono text-secondary/30 bg-secondary/5 px-1 rounded group-hover:text-secondary/50 transition-colors" aria-hidden="true">C</kbd>
         </motion.button>
         <motion.button
           whileHover={{ y: -2 }}
@@ -862,7 +862,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
         >
           <Pencil size={20} aria-hidden="true" />
           <span className="text-[10px]">Edit</span>
-          <kbd className="hidden md:inline text-[8px] font-mono text-secondary/30 bg-secondary/5 px-1 rounded group-hover:text-secondary/50 transition-colors">E</kbd>
+          <kbd className="hidden md:inline text-[8px] font-mono text-secondary/30 bg-secondary/5 px-1 rounded group-hover:text-secondary/50 transition-colors" aria-hidden="true">E</kbd>
         </motion.button>
         <motion.button
           whileHover={{ y: -2 }}
@@ -1441,7 +1441,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
             {unlockedCount}/{milestones.length} unlocked
           </span>
         </div>
-        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 snap-x snap-mandatory touch-pan-x scroll-pl-0.5" style={{ maskImage: 'linear-gradient(to right, black 85%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to right, black 85%, transparent 100%)' }}>
+        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 snap-x snap-mandatory touch-pan-x scroll-pl-0.5" style={{ maskImage: 'linear-gradient(to right, black 85%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to right, black 85%, transparent 100%)', overscrollBehaviorX: 'contain' }}>
           {milestones.map((m, idx) => {
             const pct = Math.min(Math.round((m.current / m.target) * 100), 100);
             return (
