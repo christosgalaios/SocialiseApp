@@ -837,3 +837,9 @@ After implementing a feature that included a new migration file (`012_organiser_
 During the organiser profile implementation, a temporary `plan.md` file was created for internal planning and left in the working directory. The git pre-push hook flagged it as untracked. Temporary scratch files should never be committed or left lying around — they confuse git status, can accidentally get committed, and create noise for the user.
 
 **Rule:** If you create temporary files (plans, notes, scratch pads) during implementation, delete them before staging and committing. Better yet, don't create temporary files at all — use your reasoning for planning instead of writing to disk.
+
+### 19. Verify rebase conflict resolutions include all required imports and state
+
+When resolving rebase conflicts, keeping JSX from one side of the conflict can leave orphaned references if the corresponding imports, state declarations, or store accessors were on the other side of the conflict (or in a different hunk that was dropped). This happened when the review/vibe tags section was kept during a rebase of OrganiserProfileSheet.jsx, but upstream `development` didn't have the supporting `getOrganiserReviews` API method, `setShowOrganiserReview` store state, `ORGANISER_VIBE_TAGS` constant import, or `Sparkles` icon import — causing 10 `no-undef` lint errors that broke CI.
+
+**Rule:** After resolving every rebase conflict, run `npm run lint` before continuing the rebase (`git rebase --continue`). If you kept JSX that references variables, check that the corresponding imports and state declarations survived the rebase. If the supporting infrastructure (API methods, store state, constants) doesn't exist on the target branch, remove the orphaned JSX rather than trying to add stubs — incomplete features are worse than absent features.
