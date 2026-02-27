@@ -1687,7 +1687,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-1.5 flex-wrap">
                           {isPinned && <Pin size={10} className="text-accent shrink-0" />}
                           <p className="text-sm font-bold text-secondary truncate">{event.title}</p>
                           {isSoldOut && (
@@ -1700,7 +1700,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                             <span className="shrink-0 text-[8px] font-black text-green-600 bg-green-500/10 px-1.5 py-0.5 rounded-full border border-green-500/20 uppercase">Live</span>
                           )}
                         </div>
-                        <div className="flex items-center gap-2 mt-0.5">
+                        <div className="flex items-center gap-2 mt-0.5 flex-wrap gap-y-1">
                           <span className={`text-[10px] font-medium ${relDate === 'Today' ? 'text-green-600 font-bold' : relDate === 'Tomorrow' ? 'text-primary font-bold' : 'text-secondary/40'}`}>{relDate}</span>
                           {event.time && (
                             <>
