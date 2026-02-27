@@ -12,7 +12,192 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 
 ## [Unreleased]
 
+### Fixed
+- **Desktop sidebar branding** — sidebar now shows Socialise logo and tagline instead of blank space, improving desktop navigation clarity (BUG-1771935219235)
+- **Mango drag bounds on resize** — Mango's draggable area now auto-updates when the window resizes, using a viewport-anchored constraint ref instead of manual calculations (BUG-1771935652026)
+- **Connections card now tappable** — the "Connections" card on the profile page now opens your bookings when tapped, instead of being a dead button (BUG-1771954500334)
+- **Text overflow in bug/feature modals** — both BugReportModal and FeatureRequestModal now consistently handle long text with word-break, overflow-wrap, and overscroll containment (BUG-1772022766344)
+- **Organiser profile crash** — fixed white screen when viewing an organiser profile where the API returns `null` for events, communities, or categories arrays. Added null-safe access (`?? []`) on `.forEach()`, `.reduce()`, and `.map()` calls in OrganiserProfileSheet. Also added missing `DEFAULT_AVATAR` fallback in OrganiserEditProfileSheet preview.
+
 ### Added
+- **Balanced text wrapping** — headings, empty state messages, and info cards across the dashboard, profile sheet, and setup flow use CSS `text-wrap: balance` to prevent orphaned words on narrow screens
+- **Improved empty state contrast** — descriptive text in "No events", "No communities", "Try a different search", and profile empty states bumped from 30% to 40% opacity for better readability
+- **Smooth scroll on sheet content** — edit profile, setup flow, review sheet, and profile sheet scrollable areas use `scroll-smooth` for polished programmatic scroll behavior
+- **Input focus glow ring** — all text inputs and textareas across the organiser dashboard, edit profile, setup flow, and review sheet show a subtle primary-colored ring on focus for clearer active-field indication
+- **Event card group hover** — hovering an event row now subtly rings the thumbnail image and nudges the chevron right for directional affordance
+- **Community card group hover** — hovering a community row now rings the avatar and nudges the chevron right, matching the event card pattern
+- **Milestone scroller edge fade** — horizontal milestones row has a CSS mask-image gradient that fades out the right edge, hinting at more scrollable content
+- **Skeleton shimmer upgrade** — dashboard, profile sheet, and review sheet loading skeletons use a smooth shimmer animation instead of the old pulse effect, giving a more polished loading feel
+- **Layout containment on dashboard cards** — independent card sections (header, analytics, events, communities, weekly activity) use CSS `contain: layout style` to prevent reflow cascades across sections
+- **Smoother tab pill animation** — dashboard tab, event filter, and profile event tab sliding pills use `will-change: transform` for GPU-accelerated layout transitions
+- **Profile sheet layout containment** — bio card, engagement stats, and highlight event use `contain: layout style` to isolate reflows
+- **Bio line clamping** — organiser bio on the public profile sheet is clamped to 4 lines, preventing extra-long bios from dominating the view
+- **Stacking context isolation** — quick actions grid, dashboard tabs, event filter tabs, and profile event tabs use CSS `isolate` to prevent z-index bleed between sections
+- **Backface visibility hidden** — primary "New Event" button uses `backface-visibility: hidden` to prevent compositing flicker during hover/tap transforms
+- **Edit profile containment** — preview card and verification card use `contain: layout style` for isolated reflows
+- **Edit profile text balance** — verification description and cover photo placeholder use balanced text wrapping
+- **Focus ring on all edit inputs** — bio textarea and social link inputs now show the subtle primary ring on focus, matching the display name and cover photo URL inputs
+- **Softer placeholder text** — cover photo URL input placeholder lightened to 30% opacity for visual hierarchy
+- **Setup flow polish** — step descriptions use balanced text wrapping; social link inputs gain focus ring; info card has layout containment; footer has stacking isolation; "Continue"/"Start Organising" button uses backface-visibility: hidden for flicker-free transforms
+- **Stats card GPU hints** — `will-change: transform`, `backface-visibility: hidden`, and `contain: layout style` on stats cards for smoother hover lifts and isolated reflows
+- **Review sheet polish** — header subtitle uses balanced text wrapping; footer has stacking isolation; submit button uses backface-visibility: hidden for flicker-free transforms
+- **Event and community card GPU hints** — event rows and community rows on the dashboard use `backface-visibility: hidden` for flicker-free hover/tap transforms
+- **Create community form containment** — inline create community form uses `contain: layout style` to isolate reflows from the rest of the card
+- **Tabular numerals** — stats card values, revenue insight numbers, countdown timer, and profile sheet quick stats use `tabular-nums` so digits maintain fixed width and don't shift during animated counting
+- **Milestones touch-action** — horizontal milestones scroller uses `touch-action: pan-x` to prevent diagonal swipes from conflicting with vertical page scroll
+- **Branded input caret** — all text inputs and textareas show a terracotta caret cursor and accent color (checkboxes, radio buttons) via global `caret-color` and `accent-color` in index.css
+- **Milestones scroll padding** — snap container has `scroll-padding-inline-start` so snapped items don't clip at the edge
+- **Decorative blur pointer-events** — all decorative gradient blur orbs across dashboard, profile sheet, and edit profile sheet have `pointer-events: none` to prevent them from stealing mobile taps
+- **Profile sheet card hover shadow** — event and community cards on the public profile gain a subtle `shadow-sm` on hover and use `transition-all` for smooth combined state changes
+- **Vibe tag cursor** — vibe tags on the public profile show `cursor-default` since they're display-only, not interactive buttons
+- **Tabular-nums on inline numbers** — attendee/spot counts, prices, and checklist progress counters across dashboard and profile sheet use fixed-width digits for stable layout
+- **Automatic hyphenation on bios** — organiser bio text in profile sheet, edit profile preview, and setup flow info card uses `hyphens: auto` for graceful word breaking on narrow screens
+- **Unsaved changes pulse** — amber dot indicator in edit profile header gently pulses to draw attention to uncommitted changes
+- **Edit profile stacking isolation** — header buttons and footer area use `isolate` for clean z-index boundaries
+- **Safari flex scroll fix** — all four organiser sheet scroll containers (profile, edit profile, review, setup flow) add `min-h-0` to `flex-1` children, preventing Safari from ignoring `overflow-y: auto` inside flex layouts
+- **Tighter heading kerning** — organiser display names across dashboard, profile sheet, and edit profile preview use `tracking-tight` for a premium, tighter-set headline feel
+- **Touch-action manipulation** — all interactive elements (buttons, links, inputs, textareas) globally use `touch-action: manipulation` to disable the 300ms tap delay on mobile, making the entire app feel more responsive
+- **Heading text rendering** — all headings (h1-h4) use `text-rendering: optimizeLegibility` for precise kerning and ligatures on the Outfit font
+- **Form input attributes** — organiser edit profile and setup flow inputs use semantic HTML attributes (`autoComplete`, `autoCapitalize`, `spellCheck`, `type="url"`) for better mobile keyboard behaviour and autofill support
+- **Firefox font smoothing** — body uses `-moz-osx-font-smoothing: grayscale` alongside the existing `-webkit-font-smoothing: antialiased` for consistent thin-weight rendering across all browsers
+- **Content visibility on below-fold sections** — Events and Communities cards on the dashboard use `content-visibility: auto` with `contain-intrinsic-size` to defer rendering of off-screen content until scrolled into view, improving initial paint speed
+- **Social link truncation** — social link usernames/URLs on the public profile are truncated at 120px to prevent extra-long handles from breaking the layout
+- **Event metadata flex wrap** — event detail rows (date, time, spots, price) and status badge rows (Sold Out, Almost Full, Live) on the dashboard wrap gracefully on narrow screens with vertical gap spacing
+- **Milestone snap-stop** — milestone cards in the horizontal scroller use `scroll-snap-stop: always` so fast swipes still stop at each card instead of flying past multiple cards
+- **Tabular-nums on remaining numerics** — profile completeness percentage, category distribution counts, fill rate percentages, weekly activity tooltips, and profile sheet fill/highlight percentages now use fixed-width digits for stable layout during value changes
+- **Character counter tabular-nums** — display name and bio character counters ("15/50", "120/300") in the edit profile sheet and setup flow use fixed-width digits so the counter width doesn't shift as you type
+- **Counter tabular-nums everywhere** — categories "selected" count, social links "linked" count, milestones "unlocked" count, events "total" count, and weekly activity summary all use fixed-width digits for layout stability
+- **Metadata row flex-wrap** — event and community metadata rows on the public profile sheet and dashboard wrap gracefully on narrow screens with vertical gap spacing instead of overflowing
+- **Profile sheet tabular-nums** — highlight event spots, community member counts, and event metadata now use fixed-width digits for stable numeric display
+- **Milestone overscroll containment** — horizontal milestones scroller uses `overscroll-behavior-x: contain` to prevent horizontal overscroll from propagating to the vertical page scroll
+- **Keyboard shortcut hints aria-hidden** — keyboard shortcut badges (N, C, E) on quick action buttons are hidden from screen readers since they're visual hints only
+- **Decorative icon aria-hidden** — section header icons (Activity, DollarSign, UserCheck, TrendingUp, Star, Megaphone, Camera, ShieldCheck, ChevronDown, Settings) across dashboard, profile sheet, and edit profile sheet are now marked `aria-hidden="true"` so screen readers skip them and only announce the adjacent text labels
+- **Dashboard bio line clamp + hyphens** — organiser bio on the dashboard is clamped to 4 lines with automatic hyphenation, matching the profile sheet treatment
+- **Category chip icon aria-hidden** — category chip icons on both dashboard and profile sheet are marked decorative for screen readers
+- **Alert text hyphenation** — attention alert messages on the dashboard use automatic hyphenation for graceful word breaking on narrow screens
+- **Event note hyphenation** — event note text on the dashboard uses automatic hyphenation for long notes
+- **Social link Globe icon aria-hidden** — Globe icons on social link chips in the dashboard and profile sheet are now marked decorative for screen readers
+- **Sparkles icon aria-hidden** — Sparkles icons in the review section buttons on the profile sheet are now marked decorative
+- **Quick stats icon aria-hidden** — stat card icons (Calendar, Users, MessageCircle) on the profile sheet are now marked decorative for screen readers
+- **Review count tabular-nums** — review count on the profile sheet uses fixed-width digits
+- **Setup flow icon aria-hidden** — Megaphone intro icon, category card icons, and Check selection indicators in the setup flow are marked decorative for screen readers
+- **Setup flow selected count tabular-nums** — category "selected" count badge uses fixed-width digits
+- **Review sheet icon aria-hidden** — Check (tag selected), Send (submit button) icons in the review sheet are marked decorative
+- **Review sheet selected count tabular-nums** — vibe tag "selected" counter uses fixed-width digits
+- **Comprehensive aria-hidden pass** — all decorative icons across all 6 organiser components are now marked `aria-hidden="true"`: quick action icons (Plus, Users, Pencil, Share2), attention alert icons (AlertTriangle, Zap), stat badge icons, widget toggle checkboxes (CheckSquare, Square), audience insight icons (Users, BarChart3, Repeat), Search icon, empty state icons (Calendar, Sparkles, Megaphone), milestone icons, category button icons, check indicators, social link icons (Link2, Globe), tab filter icons, event action icons (Pin, Copy, StickyNote, ArrowUpRight), header buttons (Settings, RefreshCw, Pencil), review icons (Check, Send, Sparkles), and profile stats icons — screen readers now skip all visual-only icons and only announce text labels
+- **Public profile event card hover** — event cards on the public organiser profile nudge right on hover and scale on tap for tactile feedback
+- **Public profile community card hover** — community cards on the public profile gain matching hover nudge and tap scale
+- **Profile completeness chip stagger** — completeness check chips now stagger in with scale animation, incomplete items have hover background and tap scale for better affordance
+- **View all events button animation** — the expand/collapse button now has hover scale, tap feedback, and smooth text transition between "View all" and "Show less"
+- **Revenue active income indicator** — a pulsing green dot appears next to the "% paid" label in Revenue Insights, indicating active income
+- **Most Popular Event tappable** — the "Most Popular Event" in Audience Insights is now a button that opens the event detail, with hover highlight and chevron
+- **Edit profile unsaved indicator** — a pulsing amber dot appears next to "Edit Profile" header when there are unsaved changes, and the Save button gains a warm glow shadow
+- **Verification request interaction** — the shield icon wobbles on hover, and the card has a decorative background glow
+- **Dashboard loading skeleton cascade** — skeleton elements now stagger in with individual fade-up animations instead of a single pulse, with quick actions scaling in individually and stat cards cascading
+- **Next Event countdown urgency pulse** — when the countdown says "Starting soon", a green border pulse animation appears around the card to draw attention
+- **Stats card icon wobble** — stat card icons tilt and scale up on hover, value text shifts to primary color, label brightens — adds tactile feedback across both dashboard tabs
+- **Public profile stat cards hover lift** — quick stats grid on the public organiser profile lifts on hover with staggered entrance animation
+- **Public profile category chips stagger** — category chips on the public profile spring in with staggered scale animation
+- **Public profile empty state polish** — the "hasn't hosted anything yet" message now shows a spring-animated icon in a styled container with helper text
+- **Event card hover nudge** — event cards in the dashboard list subtly nudge right on hover for tactile feedback
+- **Empty filter state icon** — the "No upcoming/past events" message now shows a contextual icon (clock or history) with spring entrance and search hint
+- **Create community form header** — the Quick Create form now has a spring-animated Plus icon beside the header for better visual hierarchy
+- **Organiser setup flow polish** — the Megaphone icon on step 1 springs in with rotation and has a breathing pulse; category grid items stagger in with scale; "Start Organising" button gets a pulsing glow on the final step
+- **Widget settings panel animation** — settings gear icon spins in on open, toggle items stagger in with slide animation, checkbox icons pulse on toggle
+- **Weekly activity bar hover scale** — individual bars in the weekly activity chart widen on hover with brightness boost for better data inspection
+- **Milestone card hover lift** — milestone cards lift up on hover and scale down on tap for consistent tactile feedback
+- **Attention alert icon pulse** — the warning icon on low-fill alerts gently pulses to draw organiser attention to urgent items
+- **Edit profile category hover scale** — unselected category chips scale up on hover for better discoverability before tapping
+- **Social link icon bounce** — the link icon container pulses when a social link is filled in, giving visual confirmation
+- **Preview toggle eye animation** — the Eye button tilts slightly when preview is active and has tap-scale feedback
+- **Setup flow back button feedback** — the back button on organiser setup now has hover scale and tap compression
+- **Setup flow social link state** — social link icons turn green when a URL is entered, matching the edit profile behavior
+- **Setup flow name progress bar** — the display name field now shows a thin progress bar that turns green once the minimum 2-character requirement is met
+- **Public profile top event hover lift** — the "Top Event" highlight card lifts on hover and compresses on tap for consistent card feedback
+- **Public profile social link hover scale** — social link chips scale up on hover and compress on tap for better affordance
+- **Public profile follow button hover** — the Follow/Following button subtly scales up on hover before the tap compression
+- **Category distribution hover nudge** — category rows in analytics slide right on hover for easier data scanning
+- **Fill rate row hover nudge** — event fill rate rows in analytics slide right on hover for consistent interaction
+- **Export analytics hover scale** — the Export button scales up on hover for better affordance
+- **Stats card glow fix** — the subtle radial glow on stat cards now properly appears on hover instead of being stuck at a faint static opacity
+- **Stats card trend badge hover** — the trend percentage badge (e.g. "+12%") subtly scales up on hover for visual polish
+- **Switch to attendee hover underline** — the "Switch to attendee view" link shows an underline on hover for better affordance
+- **Quick action keyboard focus rings** — Community, Edit, and Share quick action buttons now show a primary-colored ring when focused via keyboard
+- **Keyboard shortcut badge hover** — the `C` and `E` shortcut badges on quick actions brighten on hover
+- **Community size label transition** — the "Starting/Growing/Large" size label now transitions smoothly between color states
+- **Setup flow progress label transition** — step labels ("Identity", "Categories", "Details") now smooth-transition color over 300ms instead of snapping
+- **Edit profile social links focus ring** — the collapsible "Social Links" section header shows a focus ring when navigated via keyboard
+- **Setup flow info card hover border** — the organiser benefits card on step 1 shows a subtle primary border on hover
+- **Public profile loading skeleton cascade** — skeleton elements now animate with individual staggered delays instead of a single parent pulse
+- **Public profile bio card hover border** — the bio section shows a subtle border on hover for visual depth
+- **Edit profile verified badge hover glow** — the "Verified Organiser" badge shows a brighter border and soft shadow on hover
+- **Dashboard tab keyboard focus rings** — Overview/Analytics tab buttons show a primary ring when navigated via keyboard
+- **Event filter tab focus rings** — Upcoming/Past event filter tabs show a focus ring for keyboard accessibility
+- **Checklist item focus rings** — pre-event checklist checkboxes show a focus ring when navigated via keyboard
+- **Edit profile cover photo hover** — the dashed upload border transitions to primary color on hover for better discoverability
+- **Edit profile input hover borders** — display name and bio inputs darken their border on hover before focus
+- **Public profile event tab hover** — Upcoming/Past event tab buttons show a subtle background on hover and focus ring for keyboard nav
+- **Setup flow close button hover** — the X close button now shows a darker background on hover
+- **Setup flow category card focus ring** — category cards in step 2 show a focus ring when navigated via keyboard
+- **Edit profile verification button focus ring** — the "Request" verification button shows a focus ring for keyboard accessibility
+- **Checklist toggle focus ring** — the "Pre-event checklist" expand/collapse button shows a focus ring for keyboard nav
+- **Note editor Save focus ring** — the event note Save button shows a focus ring for keyboard accessibility
+- **Create community form focus rings** — both the Create and Cancel buttons in the inline community form now show focus rings
+- **Edit profile close button hover** — the close button on the edit profile sheet darkens on hover
+- **Edit profile remove cover hover** — the "Remove cover photo" X button darkens on hover
+- **Public profile close button hover** — the close button on the public profile sheet darkens on hover
+- **Event action buttons focus rings** — the pin, duplicate, and note buttons on event cards now show focus rings for keyboard accessibility
+- **Event action buttons cursor pointer** — the pin, duplicate, and note div-buttons now show pointer cursor on hover for clear affordance
+- **Input hover borders across lazy chunks** — setup flow bio textarea, social link inputs, and edit profile cover photo URL input all darken their border on hover for pre-focus affordance
+- **All organiser input hover borders** — edit profile social link inputs, dashboard community name/description inputs, event search input, and note editor input all darken their border on hover for consistent pre-focus affordance
+- **Profile share button focus ring** — the share profile button shows a focus ring for keyboard accessibility
+- **Leave review CTA focus ring** — the "Leave a vibe review" button shows a focus ring for keyboard accessibility
+- **Vibe tag hover scale** — vibe tags on the public organiser profile scale up on hover for tactile feedback
+- **Complete focus-visible audit** — all remaining buttons across the organiser dashboard and profile sheet now show focus rings for keyboard accessibility: settings, refresh, edit, switch-to-attendee, alert view/dismiss, most popular event, create event (both empty states), clear search, event card rows, create community, leave-review link, and share profile
+- **Review sheet polish** — close button hover state, vibe tag buttons focus rings, comment textarea hover border, delete button red focus ring, submit button focus ring
+- **Review sheet loading skeleton cascade** — skeleton elements now stagger in with individual animation delays instead of a single parent pulse, plus additional skeleton elements for the comment area
+- **Review comment progress bar** — the comment textarea now shows a thin progress bar that turns amber near the 200-character limit
+- **Review tag counter transition** — the "X/5 selected" counter now smoothly transitions color when tags are added or removed
+- **Community section focus rings** — create community toggle, community card rows, and view all events button now show focus rings for keyboard accessibility
+- **Widget settings and quick actions focus rings** — widget toggle buttons, "New Event" quick action button now show focus rings for keyboard accessibility
+- **Edit profile complete focus audit** — preview toggle, close, remove cover photo, category chips, and save button all now show focus rings for keyboard accessibility
+- **Setup flow complete focus audit** — close, back, continue/submit buttons all now show focus rings; display name input gets hover border for pre-focus affordance
+- **Profile sheet complete focus audit** — close, follow, highlight event, event rows, community rows, and social link chips all now show focus rings for keyboard accessibility
+- **Decorative elements aria-hidden** — all decorative glow/blur divs, chevron indicators, hover overlays, pulse backgrounds, and ExternalLink icons across all organiser components now have `aria-hidden="true"` to prevent screen reader noise (13 elements total)
+- **Alert view button transition** — the "View" link on attention alerts now has smooth transition-all instead of instant hover underline appearance
+- **Edit profile lazy images** — preview cover photo, preview avatar, and cover photo display images now have `loading="lazy"` for consistent deferred loading
+- **Safe area insets** — edit profile, setup flow, and profile sheet footer/content areas now respect `env(safe-area-inset-bottom)` to prevent content being clipped by the iOS home bar
+- **Branded text selection** — selecting text anywhere in the app now highlights with a warm terracotta tint instead of the default browser blue
+- **Selectable organiser content** — organiser display name, bio, stats values, and event notes can now be selected and copied (overrides the global `user-select: none` for content-heavy areas)
+- **Touch target expansion** — small icon buttons (dismiss alert 24px, clear search 20px, pin/duplicate/note 28px, remove cover 28px, create community 28px) now have invisible 44px hit areas via CSS pseudo-elements for easier tapping on mobile
+- **Milestone scroll snap** — the horizontal milestones row now snaps to card edges when scrolling, preventing cards from stopping halfway
+- **Descriptive image alt text** — event images across the dashboard and profile sheet now have meaningful alt text (event title) instead of empty strings; avatar and cover photo preview images have descriptive labels; decorative cover photo marked `aria-hidden`
+- **Dashboard community section focus rings** — create community toggle, community card rows, and "View all events" button now show focus rings for keyboard accessibility
+- **Community empty state polish** — spring-animated icon with gradient background, staggered "Engage / Grow / Connect" hint tags, subtle glow backdrop
+- **Profile stat badges staggered entrance** — the upcoming/past/communities/attendees badges in the organiser header animate in with spring scale stagger instead of appearing instantly
+- **Community card hover lift** — community cards in the dashboard now lift on hover and scale on tap for tactile feedback
+- **Social link chip interactions** — social link chips animate in with staggered fade, scale on hover/tap, and highlight with primary color on hover
+- **Dismissable attention alerts** — alerts now have an X dismiss button with exit animation; sold-out events use a Zap icon (green) instead of the generic warning triangle
+- **Organiser tier badge** — profile header now shows a spring-animated tier badge (Bronze/Silver/Gold) with matching colors and icon based on events hosted
+- **Milestones staggered animation** — milestone cards animate in with staggered scale + fade, unlocked icons pulse, progress bars animate from zero with current/target counts
+- **Milestone unlock counter** — header now shows "X/5" completion progress alongside the section title, with accent color when all milestones are unlocked
+- **Weekly activity chart enhanced** — taller chart (h-20), today's bar highlighted in accent gold, event days show green dots below labels, hover tooltips show attendee count, total weekly stats in header
+- **Event note card styling** — pinned notes now display in a styled card with an icon and background instead of a plain border-left
+- **Checklist mini progress bar** — each event's pre-event checklist header shows a mini progress bar with green highlight when all tasks are complete
+- **Top performer fill bar and category tag** — the Top Performer card now shows an animated fill progress bar and category tag with a badge-style percentage
+- **Export analytics success state** — the Export button shows a brief green checkmark + "Done" state after exporting with a tap scale animation
+- **Category distribution staggered bars** — analytics category bars now cascade in with staggered slide animation; the top category is highlighted with accent gold color
+- **Fill rate bar spot counts** — event fill rate bars now show attendee/spot counts alongside percentages with staggered entry animations
+- **HomeTab today's events fill bars** — today's events in the organiser overview now show mini progress bars with color-coded status and a "Full" badge when sold out
+- **HomeTab stat cards animation** — the organiser overview stat grid on the Home tab now has staggered spring entry, hover lift, and tap scale animations
+- **Public profile event tab pill** — the Upcoming/Past event tabs on the public organiser profile now use a smooth sliding pill animation, matching the dashboard's tab design
+- **Follow button animation** — the Follow/Unfollow button on public profiles now has a spring tap animation and a smooth icon+text transition when toggling state
+- **Audience insights progress bars** — average per event and overall fill rate metrics now show animated progress bars for quick visual comparison
+- **Community total members count** — the "My Communities" section header now displays the combined member count across all your communities
+- **Revenue paid vs free split bar** — revenue insights section now shows a visual bar indicating the proportion of paid to free events, with a percentage label
+- **Event filter tab sliding pill** — the Upcoming/Past event filter buttons now have a smooth animated pill that slides between options when switching
+- **Dynamic motivational tagline** — the organiser dashboard greeting now shows a context-aware subtitle that adapts to your stats (events running, people reached, upcoming count, etc.)
+- **Dashboard tab sliding pill** — switching between Overview and Analytics tabs now shows a smooth animated pill that slides between options instead of an instant switch
 - **Setup flow step labels** — the organiser onboarding progress bar now shows step names (Identity, Categories, Details) with color-coded active state
 - **Category selection counter** — step 2 of setup shows an animated "X selected" counter that scales on change and turns green when requirement is met
 - **Bio character progress bar** — step 3 of setup shows an animated progress bar below the bio textarea that turns amber near the limit

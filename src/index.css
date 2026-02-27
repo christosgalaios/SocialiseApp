@@ -82,6 +82,15 @@
     box-sizing: border-box;
   }
 
+  a,
+  button,
+  [role="button"],
+  input,
+  textarea,
+  select {
+    touch-action: manipulation;
+  }
+
   html {
     height: 100%;
     height: 100vh;
@@ -112,6 +121,7 @@
     user-select: none;
     font-family: 'Quicksand', sans-serif;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     letter-spacing: -0.01em;
   }
 
@@ -122,6 +132,7 @@
     letter-spacing: -0.02em;
     font-weight: 700;
     font-family: 'Outfit', sans-serif;
+    text-rendering: optimizeLegibility;
   }
 
   input,
@@ -129,6 +140,8 @@
   select {
     color: var(--text);
     font-family: inherit;
+    caret-color: var(--primary);
+    accent-color: var(--primary);
   }
 
   input::placeholder {
@@ -315,6 +328,12 @@ body:has([role="alertdialog"]) #main-content {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Branded text selection highlight */
+::selection {
+  background-color: rgba(226, 114, 91, 0.2);
+  color: inherit;
 }
 
 /* Screen reader only utility */
