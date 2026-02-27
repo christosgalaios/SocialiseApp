@@ -1619,7 +1619,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               <Calendar size={28} className="text-primary/40" />
             </motion.div>
             <p className="text-sm text-secondary/50 font-bold mb-1 text-balance">No events yet</p>
-            <p className="text-[11px] text-secondary/30 mb-4 max-w-[200px] mx-auto text-balance">Create your first event and start building your audience</p>
+            <p className="text-[11px] text-secondary/40 mb-4 max-w-[200px] mx-auto text-balance">Create your first event and start building your audience</p>
             <button
               onClick={() => { playClick(); hapticTap(); onCreateEvent?.(); }}
               className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary/10 border border-primary/20 text-primary text-xs font-bold hover:bg-primary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
@@ -1642,7 +1642,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                 No {eventFilter} events
               </p>
               {eventSearch.trim() && (
-                <p className="text-[10px] text-secondary/30 mt-1">Try a different search term</p>
+                <p className="text-[10px] text-secondary/40 mt-1">Try a different search term</p>
               )}
             </motion.div>
           </div>
@@ -1972,7 +1972,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               <Users size={28} className="text-secondary/30" />
             </motion.div>
             <p className="text-sm text-secondary/50 font-bold mb-1">No communities yet</p>
-            <p className="text-[11px] text-secondary/30 mb-3 max-w-[200px] mx-auto">Build your tribe by creating a community around your events</p>
+            <p className="text-[11px] text-secondary/40 mb-3 max-w-[200px] mx-auto text-balance">Build your tribe by creating a community around your events</p>
             <div className="flex justify-center gap-2 mb-4">
               {['Engage', 'Grow', 'Connect'].map((hint, i) => (
                 <motion.span

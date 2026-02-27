@@ -614,7 +614,7 @@ export default function OrganiserProfileSheet() {
                           <Megaphone size={24} className="text-secondary/20" />
                         </motion.div>
                         <p className="text-sm text-secondary/40 font-medium text-balance">This organiser hasn&apos;t hosted anything yet</p>
-                        <p className="text-[10px] text-secondary/25 mt-1 text-balance">Check back later for events</p>
+                        <p className="text-[10px] text-secondary/40 mt-1 text-balance">Check back later for events</p>
                       </div>
                     )}
                   </div>
