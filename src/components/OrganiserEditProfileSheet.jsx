@@ -155,12 +155,12 @@ export default function OrganiserEditProfileSheet() {
                   <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="w-2 h-2 rounded-full bg-amber-500"
+                    className="w-2 h-2 rounded-full bg-amber-500 animate-pulse-soft"
                     style={{ boxShadow: '0 0 6px rgba(245, 158, 11, 0.4)' }}
                   />
                 )}
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 isolate">
                 <motion.button
                   onClick={() => { playTap(); setShowPreview(!showPreview); }}
                   whileTap={{ scale: 0.9 }}
@@ -466,7 +466,7 @@ export default function OrganiserEditProfileSheet() {
             </div>
 
             {/* Footer with save button */}
-            <div className="p-6 border-t border-secondary/10 pb-[max(32px,env(safe-area-inset-bottom))]">
+            <div className="p-6 border-t border-secondary/10 pb-[max(32px,env(safe-area-inset-bottom))] isolate">
               {hasUnsavedChanges() && (
                 <motion.p
                   initial={{ opacity: 0, y: 4 }}
