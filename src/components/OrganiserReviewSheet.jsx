@@ -143,7 +143,7 @@ export default function OrganiserReviewSheet() {
             </div>
 
             {/* Content */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6" style={{ overscrollBehavior: 'contain' }}>
+            <div className="flex-1 overflow-y-auto p-6 space-y-6 scroll-smooth" style={{ overscrollBehavior: 'contain' }}>
               {loading ? (
                 <div className="space-y-3">
                   <div className="h-4 w-32 bg-secondary/10 rounded-full animate-pulse" />
