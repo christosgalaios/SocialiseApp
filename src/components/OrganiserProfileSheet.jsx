@@ -313,7 +313,7 @@ export default function OrganiserProfileSheet() {
                         className="w-full premium-card p-4 rounded-[20px] relative overflow-hidden text-left hover:bg-secondary/5 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                         style={{ contain: 'layout style' }}
                       >
-                        <div className="absolute -right-4 -top-4 w-16 h-16 bg-accent/5 rounded-full blur-2xl" aria-hidden="true" />
+                        <div className="absolute -right-4 -top-4 w-16 h-16 bg-accent/5 rounded-full blur-2xl pointer-events-none" aria-hidden="true" />
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-1.5">
                             <Star size={12} className="text-accent" />

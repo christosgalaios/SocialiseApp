@@ -586,7 +586,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
 
       {/* Organiser Header */}
       <motion.div variants={itemVariants} className="premium-card p-6 relative overflow-hidden" style={{ contain: 'layout style' }}>
-        <div className="absolute -right-12 -top-12 w-48 h-48 bg-primary/5 rounded-full blur-3xl" aria-hidden="true" />
+        <div className="absolute -right-12 -top-12 w-48 h-48 bg-primary/5 rounded-full blur-3xl pointer-events-none" aria-hidden="true" />
 
         {/* Cover photo area */}
         {user?.organiserCoverPhoto && (
@@ -980,7 +980,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
             const bestFill = best?.spots > 0 ? Math.round((best.attendees / best.spots) * 100) : 0;
             return (
               <div className="premium-card p-5 relative overflow-hidden" style={{ contain: 'layout style' }}>
-                <div className="absolute -right-6 -top-6 w-24 h-24 bg-accent/5 rounded-full blur-2xl" aria-hidden="true" />
+                <div className="absolute -right-6 -top-6 w-24 h-24 bg-accent/5 rounded-full blur-2xl pointer-events-none" aria-hidden="true" />
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center">
@@ -1089,7 +1089,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
             const paidPct = events.length > 0 ? Math.round((revenueInsights.paidEvents / events.length) * 100) : 0;
             return (
             <div className="premium-card p-6 relative overflow-hidden" style={{ contain: 'layout style' }}>
-              <div className="absolute -left-6 -bottom-6 w-24 h-24 bg-green-500/5 rounded-full blur-2xl" aria-hidden="true" />
+              <div className="absolute -left-6 -bottom-6 w-24 h-24 bg-green-500/5 rounded-full blur-2xl pointer-events-none" aria-hidden="true" />
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center justify-center">
@@ -1161,7 +1161,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
             const maxSpots = Math.max(...events.map(e => e.spots ?? 0), 1);
             return (
             <div className="premium-card p-6 relative overflow-hidden" style={{ contain: 'layout style' }}>
-              <div className="absolute -right-6 -top-6 w-24 h-24 bg-primary/5 rounded-full blur-2xl" aria-hidden="true" />
+              <div className="absolute -right-6 -top-6 w-24 h-24 bg-primary/5 rounded-full blur-2xl pointer-events-none" aria-hidden="true" />
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-8 h-8 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
                   <UserCheck size={16} className="text-primary" />
@@ -1284,8 +1284,8 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
             </div>
           ) : (
             <div className="premium-card p-8 text-center relative overflow-hidden">
-              <div className="absolute -right-8 -top-8 w-32 h-32 bg-accent/5 rounded-full blur-3xl" aria-hidden="true" />
-              <div className="absolute -left-8 -bottom-8 w-32 h-32 bg-primary/5 rounded-full blur-3xl" aria-hidden="true" />
+              <div className="absolute -right-8 -top-8 w-32 h-32 bg-accent/5 rounded-full blur-3xl pointer-events-none" aria-hidden="true" />
+              <div className="absolute -left-8 -bottom-8 w-32 h-32 bg-primary/5 rounded-full blur-3xl pointer-events-none" aria-hidden="true" />
               <motion.div
                 initial={{ scale: 0, rotate: -20 }}
                 animate={{ scale: 1, rotate: 0 }}
@@ -1329,7 +1329,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
         const nextFillPct = nextEvent.spots > 0 ? Math.round((nextEvent.attendees / nextEvent.spots) * 100) : 0;
         return (
         <motion.div variants={itemVariants} className="premium-card p-4 relative overflow-hidden">
-          <div className="absolute -right-4 -top-4 w-20 h-20 bg-green-500/5 rounded-full blur-2xl" aria-hidden="true" />
+          <div className="absolute -right-4 -top-4 w-20 h-20 bg-green-500/5 rounded-full blur-2xl pointer-events-none" aria-hidden="true" />
           {nextEvent.countdown === 'Starting soon' && (
             <motion.div
               className="absolute inset-0 rounded-[24px] border-2 border-green-500/20"
@@ -1962,7 +1962,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
 
         {communities.length === 0 && !showCreateCommunity ? (
           <div className="text-center py-8 relative overflow-hidden">
-            <div className="absolute -right-8 -top-8 w-28 h-28 bg-secondary/5 rounded-full blur-3xl" aria-hidden="true" />
+            <div className="absolute -right-8 -top-8 w-28 h-28 bg-secondary/5 rounded-full blur-3xl pointer-events-none" aria-hidden="true" />
             <motion.div
               initial={{ scale: 0, rotate: -15 }}
               animate={{ scale: 1, rotate: 0 }}

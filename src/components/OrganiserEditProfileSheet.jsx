@@ -432,7 +432,7 @@ export default function OrganiserEditProfileSheet() {
               <motion.div custom={5} variants={sectionVariants} initial="hidden" animate="show">
                 {!user?.organiserVerified ? (
                   <div className="premium-card p-4 rounded-2xl relative overflow-hidden" style={{ contain: 'layout style' }}>
-                    <div className="absolute -right-6 -top-6 w-20 h-20 bg-primary/5 rounded-full blur-2xl" aria-hidden="true" />
+                    <div className="absolute -right-6 -top-6 w-20 h-20 bg-primary/5 rounded-full blur-2xl pointer-events-none" aria-hidden="true" />
                     <div className="flex items-center gap-3">
                       <motion.div
                         whileHover={{ rotate: [0, -5, 5, 0] }}
