@@ -633,7 +633,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               }`}
               aria-label="Dashboard settings"
             >
-              <Settings size={14} />
+              <Settings size={14} aria-hidden="true" />
             </button>
             <button
               onClick={handleRefresh}
@@ -642,14 +642,14 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               aria-label="Refresh dashboard (R)"
               title="Refresh (R)"
             >
-              <RefreshCw size={14} className={`text-secondary/60 ${isRefreshing ? 'animate-spin' : ''}`} />
+              <RefreshCw size={14} className={`text-secondary/60 ${isRefreshing ? 'animate-spin' : ''}`} aria-hidden="true" />
             </button>
             <button
               onClick={() => { playTap(); hapticTap(); setShowOrganiserEditProfile(true); }}
               className="w-9 h-9 rounded-xl bg-secondary/5 border border-secondary/10 flex items-center justify-center hover:bg-secondary/10 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
               aria-label="Edit organiser profile"
             >
-              <Pencil size={14} className="text-secondary/60" />
+              <Pencil size={14} className="text-secondary/60" aria-hidden="true" />
             </button>
           </div>
         </div>
@@ -1688,7 +1688,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          {isPinned && <Pin size={10} className="text-accent shrink-0" />}
+                          {isPinned && <Pin size={10} className="text-accent shrink-0" aria-hidden="true" />}
                           <p className="text-sm font-bold text-secondary truncate">{event.title}</p>
                           {isSoldOut && (
                             <span className="shrink-0 text-[8px] font-black text-red-600 bg-red-500/10 px-1.5 py-0.5 rounded-full border border-red-500/20 uppercase">Sold Out</span>
@@ -1739,7 +1739,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                           }`}
                           aria-label={isPinned ? 'Unpin event' : 'Pin event'}
                         >
-                          <Pin size={12} />
+                          <Pin size={12} aria-hidden="true" />
                         </div>
                         <div
                           role="button"
@@ -1749,7 +1749,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                           className="w-7 h-7 rounded-lg flex items-center justify-center text-secondary/20 hover:text-secondary/40 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none relative before:absolute before:inset-[-8px] before:content-['']"
                           aria-label="Duplicate event"
                         >
-                          <Copy size={12} />
+                          <Copy size={12} aria-hidden="true" />
                         </div>
                         <div
                           role="button"
@@ -1765,7 +1765,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                           }`}
                           aria-label={note ? 'Edit note' : 'Add note'}
                         >
-                          <StickyNote size={12} />
+                          <StickyNote size={12} aria-hidden="true" />
                         </div>
                       </div>
                       <ChevronRight size={16} className="text-secondary/30 shrink-0 group-hover/event:translate-x-0.5 group-hover/event:text-secondary/50 transition-all" aria-hidden="true" />
@@ -1773,7 +1773,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                     {/* Note display */}
                     {note && editingNoteId !== event.id && (
                       <div className="ml-3 flex items-start gap-2 p-2 rounded-xl bg-primary/5 border border-primary/10">
-                        <StickyNote size={10} className="text-primary/40 shrink-0 mt-0.5" />
+                        <StickyNote size={10} className="text-primary/40 shrink-0 mt-0.5" aria-hidden="true" />
                         <p className="text-[10px] text-secondary/60 italic leading-relaxed select-text hyphens-auto" lang="en">{note}</p>
                       </div>
                     )}
@@ -2025,7 +2025,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                         {memberCount} members
                       </span>
                       <span className={`inline-flex items-center gap-0.5 text-[9px] font-bold ${sizeColor} bg-current/10 px-1.5 py-0.5 rounded-full transition-colors duration-200`}>
-                        <ArrowUpRight size={8} />
+                        <ArrowUpRight size={8} aria-hidden="true" />
                         {sizeLabel}
                       </span>
                       {community.category && (
