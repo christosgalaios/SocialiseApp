@@ -158,9 +158,28 @@ router.get('/me/events', authenticateToken, async (req, res) => {
         attending = data || [];
     }
 
+    // Fetch host avatars for attending events
+    const attendingHostIds = [...new Set(attending.map(e => e.host_id).filter(Boolean))];
+    const hostAvatarMap = {};
+    if (attendingHostIds.length) {
+        const { data: hosts } = await supabase
+            .from('users')
+            .select('id, avatar')
+            .in('id', attendingHostIds);
+        (hosts || []).forEach(h => { hostAvatarMap[h.id] = h.avatar; });
+    }
+
+    // Get the current user's avatar for hosted events
+    const { data: currentUser } = await supabase
+        .from('users')
+        .select('avatar')
+        .eq('id', userId)
+        .single();
+    const myAvatar = currentUser?.avatar || '';
+
     res.json({
-        hosting: (hosted || []).map(e => ({ ...e, spots: e.max_spots, image: e.image_url, host: e.host_name, isJoined: true })),
-        attending: attending.map(e => ({ ...e, spots: e.max_spots, image: e.image_url, host: e.host_name, isJoined: true })),
+        hosting: (hosted || []).map(e => ({ ...e, spots: e.max_spots, image: e.image_url, host: e.host_name, hostAvatar: myAvatar, isJoined: true })),
+        attending: attending.map(e => ({ ...e, spots: e.max_spots, image: e.image_url, host: e.host_name, hostAvatar: hostAvatarMap[e.host_id] || '', isJoined: true })),
     });
 });
 
@@ -180,7 +199,18 @@ router.get('/me/saved', authenticateToken, async (req, res) => {
         .in('id', savedIds)
         .eq('status', 'active');
 
-    res.json((events || []).map(e => ({ ...e, spots: e.max_spots, image: e.image_url, host: e.host_name, isSaved: true })));
+    // Fetch host avatars
+    const savedHostIds = [...new Set((events || []).map(e => e.host_id).filter(Boolean))];
+    const savedHostAvatarMap = {};
+    if (savedHostIds.length) {
+        const { data: hosts } = await supabase
+            .from('users')
+            .select('id, avatar')
+            .in('id', savedHostIds);
+        (hosts || []).forEach(h => { savedHostAvatarMap[h.id] = h.avatar; });
+    }
+
+    res.json((events || []).map(e => ({ ...e, spots: e.max_spots, image: e.image_url, host: e.host_name, hostAvatar: savedHostAvatarMap[e.host_id] || '', isSaved: true })));
 });
 
 // --- GET /api/users/me/communities ---
@@ -262,12 +292,21 @@ router.get('/me/organiser-stats', authenticateToken, async (req, res) => {
         const ownedCommunities = communities || [];
         const totalCommunityMembers = ownedCommunities.reduce((sum, c) => sum + (c.member_count || 0), 0);
 
+        // Get the organiser's avatar for hostAvatar field
+        const { data: organiserUser } = await supabase
+            .from('users')
+            .select('avatar')
+            .eq('id', userId)
+            .single();
+        const organiserAvatar = organiserUser?.avatar || '';
+
         // Enrich events with attendee count
         const enrichedEvents = activeEvents.map(e => ({
             ...e,
             spots: e.max_spots,
             image: e.image_url,
             host: e.host_name,
+            hostAvatar: organiserAvatar,
             attendees: rsvpsByEvent[e.id] || 0,
         }));
 
@@ -345,6 +384,7 @@ router.get('/:id/organiser-profile', async (req, res) => {
             spots: e.max_spots,
             image: e.image_url,
             host: e.host_name,
+            hostAvatar: user.avatar || '',
             attendees: rsvpsByEvent[e.id] || 0,
         })),
         communities: (communities || []).map(c => ({ ...c, members: c.member_count })),

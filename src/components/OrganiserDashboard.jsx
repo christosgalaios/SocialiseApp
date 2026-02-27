@@ -15,15 +15,7 @@ import { DEFAULT_AVATAR, ORGANISER_SOCIAL_PLATFORMS, CATEGORIES } from '../data/
 import { playTap, playClick, playSuccess, hapticTap } from '../utils/feedback';
 import api from '../api';
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { type: 'spring', damping: 25, stiffness: 400 } },
-};
+const staggerDelay = (i) => ({ type: 'spring', damping: 25, stiffness: 400, delay: 0.05 + i * 0.06 });
 
 const getRelativeDate = (dateStr) => {
   const eventDate = new Date(dateStr);
@@ -526,9 +518,9 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
   }
 
   return (
-    <motion.div variants={containerVariants} initial="hidden" animate="show" className="space-y-6">
+    <div className="space-y-6">
       {/* Greeting */}
-      <motion.div variants={itemVariants} className="flex items-center justify-between">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={staggerDelay(0)} className="flex items-center justify-between">
         <div>
           <p className="text-[10px] font-black text-secondary/40 uppercase tracking-widest mb-0.5">Dashboard</p>
           <h1 className="text-2xl font-black text-secondary tracking-tight text-balance">
@@ -562,7 +554,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
 
       {/* Attention Alerts */}
       {isWidgetVisible('alerts') && attentionAlerts.length > 0 && (
-        <motion.div variants={itemVariants} className="space-y-2">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={staggerDelay(1)} className="space-y-2">
           <AnimatePresence>
           {attentionAlerts.filter((_, i) => !dismissedAlerts.includes(i)).map((alert, i) => (
             <motion.div
@@ -613,7 +605,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
       )}
 
       {/* Organiser Header */}
-      <motion.div variants={itemVariants} className="premium-card p-6 relative overflow-hidden" style={{ contain: 'layout style' }}>
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={staggerDelay(2)} className="premium-card p-6 relative overflow-hidden" style={{ contain: 'layout style' }}>
         <div className="absolute -right-12 -top-12 w-48 h-48 bg-primary/5 rounded-full blur-3xl pointer-events-none" aria-hidden="true" />
 
         {/* Cover photo area */}
@@ -821,7 +813,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
         const pct = Math.round((completed / checks.length) * 100);
         if (pct >= 100) return null;
         return (
-          <motion.div variants={itemVariants} className="premium-card p-5 relative overflow-hidden">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={staggerDelay(3)} className="premium-card p-5 relative overflow-hidden">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-xs font-black text-primary uppercase tracking-widest">
                 Complete Your Profile<span className="text-accent">.</span>
@@ -860,7 +852,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
       })()}
 
       {/* Quick Actions */}
-      <motion.div variants={itemVariants} className="grid grid-cols-4 gap-2 isolate">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={staggerDelay(4)} className="grid grid-cols-4 gap-2 isolate">
         <motion.button
           whileHover={{ y: -2 }}
           whileTap={{ scale: 0.95 }}
@@ -910,7 +902,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
       </motion.div>
 
       {/* Dashboard Tabs */}
-      <motion.div variants={itemVariants} className="flex gap-1 p-1 bg-secondary/5 rounded-2xl border border-secondary/10 relative isolate">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={staggerDelay(5)} className="flex gap-1 p-1 bg-secondary/5 rounded-2xl border border-secondary/10 relative isolate">
         {[
           { key: 'overview', label: 'Overview' },
           { key: 'analytics', label: 'Analytics' },
@@ -1350,18 +1342,13 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           )}
         </motion.div>
       ) : (
-      <motion.div
-        key="overview"
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="space-y-6"
-      >
+      <div key="overview" className="space-y-6">
 
       {/* Next Event Countdown */}
       {isWidgetVisible('countdown') && nextEvent && (() => {
         const nextFillPct = nextEvent.spots > 0 ? Math.round((nextEvent.attendees / nextEvent.spots) * 100) : 0;
         return (
-        <motion.div variants={itemVariants} className="premium-card p-4 relative overflow-hidden">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={staggerDelay(0)} className="premium-card p-4 relative overflow-hidden">
           <div className="absolute -right-4 -top-4 w-20 h-20 bg-green-500/5 rounded-full blur-2xl pointer-events-none" aria-hidden="true" />
           {nextEvent.countdown === 'Starting soon' && (
             <motion.div
@@ -1412,7 +1399,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
         const totalWeekAttendees = weeklyActivity.days.reduce((s, d) => s + d.attendees, 0);
         const totalWeekEvents = weeklyActivity.days.reduce((s, d) => s + d.events, 0);
         return (
-        <motion.div variants={itemVariants} className="premium-card p-5 relative overflow-hidden" style={{ contain: 'layout style' }}>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={staggerDelay(1)} className="premium-card p-5 relative overflow-hidden" style={{ contain: 'layout style' }}>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
@@ -1465,7 +1452,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
       {isWidgetVisible('milestones') && (() => {
         const unlockedCount = milestones.filter(m => m.unlocked).length;
         return (
-      <motion.div variants={itemVariants} className="premium-card p-5">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={staggerDelay(2)} className="premium-card p-5">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-xs font-black text-primary uppercase tracking-widest">
             Milestones<span className="text-accent">.</span>
@@ -1525,7 +1512,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
       })()}
 
       {/* Stats Grid */}
-      <motion.div variants={itemVariants}>
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={staggerDelay(3)}>
         <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-3">
           Your Performance<span className="text-accent">.</span>
         </h3>
@@ -1569,7 +1556,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
       <div className="grid gap-6 lg:grid-cols-2">
 
       {/* My Events */}
-      <motion.div variants={itemVariants} className="premium-card p-6" style={{ contain: 'layout style', contentVisibility: 'auto', containIntrinsicSize: 'auto 400px' }}>
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={staggerDelay(4)} className="premium-card p-6" style={{ contain: 'layout style', contentVisibility: 'auto', containIntrinsicSize: 'auto 400px' }}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xs font-black text-primary uppercase tracking-widest">
             My Events<span className="text-accent">.</span>
@@ -1907,7 +1894,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
       </motion.div>
 
       {/* My Communities */}
-      <motion.div variants={itemVariants} className="premium-card p-6" style={{ contain: 'layout style', contentVisibility: 'auto', containIntrinsicSize: 'auto 350px' }}>
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={staggerDelay(5)} className="premium-card p-6" style={{ contain: 'layout style', contentVisibility: 'auto', containIntrinsicSize: 'auto 350px' }}>
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="text-xs font-black text-primary uppercase tracking-widest">
@@ -2084,8 +2071,8 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
       </motion.div>
 
       </div>{/* end responsive grid */}
-      </motion.div>
+      </div>
       )}
-    </motion.div>
+    </div>
   );
 }
