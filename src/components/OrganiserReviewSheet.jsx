@@ -202,7 +202,7 @@ export default function OrganiserReviewSheet() {
                       placeholder="Share a quick thought about this organiser..."
                       maxLength={200}
                       rows={3}
-                      className="w-full bg-secondary/5 border border-secondary/10 rounded-2xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-primary hover:border-secondary/20 transition-all placeholder:text-secondary/30 text-[var(--text)] resize-none break-words"
+                      className="w-full bg-secondary/5 border border-secondary/10 rounded-2xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 hover:border-secondary/20 transition-all placeholder:text-secondary/30 text-[var(--text)] resize-none break-words"
                       style={{ overflowWrap: 'break-word' }}
                     />
                     <div className="flex items-center gap-2 mt-1">

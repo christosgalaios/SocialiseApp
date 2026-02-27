@@ -197,7 +197,7 @@ export default function OrganiserSetupFlow() {
                   placeholder="How attendees will see you"
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  className="w-full bg-secondary/5 border-2 border-secondary/20 rounded-2xl px-4 py-4 text-lg font-medium text-[var(--text)] focus:outline-none focus:border-primary hover:border-secondary/30 transition-all placeholder:text-secondary/40"
+                  className="w-full bg-secondary/5 border-2 border-secondary/20 rounded-2xl px-4 py-4 text-lg font-medium text-[var(--text)] focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 hover:border-secondary/30 transition-all placeholder:text-secondary/40"
                   maxLength={50}
                   autoFocus
                 />
@@ -297,7 +297,7 @@ export default function OrganiserSetupFlow() {
                   placeholder="Tell people what kind of events you host and what makes them special..."
                   value={organiserBio}
                   onChange={(e) => setOrganiserBio(e.target.value)}
-                  className="w-full bg-secondary/5 border-2 border-secondary/20 rounded-2xl px-4 py-3 text-sm font-medium text-[var(--text)] focus:outline-none focus:border-primary hover:border-secondary/30 transition-all placeholder:text-secondary/40 min-h-[100px] resize-none"
+                  className="w-full bg-secondary/5 border-2 border-secondary/20 rounded-2xl px-4 py-3 text-sm font-medium text-[var(--text)] focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 hover:border-secondary/30 transition-all placeholder:text-secondary/40 min-h-[100px] resize-none"
                   maxLength={300}
                   style={{ overflowWrap: 'break-word', wordBreak: 'break-words' }}
                 />

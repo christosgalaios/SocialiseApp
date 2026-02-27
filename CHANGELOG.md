@@ -23,6 +23,7 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Balanced text wrapping** — headings, empty state messages, and info cards across the dashboard, profile sheet, and setup flow use CSS `text-wrap: balance` to prevent orphaned words on narrow screens
 - **Improved empty state contrast** — descriptive text in "No events", "No communities", "Try a different search", and profile empty states bumped from 30% to 40% opacity for better readability
 - **Smooth scroll on sheet content** — edit profile, setup flow, review sheet, and profile sheet scrollable areas use `scroll-smooth` for polished programmatic scroll behavior
+- **Input focus glow ring** — all text inputs and textareas across the organiser dashboard, edit profile, setup flow, and review sheet show a subtle primary-colored ring on focus for clearer active-field indication
 - **Public profile event card hover** — event cards on the public organiser profile nudge right on hover and scale on tap for tactile feedback
 - **Public profile community card hover** — community cards on the public profile gain matching hover nudge and tap scale
 - **Profile completeness chip stagger** — completeness check chips now stagger in with scale animation, incomplete items have hover background and tap scale for better affordance

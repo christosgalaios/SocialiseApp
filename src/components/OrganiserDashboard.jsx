@@ -1589,7 +1589,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               value={eventSearch}
               onChange={(e) => setEventSearch(e.target.value)}
               placeholder="Search events..."
-              className={`w-full pl-9 py-2 rounded-xl bg-secondary/5 border border-secondary/10 text-xs text-[var(--text)] placeholder:text-secondary/30 outline-none focus:border-primary/30 hover:border-secondary/20 transition-colors ${eventSearch ? 'pr-8' : 'pr-3'}`}
+              className={`w-full pl-9 py-2 rounded-xl bg-secondary/5 border border-secondary/10 text-xs text-[var(--text)] placeholder:text-secondary/30 outline-none focus:border-primary/30 focus:ring-2 focus:ring-primary/10 hover:border-secondary/20 transition-all ${eventSearch ? 'pr-8' : 'pr-3'}`}
             />
             {eventSearch && (
               <button
@@ -1786,7 +1786,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                           onChange={(e) => setNoteText(e.target.value)}
                           onKeyDown={(e) => { if (e.key === 'Enter') saveNote(event.id); if (e.key === 'Escape') setEditingNoteId(null); }}
                           placeholder="Add a quick note..."
-                          className="flex-1 text-xs px-3 py-2 rounded-xl bg-secondary/5 border border-secondary/10 text-[var(--text)] placeholder:text-secondary/30 outline-none focus:border-primary/30 hover:border-secondary/20 transition-colors"
+                          className="flex-1 text-xs px-3 py-2 rounded-xl bg-secondary/5 border border-secondary/10 text-[var(--text)] placeholder:text-secondary/30 outline-none focus:border-primary/30 focus:ring-2 focus:ring-primary/10 hover:border-secondary/20 transition-all"
                           autoFocus
                         />
                         <button
@@ -1929,7 +1929,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                   value={newCommunityName}
                   onChange={(e) => setNewCommunityName(e.target.value)}
                   placeholder="Community name..."
-                  className="w-full px-3 py-2.5 rounded-xl bg-paper border border-secondary/20 text-sm font-medium text-[var(--text)] placeholder:text-secondary/30 outline-none focus:border-primary hover:border-secondary/30 transition-colors"
+                  className="w-full px-3 py-2.5 rounded-xl bg-paper border border-secondary/20 text-sm font-medium text-[var(--text)] placeholder:text-secondary/30 outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 hover:border-secondary/30 transition-all"
                   maxLength={50}
                 />
                 <input
@@ -1937,7 +1937,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                   value={newCommunityDesc}
                   onChange={(e) => setNewCommunityDesc(e.target.value)}
                   placeholder="Short description (optional)..."
-                  className="w-full px-3 py-2 rounded-xl bg-paper border border-secondary/20 text-xs font-medium text-[var(--text)] placeholder:text-secondary/30 outline-none focus:border-primary hover:border-secondary/30 transition-colors"
+                  className="w-full px-3 py-2 rounded-xl bg-paper border border-secondary/20 text-xs font-medium text-[var(--text)] placeholder:text-secondary/30 outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 hover:border-secondary/30 transition-all"
                   maxLength={200}
                 />
                 <div className="flex gap-2">
