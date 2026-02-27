@@ -160,7 +160,7 @@ export default function OrganiserSetupFlow() {
             {steps[step].title}<span className="text-accent">.</span>
           </h1>
           <h2 className="text-xl font-bold text-secondary/80 mb-2">{steps[step].subtitle}</h2>
-          <p className="text-sm text-secondary/50">{steps[step].desc}</p>
+          <p className="text-sm text-secondary/50 text-balance">{steps[step].desc}</p>
         </motion.div>
       </div>
 
@@ -215,7 +215,7 @@ export default function OrganiserSetupFlow() {
                 </div>
               </div>
 
-              <div className="premium-card p-4 rounded-[24px] border border-transparent hover:border-primary/10 transition-colors duration-200">
+              <div className="premium-card p-4 rounded-[24px] border border-transparent hover:border-primary/10 transition-colors duration-200" style={{ contain: 'layout style' }}>
                 <p className="text-sm text-secondary/70 font-medium leading-relaxed text-balance">
                   As an organiser, you can create events, build communities, and track your performance.
                   You can switch back to attendee mode any time.
@@ -336,7 +336,7 @@ export default function OrganiserSetupFlow() {
                             placeholder={platform.placeholder}
                             value={socialLinks[platform.key] || ''}
                             onChange={(e) => updateSocialLink(platform.key, e.target.value)}
-                            className={`flex-1 bg-secondary/5 border rounded-xl px-3 py-2.5 text-sm font-medium text-[var(--text)] focus:outline-none transition-all placeholder:text-secondary/40 ${
+                            className={`flex-1 bg-secondary/5 border rounded-xl px-3 py-2.5 text-sm font-medium text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all placeholder:text-secondary/40 ${
                               error ? 'border-red-400 focus:border-red-500' : 'border-secondary/20 focus:border-primary hover:border-secondary/30'
                             }`}
                           />
@@ -353,7 +353,7 @@ export default function OrganiserSetupFlow() {
       </div>
 
       {/* Footer */}
-      <div className="p-6 flex gap-3 pb-[max(40px,env(safe-area-inset-bottom))]">
+      <div className="p-6 flex gap-3 pb-[max(40px,env(safe-area-inset-bottom))] isolate">
         {step > 0 && (
           <motion.button
             onClick={() => { playTap(); setStep(step - 1); }}
@@ -369,7 +369,7 @@ export default function OrganiserSetupFlow() {
           onClick={() => { playTap(); step < 2 ? setStep(step + 1) : handleComplete(); }}
           disabled={!canProceed() || isSubmitting}
           whileTap={canProceed() && !isSubmitting ? { scale: 0.97 } : {}}
-          className="flex-1 h-14 rounded-2xl bg-gradient-to-r from-primary to-accent text-white font-black uppercase tracking-widest flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-transform relative overflow-hidden focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+          className="flex-1 h-14 rounded-2xl bg-gradient-to-r from-primary to-accent text-white font-black uppercase tracking-widest flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-transform relative overflow-hidden focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none [backface-visibility:hidden]"
         >
           {step === 2 && canProceed() && !isSubmitting && (
             <motion.div

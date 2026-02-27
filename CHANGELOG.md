@@ -38,6 +38,7 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Edit profile text balance** — verification description and cover photo placeholder use balanced text wrapping
 - **Focus ring on all edit inputs** — bio textarea and social link inputs now show the subtle primary ring on focus, matching the display name and cover photo URL inputs
 - **Softer placeholder text** — cover photo URL input placeholder lightened to 30% opacity for visual hierarchy
+- **Setup flow polish** — step descriptions use balanced text wrapping; social link inputs gain focus ring; info card has layout containment; footer has stacking isolation; "Continue"/"Start Organising" button uses backface-visibility: hidden for flicker-free transforms
 - **Public profile event card hover** — event cards on the public organiser profile nudge right on hover and scale on tap for tactile feedback
 - **Public profile community card hover** — community cards on the public profile gain matching hover nudge and tap scale
 - **Profile completeness chip stagger** — completeness check chips now stagger in with scale animation, incomplete items have hover background and tap scale for better affordance
