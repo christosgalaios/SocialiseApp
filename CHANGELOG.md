@@ -13,6 +13,8 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 ## [Unreleased]
 
 ### Fixed
+- **Organiser dashboard overview tab invisible** — replaced React Fragment wrapper with a proper `motion.div` that has explicit animation props, fixing the overview tab content being invisible when Framer Motion variant propagation failed through the fragment
+- **Silent dashboard load failure** — added a visible error state with retry button when the organiser stats API fails, instead of silently showing an empty dashboard with no explanation
 - **Desktop sidebar branding** — sidebar now shows Socialise logo and tagline instead of blank space, improving desktop navigation clarity (BUG-1771935219235)
 - **Mango drag bounds on resize** — Mango's draggable area now auto-updates when the window resizes, using a viewport-anchored constraint ref instead of manual calculations (BUG-1771935652026)
 - **Connections card now tappable** — the "Connections" card on the profile page now opens your bookings when tapped, instead of being a dead button (BUG-1771954500334)
@@ -28,6 +30,9 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Community card group hover** — hovering a community row now rings the avatar and nudges the chevron right, matching the event card pattern
 - **Milestone scroller edge fade** — horizontal milestones row has a CSS mask-image gradient that fades out the right edge, hinting at more scrollable content
 - **Skeleton shimmer upgrade** — dashboard, profile sheet, and review sheet loading skeletons use a smooth shimmer animation instead of the old pulse effect, giving a more polished loading feel
+
+### Removed
+- **Orphaned OrganiserReviewSheet** — deleted dead component that referenced non-existent API methods and store state (leftover from a reverted feature)
 - **Layout containment on dashboard cards** — independent card sections (header, analytics, events, communities, weekly activity) use CSS `contain: layout style` to prevent reflow cascades across sections
 - **Smoother tab pill animation** — dashboard tab, event filter, and profile event tab sliding pills use `will-change: transform` for GPU-accelerated layout transitions
 - **Profile sheet layout containment** — bio card, engagement stats, and highlight event use `contain: layout style` to isolate reflows
