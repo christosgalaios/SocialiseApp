@@ -268,7 +268,7 @@ export default function OrganiserEditProfileSheet() {
                   <label className="text-xs font-black text-secondary/60 uppercase tracking-widest">
                     Display Name
                   </label>
-                  <span className={`text-[10px] font-bold ${displayName.length >= 2 ? 'text-green-600' : 'text-secondary/40'}`}>
+                  <span className={`text-[10px] font-bold tabular-nums ${displayName.length >= 2 ? 'text-green-600' : 'text-secondary/40'}`}>
                     {displayName.length}/50
                   </span>
                 </div>
@@ -299,7 +299,7 @@ export default function OrganiserEditProfileSheet() {
                   <label className="text-xs font-black text-secondary/60 uppercase tracking-widest">
                     Organiser Bio
                   </label>
-                  <span className={`text-[10px] font-bold ${organiserBio.length > 250 ? 'text-amber-500' : 'text-secondary/40'}`}>
+                  <span className={`text-[10px] font-bold tabular-nums ${organiserBio.length > 250 ? 'text-amber-500' : 'text-secondary/40'}`}>
                     {organiserBio.length}/300
                   </span>
                 </div>
@@ -327,7 +327,7 @@ export default function OrganiserEditProfileSheet() {
                   <label className="text-xs font-black text-secondary/60 uppercase tracking-widest">
                     Event Categories
                   </label>
-                  <span className={`text-[10px] font-bold ${selectedCategories.length >= 1 ? 'text-green-600' : 'text-red-500/70'}`}>
+                  <span className={`text-[10px] font-bold tabular-nums ${selectedCategories.length >= 1 ? 'text-green-600' : 'text-red-500/70'}`}>
                     {selectedCategories.length} selected
                   </span>
                 </div>
@@ -376,7 +376,7 @@ export default function OrganiserEditProfileSheet() {
                   </label>
                   <div className="flex items-center gap-2">
                     {Object.values(socialLinks).filter(v => v?.trim()).length > 0 && (
-                      <span className="text-[10px] font-bold text-green-600 bg-green-500/10 px-1.5 py-0.5 rounded-full">
+                      <span className="text-[10px] font-bold text-green-600 bg-green-500/10 px-1.5 py-0.5 rounded-full tabular-nums">
                         {Object.values(socialLinks).filter(v => v?.trim()).length} linked
                       </span>
                     )}

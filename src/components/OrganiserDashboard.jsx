@@ -1387,7 +1387,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               </div>
               <h3 className="text-xs font-black text-primary uppercase tracking-widest">This Week</h3>
             </div>
-            <span className="text-[9px] font-bold text-secondary/35">{totalWeekEvents} events · {totalWeekAttendees} attendees</span>
+            <span className="text-[9px] font-bold text-secondary/35 tabular-nums">{totalWeekEvents} events · {totalWeekAttendees} attendees</span>
           </div>
           <div className="flex items-end justify-between gap-1 h-20">
             {weeklyActivity.days.map((day, i) => {
@@ -1437,7 +1437,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           <h3 className="text-xs font-black text-primary uppercase tracking-widest">
             Milestones<span className="text-accent">.</span>
           </h3>
-          <span className={`text-[9px] font-bold ${unlockedCount === milestones.length ? 'text-accent' : 'text-secondary/35'}`}>
+          <span className={`text-[9px] font-bold tabular-nums ${unlockedCount === milestones.length ? 'text-accent' : 'text-secondary/35'}`}>
             {unlockedCount}/{milestones.length} unlocked
           </span>
         </div>
@@ -1541,7 +1541,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           <h3 className="text-xs font-black text-primary uppercase tracking-widest">
             My Events<span className="text-accent">.</span>
           </h3>
-          <span className="text-[9px] font-bold text-secondary/30 uppercase tracking-widest">
+          <span className="text-[9px] font-bold text-secondary/30 uppercase tracking-widest tabular-nums">
             {events.length} total
           </span>
         </div>

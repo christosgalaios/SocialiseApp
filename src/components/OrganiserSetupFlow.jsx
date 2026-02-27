@@ -209,7 +209,7 @@ export default function OrganiserSetupFlow() {
                       transition={{ duration: 0.2 }}
                     />
                   </div>
-                  <span className={`text-[10px] font-bold ${displayName.length >= 2 ? 'text-green-600' : 'text-secondary/40'}`}>
+                  <span className={`text-[10px] font-bold tabular-nums ${displayName.length >= 2 ? 'text-green-600' : 'text-secondary/40'}`}>
                     {displayName.length}/50
                   </span>
                 </div>
@@ -309,7 +309,7 @@ export default function OrganiserSetupFlow() {
                       transition={{ duration: 0.2 }}
                     />
                   </div>
-                  <span className={`text-[10px] font-bold ${organiserBio.length > 250 ? 'text-amber-500' : 'text-secondary/40'}`}>
+                  <span className={`text-[10px] font-bold tabular-nums ${organiserBio.length > 250 ? 'text-amber-500' : 'text-secondary/40'}`}>
                     {organiserBio.length}/300
                   </span>
                 </div>
