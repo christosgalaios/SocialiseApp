@@ -349,11 +349,11 @@ export default function OrganiserEditProfileSheet() {
                             : 'bg-secondary/5 border-secondary/20 text-secondary/70 hover:border-secondary/40'
                         }`}
                       >
-                        {Icon && <Icon size={14} />}
+                        {Icon && <Icon size={14} aria-hidden="true" />}
                         {cat.label}
                         {isSelected && (
                           <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', damping: 15, stiffness: 400 }}>
-                            <Check size={12} />
+                            <Check size={12} aria-hidden="true" />
                           </motion.span>
                         )}
                       </motion.button>
@@ -404,7 +404,7 @@ export default function OrganiserEditProfileSheet() {
                                   hasValue ? 'bg-green-500/5 border-green-500/20' : 'bg-secondary/5 border-secondary/10'
                                 }`}
                               >
-                                <Link2 size={16} className={hasValue ? 'text-green-600' : 'text-secondary/50'} />
+                                <Link2 size={16} className={hasValue ? 'text-green-600' : 'text-secondary/50'} aria-hidden="true" />
                               </motion.div>
                               <div className="flex-1">
                                 <span className="text-[10px] font-bold text-secondary/40 uppercase tracking-wider">{platform.label}</span>

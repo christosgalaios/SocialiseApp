@@ -557,8 +557,8 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                 }`}
               >
                 {alert.type === 'low-fill'
-                  ? <AlertTriangle size={14} className="text-amber-500" />
-                  : <Zap size={14} className="text-green-600" />
+                  ? <AlertTriangle size={14} className="text-amber-500" aria-hidden="true" />
+                  : <Zap size={14} className="text-green-600" aria-hidden="true" />
                 }
               </motion.div>
               <p className="text-[11px] font-medium text-secondary/70 flex-1 hyphens-auto" lang="en">{alert.message}</p>
@@ -711,7 +711,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                   transition={{ type: 'spring', damping: 20, stiffness: 300, delay: 0.1 + idx * 0.06 }}
                   className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg ${badge.bg} border ${badge.border} text-[10px] font-bold ${badge.color}`}
                 >
-                  <badge.icon size={10} />
+                  <badge.icon size={10} aria-hidden="true" />
                   {badge.label}
                 </motion.span>
               ))}
@@ -767,9 +767,9 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                     transition={{ duration: 0.2 }}
                   >
                     {isWidgetVisible(widget.id) ? (
-                      <CheckSquare size={14} className="text-primary shrink-0" />
+                      <CheckSquare size={14} className="text-primary shrink-0" aria-hidden="true" />
                     ) : (
-                      <Square size={14} className="text-secondary/30 shrink-0" />
+                      <Square size={14} className="text-secondary/30 shrink-0" aria-hidden="true" />
                     )}
                   </motion.div>
                   <span className={`text-xs font-bold ${isWidgetVisible(widget.id) ? 'text-secondary' : 'text-secondary/40'}`}>{widget.label}</span>
@@ -840,7 +840,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           className="p-3 rounded-2xl bg-gradient-to-br from-primary to-accent text-white font-black text-sm flex flex-col items-center justify-center gap-1.5 shadow-lg relative overflow-hidden group focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none [backface-visibility:hidden]"
         >
           <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors" aria-hidden="true" />
-          <Plus size={20} />
+          <Plus size={20} aria-hidden="true" />
           <span className="text-[10px]">New Event</span>
           <kbd className="hidden md:inline text-[8px] font-mono text-white/50 bg-white/10 px-1 rounded">N</kbd>
         </motion.button>
@@ -850,7 +850,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           onClick={() => { playTap(); hapticTap(); setShowTribeDiscovery(true); }}
           className="p-3 rounded-2xl bg-secondary/5 border border-secondary/10 font-bold text-sm text-secondary flex flex-col items-center justify-center gap-1.5 hover:bg-secondary/10 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
         >
-          <Users size={20} />
+          <Users size={20} aria-hidden="true" />
           <span className="text-[10px]">Community</span>
           <kbd className="hidden md:inline text-[8px] font-mono text-secondary/30 bg-secondary/5 px-1 rounded group-hover:text-secondary/50 transition-colors">C</kbd>
         </motion.button>
@@ -860,7 +860,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           onClick={() => { playTap(); hapticTap(); setShowOrganiserEditProfile(true); }}
           className="p-3 rounded-2xl bg-secondary/5 border border-secondary/10 font-bold text-sm text-secondary flex flex-col items-center justify-center gap-1.5 hover:bg-secondary/10 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
         >
-          <Pencil size={20} />
+          <Pencil size={20} aria-hidden="true" />
           <span className="text-[10px]">Edit</span>
           <kbd className="hidden md:inline text-[8px] font-mono text-secondary/30 bg-secondary/5 px-1 rounded group-hover:text-secondary/50 transition-colors">E</kbd>
         </motion.button>
@@ -876,7 +876,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           }}
           className="p-3 rounded-2xl bg-secondary/5 border border-secondary/10 font-bold text-sm text-secondary flex flex-col items-center justify-center gap-1.5 hover:bg-secondary/10 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
         >
-          <Share2 size={20} />
+          <Share2 size={20} aria-hidden="true" />
           <span className="text-[10px]">Share</span>
         </motion.button>
       </motion.div>
@@ -1172,7 +1172,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
                     <div className="flex items-center gap-2">
-                      <Users size={14} className="text-secondary/40" />
+                      <Users size={14} className="text-secondary/40" aria-hidden="true" />
                       <span className="text-[11px] font-bold text-secondary">Avg. per event</span>
                     </div>
                     <span className="text-sm font-black text-primary">{audienceInsights.avgPerEvent}</span>
@@ -1189,7 +1189,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
                     <div className="flex items-center gap-2">
-                      <BarChart3 size={14} className="text-secondary/40" />
+                      <BarChart3 size={14} className="text-secondary/40" aria-hidden="true" />
                       <span className="text-[11px] font-bold text-secondary">Overall fill rate</span>
                     </div>
                     <span className={`text-sm font-black ${audienceInsights.overallFill >= 70 ? 'text-accent' : 'text-primary'}`}>{audienceInsights.overallFill}%</span>
@@ -1205,7 +1205,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Repeat size={14} className="text-secondary/40" />
+                    <Repeat size={14} className="text-secondary/40" aria-hidden="true" />
                     <span className="text-[11px] font-bold text-secondary">Total reach</span>
                   </div>
                   <span className="text-sm font-black text-secondary">{audienceInsights.totalAttendees} people</span>
@@ -1292,7 +1292,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                 transition={{ type: 'spring', damping: 15, stiffness: 200 }}
                 className="w-20 h-20 mx-auto mb-4 rounded-[24px] bg-gradient-to-br from-accent/10 to-primary/10 border border-accent/10 flex items-center justify-center"
               >
-                <Sparkles size={32} className="text-accent/50" />
+                <Sparkles size={32} className="text-accent/50" aria-hidden="true" />
               </motion.div>
               <h4 className="text-base font-black text-secondary mb-1 text-balance">Your Analytics Await</h4>
               <p className="text-[11px] text-secondary/40 max-w-[240px] mx-auto mb-2 text-balance">
@@ -1464,7 +1464,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                     m.unlocked ? 'bg-accent/10' : 'bg-secondary/10'
                   }`}
                 >
-                  <m.icon size={18} className={m.unlocked ? 'text-accent' : 'text-secondary/30'} />
+                  <m.icon size={18} className={m.unlocked ? 'text-accent' : 'text-secondary/30'} aria-hidden="true" />
                 </motion.div>
                 <p className={`text-[9px] font-black uppercase tracking-widest mb-1 ${m.unlocked ? 'text-accent' : 'text-secondary/40'}`}>
                   {m.label}
@@ -1583,7 +1583,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
         {/* Event search */}
         {events.length > 3 && (
           <div className="relative mb-3">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary/30" />
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary/30" aria-hidden="true" />
             <input
               type="text"
               value={eventSearch}
@@ -1616,7 +1616,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               transition={{ type: 'spring', damping: 15, stiffness: 200 }}
               className="w-16 h-16 mx-auto mb-3 rounded-[20px] bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/10 flex items-center justify-center"
             >
-              <Calendar size={28} className="text-primary/40" />
+              <Calendar size={28} className="text-primary/40" aria-hidden="true" />
             </motion.div>
             <p className="text-sm text-secondary/50 font-bold mb-1 text-balance">No events yet</p>
             <p className="text-[11px] text-secondary/40 mb-4 max-w-[200px] mx-auto text-balance">Create your first event and start building your audience</p>

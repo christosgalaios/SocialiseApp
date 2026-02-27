@@ -81,6 +81,7 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Setup flow selected count tabular-nums** — category "selected" count badge uses fixed-width digits
 - **Review sheet icon aria-hidden** — Check (tag selected), Send (submit button) icons in the review sheet are marked decorative
 - **Review sheet selected count tabular-nums** — vibe tag "selected" counter uses fixed-width digits
+- **Comprehensive aria-hidden pass** — all remaining decorative icons across dashboard, edit profile sheet, setup flow, and review sheet are now marked `aria-hidden="true"`: quick action icons (Plus, Users, Pencil, Share2), attention alert icons (AlertTriangle, Zap), stat badge icons, widget toggle checkboxes, audience insight icons (Users, BarChart3, Repeat), Search icon, empty state icons (Calendar, Sparkles), milestone icons, category button icons (edit profile + setup flow), check indicators, social link icons (Link2, Globe), and tab filter icons
 - **Public profile event card hover** — event cards on the public organiser profile nudge right on hover and scale on tap for tactile feedback
 - **Public profile community card hover** — community cards on the public profile gain matching hover nudge and tap scale
 - **Profile completeness chip stagger** — completeness check chips now stagger in with scale animation, incomplete items have hover background and tap scale for better affordance
