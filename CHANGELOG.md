@@ -66,6 +66,8 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Tabular-nums on remaining numerics** — profile completeness percentage, category distribution counts, fill rate percentages, weekly activity tooltips, and profile sheet fill/highlight percentages now use fixed-width digits for stable layout during value changes
 - **Character counter tabular-nums** — display name and bio character counters ("15/50", "120/300") in the edit profile sheet and setup flow use fixed-width digits so the counter width doesn't shift as you type
 - **Counter tabular-nums everywhere** — categories "selected" count, social links "linked" count, milestones "unlocked" count, events "total" count, and weekly activity summary all use fixed-width digits for layout stability
+- **Metadata row flex-wrap** — event and community metadata rows on the public profile sheet and dashboard wrap gracefully on narrow screens with vertical gap spacing instead of overflowing
+- **Profile sheet tabular-nums** — highlight event spots, community member counts, and event metadata now use fixed-width digits for stable numeric display
 - **Public profile event card hover** — event cards on the public organiser profile nudge right on hover and scale on tap for tactile feedback
 - **Public profile community card hover** — community cards on the public profile gain matching hover nudge and tap scale
 - **Profile completeness chip stagger** — completeness check chips now stagger in with scale animation, incomplete items have hover background and tap scale for better affordance

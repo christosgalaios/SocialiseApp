@@ -1883,12 +1883,12 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
             {communities.length > 0 && (() => {
               const totalMembers = communities.reduce((sum, c) => sum + (c.members ?? 0), 0);
               return totalMembers > 0 ? (
-                <p className="text-[9px] font-medium text-secondary/35 mt-0.5">{totalMembers} total members</p>
+                <p className="text-[9px] font-medium text-secondary/35 mt-0.5 tabular-nums">{totalMembers} total members</p>
               ) : null;
             })()}
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-[9px] font-bold text-secondary/30 uppercase tracking-widest">
+            <span className="text-[9px] font-bold text-secondary/30 uppercase tracking-widest tabular-nums">
               {communities.length} communities
             </span>
             <button
@@ -2020,8 +2020,8 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                     {community.description && (
                       <p className="text-[10px] text-secondary/40 truncate mt-0.5">{community.description}</p>
                     )}
-                    <div className="flex items-center gap-1.5 mt-0.5">
-                      <span className="text-[10px] text-secondary/40 font-medium">
+                    <div className="flex items-center gap-1.5 mt-0.5 flex-wrap gap-y-0.5">
+                      <span className="text-[10px] text-secondary/40 font-medium tabular-nums">
                         {memberCount} members
                       </span>
                       <span className={`inline-flex items-center gap-0.5 text-[9px] font-bold ${sizeColor} bg-current/10 px-1.5 py-0.5 rounded-full transition-colors duration-200`}>
