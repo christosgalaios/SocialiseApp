@@ -185,7 +185,7 @@ export default function OrganiserProfileSheet() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <h3 className="text-xl font-black text-secondary truncate select-text">
+                          <h3 className="text-xl font-black text-secondary truncate select-text tracking-tight">
                             {profile.organiserDisplayName || profile.name}
                           </h3>
                           {profile.organiserVerified && (

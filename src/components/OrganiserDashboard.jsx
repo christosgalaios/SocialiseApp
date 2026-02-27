@@ -601,7 +601,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <h2 className="text-xl font-black text-secondary truncate select-text">
+              <h2 className="text-xl font-black text-secondary truncate select-text tracking-tight">
                 {user?.organiserDisplayName || user?.name}
               </h2>
               {user?.organiserVerified && (

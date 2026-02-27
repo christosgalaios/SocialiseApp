@@ -207,7 +207,7 @@ export default function OrganiserEditProfileSheet() {
                           <img src={user?.avatar || DEFAULT_AVATAR} className="w-full h-full object-cover" alt="Avatar preview" loading="lazy" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-black text-secondary truncate">
+                          <p className="text-sm font-black text-secondary truncate tracking-tight">
                             {displayName.trim() || 'Your Name'}
                           </p>
                           {selectedCategories.length > 0 && (
