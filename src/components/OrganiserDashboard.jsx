@@ -16,8 +16,8 @@ import { playTap, playClick, playSuccess, hapticTap } from '../utils/feedback';
 import api from '../api';
 
 const containerVariants = {
-  hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
+  hidden: {},
+  show: { transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
 };
 
 const itemVariants = {
@@ -1353,8 +1353,8 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
       <motion.div
         key="overview"
         variants={{
-          hidden: { opacity: 0, y: 8 },
-          show: { opacity: 1, y: 0, transition: { staggerChildren: 0.06, delayChildren: 0.05 } },
+          hidden: {},
+          show: { transition: { staggerChildren: 0.06, delayChildren: 0.05 } },
         }}
         initial="hidden"
         animate="show"
