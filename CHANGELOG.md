@@ -45,6 +45,8 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Create community form containment** — inline create community form uses `contain: layout style` to isolate reflows from the rest of the card
 - **Tabular numerals** — stats card values, revenue insight numbers, countdown timer, and profile sheet quick stats use `tabular-nums` so digits maintain fixed width and don't shift during animated counting
 - **Milestones touch-action** — horizontal milestones scroller uses `touch-action: pan-x` to prevent diagonal swipes from conflicting with vertical page scroll
+- **Branded input caret** — all text inputs and textareas show a terracotta caret cursor and accent color (checkboxes, radio buttons) via global `caret-color` and `accent-color` in index.css
+- **Milestones scroll padding** — snap container has `scroll-padding-inline-start` so snapped items don't clip at the edge
 - **Public profile event card hover** — event cards on the public organiser profile nudge right on hover and scale on tap for tactile feedback
 - **Public profile community card hover** — community cards on the public profile gain matching hover nudge and tap scale
 - **Profile completeness chip stagger** — completeness check chips now stagger in with scale animation, incomplete items have hover background and tap scale for better affordance

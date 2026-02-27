@@ -1441,7 +1441,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
             {unlockedCount}/{milestones.length} unlocked
           </span>
         </div>
-        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 snap-x snap-mandatory touch-pan-x" style={{ maskImage: 'linear-gradient(to right, black 85%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to right, black 85%, transparent 100%)' }}>
+        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 snap-x snap-mandatory touch-pan-x scroll-pl-0.5" style={{ maskImage: 'linear-gradient(to right, black 85%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to right, black 85%, transparent 100%)' }}>
           {milestones.map((m, idx) => {
             const pct = Math.min(Math.round((m.current / m.target) * 100), 100);
             return (
