@@ -468,7 +468,7 @@ export default function OrganiserProfileSheet() {
                                     <p className="text-sm font-bold text-secondary truncate">{event.title}</p>
                                     <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                                       <span className="text-[10px] text-secondary/40 font-medium">{event.date}</span>
-                                      <span className={`text-[10px] font-bold ${fillPct >= 80 ? 'text-accent' : 'text-primary'}`}>
+                                      <span className={`text-[10px] font-bold tabular-nums ${fillPct >= 80 ? 'text-accent' : 'text-primary'}`}>
                                         {event.attendees}/{event.spots} spots
                                       </span>
                                       {event.category && (

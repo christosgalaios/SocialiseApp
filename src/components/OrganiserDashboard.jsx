@@ -1709,7 +1709,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                             </>
                           )}
                           <span className="text-[10px] text-secondary/20">·</span>
-                          <span className={`text-[10px] font-bold ${fillPct >= 80 ? 'text-accent' : 'text-primary'}`}>
+                          <span className={`text-[10px] font-bold tabular-nums ${fillPct >= 80 ? 'text-accent' : 'text-primary'}`}>
                             <Users size={10} className="inline mr-0.5" />
                             {event.attendees}/{event.spots}
                           </span>
@@ -1810,7 +1810,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                         >
                           <ChevronDown size={10} className={`transition-transform ${expandedChecklist === event.id ? 'rotate-180' : ''}`} />
                           <span>Pre-event checklist</span>
-                          <span className={`${allDone ? 'text-green-600' : ''}`}>({doneCount}/{cl.length})</span>
+                          <span className={`tabular-nums ${allDone ? 'text-green-600' : ''}`}>({doneCount}/{cl.length})</span>
                           <div className="w-12 h-1 bg-secondary/10 rounded-full overflow-hidden ml-0.5">
                             <div
                               className={`h-full rounded-full transition-all ${allDone ? 'bg-green-500' : 'bg-primary/50'}`}
