@@ -459,7 +459,7 @@ export default function OrganiserProfileSheet() {
                                     const fullEvent = allEvents.find(e => e.id === event.id) || event;
                                     playTap(); hapticTap(); setSelectedEvent(fullEvent);
                                   }}
-                                  className="w-full flex items-center gap-3 p-3 rounded-2xl bg-secondary/5 border border-secondary/10 hover:bg-secondary/10 transition-colors text-left focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+                                  className="w-full flex items-center gap-3 p-3 rounded-2xl bg-secondary/5 border border-secondary/10 hover:bg-secondary/10 hover:shadow-sm transition-all text-left focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                                 >
                                   <div className="w-11 h-11 rounded-xl overflow-hidden bg-secondary/10 shrink-0">
                                     {event.image && <img src={event.image} className="w-full h-full object-cover" alt={event.title || 'Event'} loading="lazy" />}
@@ -513,7 +513,7 @@ export default function OrganiserProfileSheet() {
                                 whileHover={{ x: 2, transition: { duration: 0.12 } }}
                                 whileTap={{ scale: 0.98 }}
                                 onClick={() => { playTap(); hapticTap(); setSelectedTribe(fullCommunity); }}
-                                className="w-full flex items-center gap-3 p-3 rounded-2xl bg-secondary/5 border border-secondary/10 hover:bg-secondary/10 transition-colors text-left focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+                                className="w-full flex items-center gap-3 p-3 rounded-2xl bg-secondary/5 border border-secondary/10 hover:bg-secondary/10 hover:shadow-sm transition-all text-left focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                               >
                                 <div className="w-10 h-10 rounded-xl bg-secondary/10 shrink-0 flex items-center justify-center text-base">
                                   {c.avatar || '🏘️'}
@@ -566,7 +566,7 @@ export default function OrganiserProfileSheet() {
                             return (
                               <span
                                 key={tag}
-                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold border transition-transform hover:scale-105 ${tagDef.color}`}
+                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold border transition-transform hover:scale-105 cursor-default ${tagDef.color}`}
                               >
                                 <span>{tagDef.emoji}</span>
                                 {tagDef.label}
