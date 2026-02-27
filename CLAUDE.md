@@ -843,3 +843,25 @@ During the organiser profile implementation, a temporary `plan.md` file was crea
 When resolving rebase conflicts, keeping JSX from one side of the conflict can leave orphaned references if the corresponding imports, state declarations, or store accessors were on the other side of the conflict (or in a different hunk that was dropped). This happened when the review/vibe tags section was kept during a rebase of OrganiserProfileSheet.jsx, but upstream `development` didn't have the supporting `getOrganiserReviews` API method, `setShowOrganiserReview` store state, `ORGANISER_VIBE_TAGS` constant import, or `Sparkles` icon import — causing 10 `no-undef` lint errors that broke CI.
 
 **Rule:** After resolving every rebase conflict, run `npm run lint` before continuing the rebase (`git rebase --continue`). If you kept JSX that references variables, check that the corresponding imports and state declarations survived the rebase. If the supporting infrastructure (API methods, store state, constants) doesn't exist on the target branch, remove the orphaned JSX rather than trying to add stubs — incomplete features are worse than absent features.
+
+### 20. Never use Framer Motion variant propagation (`containerVariants`/`staggerChildren`) — use explicit animations
+
+Framer Motion's variant propagation pattern — where a parent `<motion.div>` has `variants={containerVariants}` with `staggerChildren` and children use `variants={itemVariants}` — silently fails in complex component trees. Children stay at `opacity: 0` with no error. This happened in `OrganiserDashboard.jsx` where the greeting (first child) was visible but all other sections (header, quick actions, tabs, stats, events, communities) were invisible. Three separate fix attempts (removing parent opacity, switching to variant names, using orchestration-only containers) all failed. The only fix was removing variant propagation entirely.
+
+**Rule:** Never use `containerVariants`/`itemVariants` with `staggerChildren`/`delayChildren` for page-level layouts. Instead, give each section its own explicit `initial`/`animate`/`transition` props with a manual delay helper:
+
+```js
+const staggerDelay = (i) => ({ type: 'spring', damping: 25, stiffness: 400, delay: 0.05 + i * 0.06 });
+
+// Each section gets its own independent animation:
+<motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={staggerDelay(0)}>Section 1</motion.div>
+<motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={staggerDelay(1)}>Section 2</motion.div>
+```
+
+This is reliable because each element controls its own animation — no parent-child propagation chain to break. Variant propagation is fine for simple cases (2-3 items in a list), but do not use it for complex dashboard layouts with conditional rendering, IIFEs, and nested wrappers.
+
+### 21. Fix ALL issues before declaring a bug fixed — don't assume one fix is sufficient
+
+When the user reports "X is broken", there are almost always multiple contributing causes. Fixing the first issue you find and declaring victory wastes the user's time — they have to come back, re-report, and wait for another fix cycle. This happened with the organiser dashboard: the initial fix addressed one animation issue, but the dashboard had 5+ separate problems (variant propagation, missing hostAvatar, null safety, error states, orphaned code).
+
+**Rule:** When investigating a bug report, keep searching after finding the first issue. Read the full component tree, trace every data flow path, and check every rendering branch. Create a comprehensive list of ALL issues before starting fixes. Only declare "fixed" after verifying the full user flow works end-to-end — not after patching the first thing that looks wrong.
