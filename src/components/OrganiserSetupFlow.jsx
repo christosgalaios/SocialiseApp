@@ -200,6 +200,9 @@ export default function OrganiserSetupFlow() {
                   className="w-full bg-secondary/5 border-2 border-secondary/20 rounded-2xl px-4 py-4 text-lg font-medium text-[var(--text)] focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 hover:border-secondary/30 transition-all placeholder:text-secondary/40"
                   maxLength={50}
                   autoFocus
+                  autoComplete="name"
+                  autoCapitalize="words"
+                  spellCheck="false"
                 />
                 <div className="flex items-center gap-2 mt-1">
                   <div className="flex-1 h-0.5 bg-secondary/10 rounded-full overflow-hidden">
@@ -299,6 +302,7 @@ export default function OrganiserSetupFlow() {
                   onChange={(e) => setOrganiserBio(e.target.value)}
                   className="w-full bg-secondary/5 border-2 border-secondary/20 rounded-2xl px-4 py-3 text-sm font-medium text-[var(--text)] focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 hover:border-secondary/30 transition-all placeholder:text-secondary/40 min-h-[100px] resize-none"
                   maxLength={300}
+                  autoCapitalize="sentences"
                   style={{ overflowWrap: 'break-word', wordBreak: 'break-words' }}
                 />
                 <div className="flex items-center gap-2 mt-1">
@@ -332,10 +336,13 @@ export default function OrganiserSetupFlow() {
                             <Link2 size={16} className={hasValue ? 'text-green-600' : 'text-secondary/50'} />
                           </div>
                           <input
-                            type="text"
+                            type={platform.key === 'website' ? 'url' : 'text'}
                             placeholder={platform.placeholder}
                             value={socialLinks[platform.key] || ''}
                             onChange={(e) => updateSocialLink(platform.key, e.target.value)}
+                            autoComplete="off"
+                            autoCapitalize="none"
+                            spellCheck="false"
                             className={`flex-1 bg-secondary/5 border rounded-xl px-3 py-2.5 text-sm font-medium text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all placeholder:text-secondary/40 ${
                               error ? 'border-red-400 focus:border-red-500' : 'border-secondary/20 focus:border-primary hover:border-secondary/30'
                             }`}

@@ -254,11 +254,14 @@ export default function OrganiserEditProfileSheet() {
                   )}
                 </div>
                 <input
-                  type="text"
+                  type="url"
                   placeholder="https://example.com/cover-photo.jpg"
                   value={coverPhotoPreview}
                   onChange={(e) => setCoverPhotoPreview(e.target.value)}
                   className="w-full mt-2 bg-secondary/5 border border-secondary/20 rounded-xl px-3 py-2 text-sm font-medium text-[var(--text)] focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 hover:border-secondary/30 transition-all placeholder:text-secondary/30"
+                  autoComplete="url"
+                  spellCheck="false"
+                  autoCapitalize="none"
                 />
               </motion.div>
 
@@ -279,6 +282,9 @@ export default function OrganiserEditProfileSheet() {
                   onChange={(e) => setDisplayName(e.target.value)}
                   className="w-full bg-secondary/5 border-2 border-secondary/20 rounded-2xl px-4 py-3.5 text-base font-medium text-[var(--text)] focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 hover:border-secondary/30 transition-all placeholder:text-secondary/40"
                   maxLength={50}
+                  autoComplete="name"
+                  autoCapitalize="words"
+                  spellCheck="false"
                 />
                 {displayName.trim().length > 0 && displayName.trim().length < 2 && (
                   <p className="text-[10px] text-red-500/70 mt-1 font-medium">Name must be at least 2 characters</p>
@@ -308,6 +314,7 @@ export default function OrganiserEditProfileSheet() {
                   value={organiserBio}
                   onChange={(e) => setOrganiserBio(e.target.value)}
                   className="w-full bg-secondary/5 border-2 border-secondary/20 rounded-2xl px-4 py-3 text-sm font-medium text-[var(--text)] focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 hover:border-secondary/30 transition-all placeholder:text-secondary/40 min-h-[100px] resize-none"
+                  autoCapitalize="sentences"
                   maxLength={300}
                   style={{ overflowWrap: 'break-word', wordBreak: 'break-words' }}
                 />
@@ -416,6 +423,9 @@ export default function OrganiserEditProfileSheet() {
                                   className={`w-full bg-secondary/5 border rounded-xl px-3 py-2 text-sm font-medium text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all placeholder:text-secondary/40 ${
                                     error ? 'border-red-400 focus:border-red-500' : hasValue ? 'border-green-500/30 focus:border-green-500' : 'border-secondary/20 focus:border-primary hover:border-secondary/30'
                                   }`}
+                                  autoComplete="off"
+                                  autoCapitalize="none"
+                                  spellCheck="false"
                                 />
                                 {error && <p className="text-[10px] text-red-500/70 mt-0.5 font-medium">{error}</p>}
                               </div>

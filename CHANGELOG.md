@@ -58,6 +58,7 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Tighter heading kerning** — organiser display names across dashboard, profile sheet, and edit profile preview use `tracking-tight` for a premium, tighter-set headline feel
 - **Touch-action manipulation** — all interactive elements (buttons, links, inputs, textareas) globally use `touch-action: manipulation` to disable the 300ms tap delay on mobile, making the entire app feel more responsive
 - **Heading text rendering** — all headings (h1-h4) use `text-rendering: optimizeLegibility` for precise kerning and ligatures on the Outfit font
+- **Form input attributes** — organiser edit profile and setup flow inputs use semantic HTML attributes (`autoComplete`, `autoCapitalize`, `spellCheck`, `type="url"`) for better mobile keyboard behaviour and autofill support
 - **Firefox font smoothing** — body uses `-moz-osx-font-smoothing: grayscale` alongside the existing `-webkit-font-smoothing: antialiased` for consistent thin-weight rendering across all browsers
 - **Content visibility on below-fold sections** — Events and Communities cards on the dashboard use `content-visibility: auto` with `contain-intrinsic-size` to defer rendering of off-screen content until scrolled into view, improving initial paint speed
 - **Social link truncation** — social link usernames/URLs on the public profile are truncated at 120px to prevent extra-long handles from breaking the layout
