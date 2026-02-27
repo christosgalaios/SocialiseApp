@@ -15,6 +15,9 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 ### Fixed
 - **Organiser dashboard overview tab invisible** — replaced React Fragment wrapper with a proper `motion.div` that has explicit animation props, fixing the overview tab content being invisible when Framer Motion variant propagation failed through the fragment
 - **Silent dashboard load failure** — added a visible error state with retry button when the organiser stats API fails, instead of silently showing an empty dashboard with no explanation
+- **Host avatar always showing default** — event detail host section now shows the actual host's avatar instead of always falling back to the default. Backend enriches all event responses with `hostAvatar` from the users table
+- **Organiser profile sheet error state** — replaced minimal "Profile not found" text with a proper error UI that distinguishes network errors from not-found, includes a retry button, and shows contextual messaging
+- **Organiser setup flow crash on empty social links** — added null safety (`v?.trim()`) when filtering social links during profile setup, preventing a crash if a link value is null/undefined
 - **Desktop sidebar branding** — sidebar now shows Socialise logo and tagline instead of blank space, improving desktop navigation clarity (BUG-1771935219235)
 - **Mango drag bounds on resize** — Mango's draggable area now auto-updates when the window resizes, using a viewport-anchored constraint ref instead of manual calculations (BUG-1771935652026)
 - **Connections card now tappable** — the "Connections" card on the profile page now opens your bookings when tapped, instead of being a dead button (BUG-1771954500334)
