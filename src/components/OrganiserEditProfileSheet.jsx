@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Link2, Check, Camera, ShieldCheck, ChevronDown, Eye } from 'lucide-react';
-import { CATEGORIES, ORGANISER_SOCIAL_PLATFORMS } from '../data/constants';
+import { CATEGORIES, ORGANISER_SOCIAL_PLATFORMS, DEFAULT_AVATAR } from '../data/constants';
 import { playTap, playSuccess } from '../utils/feedback';
 import useAuthStore from '../stores/authStore';
 import useUIStore from '../stores/uiStore';
@@ -204,7 +204,7 @@ export default function OrganiserEditProfileSheet() {
                       )}
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl overflow-hidden bg-secondary/10 shrink-0">
-                          <img src={user?.avatar} className="w-full h-full object-cover" alt="Avatar preview" loading="lazy" />
+                          <img src={user?.avatar || DEFAULT_AVATAR} className="w-full h-full object-cover" alt="Avatar preview" loading="lazy" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-black text-secondary truncate">

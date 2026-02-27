@@ -12,6 +12,13 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 
 ## [Unreleased]
 
+### Fixed
+- **Desktop sidebar branding** — sidebar now shows Socialise logo and tagline instead of blank space, improving desktop navigation clarity (BUG-1771935219235)
+- **Mango drag bounds on resize** — Mango's draggable area now auto-updates when the window resizes, using a viewport-anchored constraint ref instead of manual calculations (BUG-1771935652026)
+- **Connections card now tappable** — the "Connections" card on the profile page now opens your bookings when tapped, instead of being a dead button (BUG-1771954500334)
+- **Text overflow in bug/feature modals** — both BugReportModal and FeatureRequestModal now consistently handle long text with word-break, overflow-wrap, and overscroll containment (BUG-1772022766344)
+- **Organiser profile crash** — fixed white screen when viewing an organiser profile where the API returns `null` for events, communities, or categories arrays. Added null-safe access (`?? []`) on `.forEach()`, `.reduce()`, and `.map()` calls in OrganiserProfileSheet. Also added missing `DEFAULT_AVATAR` fallback in OrganiserEditProfileSheet preview.
+
 ### Added
 - **Public profile event card hover** — event cards on the public organiser profile nudge right on hover and scale on tap for tactile feedback
 - **Public profile community card hover** — community cards on the public profile gain matching hover nudge and tap scale

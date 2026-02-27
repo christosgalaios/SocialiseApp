@@ -60,11 +60,11 @@ export default function OrganiserProfileSheet() {
   }, [userId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const { upcomingEvents, pastEvents } = useMemo(() => {
-    if (!profile?.events) return { upcomingEvents: [], pastEvents: [] };
+    if (!profile?.events?.length) return { upcomingEvents: [], pastEvents: [] };
     const now = new Date();
     const upcoming = [];
     const past = [];
-    profile.events.forEach(e => {
+    (profile.events ?? []).forEach(e => {
       const d = new Date(e.date);
       if (d >= now || isNaN(d.getTime())) upcoming.push(e);
       else past.push(e);
@@ -96,7 +96,7 @@ export default function OrganiserProfileSheet() {
   const totalEvents = profile?.events?.length ?? 0;
   const totalCommunities = profile?.communities?.length ?? 0;
   const totalMembers = profile?.communities?.reduce((sum, c) => sum + (c.members ?? 0), 0) ?? 0;
-  const avgFill = totalEvents > 0 ? Math.round(profile.events.reduce((sum, e) => sum + (e.spots > 0 ? (e.attendees / e.spots) * 100 : 0), 0) / totalEvents) : 0;
+  const avgFill = totalEvents > 0 ? Math.round((profile?.events ?? []).reduce((sum, e) => sum + (e.spots > 0 ? (e.attendees / e.spots) * 100 : 0), 0) / totalEvents) : 0;
   const totalAttendees = profile?.events?.reduce((sum, e) => sum + (e.attendees ?? 0), 0) ?? 0;
 
   const displayedEvents = eventTab === 'upcoming' ? upcomingEvents : pastEvents;
@@ -383,7 +383,7 @@ export default function OrganiserProfileSheet() {
                           Hosts<span className="text-accent">.</span>
                         </h4>
                         <div className="flex flex-wrap gap-2">
-                          {profile.organiserCategories.map((catId, idx) => {
+                          {(profile.organiserCategories ?? []).map((catId, idx) => {
                             const catData = CATEGORIES.find(c => c.id === catId);
                             const CatIcon = catData?.icon;
                             return (
@@ -504,7 +504,7 @@ export default function OrganiserProfileSheet() {
                           Communities<span className="text-accent">.</span>
                         </h4>
                         <div className="space-y-2">
-                          {profile.communities.map(c => {
+                          {(profile.communities ?? []).map(c => {
                             const fullCommunity = allCommunities.find(ac => ac.id === c.id) || c;
                             return (
                               <motion.button
