@@ -832,12 +832,12 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
       })()}
 
       {/* Quick Actions */}
-      <motion.div variants={itemVariants} className="grid grid-cols-4 gap-2">
+      <motion.div variants={itemVariants} className="grid grid-cols-4 gap-2 isolate">
         <motion.button
           whileHover={{ y: -2 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => { playClick(); hapticTap(); onCreateEvent?.(); }}
-          className="p-3 rounded-2xl bg-gradient-to-br from-primary to-accent text-white font-black text-sm flex flex-col items-center justify-center gap-1.5 shadow-lg relative overflow-hidden group focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+          className="p-3 rounded-2xl bg-gradient-to-br from-primary to-accent text-white font-black text-sm flex flex-col items-center justify-center gap-1.5 shadow-lg relative overflow-hidden group focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none [backface-visibility:hidden]"
         >
           <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors" aria-hidden="true" />
           <Plus size={20} />
@@ -882,7 +882,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
       </motion.div>
 
       {/* Dashboard Tabs */}
-      <motion.div variants={itemVariants} className="flex gap-1 p-1 bg-secondary/5 rounded-2xl border border-secondary/10 relative">
+      <motion.div variants={itemVariants} className="flex gap-1 p-1 bg-secondary/5 rounded-2xl border border-secondary/10 relative isolate">
         {[
           { key: 'overview', label: 'Overview' },
           { key: 'analytics', label: 'Analytics' },
@@ -1548,7 +1548,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
 
         {/* Event filter tabs */}
         {events.length > 0 && (
-          <div className="flex gap-2 mb-4">
+          <div className="flex gap-2 mb-4 isolate">
             {[
               { key: 'upcoming', label: 'Upcoming', icon: Clock, count: upcomingEvents.length },
               { key: 'past', label: 'Past', icon: History, count: pastEvents.length },

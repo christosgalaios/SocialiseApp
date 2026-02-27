@@ -32,6 +32,8 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Smoother tab pill animation** — dashboard tab, event filter, and profile event tab sliding pills use `will-change: transform` for GPU-accelerated layout transitions
 - **Profile sheet layout containment** — bio card, engagement stats, and highlight event use `contain: layout style` to isolate reflows
 - **Bio line clamping** — organiser bio on the public profile sheet is clamped to 4 lines, preventing extra-long bios from dominating the view
+- **Stacking context isolation** — quick actions grid, dashboard tabs, event filter tabs, and profile event tabs use CSS `isolate` to prevent z-index bleed between sections
+- **Backface visibility hidden** — primary "New Event" button uses `backface-visibility: hidden` to prevent compositing flicker during hover/tap transforms
 - **Public profile event card hover** — event cards on the public organiser profile nudge right on hover and scale on tap for tactile feedback
 - **Public profile community card hover** — community cards on the public profile gain matching hover nudge and tap scale
 - **Profile completeness chip stagger** — completeness check chips now stagger in with scale animation, incomplete items have hover background and tap scale for better affordance

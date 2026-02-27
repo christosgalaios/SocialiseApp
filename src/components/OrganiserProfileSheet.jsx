@@ -411,7 +411,7 @@ export default function OrganiserProfileSheet() {
                           <h4 className="text-xs font-black text-primary uppercase tracking-widest">
                             Events<span className="text-accent">.</span>
                           </h4>
-                          <div className="flex gap-1">
+                          <div className="flex gap-1 isolate">
                             {[
                               { key: 'upcoming', label: 'Upcoming', icon: Clock, count: upcomingEvents.length },
                               { key: 'past', label: 'Past', icon: History, count: pastEvents.length },
