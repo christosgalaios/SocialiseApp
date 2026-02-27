@@ -152,21 +152,21 @@ export default function OrganiserProfileSheet() {
             <div className="flex-1 overflow-y-auto scroll-smooth" style={{ overscrollBehavior: 'contain' }}>
               {loading ? (
                 <div className="p-6 space-y-4">
-                  <div className="h-24 rounded-2xl bg-secondary/10 animate-pulse" />
+                  <div className="h-24 rounded-2xl skeleton" />
                   <div className="flex items-center gap-4">
-                    <div className="w-20 h-20 rounded-[24px] bg-secondary/10 animate-pulse" style={{ animationDelay: '0.1s' }} />
+                    <div className="w-20 h-20 rounded-[24px] skeleton" style={{ animationDelay: '0.1s' }} />
                     <div className="flex-1 space-y-2">
-                      <div className="h-5 w-32 bg-secondary/10 rounded-full animate-pulse" style={{ animationDelay: '0.15s' }} />
-                      <div className="h-3 w-20 bg-secondary/10 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} />
+                      <div className="h-5 w-32 rounded-full skeleton" style={{ animationDelay: '0.15s' }} />
+                      <div className="h-3 w-20 rounded-full skeleton" style={{ animationDelay: '0.2s' }} />
                     </div>
                   </div>
-                  <div className="h-16 bg-secondary/10 rounded-2xl animate-pulse" style={{ animationDelay: '0.25s' }} />
+                  <div className="h-16 rounded-2xl skeleton" style={{ animationDelay: '0.25s' }} />
                   <div className="grid grid-cols-3 gap-3">
-                    <div className="h-16 bg-secondary/10 rounded-2xl animate-pulse" style={{ animationDelay: '0.3s' }} />
-                    <div className="h-16 bg-secondary/10 rounded-2xl animate-pulse" style={{ animationDelay: '0.35s' }} />
-                    <div className="h-16 bg-secondary/10 rounded-2xl animate-pulse" style={{ animationDelay: '0.4s' }} />
+                    <div className="h-16 rounded-2xl skeleton" style={{ animationDelay: '0.3s' }} />
+                    <div className="h-16 rounded-2xl skeleton" style={{ animationDelay: '0.35s' }} />
+                    <div className="h-16 rounded-2xl skeleton" style={{ animationDelay: '0.4s' }} />
                   </div>
-                  <div className="h-32 bg-secondary/10 rounded-2xl animate-pulse" style={{ animationDelay: '0.45s' }} />
+                  <div className="h-32 rounded-2xl skeleton" style={{ animationDelay: '0.45s' }} />
                 </div>
               ) : profile ? (
                 <div>

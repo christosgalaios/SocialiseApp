@@ -585,7 +585,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
       )}
 
       {/* Organiser Header */}
-      <motion.div variants={itemVariants} className="premium-card p-6 relative overflow-hidden">
+      <motion.div variants={itemVariants} className="premium-card p-6 relative overflow-hidden" style={{ contain: 'layout style' }}>
         <div className="absolute -right-12 -top-12 w-48 h-48 bg-primary/5 rounded-full blur-3xl" aria-hidden="true" />
 
         {/* Cover photo area */}
@@ -896,7 +896,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
             {organiserDashboardTab === tab.key && (
               <motion.div
                 layoutId="dashboard-tab-pill"
-                className="absolute inset-0 bg-paper rounded-xl shadow-sm"
+                className="absolute inset-0 bg-paper rounded-xl shadow-sm will-change-transform"
                 transition={{ type: 'spring', damping: 30, stiffness: 400 }}
                 style={{ zIndex: -1 }}
               />
@@ -979,7 +979,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
             })[0];
             const bestFill = best?.spots > 0 ? Math.round((best.attendees / best.spots) * 100) : 0;
             return (
-              <div className="premium-card p-5 relative overflow-hidden">
+              <div className="premium-card p-5 relative overflow-hidden" style={{ contain: 'layout style' }}>
                 <div className="absolute -right-6 -top-6 w-24 h-24 bg-accent/5 rounded-full blur-2xl" aria-hidden="true" />
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
@@ -1033,7 +1033,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
             const sorted = Object.entries(catCounts).sort(([, a], [, b]) => b - a);
             const total = events.length;
             return (
-              <div className="premium-card p-6">
+              <div className="premium-card p-6" style={{ contain: 'layout style' }}>
                 <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-4">
                   Event Categories<span className="text-accent">.</span>
                 </h3>
@@ -1088,7 +1088,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           {revenueInsights && revenueInsights.paidEvents > 0 && (() => {
             const paidPct = events.length > 0 ? Math.round((revenueInsights.paidEvents / events.length) * 100) : 0;
             return (
-            <div className="premium-card p-6 relative overflow-hidden">
+            <div className="premium-card p-6 relative overflow-hidden" style={{ contain: 'layout style' }}>
               <div className="absolute -left-6 -bottom-6 w-24 h-24 bg-green-500/5 rounded-full blur-2xl" aria-hidden="true" />
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
@@ -1160,7 +1160,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           {audienceInsights && (() => {
             const maxSpots = Math.max(...events.map(e => e.spots ?? 0), 1);
             return (
-            <div className="premium-card p-6 relative overflow-hidden">
+            <div className="premium-card p-6 relative overflow-hidden" style={{ contain: 'layout style' }}>
               <div className="absolute -right-6 -top-6 w-24 h-24 bg-primary/5 rounded-full blur-2xl" aria-hidden="true" />
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-8 h-8 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
@@ -1240,7 +1240,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
 
           {/* Attendance rate */}
           {events.length > 0 ? (
-            <div className="premium-card p-6">
+            <div className="premium-card p-6" style={{ contain: 'layout style' }}>
               <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-4">
                 Event Fill Rates<span className="text-accent">.</span>
               </h3>
@@ -1379,7 +1379,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
         const totalWeekAttendees = weeklyActivity.days.reduce((s, d) => s + d.attendees, 0);
         const totalWeekEvents = weeklyActivity.days.reduce((s, d) => s + d.events, 0);
         return (
-        <motion.div variants={itemVariants} className="premium-card p-5 relative overflow-hidden">
+        <motion.div variants={itemVariants} className="premium-card p-5 relative overflow-hidden" style={{ contain: 'layout style' }}>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
@@ -1536,7 +1536,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
       <div className="grid gap-6 lg:grid-cols-2">
 
       {/* My Events */}
-      <motion.div variants={itemVariants} className="premium-card p-6">
+      <motion.div variants={itemVariants} className="premium-card p-6" style={{ contain: 'layout style' }}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xs font-black text-primary uppercase tracking-widest">
             My Events<span className="text-accent">.</span>
@@ -1561,7 +1561,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                 {eventFilter === tab.key && (
                   <motion.div
                     layoutId="event-filter-pill"
-                    className="absolute inset-0 bg-primary/10 border border-primary/20 rounded-xl"
+                    className="absolute inset-0 bg-primary/10 border border-primary/20 rounded-xl will-change-transform"
                     transition={{ type: 'spring', damping: 30, stiffness: 400 }}
                     style={{ zIndex: 0 }}
                   />
@@ -1874,7 +1874,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
       </motion.div>
 
       {/* My Communities */}
-      <motion.div variants={itemVariants} className="premium-card p-6">
+      <motion.div variants={itemVariants} className="premium-card p-6" style={{ contain: 'layout style' }}>
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="text-xs font-black text-primary uppercase tracking-widest">

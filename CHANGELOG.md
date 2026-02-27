@@ -27,7 +27,9 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Event card group hover** — hovering an event row now subtly rings the thumbnail image and nudges the chevron right for directional affordance
 - **Community card group hover** — hovering a community row now rings the avatar and nudges the chevron right, matching the event card pattern
 - **Milestone scroller edge fade** — horizontal milestones row has a CSS mask-image gradient that fades out the right edge, hinting at more scrollable content
-- **Skeleton shimmer upgrade** — dashboard loading skeleton uses a smooth shimmer animation instead of the old pulse effect, giving a more polished loading feel
+- **Skeleton shimmer upgrade** — dashboard, profile sheet, and review sheet loading skeletons use a smooth shimmer animation instead of the old pulse effect, giving a more polished loading feel
+- **Layout containment on dashboard cards** — independent card sections (header, analytics, events, communities, weekly activity) use CSS `contain: layout style` to prevent reflow cascades across sections
+- **Smoother tab pill animation** — dashboard tab and event filter sliding pills use `will-change: transform` for GPU-accelerated layout transitions
 - **Public profile event card hover** — event cards on the public organiser profile nudge right on hover and scale on tap for tactile feedback
 - **Public profile community card hover** — community cards on the public profile gain matching hover nudge and tap scale
 - **Profile completeness chip stagger** — completeness check chips now stagger in with scale animation, incomplete items have hover background and tap scale for better affordance

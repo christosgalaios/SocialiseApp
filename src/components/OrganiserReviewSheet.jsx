@@ -146,12 +146,12 @@ export default function OrganiserReviewSheet() {
             <div className="flex-1 overflow-y-auto p-6 space-y-6 scroll-smooth" style={{ overscrollBehavior: 'contain' }}>
               {loading ? (
                 <div className="space-y-3">
-                  <div className="h-4 w-32 bg-secondary/10 rounded-full animate-pulse" />
+                  <div className="h-4 w-32 rounded-full skeleton" />
                   <div className="flex flex-wrap gap-2">
-                    {[1,2,3,4,5,6].map(i => <div key={i} className="h-10 w-24 bg-secondary/10 rounded-full animate-pulse" style={{ animationDelay: `${i * 0.08}s` }} />)}
+                    {[1,2,3,4,5,6].map(i => <div key={i} className="h-10 w-24 rounded-full skeleton" style={{ animationDelay: `${i * 0.08}s` }} />)}
                   </div>
-                  <div className="h-4 w-24 bg-secondary/10 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }} />
-                  <div className="h-20 bg-secondary/10 rounded-2xl animate-pulse" style={{ animationDelay: '0.6s' }} />
+                  <div className="h-4 w-24 rounded-full skeleton" style={{ animationDelay: '0.5s' }} />
+                  <div className="h-20 rounded-2xl skeleton" style={{ animationDelay: '0.6s' }} />
                 </div>
               ) : (
                 <>
