@@ -240,7 +240,7 @@ export default function OrganiserProfileSheet() {
                     {/* Bio */}
                     {(profile.organiserBio || profile.bio) && (
                       <div className="premium-card p-4 rounded-[20px] border border-transparent hover:border-secondary/10 transition-colors duration-200" style={{ contain: 'layout style' }}>
-                        <p className="text-sm text-secondary/70 font-medium leading-relaxed select-text line-clamp-4">
+                        <p className="text-sm text-secondary/70 font-medium leading-relaxed select-text line-clamp-4 hyphens-auto" lang="en">
                           {profile.organiserBio || profile.bio}
                         </p>
                       </div>

@@ -51,6 +51,7 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Profile sheet card hover shadow** — event and community cards on the public profile gain a subtle `shadow-sm` on hover and use `transition-all` for smooth combined state changes
 - **Vibe tag cursor** — vibe tags on the public profile show `cursor-default` since they're display-only, not interactive buttons
 - **Tabular-nums on inline numbers** — attendee/spot counts, prices, and checklist progress counters across dashboard and profile sheet use fixed-width digits for stable layout
+- **Automatic hyphenation on bios** — organiser bio text in profile sheet, edit profile preview, and setup flow info card uses `hyphens: auto` for graceful word breaking on narrow screens
 - **Public profile event card hover** — event cards on the public organiser profile nudge right on hover and scale on tap for tactile feedback
 - **Public profile community card hover** — community cards on the public profile gain matching hover nudge and tap scale
 - **Profile completeness chip stagger** — completeness check chips now stagger in with scale animation, incomplete items have hover background and tap scale for better affordance

@@ -222,7 +222,7 @@ export default function OrganiserEditProfileSheet() {
                         </div>
                       </div>
                       {organiserBio.trim() && (
-                        <p className="text-[11px] text-secondary/50 mt-2 line-clamp-2">{organiserBio}</p>
+                        <p className="text-[11px] text-secondary/50 mt-2 line-clamp-2 hyphens-auto" lang="en">{organiserBio}</p>
                       )}
                     </div>
                   </motion.div>

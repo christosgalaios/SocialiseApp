@@ -216,7 +216,7 @@ export default function OrganiserSetupFlow() {
               </div>
 
               <div className="premium-card p-4 rounded-[24px] border border-transparent hover:border-primary/10 transition-colors duration-200" style={{ contain: 'layout style' }}>
-                <p className="text-sm text-secondary/70 font-medium leading-relaxed text-balance">
+                <p className="text-sm text-secondary/70 font-medium leading-relaxed text-balance hyphens-auto" lang="en">
                   As an organiser, you can create events, build communities, and track your performance.
                   You can switch back to attendee mode any time.
                 </p>
