@@ -26,6 +26,8 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Input focus glow ring** — all text inputs and textareas across the organiser dashboard, edit profile, setup flow, and review sheet show a subtle primary-colored ring on focus for clearer active-field indication
 - **Event card group hover** — hovering an event row now subtly rings the thumbnail image and nudges the chevron right for directional affordance
 - **Community card group hover** — hovering a community row now rings the avatar and nudges the chevron right, matching the event card pattern
+- **Milestone scroller edge fade** — horizontal milestones row has a CSS mask-image gradient that fades out the right edge, hinting at more scrollable content
+- **Skeleton shimmer upgrade** — dashboard loading skeleton uses a smooth shimmer animation instead of the old pulse effect, giving a more polished loading feel
 - **Public profile event card hover** — event cards on the public organiser profile nudge right on hover and scale on tap for tactile feedback
 - **Public profile community card hover** — community cards on the public profile gain matching hover nudge and tap scale
 - **Profile completeness chip stagger** — completeness check chips now stagger in with scale animation, incomplete items have hover background and tap scale for better affordance

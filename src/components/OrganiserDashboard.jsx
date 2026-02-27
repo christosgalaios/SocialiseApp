@@ -428,17 +428,17 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0 }}
-          className="premium-card p-6 rounded-[24px] animate-pulse"
+          className="premium-card p-6 rounded-[24px]"
         >
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-16 h-16 rounded-[24px] bg-secondary/10" />
+            <div className="w-16 h-16 rounded-[24px] skeleton" />
             <div className="flex-1 space-y-2">
-              <div className="h-5 w-36 bg-secondary/10 rounded-full" />
-              <div className="h-3 w-20 bg-secondary/10 rounded-full" />
+              <div className="h-5 w-36 rounded-full skeleton" />
+              <div className="h-3 w-20 rounded-full skeleton" />
             </div>
           </div>
-          <div className="h-4 w-full bg-secondary/10 rounded-full mb-2" />
-          <div className="h-4 w-3/4 bg-secondary/10 rounded-full" />
+          <div className="h-4 w-full rounded-full skeleton mb-2" />
+          <div className="h-4 w-3/4 rounded-full skeleton" />
         </motion.div>
         {/* Quick actions skeleton */}
         <div className="grid grid-cols-4 gap-2">
@@ -448,7 +448,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.1 + i * 0.05 }}
-              className="h-[76px] rounded-2xl bg-secondary/10 animate-pulse"
+              className="h-[76px] rounded-2xl skeleton"
             />
           ))}
         </div>
@@ -458,7 +458,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <div className="h-3 w-32 bg-secondary/10 rounded-full mb-3 animate-pulse" />
+          <div className="h-3 w-32 rounded-full mb-3 skeleton" />
           <div className="grid grid-cols-2 gap-3">
             {[0, 1, 2, 3].map(i => (
               <motion.div
@@ -466,11 +466,11 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.35 + i * 0.06 }}
-                className="premium-card p-5 rounded-[24px] animate-pulse"
+                className="premium-card p-5 rounded-[24px]"
               >
-                <div className="w-11 h-11 rounded-2xl bg-secondary/10 mb-3" />
-                <div className="h-7 w-12 bg-secondary/10 rounded-full mb-1" />
-                <div className="h-2.5 w-20 bg-secondary/10 rounded-full" />
+                <div className="w-11 h-11 rounded-2xl skeleton mb-3" />
+                <div className="h-7 w-12 rounded-full skeleton mb-1" />
+                <div className="h-2.5 w-20 rounded-full skeleton" />
               </motion.div>
             ))}
           </div>
@@ -480,15 +480,15 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="premium-card p-6 rounded-[24px] animate-pulse"
+          className="premium-card p-6 rounded-[24px]"
         >
-          <div className="h-3 w-24 bg-secondary/10 rounded-full mb-4" />
+          <div className="h-3 w-24 rounded-full mb-4 skeleton" />
           {[0, 1, 2].map(i => (
             <div key={i} className="flex items-center gap-3 p-3 mb-2">
-              <div className="w-12 h-12 rounded-xl bg-secondary/10 shrink-0" />
+              <div className="w-12 h-12 rounded-xl skeleton shrink-0" />
               <div className="flex-1 space-y-2">
-                <div className="h-4 w-32 bg-secondary/10 rounded-full" />
-                <div className="h-3 w-20 bg-secondary/10 rounded-full" />
+                <div className="h-4 w-32 rounded-full skeleton" />
+                <div className="h-3 w-20 rounded-full skeleton" />
               </div>
             </div>
           ))}
@@ -1441,7 +1441,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
             {unlockedCount}/{milestones.length} unlocked
           </span>
         </div>
-        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 snap-x snap-mandatory">
+        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 snap-x snap-mandatory" style={{ maskImage: 'linear-gradient(to right, black 85%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to right, black 85%, transparent 100%)' }}>
           {milestones.map((m, idx) => {
             const pct = Math.min(Math.round((m.current / m.target) * 100), 100);
             return (
