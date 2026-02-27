@@ -263,7 +263,7 @@ export default function OrganiserProfileSheet() {
                           className={`p-3 rounded-2xl ${stat.bg} border border-secondary/10`}
                         >
                           <div className="flex items-center gap-2">
-                            <stat.icon size={14} className={stat.color} />
+                            <stat.icon size={14} className={stat.color} aria-hidden="true" />
                             <motion.span
                               className="text-lg font-black text-secondary tabular-nums"
                               initial={{ opacity: 0, scale: 0.5 }}
@@ -366,7 +366,7 @@ export default function OrganiserProfileSheet() {
                                 rel="noopener noreferrer"
                                 className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[11px] font-bold transition-all group hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${style.bg} ${style.border} ${style.color} ${style.hoverBg}`}
                               >
-                                <Globe size={10} />
+                                <Globe size={10} aria-hidden="true" />
                                 <span className="capitalize text-[9px] font-black opacity-50 mr-0.5">{p.key}</span>
                                 <span className="max-w-[120px] truncate">{socialLinks[p.key]}</span>
                                 <ExternalLink size={8} className="opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true" />
@@ -555,7 +555,7 @@ export default function OrganiserProfileSheet() {
                             }}
                             className="text-[10px] font-bold text-primary hover:text-accent transition-colors flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none rounded"
                           >
-                            <Sparkles size={10} />
+                            <Sparkles size={10} aria-hidden="true" />
                             Leave a review
                           </button>
                         </div>
@@ -577,7 +577,7 @@ export default function OrganiserProfileSheet() {
                             );
                           })}
                         </div>
-                        <p className="text-[10px] text-secondary/30 font-medium mt-2">
+                        <p className="text-[10px] text-secondary/30 font-medium mt-2 tabular-nums">
                           {reviewData.totalReviews} {reviewData.totalReviews === 1 ? 'review' : 'reviews'}
                         </p>
                       </motion.div>
@@ -596,7 +596,7 @@ export default function OrganiserProfileSheet() {
                           }}
                           className="w-full p-4 rounded-2xl bg-primary/5 border border-primary/10 hover:bg-primary/10 transition-colors text-center focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                         >
-                          <Sparkles size={20} className="text-primary mx-auto mb-1.5" />
+                          <Sparkles size={20} className="text-primary mx-auto mb-1.5" aria-hidden="true" />
                           <p className="text-sm font-bold text-secondary">Leave a vibe review</p>
                           <p className="text-[10px] text-secondary/40 font-medium mt-0.5">Share your experience with this organiser</p>
                         </button>

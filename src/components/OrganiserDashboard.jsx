@@ -686,7 +686,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                 whileTap={{ scale: 0.95 }}
                 className="inline-flex items-center gap-1 px-2.5 py-1 bg-secondary/5 rounded-full border border-secondary/10 text-[11px] font-bold text-secondary/60 hover:border-primary/20 hover:text-primary cursor-pointer transition-colors"
               >
-                <Globe size={10} />
+                <Globe size={10} aria-hidden="true" />
                 {socialLinks[p.key]}
               </motion.span>
             ))}
