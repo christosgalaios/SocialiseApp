@@ -161,7 +161,7 @@ export default function OrganiserReviewSheet() {
                       <h4 className="text-xs font-black text-primary uppercase tracking-widest">
                         Vibe Tags<span className="text-accent">.</span>
                       </h4>
-                      <span className={`text-[10px] font-bold transition-colors ${selectedTags.length > 0 ? 'text-primary' : 'text-secondary/30'}`}>
+                      <span className={`text-[10px] font-bold transition-colors tabular-nums ${selectedTags.length > 0 ? 'text-primary' : 'text-secondary/30'}`}>
                         {selectedTags.length}/5 selected
                       </span>
                     </div>
@@ -179,7 +179,7 @@ export default function OrganiserReviewSheet() {
                                 : 'bg-secondary/5 text-secondary/50 border-secondary/10 hover:bg-secondary/10'
                             }`}
                           >
-                            {isSelected && <Check size={12} strokeWidth={3} />}
+                            {isSelected && <Check size={12} strokeWidth={3} aria-hidden="true" />}
                             <span>{tag.emoji}</span>
                             {tag.label}
                           </button>
@@ -239,7 +239,7 @@ export default function OrganiserReviewSheet() {
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 ) : (
                   <>
-                    <Send size={16} />
+                    <Send size={16} aria-hidden="true" />
                     {existingReview ? 'Update Review' : 'Submit Review'}
                   </>
                 )}

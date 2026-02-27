@@ -77,6 +77,10 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Sparkles icon aria-hidden** — Sparkles icons in the review section buttons on the profile sheet are now marked decorative
 - **Quick stats icon aria-hidden** — stat card icons (Calendar, Users, MessageCircle) on the profile sheet are now marked decorative for screen readers
 - **Review count tabular-nums** — review count on the profile sheet uses fixed-width digits
+- **Setup flow icon aria-hidden** — Megaphone intro icon, category card icons, and Check selection indicators in the setup flow are marked decorative for screen readers
+- **Setup flow selected count tabular-nums** — category "selected" count badge uses fixed-width digits
+- **Review sheet icon aria-hidden** — Check (tag selected), Send (submit button) icons in the review sheet are marked decorative
+- **Review sheet selected count tabular-nums** — vibe tag "selected" counter uses fixed-width digits
 - **Public profile event card hover** — event cards on the public organiser profile nudge right on hover and scale on tap for tactile feedback
 - **Public profile community card hover** — community cards on the public profile gain matching hover nudge and tap scale
 - **Profile completeness chip stagger** — completeness check chips now stagger in with scale animation, incomplete items have hover background and tap scale for better affordance

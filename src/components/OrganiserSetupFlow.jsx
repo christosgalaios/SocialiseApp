@@ -184,7 +184,7 @@ export default function OrganiserSetupFlow() {
                   className="w-24 h-24 rounded-[32px] bg-primary/10 border-2 border-primary/20 flex items-center justify-center relative"
                 >
                   <div className="absolute inset-0 bg-primary/5 rounded-[32px] animate-pulse" aria-hidden="true" />
-                  <Megaphone size={40} className="text-primary relative" />
+                  <Megaphone size={40} className="text-primary relative" aria-hidden="true" />
                 </motion.div>
               </div>
 
@@ -238,7 +238,7 @@ export default function OrganiserSetupFlow() {
                   key={selectedCategories.length}
                   initial={{ scale: 1.3 }}
                   animate={{ scale: 1 }}
-                  className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
+                  className={`text-[10px] font-black px-2 py-0.5 rounded-full tabular-nums ${
                     selectedCategories.length >= 1 ? 'text-green-600 bg-green-500/10' : 'text-secondary/40 bg-secondary/5'
                   }`}
                 >
@@ -266,12 +266,12 @@ export default function OrganiserSetupFlow() {
                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
                       isSelected ? 'bg-primary/20' : 'bg-secondary/10'
                     }`}>
-                      {Icon && <Icon size={24} />}
+                      {Icon && <Icon size={24} aria-hidden="true" />}
                     </div>
                     <span className="text-sm font-bold">{cat.label}</span>
                     {isSelected && (
                       <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
-                        <Check size={16} className="text-primary" />
+                        <Check size={16} className="text-primary" aria-hidden="true" />
                       </motion.div>
                     )}
                   </motion.button>
