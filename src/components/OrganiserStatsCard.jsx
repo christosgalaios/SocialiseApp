@@ -34,7 +34,8 @@ export default function OrganiserStatsCard({ icon: Icon, value, label, trend, co
       whileHover={{ y: -3 }}
       whileTap={{ scale: 0.98 }}
       transition={{ type: 'spring', damping: 25, stiffness: 400 }}
-      className="premium-card p-5 relative overflow-hidden group cursor-default"
+      className="premium-card p-5 relative overflow-hidden group cursor-default will-change-transform [backface-visibility:hidden]"
+      style={{ contain: 'layout style' }}
     >
       <div className="absolute -right-6 -bottom-6 w-24 h-24 rounded-full opacity-0 group-hover:opacity-[0.08] transition-opacity duration-300" style={{ background: `radial-gradient(circle, var(--primary) 0%, transparent 70%)` }} aria-hidden="true" />
       <div className="flex items-start justify-between">

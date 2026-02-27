@@ -129,7 +129,7 @@ export default function OrganiserReviewSheet() {
                 <h2 className="text-lg font-black text-secondary">
                   {existingReview ? 'Edit Your Review' : 'Leave a Review'}
                 </h2>
-                <p className="text-[11px] text-secondary/40 font-medium mt-0.5">
+                <p className="text-[11px] text-secondary/40 font-medium mt-0.5 text-balance">
                   How was your experience with {reviewData.organiserName || 'this organiser'}?
                 </p>
               </div>
@@ -220,7 +220,7 @@ export default function OrganiserReviewSheet() {
             </div>
 
             {/* Footer */}
-            <div className="p-6 border-t border-secondary/10 pb-[max(24px,env(safe-area-inset-bottom))] flex gap-3">
+            <div className="p-6 border-t border-secondary/10 pb-[max(24px,env(safe-area-inset-bottom))] flex gap-3 isolate">
               {existingReview && (
                 <button
                   onClick={handleDelete}
@@ -233,7 +233,7 @@ export default function OrganiserReviewSheet() {
               <button
                 onClick={handleSubmit}
                 disabled={selectedTags.length === 0 || isSubmitting}
-                className="flex-1 py-3.5 rounded-2xl font-black text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed bg-gradient-to-r from-primary to-accent text-white shadow-lg focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+                className="flex-1 py-3.5 rounded-2xl font-black text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed bg-gradient-to-r from-primary to-accent text-white shadow-lg focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none [backface-visibility:hidden]"
               >
                 {isSubmitting ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
