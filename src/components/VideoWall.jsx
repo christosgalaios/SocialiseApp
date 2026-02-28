@@ -8,7 +8,7 @@ import { ADVERTISED_EVENTS } from '../data/constants';
  */
 const CuratedIntroCard = ({ userName = "You" }) => (
     <motion.div
-        className="relative snap-center shrink-0 w-[280px] h-[400px] rounded-[32px] overflow-hidden cursor-pointer group shadow-2xl bg-gradient-to-br from-primary/90 to-secondary/90"
+        className="relative snap-center shrink-0 w-[280px] h-[400px] rounded-[32px] overflow-hidden group shadow-2xl bg-gradient-to-br from-primary/90 to-secondary/90"
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         whileHover={{ scale: 1.02 }}
