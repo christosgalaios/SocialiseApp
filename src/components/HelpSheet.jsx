@@ -63,7 +63,7 @@ const HelpSheet = ({ isOpen, onClose, onDeleteAccount }) => {
                         {/* Drag zone — handle + header */}
                         <div {...dragZoneProps}>
                         <div className="flex justify-center pt-3 pb-2">
-                            <div className="w-12 h-1 rounded-full bg-secondary/20" />
+                            <div className="w-12 h-1 rounded-full bg-secondary/20" aria-hidden="true" />
                         </div>
 
                         {/* Header */}
@@ -73,7 +73,7 @@ const HelpSheet = ({ isOpen, onClose, onDeleteAccount }) => {
                             </h2>
                             <button
                                 onClick={() => { playSwooshClose(); hapticTap(); onClose(); }}
-                                className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
+                                className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                                 aria-label="Close"
                             >
                                 <X size={20} className="text-secondary" />
@@ -133,7 +133,7 @@ const HelpSheet = ({ isOpen, onClose, onDeleteAccount }) => {
                                         <button
                                             key={i}
                                             onClick={link.destructive ? () => setShowDeleteConfirm(true) : undefined}
-                                            className={`w-full rounded-2xl p-4 border flex items-center gap-4 transition-all text-left ${
+                                            className={`w-full rounded-2xl p-4 border flex items-center gap-4 transition-all text-left focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${
                                                 link.destructive
                                                     ? 'bg-red-500/5 border-red-500/20 hover:border-red-500/40'
                                                     : 'bg-secondary/5 border-secondary/10 hover:border-primary/30'
@@ -189,7 +189,7 @@ const HelpSheet = ({ isOpen, onClose, onDeleteAccount }) => {
                                         <button
                                             onClick={handleDeleteAccount}
                                             disabled={deleting}
-                                            className="w-full py-4 rounded-2xl bg-red-500 text-white text-[12px] font-black uppercase tracking-widest shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                            className="w-full py-4 rounded-2xl bg-red-500 text-white text-[12px] font-black uppercase tracking-widest shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-red-500/30 focus-visible:outline-none"
                                         >
                                             {deleting ? (
                                                 <>
@@ -210,7 +210,7 @@ const HelpSheet = ({ isOpen, onClose, onDeleteAccount }) => {
                                         <button
                                             onClick={() => setShowDeleteConfirm(false)}
                                             disabled={deleting}
-                                            className="w-full py-4 rounded-2xl bg-secondary/10 text-secondary text-[12px] font-black uppercase tracking-widest transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                                            className="w-full py-4 rounded-2xl bg-secondary/10 text-secondary text-[12px] font-black uppercase tracking-widest transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-secondary/30 focus-visible:outline-none"
                                         >
                                             Cancel
                                         </button>

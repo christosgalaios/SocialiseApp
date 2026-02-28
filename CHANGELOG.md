@@ -50,6 +50,10 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **DateRangeCalendar accessibility** — added `role="dialog"`, `aria-modal`, `aria-label` to calendar overlay. Added `aria-label` to close, previous month, and next month buttons. Added `focus-visible:ring` to close, nav, clear, and apply buttons
 - **IOSInstallPrompt touch target** — enlarged dismiss button to 40px with proper `aria-label`
 - **Decorative aria-hidden (round 3)** — added `aria-hidden="true"` to Confetti particle container and SplashScreen warm glow effect
+- **Drag handle aria-hidden** — all 7 sheet drag handle bars now have `aria-hidden="true"` (GroupChatsSheet x2, MyBookingsSheet, ChangelogSheet, SavedEventsSheet, HelpSheet, OrganiserEditProfileSheet)
+- **Focus rings (round 4)** — added `focus-visible:ring` to close/action buttons across all remaining sheets: HelpSheet (close, links, delete, cancel), MyBookingsSheet (close), GroupChatsSheet (back, phone, video, close, search x2), ChangelogSheet (close), SavedEventsSheet (close)
+- **GroupChatsSheet touch targets** — enlarged phone, video, and close buttons from 36px (`w-9 h-9`) to 40px (`w-10 h-10`)
+- **OrganiserEditProfileSheet polish** — added `aria-hidden` to drag handle and unsaved-changes indicator dot, added `onError` to cover photo preview and cover photo images
 
 ### Fixed
 - **Loading glitch on tab switches and initial load** — removed `AnimatePresence mode="wait"` that forced sequential exit→enter animations, creating a visible flash where content disappeared then reappeared. Tabs now cross-fade simultaneously. Also removed the artificial 600ms skeleton delay on initial load (content appears immediately) and sped up all tab transition animations

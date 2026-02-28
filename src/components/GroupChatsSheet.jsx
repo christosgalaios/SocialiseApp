@@ -180,13 +180,13 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
               {/* Drag zone — handle + chat header */}
               <div {...dragZoneProps} className="shrink-0">
               <div className="flex justify-center pt-3 pb-2">
-                <div className="w-12 h-1 rounded-full bg-secondary/20" />
+                <div className="w-12 h-1 rounded-full bg-secondary/20" aria-hidden="true" />
               </div>
               <div className="px-4 py-3 border-b border-secondary/10">
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => { playTap(); hapticTap(); closeCommunity(); }}
-                    className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
+                    className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                     aria-label="Back to communities"
                   >
                     <ArrowLeft size={20} className="text-secondary" />
@@ -209,7 +209,7 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
                     </button>
                     <button
                       onClick={() => { playSwooshClose(); hapticTap(); onClose(); }}
-                      className="w-9 h-9 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
+                      className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                       aria-label="Close"
                     >
                       <X size={16} className="text-secondary" />
@@ -289,7 +289,7 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
               {/* Drag zone — handle + community list header */}
               <div {...dragZoneProps} className="shrink-0">
               <div className="flex justify-center pt-3 pb-2">
-                <div className="w-12 h-1 rounded-full bg-secondary/20" />
+                <div className="w-12 h-1 rounded-full bg-secondary/20" aria-hidden="true" />
               </div>
               <div className="px-6 pb-4 border-b border-secondary/10">
                 <div className="flex items-center justify-between mb-3">
@@ -302,14 +302,14 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setShowSearch(!showSearch)}
-                      className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
+                      className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                       aria-label={showSearch ? 'Close search' : 'Search chats'}
                     >
                       <Search size={18} className="text-secondary" />
                     </button>
                     <button
                       onClick={() => { playSwooshClose(); hapticTap(); onClose(); }}
-                      className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
+                      className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                       aria-label="Close chats"
                     >
                       <X size={18} className="text-secondary" />

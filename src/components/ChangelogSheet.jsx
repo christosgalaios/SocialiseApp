@@ -92,7 +92,7 @@ const ChangelogSheet = ({ isOpen, onClose }) => {
             {/* Drag zone — handle + header */}
             <div {...dragZoneProps} className="shrink-0">
             <div className="flex justify-center pt-3 pb-2">
-              <div className="w-12 h-1 rounded-full bg-secondary/20" />
+              <div className="w-12 h-1 rounded-full bg-secondary/20" aria-hidden="true" />
             </div>
 
             {/* Header */}
@@ -107,7 +107,7 @@ const ChangelogSheet = ({ isOpen, onClose }) => {
               </div>
               <button
                 onClick={() => { playSwooshClose(); hapticTap(); onClose(); }}
-                className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
+                className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                 aria-label="Close"
               >
                 <X size={20} className="text-secondary" />
