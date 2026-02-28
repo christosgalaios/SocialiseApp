@@ -41,7 +41,7 @@ const IOSInstallPrompt = () => {
           <div className="bg-slate-900/90 backdrop-blur-md border border-slate-700/50 p-4 rounded-2xl shadow-2xl max-w-sm w-full pointer-events-auto relative">
             <button
               onClick={handleDismiss}
-              className="absolute top-2 right-2 w-10 h-10 flex items-center justify-center text-slate-400 hover:text-white transition-colors rounded-full"
+              className="absolute top-2 right-2 w-10 h-10 flex items-center justify-center text-slate-400 hover:text-white transition-colors rounded-full focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:outline-none"
               aria-label="Dismiss install prompt"
             >
               <X size={20} />

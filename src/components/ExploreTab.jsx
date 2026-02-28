@@ -186,7 +186,7 @@ export default function ExploreTab({ filteredEvents }) {
               <button
                 onClick={() => { playTap(); hapticTap(); scroll(-1); }}
                 disabled={!canScrollLeft}
-                className="w-10 h-10 rounded-full bg-secondary/5 border border-secondary/10 flex items-center justify-center text-secondary/40 hover:text-secondary/70 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                className="w-10 h-10 rounded-full bg-secondary/5 border border-secondary/10 flex items-center justify-center text-secondary/40 hover:text-secondary/70 disabled:opacity-30 disabled:cursor-not-allowed transition-all focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                 aria-label="Scroll left"
                 title="Scroll left"
               >
@@ -195,7 +195,7 @@ export default function ExploreTab({ filteredEvents }) {
               <button
                 onClick={() => { playTap(); hapticTap(); scroll(1); }}
                 disabled={!canScrollRight}
-                className="w-10 h-10 rounded-full bg-secondary/5 border border-secondary/10 flex items-center justify-center text-secondary/40 hover:text-secondary/70 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                className="w-10 h-10 rounded-full bg-secondary/5 border border-secondary/10 flex items-center justify-center text-secondary/40 hover:text-secondary/70 disabled:opacity-30 disabled:cursor-not-allowed transition-all focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                 aria-label="Scroll right"
                 title="Scroll right"
               >

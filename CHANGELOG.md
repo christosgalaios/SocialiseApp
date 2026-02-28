@@ -61,6 +61,9 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Autofill styling** — CSS `:-webkit-autofill` rules prevent Chrome/Safari from overriding the paper background and text color when autofilling login credentials
 - **Form autoComplete attributes** — AuthScreen inputs now have proper `autoComplete` values (`given-name`, `family-name`, `email`, `current-password`/`new-password`) so browsers can properly suggest and autofill credentials
 - **Mobile keyboard hints** — added `enterKeyHint` to all text inputs: "send" on chat/comment/reply inputs (EventDetailSheet, GroupChatsSheet, MangoChat, FeedItem), "search" on search inputs (ExploreFilters, GroupChatsSheet, TribeDiscovery, OrganiserDashboard), "next"/"done" on auth form fields. The mobile keyboard Enter button now shows the correct action label
+- **PWA manifest enrichment** — added `id`, `categories`, and expanded `description` for better app store discoverability
+- **HTML meta tags** — added `<meta name="description">` and `<meta name="apple-mobile-web-app-title">` with descriptive content, improved `<title>` to include tagline
+- **Focus rings (round 6)** — added `focus-visible:ring` to remaining 5 buttons: ExploreTab reel scroll arrows (x2), Toast dismiss, IOSInstallPrompt dismiss, ErrorBoundary Try Again/Reload
 
 ### Fixed
 - **Loading glitch on tab switches and initial load** — removed `AnimatePresence mode="wait"` that forced sequential exit→enter animations, creating a visible flash where content disappeared then reappeared. Tabs now cross-fade simultaneously. Also removed the artificial 600ms skeleton delay on initial load (content appears immediately) and sped up all tab transition animations
