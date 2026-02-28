@@ -263,6 +263,7 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
                     onChange={(e) => setInput(e.target.value)}
                     placeholder="Type a message..."
                     aria-label="Chat message"
+                    enterKeyHint="send"
                     className="flex-1 bg-secondary/5 border border-secondary/10 rounded-2xl px-4 py-3 text-[var(--text)] placeholder:text-secondary/40 focus:outline-none focus:ring-2 focus:ring-primary/30 font-medium text-sm"
                   />
                   <button type="button" className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary/50 hover:bg-secondary/20 transition-colors shrink-0" aria-label="Attach image">
@@ -322,6 +323,7 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
                     animate={{ height: 'auto', opacity: 1 }}
                     type="text"
                     placeholder="Search chats..."
+                    enterKeyHint="search"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full bg-secondary/10 border border-secondary/15 rounded-2xl px-4 py-3 text-sm text-[var(--text)] placeholder:text-secondary/40 focus:outline-none focus:ring-2 focus:ring-primary/30 font-medium"

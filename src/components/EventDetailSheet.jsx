@@ -270,6 +270,7 @@ const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMe
                 type="text"
                 placeholder="Message the hub..."
                 aria-label="Chat message"
+                enterKeyHint="send"
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && (onSendMessage(inputText), setInputText(''))}

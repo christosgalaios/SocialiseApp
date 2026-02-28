@@ -1609,6 +1609,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               value={eventSearch}
               onChange={(e) => setEventSearch(e.target.value)}
               placeholder="Search events..."
+              enterKeyHint="search"
               className={`w-full pl-9 py-2 rounded-xl bg-secondary/5 border border-secondary/10 text-xs text-[var(--text)] placeholder:text-secondary/30 outline-none focus:border-primary/30 focus:ring-2 focus:ring-primary/10 hover:border-secondary/20 transition-all ${eventSearch ? 'pr-8' : 'pr-3'}`}
             />
             {eventSearch && (

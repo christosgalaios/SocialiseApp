@@ -346,6 +346,7 @@ const MangoChat = ({ user = {}, events = [] }) => {
                         onChange={(e) => setInput(e.target.value)}
                         placeholder="Ask Mango anything..."
                         aria-label="Ask Mango anything"
+                        enterKeyHint="send"
                         className="flex-1 bg-secondary/5 border border-secondary/10 text-[var(--text)] rounded-2xl pl-5 pr-14 py-3.5 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all font-medium text-sm placeholder:text-secondary/40"
                     />
                     <button

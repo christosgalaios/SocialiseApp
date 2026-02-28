@@ -203,6 +203,7 @@ const AuthScreen = ({ onLogin }) => {
                       type="text"
                       placeholder="First name"
                       aria-label="First name"
+                      autoComplete="given-name"
                       value={firstName}
                       onChange={(e) => { setFirstName(e.target.value); setError(''); }}
                       className="w-full py-4 pl-12 pr-4 rounded-2xl bg-paper border border-secondary/10 text-[var(--text)] font-medium text-sm focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition-all"
@@ -214,6 +215,7 @@ const AuthScreen = ({ onLogin }) => {
                       type="text"
                       placeholder="Last name"
                       aria-label="Last name"
+                      autoComplete="family-name"
                       value={lastName}
                       onChange={(e) => { setLastName(e.target.value); setError(''); }}
                       className="w-full py-4 pl-12 pr-4 rounded-2xl bg-paper border border-secondary/10 text-[var(--text)] font-medium text-sm focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition-all"
@@ -230,6 +232,8 @@ const AuthScreen = ({ onLogin }) => {
               type="email"
               placeholder="Email address"
               aria-label="Email address"
+              autoComplete="email"
+              enterKeyHint="next"
               value={email}
               onChange={(e) => { setEmail(e.target.value); setError(''); }}
               className="w-full py-4 pl-12 pr-4 rounded-2xl bg-paper border border-secondary/10 text-[var(--text)] font-medium text-sm focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition-all"
@@ -243,6 +247,8 @@ const AuthScreen = ({ onLogin }) => {
               type="password"
               placeholder="Password (min 6 characters)"
               aria-label="Password"
+              autoComplete={isRegister ? 'new-password' : 'current-password'}
+              enterKeyHint={isRegister ? 'next' : 'done'}
               value={password}
               onChange={(e) => { setPassword(e.target.value); setError(''); }}
               className="w-full py-4 pl-12 pr-4 rounded-2xl bg-paper border border-secondary/10 text-[var(--text)] font-medium text-sm focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition-all"
@@ -266,6 +272,8 @@ const AuthScreen = ({ onLogin }) => {
                     type="password"
                     placeholder="Confirm password"
                     aria-label="Confirm password"
+                    autoComplete="new-password"
+                    enterKeyHint="done"
                     value={confirmPassword}
                     onChange={(e) => { setConfirmPassword(e.target.value); setError(''); }}
                     className="w-full py-4 pl-12 pr-4 rounded-2xl bg-paper border border-secondary/10 text-[var(--text)] font-medium text-sm focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition-all"

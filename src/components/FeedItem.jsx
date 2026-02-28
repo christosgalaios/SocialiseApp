@@ -183,6 +183,7 @@ const CommentItem = ({ comment, onReact, onReply, isReply = false, currentUser, 
                   type="text"
                   placeholder="Write a reply..."
                   aria-label="Write a reply"
+                  enterKeyHint="send"
                   value={replyText}
                   onChange={(e) => setReplyText(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && submitReply()}
@@ -437,6 +438,7 @@ const FeedItem = ({ post, currentUser = { name: 'Ben B.', avatar: '/ben-avatar.p
                   type="text"
                   placeholder="Write a comment..."
                   aria-label="Write a comment"
+                  enterKeyHint="send"
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && submitComment()}
