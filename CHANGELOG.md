@@ -34,6 +34,9 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Sidebar cleanup** — removed dead "Dark Mode toggle removed" comment, replaced with flex spacer for proper layout
 - **premium-card uses design tokens** — `.premium-card` background changed from hardcoded `white` to `var(--bg-paper)` for design system consistency and future dark mode readiness
 - **Global focus-visible ring** — added `:focus-visible` CSS rule to show a primary-colored outline on all interactive elements when navigated via keyboard. `:focus:not(:focus-visible)` suppresses the outline for mouse/touch — clean UX for both input methods
+- **Decorative elements screen reader compliance** — added `aria-hidden="true"` to 8 decorative glow/blur/particle elements that were previously announced to screen readers: HomeTab avatar glow and organiser stats blob, VideoWall decorative circles, LevelUpModal particle container and top glow, ExploreTab gradient overlay, MicroMeetCard background glow, ProfileTab avatar glow
+- **Design system border compliance** — replaced `border-white/*` with design-appropriate borders on light backgrounds: HomeTab avatar and PRO badge (`border-secondary/10`/`border-secondary/20`), EventDetailSheet chat avatars (`border-secondary/10`), RealtimePing avatar (`border-paper`), ProfileTab PRO badge (`border-amber-600/30`)
+- **ExploreTab gradient overlay** — replaced `bg-black/70` with `bg-secondary/70` in reel card gradient overlay
 
 ### Fixed
 - **Loading glitch on tab switches and initial load** — removed `AnimatePresence mode="wait"` that forced sequential exit→enter animations, creating a visible flash where content disappeared then reappeared. Tabs now cross-fade simultaneously. Also removed the artificial 600ms skeleton delay on initial load (content appears immediately) and sped up all tab transition animations

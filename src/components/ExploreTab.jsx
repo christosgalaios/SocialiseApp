@@ -72,7 +72,7 @@ const InlineReelCard = ({ event, onClick }) => {
       <ReelSlideshow images={slideshowImages} isActive={true} />
 
       {/* Gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-secondary/70 via-transparent to-secondary/20 pointer-events-none" aria-hidden="true" />
 
       {/* Category badge */}
       <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5">

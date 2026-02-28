@@ -409,8 +409,8 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
                 accept="image/*"
                 onChange={handleAvatarUpload}
               />
-              <div className="absolute inset-0 bg-primary/20 blur-3xl -z-10 transform scale-150" />
-              {experimentalFeatures && proEnabled && <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 md:left-0 md:translate-x-0 z-20 bg-amber-500 text-[10px] font-black px-3 py-1 rounded-full text-white shadow-lg border border-white/20 whitespace-nowrap flex items-center gap-1"><Crown size={10} /> PRO</div>}
+              <div className="absolute inset-0 bg-primary/20 blur-3xl -z-10 transform scale-150" aria-hidden="true" />
+              {experimentalFeatures && proEnabled && <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 md:left-0 md:translate-x-0 z-20 bg-amber-500 text-[10px] font-black px-3 py-1 rounded-full text-white shadow-lg border border-amber-600/30 whitespace-nowrap flex items-center gap-1"><Crown size={10} /> PRO</div>}
             </button>
             <h1 className="text-3xl font-black tracking-tighter mb-2 text-primary">{user?.name}<span className="text-accent">.</span></h1>
             {user?.selectedTitle && (

@@ -14,8 +14,8 @@ const CuratedIntroCard = ({ userName = "You" }) => (
         whileHover={{ scale: 1.02 }}
     >
         {/* Decorative elements */}
-        <div className="absolute top-8 right-8 w-24 h-24 bg-white/10 rounded-full blur-2xl" />
-        <div className="absolute bottom-20 left-8 w-16 h-16 bg-accent/20 rounded-full blur-xl" />
+        <div className="absolute top-8 right-8 w-24 h-24 bg-white/10 rounded-full blur-2xl" aria-hidden="true" />
+        <div className="absolute bottom-20 left-8 w-16 h-16 bg-accent/20 rounded-full blur-xl" aria-hidden="true" />
 
         <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
             <motion.div

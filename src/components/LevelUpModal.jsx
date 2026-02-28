@@ -30,7 +30,7 @@ const LevelUpModal = ({ isOpen, onClose, newLevel, unlockedTitle }) => {
           <div className="absolute inset-0 bg-secondary/90 backdrop-blur-xl" onClick={onClose} />
 
           {/* Animated background particles */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
             {Array.from({ length: 20 }).map((_, i) => (
               <motion.div
                 key={i}
@@ -76,7 +76,7 @@ const LevelUpModal = ({ isOpen, onClose, newLevel, unlockedTitle }) => {
             {/* Card */}
             <div className="bg-gradient-to-b from-white/15 to-white/5 backdrop-blur-2xl rounded-[40px] p-8 text-center border border-white/10 shadow-2xl overflow-hidden">
               {/* Top glow */}
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-40 bg-accent/30 rounded-full blur-3xl -translate-y-1/2" />
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-40 bg-accent/30 rounded-full blur-3xl -translate-y-1/2" aria-hidden="true" />
 
               {/* Level up text */}
               <motion.div

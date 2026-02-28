@@ -128,16 +128,16 @@ export default function HomeTab({ onProfileClick, onCreateEvent, fetchAllData })
           className="relative group cursor-pointer"
           onClick={onProfileClick}
         >
-          <div className="absolute inset-0 bg-primary rounded-full blur-md opacity-20 group-hover:opacity-40 transition-opacity" />
-          <img src={user?.avatar || DEFAULT_AVATAR} className="w-14 h-14 rounded-2xl object-cover border-2 border-white/10 shadow-2xl relative z-10" alt="Profile" loading="lazy" />
-          {experimentalFeatures && proEnabled && <div className="absolute -bottom-1 -right-1 z-20 bg-amber-500 text-[8px] font-black px-1.5 py-0.5 rounded-md text-white shadow-lg border border-white/20">PRO</div>}
+          <div className="absolute inset-0 bg-primary rounded-full blur-md opacity-20 group-hover:opacity-40 transition-opacity" aria-hidden="true" />
+          <img src={user?.avatar || DEFAULT_AVATAR} className="w-14 h-14 rounded-2xl object-cover border-2 border-secondary/10 shadow-2xl relative z-10" alt="Profile" loading="lazy" />
+          {experimentalFeatures && proEnabled && <div className="absolute -bottom-1 -right-1 z-20 bg-amber-500 text-[8px] font-black px-1.5 py-0.5 rounded-md text-white shadow-lg border border-secondary/20">PRO</div>}
         </motion.button>
       </motion.header>
 
       {/* Organiser Quick Stats Banner */}
       {isOrganiser && organiserStats && (
         <motion.div variants={itemVariants} className="premium-card p-5 relative overflow-hidden">
-          <div className="absolute -right-8 -top-8 w-32 h-32 bg-accent/5 rounded-full blur-3xl" />
+          <div className="absolute -right-8 -top-8 w-32 h-32 bg-accent/5 rounded-full blur-3xl" aria-hidden="true" />
           <div className="flex items-center gap-3 mb-3">
             <div className="w-9 h-9 rounded-xl bg-accent/10 flex items-center justify-center border border-accent/20">
               <Megaphone size={18} className="text-accent" />
