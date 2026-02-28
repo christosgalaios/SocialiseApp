@@ -37,6 +37,12 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Decorative elements screen reader compliance** — added `aria-hidden="true"` to 8 decorative glow/blur/particle elements that were previously announced to screen readers: HomeTab avatar glow and organiser stats blob, VideoWall decorative circles, LevelUpModal particle container and top glow, ExploreTab gradient overlay, MicroMeetCard background glow, ProfileTab avatar glow
 - **Design system border compliance** — replaced `border-white/*` with design-appropriate borders on light backgrounds: HomeTab avatar and PRO badge (`border-secondary/10`/`border-secondary/20`), EventDetailSheet chat avatars (`border-secondary/10`), RealtimePing avatar (`border-paper`), ProfileTab PRO badge (`border-amber-600/30`)
 - **ExploreTab gradient overlay** — replaced `bg-black/70` with `bg-secondary/70` in reel card gradient overlay
+- **OnboardingFlow input compliance** — location input now uses `text-[var(--text)]` and has `aria-label` for screen readers
+- **Touch target sizes (round 2)** — enlarged close buttons in BugReportModal, FeatureRequestModal (8px → 10px), ProUpgradeModal (8px → 10px), and AvatarCropModal zoom/reset/cancel buttons (9px → 10px) to meet minimum touch target guidelines
+- **Hardcoded color cleanup** — replaced `bg-red-50` with `bg-red-500/10` in BugReportModal and FeatureRequestModal error messages for design system consistency
+- **Focus rings (round 2)** — added `focus-visible:ring` to OnboardingFlow Continue button, BugReportModal Submit, FeatureRequestModal Submit, ProUpgradeModal Upgrade Now, AppModals MatchAnalysisModal Cancel/Join, AvatarCropModal Cancel/Save/zoom buttons, and UserProfileSheet Follow/Message buttons
+- **Decorative aria-hidden (round 2)** — added `aria-hidden="true"` to LevelUpScreen particles container and glow blob, AppModals MatchAnalysisModal shimmer bar, and ProUpgradeModal radial gradient overlay
+- **Bug report textarea overflow** — added `break-words` and `overflow-wrap` to BugReportModal description textarea to prevent long unbroken strings from overflowing
 
 ### Fixed
 - **Loading glitch on tab switches and initial load** — removed `AnimatePresence mode="wait"` that forced sequential exit→enter animations, creating a visible flash where content disappeared then reappeared. Tabs now cross-fade simultaneously. Also removed the artificial 600ms skeleton delay on initial load (content appears immediately) and sped up all tab transition animations

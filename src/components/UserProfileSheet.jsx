@@ -94,7 +94,7 @@ const UserProfileSheet = ({ profile, isOpen, onClose, onMessage }) => {
                                 <div className="flex gap-3 w-full">
                                     <button
                                         onClick={() => setIsFollowing(!isFollowing)}
-                                        className={`flex-1 py-4 rounded-[24px] font-black text-sm uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg active:scale-[0.98] transition-all ${
+                                        className={`flex-1 py-4 rounded-[24px] font-black text-sm uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${
                                             isFollowing
                                                 ? 'bg-secondary/10 text-secondary border border-secondary/20'
                                                 : 'bg-primary text-white'
@@ -105,7 +105,7 @@ const UserProfileSheet = ({ profile, isOpen, onClose, onMessage }) => {
                                     </button>
                                     <button
                                         onClick={() => { onMessage?.(profile); onClose(); }}
-                                        className="flex-1 py-4 rounded-[24px] bg-secondary/10 text-secondary border border-secondary/20 font-black text-sm uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg active:scale-[0.98] transition-transform"
+                                        className="flex-1 py-4 rounded-[24px] bg-secondary/10 text-secondary border border-secondary/20 font-black text-sm uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg active:scale-[0.98] transition-transform focus-visible:ring-2 focus-visible:ring-secondary/30 focus-visible:outline-none"
                                     >
                                         <MessageCircle size={18} />
                                         Message

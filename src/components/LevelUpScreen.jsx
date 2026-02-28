@@ -64,7 +64,7 @@ const LevelUpScreen = ({ isOpen, onClose, levelUpData }) => {
           <div className="absolute inset-0 bg-secondary/95 backdrop-blur-2xl" onClick={onClose} />
 
           {/* Floating particles */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
             {particlesRef.current.map((p) => (
               <motion.div
                 key={p.id}
@@ -116,6 +116,7 @@ const LevelUpScreen = ({ isOpen, onClose, levelUpData }) => {
             <div className="relative bg-gradient-to-b from-white/12 to-white/5 backdrop-blur-3xl rounded-[44px] p-8 border border-white/10 shadow-2xl overflow-hidden text-center">
               {/* Top glow blob */}
               <div
+                aria-hidden="true"
                 className={`absolute -top-16 left-1/2 -translate-x-1/2 w-64 h-40 rounded-full blur-3xl opacity-40`}
                 style={{ background: isFameOnly ? 'var(--accent)' : undefined }}
               />

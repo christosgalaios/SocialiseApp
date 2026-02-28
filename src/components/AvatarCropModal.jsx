@@ -199,7 +199,7 @@ const AvatarCropModal = ({ imageUrl, isOpen, onSave, onCancel }) => {
               </h2>
               <button
                 onClick={() => { playSwooshClose(); hapticTap(); onCancel(); }}
-                className="w-9 h-9 rounded-full bg-secondary/10 flex items-center justify-center text-secondary hover:bg-secondary/20 transition-colors"
+                className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary hover:bg-secondary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                 aria-label="Cancel"
               >
                 <X size={18} />
@@ -240,7 +240,7 @@ const AvatarCropModal = ({ imageUrl, isOpen, onSave, onCancel }) => {
                 <button
                   onClick={() => handleZoomChange(zoom - 0.1)}
                   disabled={zoom <= MIN_ZOOM}
-                  className="w-9 h-9 rounded-full bg-secondary/10 flex items-center justify-center text-secondary disabled:opacity-30 hover:bg-secondary/20 transition-colors"
+                  className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary disabled:opacity-30 disabled:cursor-not-allowed hover:bg-secondary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                   aria-label="Zoom out"
                 >
                   <ZoomOut size={16} />
@@ -258,14 +258,14 @@ const AvatarCropModal = ({ imageUrl, isOpen, onSave, onCancel }) => {
                 <button
                   onClick={() => handleZoomChange(zoom + 0.1)}
                   disabled={zoom >= MAX_ZOOM}
-                  className="w-9 h-9 rounded-full bg-secondary/10 flex items-center justify-center text-secondary disabled:opacity-30 hover:bg-secondary/20 transition-colors"
+                  className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary disabled:opacity-30 disabled:cursor-not-allowed hover:bg-secondary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                   aria-label="Zoom in"
                 >
                   <ZoomIn size={16} />
                 </button>
                 <button
                   onClick={handleReset}
-                  className="w-9 h-9 rounded-full bg-secondary/10 flex items-center justify-center text-secondary hover:bg-secondary/20 transition-colors"
+                  className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary hover:bg-secondary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                   aria-label="Reset position"
                 >
                   <RotateCcw size={16} />
@@ -277,13 +277,13 @@ const AvatarCropModal = ({ imageUrl, isOpen, onSave, onCancel }) => {
             <div className="flex gap-3 px-5 pt-2 pb-5">
               <button
                 onClick={onCancel}
-                className="flex-1 py-3.5 rounded-[20px] bg-secondary/10 text-secondary font-bold text-sm uppercase tracking-widest active:scale-[0.98] transition-transform"
+                className="flex-1 py-3.5 rounded-[20px] bg-secondary/10 text-secondary font-bold text-sm uppercase tracking-widest active:scale-[0.98] transition-transform focus-visible:ring-2 focus-visible:ring-secondary/30 focus-visible:outline-none"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
-                className="flex-1 py-3.5 rounded-[20px] bg-primary text-white font-bold text-sm uppercase tracking-widest shadow-lg active:scale-[0.98] transition-transform"
+                className="flex-1 py-3.5 rounded-[20px] bg-primary text-white font-bold text-sm uppercase tracking-widest shadow-lg active:scale-[0.98] transition-transform focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
               >
                 Save
               </button>
