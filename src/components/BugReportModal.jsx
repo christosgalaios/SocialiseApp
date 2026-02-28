@@ -100,7 +100,7 @@ export default function BugReportModal({ isOpen, onClose, onSubmit }) {
     >
       <motion.div
         ref={focusTrapRef}
-        className="w-full max-w-md max-h-[85dvh] overflow-y-auto bg-paper rounded-t-[32px] sm:rounded-[32px] p-6 pb-8 border-t sm:border border-secondary/10 shadow-2xl"
+        className="w-full max-w-md max-h-[85dvh] overflow-y-auto overscroll-contain bg-paper rounded-t-[32px] sm:rounded-[32px] p-6 pb-8 border-t sm:border border-secondary/10 shadow-2xl"
         initial={{ y: '100%' }}
         animate={{ y: 0 }}
         exit={{ y: '100%' }}
@@ -124,8 +124,8 @@ export default function BugReportModal({ isOpen, onClose, onSubmit }) {
               <p className="text-[10px] text-secondary/50 font-medium">Something broken? Let us know</p>
             </div>
           </div>
-          <button onPointerDown={(e) => { e.stopPropagation(); playSwooshClose(); hapticTap(); onClose(); }} className="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center" aria-label="Close bug report" style={{ touchAction: 'manipulation' }}>
-            <X size={16} className="text-secondary/60" />
+          <button onPointerDown={(e) => { e.stopPropagation(); playSwooshClose(); hapticTap(); onClose(); }} className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none" aria-label="Close bug report" style={{ touchAction: 'manipulation' }}>
+            <X size={18} className="text-secondary/60" />
           </button>
         </div>
         </div>
@@ -140,7 +140,8 @@ export default function BugReportModal({ isOpen, onClose, onSubmit }) {
               placeholder={"What happened? What did you expect instead?\n\ne.g. \"I tapped 'Join' on an event and the button spun forever — the RSVP never confirmed.\""}
               rows={4}
               maxLength={2000}
-              className="w-full bg-paper border border-secondary/10 rounded-2xl px-4 py-3 text-sm text-[var(--text)] placeholder:text-secondary/30 font-medium focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 resize-none"
+              className="w-full bg-paper border border-secondary/10 rounded-2xl px-4 py-3 text-sm text-[var(--text)] placeholder:text-secondary/30 font-medium focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 resize-none break-words"
+              style={{ overflowWrap: 'break-word' }}
             />
             <p className="text-[10px] text-secondary/30 mt-1 text-right">{description.length}/2000</p>
           </div>
@@ -161,7 +162,7 @@ export default function BugReportModal({ isOpen, onClose, onSubmit }) {
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -4 }}
-                className="flex items-center gap-2 text-red-500 text-xs font-medium bg-red-50 px-4 py-2.5 rounded-xl"
+                className="flex items-center gap-2 text-red-500 text-xs font-medium bg-red-500/10 px-4 py-2.5 rounded-xl"
               >
                 <AlertCircle size={14} />
                 {error}
@@ -173,7 +174,7 @@ export default function BugReportModal({ isOpen, onClose, onSubmit }) {
           <button
             onClick={handleSubmit}
             disabled={submitting || !description.trim()}
-            className="w-full py-3.5 rounded-2xl font-black text-white bg-primary hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+            className="w-full py-3.5 rounded-2xl font-black text-white bg-primary hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
           >
             {submitting ? (
               <span className="animate-pulse">Submitting...</span>

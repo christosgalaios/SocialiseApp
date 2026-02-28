@@ -99,7 +99,7 @@ const OnboardingFlow = ({ onComplete, userName = 'there' }) => {
             </div>
 
             {/* Content */}
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="flex-1 overflow-y-auto no-scrollbar overscroll-contain p-6">
                 <AnimatePresence mode="wait">
                     {step === 0 && (
                         <motion.div
@@ -157,7 +157,8 @@ const OnboardingFlow = ({ onComplete, userName = 'there' }) => {
                                     placeholder="e.g. London, Bristol, Manchester..."
                                     value={location}
                                     onChange={(e) => setLocation(e.target.value)}
-                                    className="w-full bg-secondary/5 border-2 border-secondary/20 rounded-2xl pl-12 pr-4 py-4 text-lg font-medium focus:outline-none focus:border-primary transition-all placeholder:text-secondary/40"
+                                    className="w-full bg-secondary/5 border-2 border-secondary/20 rounded-2xl pl-12 pr-4 py-4 text-lg font-medium text-[var(--text)] focus:outline-none focus:border-primary transition-all placeholder:text-secondary/40"
+                                    aria-label="Your location"
                                     autoFocus
                                 />
                             </div>
@@ -236,7 +237,7 @@ const OnboardingFlow = ({ onComplete, userName = 'there' }) => {
                 <button
                     onClick={() => { playTap(); step < 2 ? setStep(step + 1) : handleComplete(); }}
                     disabled={!canProceed()}
-                    className="flex-1 h-14 rounded-2xl bg-gradient-to-r from-primary to-accent text-white font-black uppercase tracking-widest flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] transition-transform"
+                    className="flex-1 h-14 rounded-2xl bg-gradient-to-r from-primary to-accent text-white font-black uppercase tracking-widest flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] transition-transform focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                 >
                     {step < 2 ? (
                         <>

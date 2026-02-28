@@ -57,7 +57,7 @@ const BottomNav = ({ activeTab, setActiveTab }) => {
               data-nav-tab={tab.id}
               onClick={() => handleTabClick(tab.id)}
               onKeyDown={(e) => handleKeyDown(e, i)}
-              className={`flex flex-col items-center gap-1 p-2 transition-all relative min-w-[60px] ${isActive ? 'text-primary' : 'text-secondary/40 hover:text-secondary/60'}`}
+              className={`flex flex-col items-center gap-1 p-2 transition-all relative min-w-[60px] focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none rounded-xl ${isActive ? 'text-primary' : 'text-secondary/40 hover:text-secondary/60'}`}
             >
               <div className="relative">
                 {isActive && (

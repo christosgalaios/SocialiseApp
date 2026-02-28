@@ -18,8 +18,8 @@ export default function HubTab() {
     <motion.div
       key="hub"
       initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+      animate={{ opacity: 1, transition: { duration: 0.15 } }}
+      exit={{ opacity: 0, transition: { duration: 0.08 } }}
       className="p-5 md:p-10 max-w-7xl mx-auto pb-32"
     >
       <header className="mb-10">
@@ -43,7 +43,13 @@ export default function HubTab() {
               comments: 0,
             }} currentUser={{ name: user?.name ?? 'Guest', avatar: user?.avatar ?? '' }} onOpenProfile={setSelectedUserProfile} />
           )) : (
-            <div className="text-center text-secondary/40 text-sm font-medium py-8">No posts yet. Be the first!</div>
+            <div className="text-center py-12">
+              <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20">
+                <span className="text-2xl">💬</span>
+              </div>
+              <p className="text-sm font-bold text-secondary/50 mb-1">No posts yet</p>
+              <p className="text-xs text-secondary/40">Be the first to share something with your community</p>
+            </div>
           )}
         </div>
 
@@ -57,7 +63,10 @@ export default function HubTab() {
                 whileTap={{ scale: 0.98 }}
                 key={comm.id}
                 onClick={() => { playCardPress(); hapticTap(); setSelectedTribe(comm); }}
-                className="premium-card p-4 flex items-center gap-4 group cursor-pointer"
+                className="premium-card p-4 flex items-center gap-4 group cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+                tabIndex={0}
+                role="button"
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); playCardPress(); hapticTap(); setSelectedTribe(comm); } }}
               >
                 <div className="w-12 h-12 rounded-[18px] bg-secondary/10 flex items-center justify-center text-2xl border border-secondary/20 shadow-inner group-hover:bg-secondary/20 transition-colors">
                   {comm.avatar}
@@ -72,7 +81,7 @@ export default function HubTab() {
             ))}
             <button
               onClick={() => { playTap(); setShowTribeDiscovery(true); }}
-              className="w-full py-4 border border-dashed border-primary/30 rounded-[20px] text-xs font-bold text-primary hover:bg-primary/5 hover:border-primary/50 transition-all uppercase tracking-widest"
+              className="w-full py-4 border border-dashed border-primary/30 rounded-[20px] text-xs font-bold text-primary hover:bg-primary/5 hover:border-primary/50 transition-all uppercase tracking-widest focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
             >
               + Find New Tribe
             </button>

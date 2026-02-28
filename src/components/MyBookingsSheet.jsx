@@ -34,7 +34,7 @@ const MyBookingsSheet = ({ isOpen, onClose, bookings = [], onCancel }) => {
                         {/* Drag zone — handle + header */}
                         <div {...dragZoneProps}>
                         <div className="flex justify-center pt-3 pb-2">
-                            <div className="w-12 h-1 rounded-full bg-secondary/20" />
+                            <div className="w-12 h-1 rounded-full bg-secondary/20" aria-hidden="true" />
                         </div>
 
                         {/* Header */}
@@ -44,7 +44,7 @@ const MyBookingsSheet = ({ isOpen, onClose, bookings = [], onCancel }) => {
                             </h2>
                             <button
                                 onClick={() => { playSwooshClose(); hapticTap(); onClose(); }}
-                                className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
+                                className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                                 aria-label="Close"
                             >
                                 <X size={20} className="text-secondary" />
@@ -53,7 +53,7 @@ const MyBookingsSheet = ({ isOpen, onClose, bookings = [], onCancel }) => {
                         </div>
 
                         {/* Bookings List */}
-                        <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+                        <div className="p-6 overflow-y-auto no-scrollbar overscroll-contain" style={{ maxHeight: 'calc(100vh - 200px)' }}>
                             {bookings.length > 0 ? (
                                 <div className="space-y-4">
                                     {bookings.map((event) => (
@@ -68,6 +68,7 @@ const MyBookingsSheet = ({ isOpen, onClose, bookings = [], onCancel }) => {
                                                     alt={event.title}
                                                     className="w-20 h-20 rounded-xl object-cover"
                                                     loading="lazy"
+                                                    onError={(e) => { e.target.style.display = 'none'; }}
                                                 />
                                                 <div className="flex-1 min-w-0">
                                                     <h3 className="font-bold text-sm truncate text-secondary">{event.title}</h3>

@@ -14,8 +14,8 @@ const CuratedIntroCard = ({ userName = "You" }) => (
         whileHover={{ scale: 1.02 }}
     >
         {/* Decorative elements */}
-        <div className="absolute top-8 right-8 w-24 h-24 bg-white/10 rounded-full blur-2xl" />
-        <div className="absolute bottom-20 left-8 w-16 h-16 bg-accent/20 rounded-full blur-xl" />
+        <div className="absolute top-8 right-8 w-24 h-24 bg-white/10 rounded-full blur-2xl" aria-hidden="true" />
+        <div className="absolute bottom-20 left-8 w-16 h-16 bg-accent/20 rounded-full blur-xl" aria-hidden="true" />
 
         <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
             <motion.div
@@ -116,7 +116,7 @@ const VideoCard = ({ ad, onSelect, muted, onToggleMute, isSponsored = true }) =>
             />
 
             {/* Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-secondary/80 via-transparent to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-t from-secondary/80 via-transparent to-transparent pointer-events-none" aria-hidden="true" />
 
             {/* Top badges row */}
             <div className="absolute top-4 left-4 right-4 z-20 flex justify-between items-start">
@@ -137,7 +137,9 @@ const VideoCard = ({ ad, onSelect, muted, onToggleMute, isSponsored = true }) =>
                         e.stopPropagation();
                         onToggleMute();
                     }}
-                    className="w-8 h-8 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center text-white/80 hover:bg-white/20 transition-colors"
+                    className="w-10 h-10 rounded-full bg-secondary/50 backdrop-blur-md flex items-center justify-center text-white/80 hover:bg-paper/20 transition-colors focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:outline-none"
+                    aria-label={muted ? 'Unmute' : 'Mute'}
+                    title={muted ? 'Unmute' : 'Mute'}
                 >
                     {muted ? <VolumeX size={14} /> : <Volume2 size={14} />}
                 </button>
@@ -157,8 +159,8 @@ const VideoCard = ({ ad, onSelect, muted, onToggleMute, isSponsored = true }) =>
                     <h3 className="text-2xl font-black leading-tight mb-2 drop-shadow-xl text-white">{ad.title}</h3>
 
                     <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity transform translate-y-2 group-hover:translate-y-0 duration-300">
-                        <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center">
-                            <Play size={12} className="text-black ml-0.5" fill="currentColor" />
+                        <div className="w-8 h-8 rounded-full bg-paper flex items-center justify-center">
+                            <Play size={12} className="text-secondary ml-0.5" fill="currentColor" />
                         </div>
                         <span className="text-xs font-bold text-white">Tap to view • {ad.attendees || 32} attending</span>
                     </div>
@@ -244,14 +246,18 @@ const VideoWall = ({ onEventSelect, userName = "You" }) => {
                     <button
                         onClick={() => scrollTo('left')}
                         disabled={activeIndex === 0}
-                        className="w-8 h-8 rounded-full bg-secondary/10 border border-secondary/15 flex items-center justify-center text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all disabled:opacity-30 disabled:hover:bg-secondary/10 disabled:hover:text-secondary disabled:hover:border-secondary/15"
+                        className="w-10 h-10 rounded-full bg-secondary/10 border border-secondary/15 flex items-center justify-center text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-secondary/10 disabled:hover:text-secondary disabled:hover:border-secondary/15 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+                        aria-label="Previous card"
+                        title="Previous card"
                     >
                         <ChevronLeft size={16} strokeWidth={2.5} />
                     </button>
                     <button
                         onClick={() => scrollTo('right')}
                         disabled={activeIndex === totalItems - 1}
-                        className="w-8 h-8 rounded-full bg-secondary/10 border border-secondary/15 flex items-center justify-center text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all disabled:opacity-30 disabled:hover:bg-secondary/10 disabled:hover:text-secondary disabled:hover:border-secondary/15"
+                        className="w-10 h-10 rounded-full bg-secondary/10 border border-secondary/15 flex items-center justify-center text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-secondary/10 disabled:hover:text-secondary disabled:hover:border-secondary/15 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+                        aria-label="Next card"
+                        title="Next card"
                     >
                         <ChevronRight size={16} strokeWidth={2.5} />
                     </button>

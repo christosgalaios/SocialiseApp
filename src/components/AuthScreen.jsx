@@ -169,12 +169,13 @@ const AuthScreen = ({ onLogin }) => {
           <div className="flex items-center justify-center gap-2 mt-4">
             {TESTIMONIALS.map((_, i) => (
               <button key={i} onClick={() => setActiveTestimonial(i)}
-                className={`w-1.5 h-1.5 rounded-full transition-all ${i === activeTestimonial ? 'bg-primary w-5' : 'bg-secondary/20'}`}
+                className={`w-1.5 h-1.5 rounded-full transition-all focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${i === activeTestimonial ? 'bg-primary w-5' : 'bg-secondary/20'}`}
+                aria-label={`View testimonial ${i + 1}`}
               />
             ))}
           </div>
-          <button onClick={() => { playTap(); hapticTap(); prevTestimonial(); }} className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white shadow items-center justify-center text-secondary/60 hover:text-secondary"><ChevronLeft size={16} /></button>
-          <button onClick={() => { playTap(); hapticTap(); nextTestimonial(); }} className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white shadow items-center justify-center text-secondary/60 hover:text-secondary"><ChevronRight size={16} /></button>
+          <button onClick={() => { playTap(); hapticTap(); prevTestimonial(); }} className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-paper shadow items-center justify-center text-secondary/60 hover:text-secondary transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none" aria-label="Previous testimonial" title="Previous testimonial"><ChevronLeft size={16} /></button>
+          <button onClick={() => { playTap(); hapticTap(); nextTestimonial(); }} className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-paper shadow items-center justify-center text-secondary/60 hover:text-secondary transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none" aria-label="Next testimonial" title="Next testimonial"><ChevronRight size={16} /></button>
         </div>
       </motion.div>
 
@@ -202,6 +203,7 @@ const AuthScreen = ({ onLogin }) => {
                       type="text"
                       placeholder="First name"
                       aria-label="First name"
+                      autoComplete="given-name"
                       value={firstName}
                       onChange={(e) => { setFirstName(e.target.value); setError(''); }}
                       className="w-full py-4 pl-12 pr-4 rounded-2xl bg-paper border border-secondary/10 text-[var(--text)] font-medium text-sm focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition-all"
@@ -213,6 +215,7 @@ const AuthScreen = ({ onLogin }) => {
                       type="text"
                       placeholder="Last name"
                       aria-label="Last name"
+                      autoComplete="family-name"
                       value={lastName}
                       onChange={(e) => { setLastName(e.target.value); setError(''); }}
                       className="w-full py-4 pl-12 pr-4 rounded-2xl bg-paper border border-secondary/10 text-[var(--text)] font-medium text-sm focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition-all"
@@ -229,6 +232,8 @@ const AuthScreen = ({ onLogin }) => {
               type="email"
               placeholder="Email address"
               aria-label="Email address"
+              autoComplete="email"
+              enterKeyHint="next"
               value={email}
               onChange={(e) => { setEmail(e.target.value); setError(''); }}
               className="w-full py-4 pl-12 pr-4 rounded-2xl bg-paper border border-secondary/10 text-[var(--text)] font-medium text-sm focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition-all"
@@ -242,6 +247,8 @@ const AuthScreen = ({ onLogin }) => {
               type="password"
               placeholder="Password (min 6 characters)"
               aria-label="Password"
+              autoComplete={isRegister ? 'new-password' : 'current-password'}
+              enterKeyHint={isRegister ? 'next' : 'done'}
               value={password}
               onChange={(e) => { setPassword(e.target.value); setError(''); }}
               className="w-full py-4 pl-12 pr-4 rounded-2xl bg-paper border border-secondary/10 text-[var(--text)] font-medium text-sm focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition-all"
@@ -265,6 +272,8 @@ const AuthScreen = ({ onLogin }) => {
                     type="password"
                     placeholder="Confirm password"
                     aria-label="Confirm password"
+                    autoComplete="new-password"
+                    enterKeyHint="done"
                     value={confirmPassword}
                     onChange={(e) => { setConfirmPassword(e.target.value); setError(''); }}
                     className="w-full py-4 pl-12 pr-4 rounded-2xl bg-paper border border-secondary/10 text-[var(--text)] font-medium text-sm focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition-all"
@@ -282,7 +291,7 @@ const AuthScreen = ({ onLogin }) => {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-2xl p-3"
+                className="flex items-start gap-2 bg-red-500/10 border border-red-500/20 rounded-2xl p-3"
                 role="alert"
               >
                 <AlertCircle size={16} className="text-red-600 flex-shrink-0 mt-0.5" />
@@ -294,7 +303,7 @@ const AuthScreen = ({ onLogin }) => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-5 bg-gradient-to-r from-primary to-accent rounded-full shadow-xl active:scale-95 transition-all text-sm font-black uppercase tracking-widest text-white hover:shadow-2xl disabled:opacity-60"
+            className="w-full py-5 bg-gradient-to-r from-primary to-accent rounded-full shadow-xl active:scale-95 transition-all text-sm font-black uppercase tracking-widest text-white hover:shadow-2xl disabled:opacity-60 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
           >
             {loading ? (
               <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto" />
@@ -306,7 +315,7 @@ const AuthScreen = ({ onLogin }) => {
 
         <button
           onClick={() => { setIsRegister(!isRegister); setFirstName(''); setLastName(''); setConfirmPassword(''); setError(''); }}
-          className="w-full py-3 text-center text-xs font-bold text-secondary/60 hover:text-primary transition-colors"
+          className="w-full py-3 text-center text-xs font-bold text-secondary/60 hover:text-primary transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
         >
           {isRegister ? 'Already have an account? Log in' : "Don't have an account? Sign up"}
         </button>
