@@ -96,11 +96,13 @@ const AuthScreen = ({ onLogin }) => {
         className="absolute top-[-10%] right-[-10%] w-80 h-80 bg-primary/10 rounded-full blur-[120px]"
         animate={{ scale: [1, 1.1, 1], x: [0, 20, 0], y: [0, -10, 0] }}
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        aria-hidden="true"
       />
       <motion.div
         className="absolute bottom-[-5%] left-[-5%] w-60 h-60 bg-secondary/10 rounded-full blur-[100px]"
         animate={{ scale: [1, 1.15, 1], x: [0, -15, 0], y: [0, 15, 0] }}
         transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+        aria-hidden="true"
       />
 
       {/* Header */}
