@@ -125,19 +125,19 @@ export default function HomeTab({ onProfileClick, onCreateEvent, fetchAllData })
         </div>
         <motion.button
           whileTap={{ scale: 0.95 }}
-          className="relative group cursor-pointer"
+          className="relative group cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none rounded-2xl"
           onClick={onProfileClick}
         >
-          <div className="absolute inset-0 bg-primary rounded-full blur-md opacity-20 group-hover:opacity-40 transition-opacity" />
-          <img src={user?.avatar || DEFAULT_AVATAR} className="w-14 h-14 rounded-2xl object-cover border-2 border-white/10 shadow-2xl relative z-10" alt="Profile" loading="lazy" />
-          {experimentalFeatures && proEnabled && <div className="absolute -bottom-1 -right-1 z-20 bg-amber-500 text-[8px] font-black px-1.5 py-0.5 rounded-md text-white shadow-lg border border-white/20">PRO</div>}
+          <div className="absolute inset-0 bg-primary rounded-full blur-md opacity-20 group-hover:opacity-40 transition-opacity" aria-hidden="true" />
+          <img src={user?.avatar || DEFAULT_AVATAR} className="w-14 h-14 rounded-2xl object-cover border-2 border-secondary/10 shadow-2xl relative z-10" alt="Profile" loading="lazy" />
+          {experimentalFeatures && proEnabled && <div className="absolute -bottom-1 -right-1 z-20 bg-amber-500 text-[8px] font-black px-1.5 py-0.5 rounded-md text-white shadow-lg border border-secondary/20">PRO</div>}
         </motion.button>
       </motion.header>
 
       {/* Organiser Quick Stats Banner */}
       {isOrganiser && organiserStats && (
         <motion.div variants={itemVariants} className="premium-card p-5 relative overflow-hidden">
-          <div className="absolute -right-8 -top-8 w-32 h-32 bg-accent/5 rounded-full blur-3xl" />
+          <div className="absolute -right-8 -top-8 w-32 h-32 bg-accent/5 rounded-full blur-3xl" aria-hidden="true" />
           <div className="flex items-center gap-3 mb-3">
             <div className="w-9 h-9 rounded-xl bg-accent/10 flex items-center justify-center border border-accent/20">
               <Megaphone size={18} className="text-accent" />
@@ -148,7 +148,7 @@ export default function HomeTab({ onProfileClick, onCreateEvent, fetchAllData })
             </div>
             <button
               onClick={() => { playClick(); hapticTap(); onCreateEvent?.(); }}
-              className="ml-auto flex items-center gap-1 px-3 py-1.5 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-[11px] font-bold active:scale-95 transition-transform"
+              className="ml-auto flex items-center gap-1 px-3 py-1.5 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-[11px] font-bold active:scale-95 transition-transform focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
             >
               <Plus size={12} />
               New Event
@@ -231,8 +231,9 @@ export default function HomeTab({ onProfileClick, onCreateEvent, fetchAllData })
                 const el = document.getElementById('micro-meets-scroll');
                 if (el) el.scrollBy({ left: -316, behavior: 'smooth' });
               }}
-              className="w-8 h-8 rounded-full bg-secondary/10 border border-secondary/15 flex items-center justify-center text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all"
+              className="w-10 h-10 rounded-full bg-secondary/10 border border-secondary/15 flex items-center justify-center text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
               aria-label="Scroll left"
+              title="Scroll left"
             >
               <ChevronLeft size={16} strokeWidth={2.5} />
             </button>
@@ -242,8 +243,9 @@ export default function HomeTab({ onProfileClick, onCreateEvent, fetchAllData })
                 const el = document.getElementById('micro-meets-scroll');
                 if (el) el.scrollBy({ left: 316, behavior: 'smooth' });
               }}
-              className="w-8 h-8 rounded-full bg-secondary/10 border border-secondary/15 flex items-center justify-center text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all"
+              className="w-10 h-10 rounded-full bg-secondary/10 border border-secondary/15 flex items-center justify-center text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
               aria-label="Scroll right"
+              title="Scroll right"
             >
               <ChevronRight size={16} strokeWidth={2.5} />
             </button>
@@ -261,7 +263,13 @@ export default function HomeTab({ onProfileClick, onCreateEvent, fetchAllData })
             </div>
           ))}
           {microMeets.length === 0 && (
-            <div className="text-center text-secondary/40 text-sm font-medium py-8 w-full">No micro-meets available yet</div>
+            <div className="text-center py-12 w-full">
+              <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-accent/10 flex items-center justify-center border border-accent/20">
+                <Zap size={24} className="text-accent" />
+              </div>
+              <p className="text-sm font-bold text-secondary/50 mb-1">No micro-meets yet</p>
+              <p className="text-xs text-secondary/40">Check back soon — curated dinners are coming</p>
+            </div>
           )}
         </motion.div>
       </div>
@@ -276,7 +284,7 @@ export default function HomeTab({ onProfileClick, onCreateEvent, fetchAllData })
           <button
             onClick={refreshRecommendations}
             disabled={isRefreshingRecs}
-            className="w-8 h-8 rounded-full bg-secondary/10 border border-secondary/15 flex items-center justify-center text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-8 h-8 rounded-full bg-secondary/10 border border-secondary/15 flex items-center justify-center text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
             title="Refresh recommendations"
           >
             <RefreshCw size={14} strokeWidth={2.5} className={isRefreshingRecs ? 'animate-spin' : ''} />

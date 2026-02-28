@@ -40,14 +40,14 @@ export class ErrorBoundary extends Component {
             <div className="flex gap-3 justify-center">
               <button
                 onClick={this.handleReset}
-                className="px-6 py-3 rounded-2xl bg-secondary/10 text-secondary text-sm font-bold hover:bg-secondary/20 transition-colors flex items-center gap-2"
+                className="px-6 py-3 rounded-2xl bg-secondary/10 text-secondary text-sm font-bold hover:bg-secondary/20 transition-colors flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
               >
                 <RefreshCw size={16} />
                 Try Again
               </button>
               <button
                 onClick={() => window.location.reload()}
-                className="px-6 py-3 rounded-2xl bg-primary text-white text-sm font-bold shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
+                className="px-6 py-3 rounded-2xl bg-primary text-white text-sm font-bold shadow-lg hover:shadow-xl transition-all flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
               >
                 <RefreshCw size={16} />
                 Reload App

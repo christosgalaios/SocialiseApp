@@ -64,7 +64,7 @@ const LevelUpScreen = ({ isOpen, onClose, levelUpData }) => {
           <div className="absolute inset-0 bg-secondary/95 backdrop-blur-2xl" onClick={onClose} />
 
           {/* Floating particles */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
             {particlesRef.current.map((p) => (
               <motion.div
                 key={p.id}
@@ -107,7 +107,7 @@ const LevelUpScreen = ({ isOpen, onClose, levelUpData }) => {
             {/* Close */}
             <button
               onPointerDown={() => { playSwooshClose(); hapticTap(); onClose(); }}
-              className="absolute -top-3 -right-3 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white/60 hover:bg-white/20 z-20 transition-colors"
+              className="absolute -top-3 -right-3 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white/60 hover:bg-white/20 z-20 transition-colors focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:outline-none"
               aria-label="Close"
             >
               <X size={18} />
@@ -116,6 +116,7 @@ const LevelUpScreen = ({ isOpen, onClose, levelUpData }) => {
             <div className="relative bg-gradient-to-b from-white/12 to-white/5 backdrop-blur-3xl rounded-[44px] p-8 border border-white/10 shadow-2xl overflow-hidden text-center">
               {/* Top glow blob */}
               <div
+                aria-hidden="true"
                 className={`absolute -top-16 left-1/2 -translate-x-1/2 w-64 h-40 rounded-full blur-3xl opacity-40`}
                 style={{ background: isFameOnly ? 'var(--accent)' : undefined }}
               />
@@ -298,7 +299,7 @@ const LevelUpScreen = ({ isOpen, onClose, levelUpData }) => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: isMilestone ? 1.1 : (fameLeveledUp || isFameOnly) ? 0.9 : 0.7 }}
                 onPointerDown={onClose}
-                className={`w-full mt-6 py-4 rounded-2xl text-white font-black text-sm uppercase tracking-widest shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-transform bg-gradient-to-r ${accentFrom} ${accentTo}`}
+                className={`w-full mt-6 py-4 rounded-2xl text-white font-black text-sm uppercase tracking-widest shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-transform bg-gradient-to-r ${accentFrom} ${accentTo} focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:outline-none`}
               >
                 <Sparkles size={16} />
                 Keep Going

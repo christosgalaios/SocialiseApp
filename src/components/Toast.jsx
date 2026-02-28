@@ -15,7 +15,7 @@ const Toast = ({ message, type, onClose }) => (
     <div className={`pointer-events-auto px-6 py-4 glass-2 rounded-[24px] shadow-2xl flex items-center gap-4 border-l-4 ${type === 'success' ? 'border-primary' : 'border-accent'}`}>
        {type === 'success' ? <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary" aria-hidden="true"><Check size={18} strokeWidth={3}/></div> : <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center text-accent" aria-hidden="true"><Bell size={18} strokeWidth={3}/></div>}
        <span className="text-sm font-bold tracking-tight">{message}</span>
-       <button onClick={onClose} className="ml-2 opacity-30 hover:opacity-100 transition-opacity" aria-label="Dismiss notification"><X size={16}/></button>
+       <button onClick={onClose} className="ml-2 opacity-30 hover:opacity-100 transition-opacity rounded-full focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none" aria-label="Dismiss notification"><X size={16}/></button>
     </div>
   </motion.div>
 );

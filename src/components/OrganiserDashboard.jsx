@@ -611,7 +611,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
         {/* Cover photo area */}
         {user?.organiserCoverPhoto && (
           <div className="-mx-6 -mt-6 mb-4 h-28 overflow-hidden rounded-t-[24px]">
-            <img src={user.organiserCoverPhoto} className="w-full h-full object-cover" alt="" loading="lazy" />
+            <img src={user.organiserCoverPhoto} className="w-full h-full object-cover" alt="Organiser cover photo" loading="lazy" onError={(e) => { e.target.parentElement.style.display = 'none'; }} />
           </div>
         )}
 
@@ -1019,7 +1019,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-14 h-14 rounded-2xl overflow-hidden bg-secondary/10 shrink-0">
-                    {best?.image && <img src={best.image} className="w-full h-full object-cover" alt={best?.title || 'Event'} loading="lazy" />}
+                    {best?.image && <img src={best.image} className="w-full h-full object-cover" alt={best?.title || 'Event'} loading="lazy" onError={(e) => { e.target.style.display = 'none'; }} />}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-black text-secondary truncate">{best?.title}</p>
@@ -1242,7 +1242,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-xl overflow-hidden bg-secondary/10 shrink-0">
                         {audienceInsights.bestEvent.image && (
-                          <img src={audienceInsights.bestEvent.image} className="w-full h-full object-cover" alt={audienceInsights.bestEvent.title || 'Event'} loading="lazy" />
+                          <img src={audienceInsights.bestEvent.image} className="w-full h-full object-cover" alt={audienceInsights.bestEvent.title || 'Event'} loading="lazy" onError={(e) => { e.target.style.display = 'none'; }} />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -1359,7 +1359,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
           )}
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-2xl overflow-hidden bg-secondary/10 shrink-0 relative">
-              {nextEvent.image && <img src={nextEvent.image} className="w-full h-full object-cover" alt={nextEvent.title || 'Next event'} loading="lazy" />}
+              {nextEvent.image && <img src={nextEvent.image} className="w-full h-full object-cover" alt={nextEvent.title || 'Next event'} loading="lazy" onError={(e) => { e.target.style.display = 'none'; }} />}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-[9px] font-black text-green-600 uppercase tracking-widest mb-0.5">Next Event</p>
@@ -1609,6 +1609,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
               value={eventSearch}
               onChange={(e) => setEventSearch(e.target.value)}
               placeholder="Search events..."
+              enterKeyHint="search"
               className={`w-full pl-9 py-2 rounded-xl bg-secondary/5 border border-secondary/10 text-xs text-[var(--text)] placeholder:text-secondary/30 outline-none focus:border-primary/30 focus:ring-2 focus:ring-primary/10 hover:border-secondary/20 transition-all ${eventSearch ? 'pr-8' : 'pr-3'}`}
             />
             {eventSearch && (
@@ -1701,7 +1702,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
                       }`}
                     >
                       <div className="w-12 h-12 rounded-xl overflow-hidden bg-secondary/10 shrink-0 relative group-hover/event:ring-2 group-hover/event:ring-primary/10 transition-shadow">
-                        {event.image && <img src={event.image} className="w-full h-full object-cover" alt={event.title || 'Event'} loading="lazy" />}
+                        {event.image && <img src={event.image} className="w-full h-full object-cover" alt={event.title || 'Event'} loading="lazy" onError={(e) => { e.target.style.display = 'none'; }} />}
                         {isLive && (
                           <div className="absolute top-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-paper animate-pulse" />
                         )}

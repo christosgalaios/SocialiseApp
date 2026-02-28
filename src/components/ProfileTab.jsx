@@ -233,7 +233,7 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
             <button
               key={item.label}
               onClick={item.action}
-              className="w-full flex items-center justify-between p-6 border-b border-secondary/10 last:border-0 hover:bg-secondary/5 transition-all active:pl-8"
+              className="w-full flex items-center justify-between p-6 border-b border-secondary/10 last:border-0 hover:bg-secondary/5 transition-all active:pl-8 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
             >
               <div className="flex items-center gap-5">
                 <div className="w-10 h-10 rounded-2xl bg-secondary/10 flex items-center justify-center border border-secondary/10">
@@ -257,7 +257,7 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           onClick={() => { playTap(); onLogout(); }}
-          className="w-full p-6 mt-6 rounded-[32px] bg-red-500/10 border border-red-500/20 flex items-center justify-center gap-3 text-red-500 font-black uppercase tracking-widest hover:bg-red-500/20 transition-all active:scale-95"
+          className="w-full p-6 mt-6 rounded-[32px] bg-red-500/10 border border-red-500/20 flex items-center justify-center gap-3 text-red-500 font-black uppercase tracking-widest hover:bg-red-500/20 transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
         >
           <LogOut size={18} />
           Log Out
@@ -291,7 +291,7 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
         >
           <button
             onClick={() => { playTap(); setProfileSubTab('profile'); }}
-            className="flex items-center gap-2 text-secondary/60 hover:text-secondary font-bold text-sm mb-2 transition-colors"
+            className="flex items-center gap-2 text-secondary/60 hover:text-secondary font-bold text-sm mb-2 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none rounded-lg"
           >
             <ArrowLeft size={18} />
             Back to Profile
@@ -313,10 +313,10 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
                 role="switch"
                 aria-checked={soundEnabled}
                 onClick={() => { playToggle(!soundEnabled); setSoundEnabled(!soundEnabled); }}
-                className={`relative w-12 h-7 rounded-full transition-colors ${soundEnabled ? 'bg-primary' : 'bg-secondary/20'}`}
+                className={`relative w-12 h-7 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${soundEnabled ? 'bg-primary' : 'bg-secondary/20'}`}
               >
                 <motion.div
-                  className="absolute top-1 w-5 h-5 rounded-full bg-white shadow"
+                  className="absolute top-1 w-5 h-5 rounded-full bg-paper shadow"
                   animate={{ x: soundEnabled ? 24 : 0 }}
                   transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                   style={{ left: 4 }}
@@ -336,10 +336,10 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
                 role="switch"
                 aria-checked={experimentalFeatures}
                 onClick={() => { playToggle(!experimentalFeatures); setExperimentalFeatures(!experimentalFeatures); }}
-                className={`relative w-12 h-7 rounded-full transition-colors ${experimentalFeatures ? 'bg-primary' : 'bg-secondary/20'}`}
+                className={`relative w-12 h-7 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${experimentalFeatures ? 'bg-primary' : 'bg-secondary/20'}`}
               >
                 <motion.div
-                  className="absolute top-1 w-5 h-5 rounded-full bg-white shadow"
+                  className="absolute top-1 w-5 h-5 rounded-full bg-paper shadow"
                   animate={{ x: experimentalFeatures ? 24 : 0 }}
                   transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                   style={{ left: 4 }}
@@ -351,7 +351,7 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
                 <button
                   type="button"
                   onClick={() => setShowGroupChats(true)}
-                  className="w-full flex items-center gap-3 p-3 rounded-2xl bg-secondary/5 hover:bg-secondary/10 transition-colors text-left"
+                  className="w-full flex items-center gap-3 p-3 rounded-2xl bg-secondary/5 hover:bg-secondary/10 transition-colors text-left focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                 >
                   <MessageCircle className="text-secondary" size={20} />
                   <span className="font-bold text-secondary">Group Chats</span>
@@ -392,14 +392,14 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
         {/* Header with avatar and WarmthScore */}
         <motion.div variants={itemVariants} className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-10">
           <div className="text-center md:text-left">
-            <div className="relative inline-block group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-              <div className="w-32 h-32 rounded-[32px] overflow-hidden border-4 border-white/10 shadow-2xl mx-auto md:mx-0 mb-4 relative z-10 transition-transform group-hover:scale-105">
+            <button type="button" className="relative inline-block group cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none rounded-[32px]" onClick={() => fileInputRef.current?.click()} aria-label="Change profile photo">
+              <div className="w-32 h-32 rounded-[32px] overflow-hidden border-4 border-secondary/10 shadow-2xl mx-auto md:mx-0 mb-4 relative z-10 transition-transform group-hover:scale-105">
                 <img src={user?.avatar || DEFAULT_AVATAR} className="w-full h-full object-cover" alt="Profile" loading="lazy" />
-                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <div className="absolute inset-0 bg-secondary/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                   <Camera className="text-white drop-shadow-md" size={32} />
                 </div>
               </div>
-              <div className="absolute bottom-3 right-0 md:right-auto md:left-24 z-30 bg-white text-primary p-2 rounded-full shadow-lg border-2 border-primary group-hover:scale-110 transition-transform">
+              <div className="absolute bottom-3 right-0 md:right-auto md:left-24 z-30 bg-paper text-primary p-2 rounded-full shadow-lg border-2 border-primary group-hover:scale-110 transition-transform">
                 <Camera size={14} className="stroke-[3px]" />
               </div>
               <input
@@ -409,9 +409,9 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
                 accept="image/*"
                 onChange={handleAvatarUpload}
               />
-              <div className="absolute inset-0 bg-primary/20 blur-3xl -z-10 transform scale-150" />
-              {experimentalFeatures && proEnabled && <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 md:left-0 md:translate-x-0 z-20 bg-amber-500 text-[10px] font-black px-3 py-1 rounded-full text-white shadow-lg border border-white/20 whitespace-nowrap flex items-center gap-1"><Crown size={10} /> PRO</div>}
-            </div>
+              <div className="absolute inset-0 bg-primary/20 blur-3xl -z-10 transform scale-150" aria-hidden="true" />
+              {experimentalFeatures && proEnabled && <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 md:left-0 md:translate-x-0 z-20 bg-amber-500 text-[10px] font-black px-3 py-1 rounded-full text-white shadow-lg border border-amber-600/30 whitespace-nowrap flex items-center gap-1"><Crown size={10} /> PRO</div>}
+            </button>
             <h1 className="text-3xl font-black tracking-tighter mb-2 text-primary">{user?.name}<span className="text-accent">.</span></h1>
             {user?.selectedTitle && (
               <span className="inline-block px-3 py-1 mb-2 bg-accent/10 rounded-full border border-accent/20 text-[10px] font-black text-accent uppercase tracking-widest">{user.selectedTitle}</span>
@@ -444,7 +444,7 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
         {/* Fame Score Progress Card */}
         <motion.div
           variants={itemVariants}
-          className="premium-card p-6 overflow-hidden relative cursor-pointer active:scale-[0.98] transition-transform"
+          className="premium-card p-6 overflow-hidden relative cursor-pointer active:scale-[0.98] transition-transform focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
           onClick={() => { playClick(); setShowLevelDetail(true); }}
         >
           <div className="absolute -right-10 -top-10 w-40 h-40 bg-accent/5 rounded-full blur-3xl" />
@@ -572,7 +572,7 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
         {!isOrganiser && (
           <motion.div
             variants={itemVariants}
-            className="premium-card p-6 relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform group"
+            className="premium-card p-6 relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform group focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
             onClick={() => { playClick(); hapticTap(); setShowOrganiserSetup(true); }}
           >
             <div className="absolute -left-8 -bottom-8 w-36 h-36 bg-accent/10 rounded-full blur-3xl group-hover:bg-accent/20 transition-colors" />
@@ -607,7 +607,7 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
             <p className="text-xs text-secondary/60 mb-6 px-4 font-medium leading-relaxed italic">Unlock advanced matchmaking and event analytics for £12.99/mo</p>
             <button
               onClick={() => setShowProModal(true)}
-              className="w-full bg-gradient-to-r from-primary to-accent py-4 rounded-2xl text-[12px] font-black uppercase tracking-widest shadow-2xl glow-primary transition-all active:scale-95 text-white"
+              className="w-full bg-gradient-to-r from-primary to-accent py-4 rounded-2xl text-[12px] font-black uppercase tracking-widest shadow-2xl glow-primary transition-all active:scale-95 text-white focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
             >
               Go Pro
             </button>
@@ -626,7 +626,7 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
           <button
             key={item.label}
             onClick={item.action}
-            className="w-full flex items-center justify-between p-6 border-b border-secondary/10 last:border-0 hover:bg-secondary/5 transition-all active:pl-8"
+            className="w-full flex items-center justify-between p-6 border-b border-secondary/10 last:border-0 hover:bg-secondary/5 transition-all active:pl-8 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
           >
             <div className="flex items-center gap-5">
               <div className="w-10 h-10 rounded-2xl bg-secondary/10 flex items-center justify-center border border-secondary/10">
@@ -649,7 +649,7 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
       <motion.button
         variants={itemVariants}
         onClick={() => { playTap(); onLogout(); }}
-        className="w-full p-6 mt-6 rounded-[32px] bg-red-500/10 border border-red-500/20 flex items-center justify-center gap-3 text-red-500 font-black uppercase tracking-widest hover:bg-red-500/20 transition-all active:scale-95"
+        className="w-full p-6 mt-6 rounded-[32px] bg-red-500/10 border border-red-500/20 flex items-center justify-center gap-3 text-red-500 font-black uppercase tracking-widest hover:bg-red-500/20 transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
       >
         <LogOut size={18} />
         Log Out

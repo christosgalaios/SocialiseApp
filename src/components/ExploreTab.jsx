@@ -72,7 +72,7 @@ const InlineReelCard = ({ event, onClick }) => {
       <ReelSlideshow images={slideshowImages} isActive={true} />
 
       {/* Gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-secondary/70 via-transparent to-secondary/20 pointer-events-none" aria-hidden="true" />
 
       {/* Category badge */}
       <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5">
@@ -186,16 +186,18 @@ export default function ExploreTab({ filteredEvents }) {
               <button
                 onClick={() => { playTap(); hapticTap(); scroll(-1); }}
                 disabled={!canScrollLeft}
-                className="w-8 h-8 rounded-full bg-secondary/5 border border-secondary/10 flex items-center justify-center text-secondary/40 hover:text-secondary/70 disabled:opacity-30 transition-all"
+                className="w-10 h-10 rounded-full bg-secondary/5 border border-secondary/10 flex items-center justify-center text-secondary/40 hover:text-secondary/70 disabled:opacity-30 disabled:cursor-not-allowed transition-all focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                 aria-label="Scroll left"
+                title="Scroll left"
               >
                 <ChevronLeft size={16} />
               </button>
               <button
                 onClick={() => { playTap(); hapticTap(); scroll(1); }}
                 disabled={!canScrollRight}
-                className="w-8 h-8 rounded-full bg-secondary/5 border border-secondary/10 flex items-center justify-center text-secondary/40 hover:text-secondary/70 disabled:opacity-30 transition-all"
+                className="w-10 h-10 rounded-full bg-secondary/5 border border-secondary/10 flex items-center justify-center text-secondary/40 hover:text-secondary/70 disabled:opacity-30 disabled:cursor-not-allowed transition-all focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                 aria-label="Scroll right"
+                title="Scroll right"
               >
                 <ChevronRight size={16} />
               </button>

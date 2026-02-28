@@ -49,7 +49,7 @@ const ProUpgradeModal = ({ isOpen, onClose, onUpgrade }) => {
                     >
                         {/* Header with gradient */}
                         <div className="bg-gradient-to-br from-primary to-accent p-8 text-center relative overflow-hidden">
-                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.2),transparent)]" />
+                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.2),transparent)]" aria-hidden="true" />
                             <motion.div
                                 initial={{ scale: 0 }}
                                 animate={{ scale: 1 }}
@@ -64,7 +64,7 @@ const ProUpgradeModal = ({ isOpen, onClose, onUpgrade }) => {
                             {/* Close button */}
                             <button
                                 onClick={() => { playSwooshClose(); hapticTap(); onClose(); }}
-                                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
+                                className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:outline-none"
                                 aria-label="Close"
                             >
                                 <X size={18} className="text-white" />
@@ -107,7 +107,7 @@ const ProUpgradeModal = ({ isOpen, onClose, onUpgrade }) => {
                             <button
                                 onClick={handleUpgrade}
                                 disabled={isProcessing}
-                                className="w-full bg-gradient-to-r from-primary to-accent py-4 rounded-2xl font-black text-white uppercase tracking-widest shadow-lg hover:shadow-xl transition-all active:scale-[0.98] disabled:opacity-70 flex items-center justify-center gap-2"
+                                className="w-full bg-gradient-to-r from-primary to-accent py-4 rounded-2xl font-black text-white uppercase tracking-widest shadow-lg hover:shadow-xl transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                             >
                                 {isProcessing ? (
                                     <>

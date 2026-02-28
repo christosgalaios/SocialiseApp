@@ -22,7 +22,7 @@ const Sidebar = ({ experimentalFeatures, activeTab, setActiveTab }) => {
                             <button
                                 key={tab.id}
                                 onClick={() => { playTap(); setActiveTab(tab.id); }}
-                                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all group ${isActive ? 'bg-secondary text-white shadow-[0_8px_20px_rgba(45,95,93,0.25)]' : 'hover:bg-secondary/10 text-secondary/80 hover:text-secondary'}`}
+                                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all group focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${isActive ? 'bg-secondary text-white shadow-[0_8px_20px_rgba(45,95,93,0.25)]' : 'hover:bg-secondary/10 text-secondary/80 hover:text-secondary'}`}
                             >
                                 <Icon size={18} className={isActive ? 'text-white' : 'text-secondary/40 group-hover:text-secondary'} />
                                 <span className="font-bold text-sm tracking-tight">{tab.label}</span>
@@ -33,16 +33,14 @@ const Sidebar = ({ experimentalFeatures, activeTab, setActiveTab }) => {
                 </div>
             </div>
 
-            <div className="mt-4 px-2 mb-8">
-                {/* Dark Mode toggle removed */}
-            </div>
+            <div className="flex-1" />
 
             {experimentalFeatures && (
             <div className="mt-auto p-5 rounded-2xl bg-gradient-to-br from-secondary/5 to-primary/5 border border-secondary/10 text-center">
                 <Compass size={24} className="mx-auto mb-2 text-primary" />
                 <h4 className="font-heading font-black text-sm mb-1 text-secondary">Go Premium</h4>
                 <p className="text-[10px] text-secondary/60 mb-3">Unlock exclusive curated events.</p>
-                <button className="text-[10px] font-black bg-primary text-white px-4 py-2 rounded-full uppercase tracking-widest hover:scale-105 transition-transform shadow-md">Upgrade</button>
+                <button className="text-[10px] font-black bg-primary text-white px-4 py-2 rounded-full uppercase tracking-widest hover:scale-105 transition-transform shadow-md focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none" aria-label="Upgrade to Pro">Upgrade</button>
             </div>
             )}
         </nav>

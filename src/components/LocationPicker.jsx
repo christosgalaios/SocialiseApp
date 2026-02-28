@@ -142,6 +142,7 @@ const MapSearch = ({ value, onChange }) => {
                     onChange={(e) => setValue(e.target.value)}
                     disabled={!ready}
                     placeholder="Search location..."
+                    aria-label="Search location"
                     className="w-full bg-secondary/5 border border-secondary/10 rounded-2xl pl-12 pr-4 py-3 text-sm font-bold focus:outline-none focus:border-primary transition-all placeholder:text-secondary/30 text-[var(--text)]"
                 />
 

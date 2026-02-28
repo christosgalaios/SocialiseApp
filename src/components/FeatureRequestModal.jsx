@@ -124,8 +124,8 @@ export default function FeatureRequestModal({ isOpen, onClose, onSubmit }) {
               <p className="text-[10px] text-secondary/50 font-medium">Got an idea? Share it with us</p>
             </div>
           </div>
-          <button onPointerDown={(e) => { e.stopPropagation(); playSwooshClose(); hapticTap(); onClose(); }} className="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center" aria-label="Close feature request" style={{ touchAction: 'manipulation' }}>
-            <X size={16} className="text-secondary/60" />
+          <button onPointerDown={(e) => { e.stopPropagation(); playSwooshClose(); hapticTap(); onClose(); }} className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none" aria-label="Close feature request" style={{ touchAction: 'manipulation' }}>
+            <X size={18} className="text-secondary/60" />
           </button>
         </div>
         </div>
@@ -162,7 +162,7 @@ export default function FeatureRequestModal({ isOpen, onClose, onSubmit }) {
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -4 }}
-                className="flex items-center gap-2 text-red-500 text-xs font-medium bg-red-50 px-4 py-2.5 rounded-xl"
+                className="flex items-center gap-2 text-red-500 text-xs font-medium bg-red-500/10 px-4 py-2.5 rounded-xl"
               >
                 <AlertCircle size={14} />
                 {error}
@@ -174,7 +174,7 @@ export default function FeatureRequestModal({ isOpen, onClose, onSubmit }) {
           <button
             onClick={handleSubmit}
             disabled={submitting || !description.trim()}
-            className="w-full py-3.5 rounded-2xl font-black text-white bg-accent hover:bg-accent/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+            className="w-full py-3.5 rounded-2xl font-black text-white bg-accent hover:bg-accent/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg focus-visible:ring-2 focus-visible:ring-accent/30 focus-visible:outline-none"
           >
             {submitting ? (
               <span className="animate-pulse">Submitting...</span>

@@ -40,7 +40,7 @@ const RealtimePing = ({
                             {avatar ? (
                                 <img
                                     src={avatar}
-                                    className="w-8 h-8 rounded-full object-cover border-2 border-white relative z-10"
+                                    className="w-8 h-8 rounded-full object-cover border-2 border-paper relative z-10"
                                     alt={name}
                                     loading="lazy"
                                 />

@@ -18,7 +18,7 @@ const MessageBubble = ({ msg }) => {
       <div className="max-w-[85%] relative">
         {!msg.isMe && (
           <div className="flex items-center gap-2 mb-1 ml-1">
-            <img src={msg.avatar || DEFAULT_AVATAR} alt="" className="w-5 h-5 rounded-full object-cover" loading="lazy" />
+            <img src={msg.avatar || DEFAULT_AVATAR} alt={msg.user || 'User'} className="w-5 h-5 rounded-full object-cover" loading="lazy" />
             <span className="text-[10px] font-bold text-secondary/60">{msg.user}</span>
           </div>
         )}
@@ -31,7 +31,7 @@ const MessageBubble = ({ msg }) => {
           onDoubleClick={() => setShowReactions(!showReactions)}
         >
           {msg.isImage ? (
-            <img src={msg.message} alt="Shared" className="w-48 h-36 object-cover rounded-xl" loading="lazy" />
+            <img src={msg.message} alt="Shared" className="w-48 h-36 object-cover rounded-xl" loading="lazy" onError={(e) => { e.target.style.display = 'none'; }} />
           ) : (
             <p className="text-sm font-medium leading-relaxed">{msg.message}</p>
           )}
@@ -180,13 +180,13 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
               {/* Drag zone — handle + chat header */}
               <div {...dragZoneProps} className="shrink-0">
               <div className="flex justify-center pt-3 pb-2">
-                <div className="w-12 h-1 rounded-full bg-secondary/20" />
+                <div className="w-12 h-1 rounded-full bg-secondary/20" aria-hidden="true" />
               </div>
               <div className="px-4 py-3 border-b border-secondary/10">
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => { playTap(); hapticTap(); closeCommunity(); }}
-                    className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
+                    className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                     aria-label="Back to communities"
                   >
                     <ArrowLeft size={20} className="text-secondary" />
@@ -209,7 +209,7 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
                     </button>
                     <button
                       onClick={() => { playSwooshClose(); hapticTap(); onClose(); }}
-                      className="w-9 h-9 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
+                      className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                       aria-label="Close"
                     >
                       <X size={16} className="text-secondary" />
@@ -226,7 +226,7 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
               </div>
 
               {/* Messages */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-secondary/[0.02]">
+              <div className="flex-1 overflow-y-auto no-scrollbar overscroll-contain p-4 space-y-3 bg-secondary/[0.02]">
                 <div className="text-center text-[10px] font-bold uppercase tracking-wider text-secondary/40 py-2">
                   Today
                 </div>
@@ -263,6 +263,7 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
                     onChange={(e) => setInput(e.target.value)}
                     placeholder="Type a message..."
                     aria-label="Chat message"
+                    enterKeyHint="send"
                     className="flex-1 bg-secondary/5 border border-secondary/10 rounded-2xl px-4 py-3 text-[var(--text)] placeholder:text-secondary/40 focus:outline-none focus:ring-2 focus:ring-primary/30 font-medium text-sm"
                   />
                   <button type="button" className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary/50 hover:bg-secondary/20 transition-colors shrink-0" aria-label="Attach image">
@@ -289,7 +290,7 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
               {/* Drag zone — handle + community list header */}
               <div {...dragZoneProps} className="shrink-0">
               <div className="flex justify-center pt-3 pb-2">
-                <div className="w-12 h-1 rounded-full bg-secondary/20" />
+                <div className="w-12 h-1 rounded-full bg-secondary/20" aria-hidden="true" />
               </div>
               <div className="px-6 pb-4 border-b border-secondary/10">
                 <div className="flex items-center justify-between mb-3">
@@ -302,14 +303,14 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setShowSearch(!showSearch)}
-                      className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
+                      className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                       aria-label={showSearch ? 'Close search' : 'Search chats'}
                     >
                       <Search size={18} className="text-secondary" />
                     </button>
                     <button
                       onClick={() => { playSwooshClose(); hapticTap(); onClose(); }}
-                      className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors"
+                      className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                       aria-label="Close chats"
                     >
                       <X size={18} className="text-secondary" />
@@ -322,6 +323,7 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
                     animate={{ height: 'auto', opacity: 1 }}
                     type="text"
                     placeholder="Search chats..."
+                    enterKeyHint="search"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full bg-secondary/10 border border-secondary/15 rounded-2xl px-4 py-3 text-sm text-[var(--text)] placeholder:text-secondary/40 focus:outline-none focus:ring-2 focus:ring-primary/30 font-medium"
@@ -331,7 +333,7 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
               </div>
 
               {/* Community list */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-1">
+              <div className="flex-1 overflow-y-auto no-scrollbar overscroll-contain p-4 space-y-1">
                 {joinedCommunities.length === 0 ? (
                   <div className="text-center py-12 text-secondary/40">
                     <Users size={32} className="mx-auto mb-3 opacity-50" />

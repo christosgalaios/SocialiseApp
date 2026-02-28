@@ -75,6 +75,7 @@ const Confetti = ({ active = false, onComplete = () => { } }) => {
             {particles.length > 0 && (
                 <motion.div
                     className="fixed inset-0 pointer-events-none z-[1000] flex items-center justify-center overflow-hidden"
+                    aria-hidden="true"
                     initial={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                 >

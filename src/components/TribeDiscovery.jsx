@@ -67,7 +67,7 @@ const TribeDiscovery = ({ isOpen, onClose, onJoin, joinedTribes = [] }) => {
                                 </h2>
                                 <button
                                     onClick={() => { playSwooshClose(); hapticTap(); onClose(); }}
-                                    className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
+                                    className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                                     aria-label="Close"
                                 >
                                     <X size={20} />
@@ -80,15 +80,17 @@ const TribeDiscovery = ({ isOpen, onClose, onJoin, joinedTribes = [] }) => {
                                 <input
                                     type="text"
                                     placeholder="Search tribes..."
+                                    aria-label="Search tribes"
+                                    enterKeyHint="search"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="w-full bg-secondary/10 border border-secondary/20 rounded-2xl pl-12 pr-4 py-3 text-sm font-medium focus:outline-none focus:border-primary transition-all placeholder:text-secondary/40"
+                                    className="w-full bg-secondary/10 border border-secondary/20 rounded-2xl pl-12 pr-4 py-3 text-sm font-medium focus:outline-none focus:border-primary transition-all placeholder:text-secondary/40 text-[var(--text)]"
                                 />
                             </div>
                         </div>
 
                         {/* Tribes List */}
-                        <div className="p-4 overflow-y-auto" style={{ maxHeight: 'calc(80vh - 160px)' }}>
+                        <div className="p-4 overflow-y-auto no-scrollbar overscroll-contain" style={{ maxHeight: 'calc(80vh - 160px)' }}>
                             <p className="text-xs font-bold text-secondary/50 uppercase tracking-widest mb-3 px-2">
                                 Suggested for you
                             </p>
@@ -119,7 +121,7 @@ const TribeDiscovery = ({ isOpen, onClose, onJoin, joinedTribes = [] }) => {
                                                         <button
                                                             onClick={() => !isJoined && handleJoin(tribe)}
                                                             disabled={isJoined || isJoining}
-                                                            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 ${isJoined
+                                                            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${isJoined
                                                                 ? 'bg-accent/20 text-accent border border-accent/30'
                                                                 : isJoining
                                                                     ? 'bg-primary/20 text-primary border border-primary/30'

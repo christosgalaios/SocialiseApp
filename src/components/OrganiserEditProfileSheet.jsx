@@ -144,7 +144,7 @@ export default function OrganiserEditProfileSheet() {
           >
             {/* Drag handle */}
             <div {...handleProps} className="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing">
-              <div className="w-10 h-1 bg-secondary/20 rounded-full" />
+              <div className="w-10 h-1 bg-secondary/20 rounded-full" aria-hidden="true" />
             </div>
 
             {/* Header */}
@@ -157,6 +157,7 @@ export default function OrganiserEditProfileSheet() {
                     animate={{ scale: 1 }}
                     className="w-2 h-2 rounded-full bg-amber-500 animate-pulse-soft"
                     style={{ boxShadow: '0 0 6px rgba(245, 158, 11, 0.4)' }}
+                    aria-hidden="true"
                   />
                 )}
               </div>
@@ -199,7 +200,7 @@ export default function OrganiserEditProfileSheet() {
                       <p className="text-[9px] font-black text-primary/60 uppercase tracking-widest mb-3">Preview</p>
                       {coverPhotoPreview && (
                         <div className="-mx-4 -mt-8 mb-3 h-16 overflow-hidden rounded-t-2xl">
-                          <img src={coverPhotoPreview} className="w-full h-full object-cover opacity-60" alt="Cover photo preview" loading="lazy" />
+                          <img src={coverPhotoPreview} className="w-full h-full object-cover opacity-60" alt="Cover photo preview" loading="lazy" onError={(e) => { e.target.style.display = 'none'; }} />
                         </div>
                       )}
                       <div className="flex items-center gap-3">
@@ -237,7 +238,7 @@ export default function OrganiserEditProfileSheet() {
                 <div className="relative h-24 rounded-2xl overflow-hidden bg-secondary/5 border-2 border-dashed border-secondary/20 hover:border-primary/30 transition-colors duration-200">
                   {coverPhotoPreview ? (
                     <>
-                      <img src={coverPhotoPreview} className="w-full h-full object-cover" alt="Cover" loading="lazy" />
+                      <img src={coverPhotoPreview} className="w-full h-full object-cover" alt="Cover" loading="lazy" onError={(e) => { e.target.style.display = 'none'; }} />
                       <button
                         onClick={() => setCoverPhotoPreview('')}
                         className="absolute top-2 right-2 w-7 h-7 rounded-full bg-secondary/80 flex items-center justify-center hover:bg-secondary transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none before:absolute before:inset-[-8px] before:content-['']"

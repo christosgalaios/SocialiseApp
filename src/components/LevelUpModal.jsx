@@ -30,7 +30,7 @@ const LevelUpModal = ({ isOpen, onClose, newLevel, unlockedTitle }) => {
           <div className="absolute inset-0 bg-secondary/90 backdrop-blur-xl" onClick={onClose} />
 
           {/* Animated background particles */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
             {Array.from({ length: 20 }).map((_, i) => (
               <motion.div
                 key={i}
@@ -67,7 +67,7 @@ const LevelUpModal = ({ isOpen, onClose, newLevel, unlockedTitle }) => {
             {/* Close button */}
             <button
               onClick={() => { playSwooshClose(); hapticTap(); onClose(); }}
-              className="absolute -top-2 -right-2 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white/60 hover:bg-white/20 transition-colors z-20"
+              className="absolute -top-2 -right-2 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white/60 hover:bg-white/20 transition-colors z-20 focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:outline-none"
               aria-label="Close"
             >
               <X size={18} />
@@ -76,7 +76,7 @@ const LevelUpModal = ({ isOpen, onClose, newLevel, unlockedTitle }) => {
             {/* Card */}
             <div className="bg-gradient-to-b from-white/15 to-white/5 backdrop-blur-2xl rounded-[40px] p-8 text-center border border-white/10 shadow-2xl overflow-hidden">
               {/* Top glow */}
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-40 bg-accent/30 rounded-full blur-3xl -translate-y-1/2" />
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-40 bg-accent/30 rounded-full blur-3xl -translate-y-1/2" aria-hidden="true" />
 
               {/* Level up text */}
               <motion.div
@@ -149,7 +149,7 @@ const LevelUpModal = ({ isOpen, onClose, newLevel, unlockedTitle }) => {
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 1 }}
                 onClick={onClose}
-                className="w-full py-4 rounded-2xl bg-gradient-to-r from-accent to-primary text-white font-black text-sm uppercase tracking-widest shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-transform"
+                className="w-full py-4 rounded-2xl bg-gradient-to-r from-accent to-primary text-white font-black text-sm uppercase tracking-widest shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-transform focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:outline-none"
               >
                 <Sparkles size={18} />
                 Continue

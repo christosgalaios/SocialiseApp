@@ -185,7 +185,7 @@ export default function OrganiserProfileSheet() {
                   {/* Cover photo */}
                   {profile.organiserCoverPhoto && (
                     <div className="h-28 overflow-hidden">
-                      <img src={profile.organiserCoverPhoto} className="w-full h-full object-cover" alt="" loading="lazy" aria-hidden="true" />
+                      <img src={profile.organiserCoverPhoto} className="w-full h-full object-cover" alt="" loading="lazy" aria-hidden="true" onError={(e) => { e.target.parentElement.style.display = 'none'; }} />
                     </div>
                   )}
 
@@ -335,7 +335,7 @@ export default function OrganiserProfileSheet() {
                         </div>
                         <div className="flex items-center gap-3">
                           <div className="w-12 h-12 rounded-xl overflow-hidden bg-secondary/10 shrink-0">
-                            {highlightEvent.image && <img src={highlightEvent.image} className="w-full h-full object-cover" alt={highlightEvent.title || 'Top event'} loading="lazy" />}
+                            {highlightEvent.image && <img src={highlightEvent.image} className="w-full h-full object-cover" alt={highlightEvent.title || 'Top event'} loading="lazy" onError={(e) => { e.target.style.display = 'none'; }} />}
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-bold text-secondary truncate">{highlightEvent.title}</p>
@@ -474,7 +474,7 @@ export default function OrganiserProfileSheet() {
                                   className="w-full flex items-center gap-3 p-3 rounded-2xl bg-secondary/5 border border-secondary/10 hover:bg-secondary/10 hover:shadow-sm transition-all text-left focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                                 >
                                   <div className="w-11 h-11 rounded-xl overflow-hidden bg-secondary/10 shrink-0">
-                                    {event.image && <img src={event.image} className="w-full h-full object-cover" alt={event.title || 'Event'} loading="lazy" />}
+                                    {event.image && <img src={event.image} className="w-full h-full object-cover" alt={event.title || 'Event'} loading="lazy" onError={(e) => { e.target.style.display = 'none'; }} />}
                                   </div>
                                   <div className="flex-1 min-w-0">
                                     <p className="text-sm font-bold text-secondary truncate">{event.title}</p>
