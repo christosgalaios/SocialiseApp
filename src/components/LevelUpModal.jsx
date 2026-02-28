@@ -67,7 +67,7 @@ const LevelUpModal = ({ isOpen, onClose, newLevel, unlockedTitle }) => {
             {/* Close button */}
             <button
               onClick={() => { playSwooshClose(); hapticTap(); onClose(); }}
-              className="absolute -top-2 -right-2 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white/60 hover:bg-white/20 transition-colors z-20 focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:outline-none"
+              className="absolute -top-2 -right-2 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white/60 hover:bg-white/20 transition-colors z-20 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
               aria-label="Close"
             >
               <X size={18} />
@@ -149,7 +149,7 @@ const LevelUpModal = ({ isOpen, onClose, newLevel, unlockedTitle }) => {
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 1 }}
                 onClick={onClose}
-                className="w-full py-4 rounded-2xl bg-gradient-to-r from-accent to-primary text-white font-black text-sm uppercase tracking-widest shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-transform focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:outline-none"
+                className="w-full py-4 rounded-2xl bg-gradient-to-r from-accent to-primary text-white font-black text-sm uppercase tracking-widest shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-transform focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
               >
                 <Sparkles size={18} />
                 Continue

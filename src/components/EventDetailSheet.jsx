@@ -224,7 +224,7 @@ const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMe
                               <button
                                 type="button"
                                 onClick={() => onOpenProfile({ name: msg.user, avatar: msg.avatar })}
-                                className="rounded-[18px] focus:outline-none focus:ring-2 focus:ring-primary/40"
+                                className="rounded-[18px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
                               >
                                 <img src={msg.avatar || DEFAULT_AVATAR} className="w-12 h-12 rounded-[18px] object-cover shadow-2xl border border-secondary/10" alt={msg.user} loading="lazy" onError={(e) => { e.target.style.display = 'none'; }} />
                               </button>
@@ -278,7 +278,7 @@ const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMe
               />
               <button
                 onClick={() => { onSendMessage(inputText); setInputText(''); }}
-                className="w-16 h-16 bg-primary rounded-[22px] flex items-center justify-center text-white shadow-xl active:scale-95 transition-all"
+                className="w-16 h-16 bg-primary rounded-[22px] flex items-center justify-center text-white shadow-xl active:scale-95 transition-all focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                 aria-label="Send message"
               >
                 <Send size={28} strokeWidth={2.5} />
@@ -292,7 +292,7 @@ const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMe
               </div>
               <button
                 onClick={() => { playSuccess(); hapticTap(); onJoin(); }}
-                className={`flex-1 py-5 rounded-[24px] font-black text-xl uppercase tracking-[0.1em] transition-all shadow-xl active:scale-95 ${isJoined
+                className={`flex-1 py-5 rounded-[24px] font-black text-xl uppercase tracking-[0.1em] transition-all shadow-xl active:scale-95 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${isJoined
                   ? 'bg-secondary/5 text-secondary/60 border-2 border-secondary/10'
                   : 'bg-gradient-to-r from-secondary to-primary text-white'
                   }`}

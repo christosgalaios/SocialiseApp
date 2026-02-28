@@ -321,7 +321,7 @@ const AuthScreen = ({ onLogin }) => {
         </button>
 
         <p className="text-center text-[10px] text-secondary/40 font-bold px-10 leading-relaxed italic opacity-80">
-          By continuing, you agree to our <span className="underline decoration-primary cursor-pointer hover:text-primary transition-colors">Community Pact</span> and friendly guidelines.
+          By continuing, you agree to our <span className="underline decoration-primary">Community Pact</span> and friendly guidelines.
         </p>
       </motion.div>
     </motion.div>

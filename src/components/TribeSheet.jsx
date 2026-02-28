@@ -235,7 +235,7 @@ const TribeSheet = ({ tribe, isOpen, onClose, onLeave }) => {
                                                 </div>
                                                 <p className="text-sm text-secondary/70 leading-relaxed">{review.text}</p>
                                                 <div className="flex items-center gap-2 mt-3">
-                                                    <button className="text-[10px] font-bold text-secondary/40 flex items-center gap-1 hover:text-primary transition-colors">
+                                                    <button className="text-[10px] font-bold text-secondary/40 flex items-center gap-1 hover:text-primary transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none rounded" aria-label={`Mark review as helpful (${review.helpful} found helpful)`}>
                                                         <Heart size={12} /> Helpful ({review.helpful})
                                                     </button>
                                                 </div>

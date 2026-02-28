@@ -8,7 +8,7 @@ import { ADVERTISED_EVENTS } from '../data/constants';
  */
 const CuratedIntroCard = ({ userName = "You" }) => (
     <motion.div
-        className="relative snap-center shrink-0 w-[280px] h-[400px] rounded-[32px] overflow-hidden cursor-pointer group shadow-2xl bg-gradient-to-br from-primary/90 to-secondary/90"
+        className="relative snap-center shrink-0 w-[280px] h-[400px] rounded-[32px] overflow-hidden group shadow-2xl bg-gradient-to-br from-primary/90 to-secondary/90"
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         whileHover={{ scale: 1.02 }}
@@ -137,7 +137,7 @@ const VideoCard = ({ ad, onSelect, muted, onToggleMute, isSponsored = true }) =>
                         e.stopPropagation();
                         onToggleMute();
                     }}
-                    className="w-10 h-10 rounded-full bg-secondary/50 backdrop-blur-md flex items-center justify-center text-white/80 hover:bg-paper/20 transition-colors focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:outline-none"
+                    className="w-10 h-10 rounded-full bg-secondary/50 backdrop-blur-md flex items-center justify-center text-white/80 hover:bg-paper/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                     aria-label={muted ? 'Unmute' : 'Mute'}
                     title={muted ? 'Unmute' : 'Mute'}
                 >

@@ -285,6 +285,7 @@ export default function HomeTab({ onProfileClick, onCreateEvent, fetchAllData })
             onClick={refreshRecommendations}
             disabled={isRefreshingRecs}
             className="w-8 h-8 rounded-full bg-secondary/10 border border-secondary/15 flex items-center justify-center text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+            aria-label="Refresh recommendations"
             title="Refresh recommendations"
           >
             <RefreshCw size={14} strokeWidth={2.5} className={isRefreshingRecs ? 'animate-spin' : ''} />
