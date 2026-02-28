@@ -72,6 +72,7 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **HomeTab refresh button** — "Refresh recommendations" icon button now has `aria-label` (previously only had `title`) for proper screen reader support
 - **TribeSheet review button accessibility** — "Helpful" button now has `aria-label`, `focus-visible:ring`, and `rounded` styling for keyboard focus visibility
 - **ProUpgradeModal double-click guard** — upgrade button now guards against repeated clicks (`isProcessing` check) and clears previous timer before starting a new one, preventing timer accumulation
+- **Focus ring consistency (final pass)** — LevelUpScreen close and CTA buttons now use `focus-visible:ring-primary/30` instead of `focus-visible:ring-white/30`. EventDetailSheet chat avatar button fixed from `focus:ring` to `focus-visible:ring`. EventDetailSheet send message and join buttons now have `focus-visible:ring` for keyboard navigation
 
 ### Fixed
 - **Loading glitch on tab switches and initial load** — removed `AnimatePresence mode="wait"` that forced sequential exit→enter animations, creating a visible flash where content disappeared then reappeared. Tabs now cross-fade simultaneously. Also removed the artificial 600ms skeleton delay on initial load (content appears immediately) and sped up all tab transition animations

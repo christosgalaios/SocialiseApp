@@ -107,7 +107,7 @@ const LevelUpScreen = ({ isOpen, onClose, levelUpData }) => {
             {/* Close */}
             <button
               onPointerDown={() => { playSwooshClose(); hapticTap(); onClose(); }}
-              className="absolute -top-3 -right-3 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white/60 hover:bg-white/20 z-20 transition-colors focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:outline-none"
+              className="absolute -top-3 -right-3 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white/60 hover:bg-white/20 z-20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
               aria-label="Close"
             >
               <X size={18} />
@@ -299,7 +299,7 @@ const LevelUpScreen = ({ isOpen, onClose, levelUpData }) => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: isMilestone ? 1.1 : (fameLeveledUp || isFameOnly) ? 0.9 : 0.7 }}
                 onPointerDown={onClose}
-                className={`w-full mt-6 py-4 rounded-2xl text-white font-black text-sm uppercase tracking-widest shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-transform bg-gradient-to-r ${accentFrom} ${accentTo} focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:outline-none`}
+                className={`w-full mt-6 py-4 rounded-2xl text-white font-black text-sm uppercase tracking-widest shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-transform bg-gradient-to-r ${accentFrom} ${accentTo} focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none`}
               >
                 <Sparkles size={16} />
                 Keep Going
