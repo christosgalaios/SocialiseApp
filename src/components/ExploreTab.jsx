@@ -186,16 +186,18 @@ export default function ExploreTab({ filteredEvents }) {
               <button
                 onClick={() => { playTap(); hapticTap(); scroll(-1); }}
                 disabled={!canScrollLeft}
-                className="w-8 h-8 rounded-full bg-secondary/5 border border-secondary/10 flex items-center justify-center text-secondary/40 hover:text-secondary/70 disabled:opacity-30 transition-all"
+                className="w-10 h-10 rounded-full bg-secondary/5 border border-secondary/10 flex items-center justify-center text-secondary/40 hover:text-secondary/70 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                 aria-label="Scroll left"
+                title="Scroll left"
               >
                 <ChevronLeft size={16} />
               </button>
               <button
                 onClick={() => { playTap(); hapticTap(); scroll(1); }}
                 disabled={!canScrollRight}
-                className="w-8 h-8 rounded-full bg-secondary/5 border border-secondary/10 flex items-center justify-center text-secondary/40 hover:text-secondary/70 disabled:opacity-30 transition-all"
+                className="w-10 h-10 rounded-full bg-secondary/5 border border-secondary/10 flex items-center justify-center text-secondary/40 hover:text-secondary/70 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                 aria-label="Scroll right"
+                title="Scroll right"
               >
                 <ChevronRight size={16} />
               </button>

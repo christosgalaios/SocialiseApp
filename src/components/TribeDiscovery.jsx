@@ -80,9 +80,10 @@ const TribeDiscovery = ({ isOpen, onClose, onJoin, joinedTribes = [] }) => {
                                 <input
                                     type="text"
                                     placeholder="Search tribes..."
+                                    aria-label="Search tribes"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="w-full bg-secondary/10 border border-secondary/20 rounded-2xl pl-12 pr-4 py-3 text-sm font-medium focus:outline-none focus:border-primary transition-all placeholder:text-secondary/40"
+                                    className="w-full bg-secondary/10 border border-secondary/20 rounded-2xl pl-12 pr-4 py-3 text-sm font-medium focus:outline-none focus:border-primary transition-all placeholder:text-secondary/40 text-[var(--text)]"
                                 />
                             </div>
                         </div>

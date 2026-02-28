@@ -316,7 +316,7 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
                 className={`relative w-12 h-7 rounded-full transition-colors ${soundEnabled ? 'bg-primary' : 'bg-secondary/20'}`}
               >
                 <motion.div
-                  className="absolute top-1 w-5 h-5 rounded-full bg-white shadow"
+                  className="absolute top-1 w-5 h-5 rounded-full bg-paper shadow"
                   animate={{ x: soundEnabled ? 24 : 0 }}
                   transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                   style={{ left: 4 }}
@@ -339,7 +339,7 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
                 className={`relative w-12 h-7 rounded-full transition-colors ${experimentalFeatures ? 'bg-primary' : 'bg-secondary/20'}`}
               >
                 <motion.div
-                  className="absolute top-1 w-5 h-5 rounded-full bg-white shadow"
+                  className="absolute top-1 w-5 h-5 rounded-full bg-paper shadow"
                   animate={{ x: experimentalFeatures ? 24 : 0 }}
                   transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                   style={{ left: 4 }}
@@ -399,7 +399,7 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
                   <Camera className="text-white drop-shadow-md" size={32} />
                 </div>
               </div>
-              <div className="absolute bottom-3 right-0 md:right-auto md:left-24 z-30 bg-white text-primary p-2 rounded-full shadow-lg border-2 border-primary group-hover:scale-110 transition-transform">
+              <div className="absolute bottom-3 right-0 md:right-auto md:left-24 z-30 bg-paper text-primary p-2 rounded-full shadow-lg border-2 border-primary group-hover:scale-110 transition-transform">
                 <Camera size={14} className="stroke-[3px]" />
               </div>
               <input

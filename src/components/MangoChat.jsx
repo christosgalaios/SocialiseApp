@@ -234,6 +234,7 @@ const MangoChat = ({ user = {}, events = [] }) => {
                 <button
                     onClick={() => { setIsChatOpen(false); setPose('wave'); }}
                     className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary hover:bg-secondary/20 transition-colors"
+                    aria-label="Close chat"
                 >
                     <X size={20} />
                 </button>
@@ -268,7 +269,7 @@ const MangoChat = ({ user = {}, events = [] }) => {
                             <div
                                 className={`max-w-[85%] p-4 rounded-2xl shadow-sm relative ${msg.type === 'user'
                                     ? 'bg-primary text-white rounded-br-sm'
-                                    : 'bg-white border border-secondary/10 text-secondary rounded-bl-sm'
+                                    : 'bg-paper border border-secondary/10 text-secondary rounded-bl-sm'
                                     }`}
                             >
                                 <p className="leading-relaxed text-sm font-medium whitespace-pre-line" dangerouslySetInnerHTML={{
@@ -287,7 +288,7 @@ const MangoChat = ({ user = {}, events = [] }) => {
                                 className="mt-3 w-full max-w-sm premium-card overflow-hidden"
                             >
                                 <div className="h-32 relative">
-                                    <img src={msg.card.image} alt={msg.card.title} className="w-full h-full object-cover" loading="lazy" />
+                                    <img src={msg.card.image} alt={msg.card.title || 'Event'} className="w-full h-full object-cover" loading="lazy" onError={(e) => { e.target.style.display = 'none'; }} />
                                     <div className="absolute inset-0 bg-gradient-to-t from-secondary/60 to-transparent" />
                                     <div className="absolute top-3 right-3 flex gap-1.5">
                                         <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest text-white ${msg.isMicro ? 'bg-accent/90' : 'bg-white/20 backdrop-blur-md'}`}>
@@ -326,7 +327,7 @@ const MangoChat = ({ user = {}, events = [] }) => {
                 {isTyping && (
                     <div className="flex items-center gap-3 ml-2">
                         <div className="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center text-sm shadow-sm">🐱</div>
-                        <div className="bg-white border border-secondary/10 rounded-2xl rounded-bl-sm px-4 py-3 flex items-center gap-1.5">
+                        <div className="bg-paper border border-secondary/10 rounded-2xl rounded-bl-sm px-4 py-3 flex items-center gap-1.5">
                             <div className="w-2 h-2 bg-secondary/30 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                             <div className="w-2 h-2 bg-secondary/30 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
                             <div className="w-2 h-2 bg-secondary/30 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
@@ -344,12 +345,14 @@ const MangoChat = ({ user = {}, events = [] }) => {
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         placeholder="Ask Mango anything..."
+                        aria-label="Ask Mango anything"
                         className="flex-1 bg-secondary/5 border border-secondary/10 text-[var(--text)] rounded-2xl pl-5 pr-14 py-3.5 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all font-medium text-sm placeholder:text-secondary/40"
                     />
                     <button
                         type="submit"
                         disabled={!input.trim()}
-                        className="absolute right-2 w-10 h-10 bg-primary text-white rounded-xl disabled:opacity-30 disabled:bg-secondary/20 transition-all hover:scale-105 active:scale-95 shadow-md flex items-center justify-center"
+                        className="absolute right-2 w-10 h-10 bg-primary text-white rounded-xl disabled:opacity-30 disabled:bg-secondary/20 disabled:cursor-not-allowed transition-all hover:scale-105 active:scale-95 shadow-md flex items-center justify-center"
+                        aria-label="Send message"
                     >
                         <Send size={18} />
                     </button>

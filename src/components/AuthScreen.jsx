@@ -170,11 +170,12 @@ const AuthScreen = ({ onLogin }) => {
             {TESTIMONIALS.map((_, i) => (
               <button key={i} onClick={() => setActiveTestimonial(i)}
                 className={`w-1.5 h-1.5 rounded-full transition-all ${i === activeTestimonial ? 'bg-primary w-5' : 'bg-secondary/20'}`}
+                aria-label={`View testimonial ${i + 1}`}
               />
             ))}
           </div>
-          <button onClick={() => { playTap(); hapticTap(); prevTestimonial(); }} className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white shadow items-center justify-center text-secondary/60 hover:text-secondary"><ChevronLeft size={16} /></button>
-          <button onClick={() => { playTap(); hapticTap(); nextTestimonial(); }} className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white shadow items-center justify-center text-secondary/60 hover:text-secondary"><ChevronRight size={16} /></button>
+          <button onClick={() => { playTap(); hapticTap(); prevTestimonial(); }} className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-paper shadow items-center justify-center text-secondary/60 hover:text-secondary transition-colors" aria-label="Previous testimonial" title="Previous testimonial"><ChevronLeft size={16} /></button>
+          <button onClick={() => { playTap(); hapticTap(); nextTestimonial(); }} className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-paper shadow items-center justify-center text-secondary/60 hover:text-secondary transition-colors" aria-label="Next testimonial" title="Next testimonial"><ChevronRight size={16} /></button>
         </div>
       </motion.div>
 

@@ -611,7 +611,7 @@ export default function OrganiserDashboard({ onSwitchToAttendee, onCreateEvent }
         {/* Cover photo area */}
         {user?.organiserCoverPhoto && (
           <div className="-mx-6 -mt-6 mb-4 h-28 overflow-hidden rounded-t-[24px]">
-            <img src={user.organiserCoverPhoto} className="w-full h-full object-cover" alt="" loading="lazy" />
+            <img src={user.organiserCoverPhoto} className="w-full h-full object-cover" alt="Organiser cover photo" loading="lazy" onError={(e) => { e.target.parentElement.style.display = 'none'; }} />
           </div>
         )}
 

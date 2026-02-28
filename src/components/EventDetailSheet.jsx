@@ -41,7 +41,7 @@ const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMe
           <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar flex flex-col">
             {/* Header Image - scrolls up and hides */}
             <div className="relative h-64 shrink-0 mx-5 rounded-[32px] overflow-hidden shadow-2xl border border-secondary/10 group">
-              <img src={event.image} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt={event.title} loading="lazy" />
+              <img src={event.image} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt={event.title} loading="lazy" onError={(e) => { e.target.style.display = 'none'; }} />
               <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-secondary/80 to-transparent" />
               <div className="absolute bottom-8 left-8 right-8">
                 <div className="flex items-center gap-2.5 mb-3">
@@ -119,7 +119,7 @@ const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMe
                       className="flex items-center gap-3 group/host w-full text-left p-3 rounded-2xl bg-secondary/5 border border-secondary/10 hover:bg-secondary/10 transition-colors"
                     >
                       <div className="w-12 h-12 rounded-2xl overflow-hidden bg-secondary/10 border-2 border-primary/20 shadow-sm shrink-0">
-                        <img src={event.hostAvatar || DEFAULT_AVATAR} className="w-full h-full object-cover" alt="" loading="lazy" />
+                        <img src={event.hostAvatar || DEFAULT_AVATAR} className="w-full h-full object-cover" alt={event.host || 'Host'} loading="lazy" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5">
@@ -269,6 +269,7 @@ const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMe
               <input
                 type="text"
                 placeholder="Message the hub..."
+                aria-label="Chat message"
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && (onSendMessage(inputText), setInputText(''))}

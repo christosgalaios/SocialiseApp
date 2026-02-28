@@ -231,8 +231,9 @@ export default function HomeTab({ onProfileClick, onCreateEvent, fetchAllData })
                 const el = document.getElementById('micro-meets-scroll');
                 if (el) el.scrollBy({ left: -316, behavior: 'smooth' });
               }}
-              className="w-8 h-8 rounded-full bg-secondary/10 border border-secondary/15 flex items-center justify-center text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all"
+              className="w-10 h-10 rounded-full bg-secondary/10 border border-secondary/15 flex items-center justify-center text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all"
               aria-label="Scroll left"
+              title="Scroll left"
             >
               <ChevronLeft size={16} strokeWidth={2.5} />
             </button>
@@ -242,8 +243,9 @@ export default function HomeTab({ onProfileClick, onCreateEvent, fetchAllData })
                 const el = document.getElementById('micro-meets-scroll');
                 if (el) el.scrollBy({ left: 316, behavior: 'smooth' });
               }}
-              className="w-8 h-8 rounded-full bg-secondary/10 border border-secondary/15 flex items-center justify-center text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all"
+              className="w-10 h-10 rounded-full bg-secondary/10 border border-secondary/15 flex items-center justify-center text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all"
               aria-label="Scroll right"
+              title="Scroll right"
             >
               <ChevronRight size={16} strokeWidth={2.5} />
             </button>

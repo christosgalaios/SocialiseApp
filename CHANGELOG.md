@@ -12,6 +12,18 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 
 ## [Unreleased]
 
+### Changed
+- **Design system compliance** — replaced `bg-white` with `bg-paper` in VideoWall play button, AuthScreen testimonial nav buttons, ProfileTab toggle switches, ProfileTab camera badge, MangoChat bot messages, MangoChat typing indicator, and EventCard category badge (`bg-white/90` → `bg-paper/90`). Replaced `text-black` with `text-secondary` in VideoWall play icon. Replaced `bg-black/50` with `bg-secondary/50` on VideoWall mute button. Never hardcode `#ffffff` or pure black per design system rules
+- **Touch target sizes** — enlarged icon-only buttons from 32px to 40px (`w-8 h-8` → `w-10 h-10`) on VideoWall nav arrows, ExploreTab reel scroll buttons, HomeTab micro-meets scroll buttons, and VideoWall mute toggle for better mobile accessibility (44px minimum guideline)
+- **Disabled button UX** — added `disabled:cursor-not-allowed` to all disableable buttons (VideoWall nav, ExploreTab scroll, MangoChat send) so desktop users get immediate visual feedback that a button is inactive
+
+### Fixed
+- **Missing aria-labels** — added `aria-label` and `title` attributes to 12 icon-only buttons that were previously unlabeled: VideoWall mute/prev/next, AuthScreen testimonial prev/next/dots, ExploreTab scroll left/right, HomeTab micro-meets scroll, MangoChat send and close buttons
+- **Missing form input labels** — added `aria-label` to 3 search inputs (LocationPicker, TribeDiscovery, MangoChat) that only had placeholder text, making them accessible to screen readers
+- **Empty alt text on content images** — replaced `alt=""` with descriptive alt text on EventDetailSheet host avatar (`alt={event.host}`), GroupChatsSheet message avatars (`alt={msg.user}`), and OrganiserDashboard cover photo (`alt="Organiser cover photo"`)
+- **Missing text color on TribeDiscovery search** — added `text-[var(--text)]` to ensure input text is visible against the design system background
+- **Broken image graceful degradation** — added `onError` handlers to EventDetailSheet header image, MangoChat event card image, and OrganiserDashboard cover photo that hide the element on load failure instead of showing a broken image icon
+
 ### Fixed
 - **Loading glitch on tab switches and initial load** — removed `AnimatePresence mode="wait"` that forced sequential exit→enter animations, creating a visible flash where content disappeared then reappeared. Tabs now cross-fade simultaneously. Also removed the artificial 600ms skeleton delay on initial load (content appears immediately) and sped up all tab transition animations
 - **Organiser dashboard content invisible** — replaced Framer Motion's `containerVariants`/`itemVariants` variant propagation with explicit `initial`/`animate`/`transition` on each section. The variant propagation pattern (`staggerChildren` + `delayChildren`) was silently failing — children stayed at `opacity: 0` despite correct variant setup. Each section now independently animates in with staggered delays via a `staggerDelay(i)` helper
