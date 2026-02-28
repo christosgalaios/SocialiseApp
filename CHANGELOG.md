@@ -13,6 +13,12 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 ## [Unreleased]
 
 ### Added
+- **Theme switcher** — Dark theme and Liquid Glass theme available in Experimental Features settings. Theme persists across sessions. Dark theme uses existing `.dark` CSS tokens. Liquid Glass adds translucent frosted-glass effects on cards and surfaces
+- **Profile bio editing** — tap your bio text (or "Tap to add a bio...") to edit inline with a 160-character text area. Saves to backend on submit
+- **Role switching from bottom nav** — double-tap the profile icon to quick-switch between Attendee and Organiser views. Long-press shows a role picker popup. Profile icon changes to Megaphone when in organiser mode. Gold dot indicates role-switching is available
+- **Collapsible skills section** — Your Skills on the profile page now defaults to a compact horizontal bar view. Tap "Expand" to reveal the full skill cards with milestone badges
+- **Cover photo file upload** — organiser profile editor now accepts image files from your device instead of requiring a URL. Tap the dashed area to pick a photo
+- **Video card labels** — non-sponsored video cards now show "Recommended" (with primary badge color) instead of "Real People"
 - **Double-click guards on destructive actions** — Cancel (MyBookingsSheet), Remove (SavedEventsSheet), and Leave (TribeSheet) buttons now show loading text ("Cancelling…", "Removing…") and disable during the async API call, preventing duplicate requests from spam-clicking
 - **Text overflow protection** — long event titles, locations, community descriptions, user bios, feed posts, and chat comments now use `line-clamp`, `truncate`, or `break-words` to prevent layout breakage from user-generated content
 

@@ -120,14 +120,14 @@ const VideoCard = ({ ad, onSelect, muted, onToggleMute, isSponsored = true }) =>
 
             {/* Top badges row */}
             <div className="absolute top-4 left-4 right-4 z-20 flex justify-between items-start">
-                {/* Real People or Sponsored badge */}
+                {/* Sponsored or Recommended badge */}
                 {isSponsored ? (
                     <span className="text-[9px] font-black bg-white/20 backdrop-blur-md text-white px-2.5 py-1 rounded-full uppercase tracking-widest">
                         Sponsored
                     </span>
                 ) : (
-                    <span className="text-[9px] font-black bg-green-500/90 text-white px-2.5 py-1 rounded-full uppercase tracking-widest flex items-center gap-1">
-                        <Heart size={10} className="fill-current" /> Real People
+                    <span className="text-[9px] font-black bg-primary/80 backdrop-blur-md text-white px-2.5 py-1 rounded-full uppercase tracking-widest flex items-center gap-1">
+                        <Heart size={10} className="fill-current" /> Recommended
                     </span>
                 )}
 

@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Link2, Check, Camera, ShieldCheck, ChevronDown, Eye } from 'lucide-react';
+import { X, Link2, Check, Camera, ShieldCheck, ChevronDown, Eye, Upload } from 'lucide-react';
 import { CATEGORIES, ORGANISER_SOCIAL_PLATFORMS, DEFAULT_AVATAR } from '../data/constants';
 import { playTap, playSuccess } from '../utils/feedback';
 import useAuthStore from '../stores/authStore';
@@ -25,6 +25,7 @@ export default function OrganiserEditProfileSheet() {
   const [selectedCategories, setSelectedCategories] = useState(user?.organiserCategories || []);
   const [socialLinks, setSocialLinks] = useState(user?.organiserSocialLinks || {});
   const [coverPhotoPreview, setCoverPhotoPreview] = useState(user?.organiserCoverPhoto || '');
+  const coverFileRef = useRef(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSocialLinks, setShowSocialLinks] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
@@ -235,12 +236,18 @@ export default function OrganiserEditProfileSheet() {
                 <label className="text-xs font-black text-secondary/60 uppercase tracking-widest mb-2 block">
                   Cover Photo
                 </label>
-                <div className="relative h-24 rounded-2xl overflow-hidden bg-secondary/5 border-2 border-dashed border-secondary/20 hover:border-primary/30 transition-colors duration-200">
+                <div
+                  className="relative h-24 rounded-2xl overflow-hidden bg-secondary/5 border-2 border-dashed border-secondary/20 hover:border-primary/30 transition-colors duration-200 cursor-pointer"
+                  onClick={() => !coverPhotoPreview && coverFileRef.current?.click()}
+                  role={coverPhotoPreview ? undefined : 'button'}
+                  tabIndex={coverPhotoPreview ? undefined : 0}
+                  onKeyDown={(e) => { if (!coverPhotoPreview && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); coverFileRef.current?.click(); } }}
+                >
                   {coverPhotoPreview ? (
                     <>
                       <img src={coverPhotoPreview} className="w-full h-full object-cover" alt="Cover" loading="lazy" onError={(e) => { e.target.style.display = 'none'; }} />
                       <button
-                        onClick={() => setCoverPhotoPreview('')}
+                        onClick={(e) => { e.stopPropagation(); if (coverPhotoPreview.startsWith('blob:')) URL.revokeObjectURL(coverPhotoPreview); setCoverPhotoPreview(''); }}
                         className="absolute top-2 right-2 w-7 h-7 rounded-full bg-secondary/80 flex items-center justify-center hover:bg-secondary transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none before:absolute before:inset-[-8px] before:content-['']"
                         aria-label="Remove cover photo"
                       >
@@ -249,20 +256,24 @@ export default function OrganiserEditProfileSheet() {
                     </>
                   ) : (
                     <div className="absolute inset-0 flex flex-col items-center justify-center gap-1">
-                      <Camera size={20} className="text-secondary/30" aria-hidden="true" />
-                      <span className="text-[10px] font-bold text-secondary/30 text-balance">Paste image URL below</span>
+                      <Upload size={20} className="text-secondary/30" aria-hidden="true" />
+                      <span className="text-[10px] font-bold text-secondary/30">Tap to upload photo</span>
                     </div>
                   )}
                 </div>
                 <input
-                  type="url"
-                  placeholder="https://example.com/cover-photo.jpg"
-                  value={coverPhotoPreview}
-                  onChange={(e) => setCoverPhotoPreview(e.target.value)}
-                  className="w-full mt-2 bg-secondary/5 border border-secondary/20 rounded-xl px-3 py-2 text-sm font-medium text-[var(--text)] focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 hover:border-secondary/30 transition-all placeholder:text-secondary/30"
-                  autoComplete="url"
-                  spellCheck="false"
-                  autoCapitalize="none"
+                  ref={coverFileRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      if (coverPhotoPreview && coverPhotoPreview.startsWith('blob:')) URL.revokeObjectURL(coverPhotoPreview);
+                      setCoverPhotoPreview(URL.createObjectURL(file));
+                    }
+                    e.target.value = '';
+                  }}
                 />
               </motion.div>
 

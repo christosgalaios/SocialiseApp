@@ -1,9 +1,9 @@
-import { useRef, Suspense, lazy } from 'react';
+import { useState, useRef, Suspense, lazy } from 'react';
 const APP_VERSION = import.meta.env.VITE_APP_VERSION || '0.1.dev';
 import {
-  Mail, ShieldCheck, Zap, Check, Heart, Crown, ChevronRight, LogOut, Camera, Users, Settings, MessageCircle, ArrowLeft, Volume2, Megaphone,
+  Mail, ShieldCheck, Zap, Check, Heart, Crown, ChevronRight, LogOut, Camera, Users, Settings, MessageCircle, ArrowLeft, Volume2, Megaphone, Sun, Moon, Droplets,
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import useAuthStore from '../stores/authStore';
 import { playTap, playToggle, playClick, hapticTap } from '../utils/feedback';
 import useEventStore from '../stores/eventStore';
@@ -126,6 +126,8 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
   const setProfileSubTab = useUIStore((s) => s.setProfileSubTab);
   const experimentalFeatures = useUIStore((s) => s.experimentalFeatures);
   const setExperimentalFeatures = useUIStore((s) => s.setExperimentalFeatures);
+  const theme = useUIStore((s) => s.theme);
+  const setTheme = useUIStore((s) => s.setTheme);
   const soundEnabled = useUIStore((s) => s.soundEnabled);
   const setSoundEnabled = useUIStore((s) => s.setSoundEnabled);
   const proEnabled = useUIStore((s) => s.proEnabled);
@@ -156,6 +158,9 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
   };
 
   const fileInputRef = useRef(null);
+  const [showSkillsExpanded, setShowSkillsExpanded] = useState(false);
+  const [isEditingBio, setIsEditingBio] = useState(false);
+  const [bioText, setBioText] = useState(user?.bio || '');
 
   const handleAvatarUpload = (event) => {
     const file = event.target.files[0];
@@ -347,7 +352,33 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
               </button>
             </div>
             {experimentalFeatures && (
-              <div className="border-t border-secondary/10 p-4 space-y-2">
+              <div className="border-t border-secondary/10 p-4 space-y-3">
+                {/* Theme Selector */}
+                <div className="p-3 rounded-2xl bg-secondary/5">
+                  <p className="text-[10px] font-black text-secondary/50 uppercase tracking-widest mb-2">App Theme</p>
+                  <div className="flex gap-2">
+                    {[
+                      { id: 'light', label: 'Light', icon: Sun, color: 'text-accent' },
+                      { id: 'dark', label: 'Dark', icon: Moon, color: 'text-secondary' },
+                      { id: 'glass', label: 'Liquid Glass', icon: Droplets, color: 'text-primary' },
+                    ].map(t => (
+                      <button
+                        key={t.id}
+                        onClick={() => { playTap(); setTheme(t.id); }}
+                        className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${
+                          theme === t.id
+                            ? 'bg-primary text-white shadow-lg'
+                            : 'bg-secondary/10 text-secondary hover:bg-secondary/15'
+                        }`}
+                        aria-pressed={theme === t.id}
+                      >
+                        <t.icon size={14} />
+                        {t.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 <button
                   type="button"
                   onClick={() => setShowGroupChats(true)}
@@ -416,7 +447,53 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
             {user?.selectedTitle && (
               <span className="inline-block px-3 py-1 mb-2 bg-accent/10 rounded-full border border-accent/20 text-[10px] font-black text-accent uppercase tracking-widest">{user.selectedTitle}</span>
             )}
-            <p className="text-sm text-secondary/60 font-medium max-w-xs leading-relaxed mb-3">{user?.bio}</p>
+            {isEditingBio ? (
+              <div className="max-w-xs mb-3">
+                <textarea
+                  value={bioText}
+                  onChange={(e) => setBioText(e.target.value.slice(0, 160))}
+                  className="w-full text-sm text-[var(--text)] font-medium leading-relaxed bg-secondary/5 rounded-xl p-3 border border-secondary/20 resize-none focus:ring-2 focus:ring-primary/30 focus:outline-none"
+                  rows={3}
+                  maxLength={160}
+                  placeholder="Write a short bio..."
+                  autoFocus
+                />
+                <div className="flex items-center justify-between mt-1.5">
+                  <span className="text-[9px] text-secondary/40 font-bold">{bioText.length}/160</span>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => { setBioText(user?.bio || ''); setIsEditingBio(false); }}
+                      className="text-[10px] font-bold text-secondary/50 hover:text-secondary px-2 py-1 rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={async () => {
+                        try {
+                          const updated = await api.updateProfile({ bio: bioText.trim() });
+                          setUser({ ...user, ...updated });
+                          setIsEditingBio(false);
+                          showToast('Bio updated', 'success');
+                        } catch (err) {
+                          showToast(err.message || 'Failed to save bio', 'error');
+                        }
+                      }}
+                      className="text-[10px] font-bold text-white bg-primary px-3 py-1 rounded-lg hover:bg-primary/90 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+                    >
+                      Save
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => { setBioText(user?.bio || ''); setIsEditingBio(true); }}
+                className="text-sm text-secondary/60 font-medium max-w-xs leading-relaxed mb-3 text-left hover:text-secondary/80 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none rounded block"
+              >
+                {user?.bio || 'Tap to add a bio...'}
+              </button>
+            )}
             <div className="flex items-center justify-center md:justify-start gap-5">
               <div className="text-center">
                 <span className="text-lg font-black text-secondary">{user?.followers ?? 0}</span>
@@ -479,26 +556,73 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
           )}
         </motion.div>
 
-        {/* Your Skills Section */}
+        {/* Your Skills Section — compact by default, expandable */}
         <motion.div variants={itemVariants} className="premium-card p-6">
-          <div className="flex items-center justify-between mb-4">
+          <button
+            type="button"
+            onClick={() => setShowSkillsExpanded(prev => !prev)}
+            className="w-full flex items-center justify-between mb-4 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none rounded"
+          >
             <h3 className="text-xs font-black text-primary uppercase tracking-widest">
               Your Skills<span className="text-accent">.</span>
             </h3>
-            <span className="text-[9px] font-bold text-secondary/30 uppercase tracking-widest">
-              {SKILLS.length} skills
-            </span>
-          </div>
-          <div className="space-y-3">
-            {SKILLS.map((skill) => (
-              <SkillCard
-                key={skill.key}
-                skill={skill}
-                xp={skillXP?.[skill.key] ?? 0}
-                unlockedBadgeIds={allUnlockedBadgeIds}
-              />
-            ))}
-          </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[9px] font-bold text-secondary/30 uppercase tracking-widest">
+                {showSkillsExpanded ? 'Collapse' : 'Expand'}
+              </span>
+              <ChevronRight size={14} className={`text-secondary/30 transition-transform ${showSkillsExpanded ? 'rotate-90' : ''}`} />
+            </div>
+          </button>
+
+          {/* Compact view — horizontal skill bars */}
+          {!showSkillsExpanded && (
+            <div className="space-y-2">
+              {SKILLS.map((skill) => {
+                const lvl = getSkillLevel(skillXP?.[skill.key] ?? 0);
+                const pct = getSkillLevelProgress(skillXP?.[skill.key] ?? 0);
+                return (
+                  <div key={skill.key} className="flex items-center gap-3">
+                    <span className="text-base w-6 text-center">{skill.icon}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-0.5">
+                        <span className={`text-[10px] font-bold ${skill.color} truncate`}>{skill.label}</span>
+                        <span className="text-[9px] font-black text-secondary/40 ml-2">Lv.{lvl}</span>
+                      </div>
+                      <div className="w-full h-1.5 bg-secondary/10 rounded-full overflow-hidden">
+                        <motion.div
+                          className={`h-full rounded-full bg-gradient-to-r ${skill.barFrom} ${skill.barTo}`}
+                          initial={{ width: 0 }}
+                          animate={{ width: `${pct}%` }}
+                          transition={{ duration: 0.6, ease: 'easeOut' }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Expanded view — full skill cards */}
+          <AnimatePresence>
+            {showSkillsExpanded && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="space-y-3 overflow-hidden"
+              >
+                {SKILLS.map((skill) => (
+                  <SkillCard
+                    key={skill.key}
+                    skill={skill}
+                    xp={skillXP?.[skill.key] ?? 0}
+                    unlockedBadgeIds={allUnlockedBadgeIds}
+                  />
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
 
         {/* Badges/Stamps earned */}

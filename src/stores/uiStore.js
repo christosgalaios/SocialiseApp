@@ -226,6 +226,18 @@ const useUIStore = create((set) => ({
     localStorage.setItem('socialise_experimental', JSON.stringify(enabled));
   },
 
+  // Theme: 'light' | 'dark' | 'glass'
+  theme: (() => {
+    return localStorage.getItem('socialise_theme') || 'light';
+  })(),
+  setTheme: (theme) => {
+    set({ theme });
+    localStorage.setItem('socialise_theme', theme);
+    const root = document.documentElement;
+    root.classList.remove('dark', 'glass');
+    if (theme !== 'light') root.classList.add(theme);
+  },
+
   // Reset all per-user data to clean defaults
   resetUserData: () => {
     const defaultSkillXP = {
@@ -244,7 +256,9 @@ const useUIStore = create((set) => ({
       showOnboarding: false,
       proEnabled: false,
       experimentalFeatures: false,
+      theme: 'light',
     });
+    document.documentElement.classList.remove('dark', 'glass');
     localStorage.removeItem('socialise_login_streak');
     localStorage.removeItem('socialise_xp');
     localStorage.removeItem('socialise_skill_xp');
@@ -253,6 +267,7 @@ const useUIStore = create((set) => ({
     localStorage.removeItem('socialise_onboarding_shown');
     localStorage.removeItem('socialise_pro');
     localStorage.removeItem('socialise_experimental');
+    localStorage.removeItem('socialise_theme');
   },
 }));
 
