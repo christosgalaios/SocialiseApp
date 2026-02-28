@@ -32,6 +32,8 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Profile photo is now a proper button** — ProfileTab avatar upload trigger changed from `<div>` to `<button>` with `aria-label="Change profile photo"` and focus-visible ring for keyboard accessibility. Also replaced `border-white/10` with `border-secondary/10` on the avatar frame
 - **Disabled cursor** — added `disabled:cursor-not-allowed` to ProUpgradeModal upgrade button and HelpSheet delete/cancel buttons
 - **Sidebar cleanup** — removed dead "Dark Mode toggle removed" comment, replaced with flex spacer for proper layout
+- **premium-card uses design tokens** — `.premium-card` background changed from hardcoded `white` to `var(--bg-paper)` for design system consistency and future dark mode readiness
+- **Global focus-visible ring** — added `:focus-visible` CSS rule to show a primary-colored outline on all interactive elements when navigated via keyboard. `:focus:not(:focus-visible)` suppresses the outline for mouse/touch — clean UX for both input methods
 
 ### Fixed
 - **Loading glitch on tab switches and initial load** — removed `AnimatePresence mode="wait"` that forced sequential exit→enter animations, creating a visible flash where content disappeared then reappeared. Tabs now cross-fade simultaneously. Also removed the artificial 600ms skeleton delay on initial load (content appears immediately) and sped up all tab transition animations
