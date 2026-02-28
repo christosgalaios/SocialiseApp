@@ -1,13 +1,15 @@
 {
   "name": "Socialise",
   "short_name": "Socialise",
-  "description": "Discover tribes and join micro-meets.",
+  "description": "Discover local events, join micro-meets, and find your tribe. Warm, human connection — not cold tech.",
   "theme_color": "#F9F7F2",
   "background_color": "#F9F7F2",
   "display": "standalone",
   "scope": "./",
   "start_url": "./",
+  "id": "./",
   "orientation": "portrait",
+  "categories": ["social", "lifestyle", "entertainment"],
   "icons": [
     {
       "src": "./pwa-192x192.png",
