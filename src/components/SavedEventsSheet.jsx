@@ -61,7 +61,10 @@ const SavedEventsSheet = ({ isOpen, onClose, savedEvents = [], onRemove, onSelec
                                             key={event.id}
                                             layout
                                             onClick={() => onSelect(event)}
-                                            className="bg-secondary/5 rounded-2xl p-4 border border-secondary/10 cursor-pointer hover:border-primary/30 transition-all"
+                                            className="bg-secondary/5 rounded-2xl p-4 border border-secondary/10 cursor-pointer hover:border-primary/30 transition-all focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+                                            tabIndex={0}
+                                            role="button"
+                                            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect(event); } }}
                                         >
                                             <div className="flex gap-4">
                                                 <img
@@ -69,6 +72,7 @@ const SavedEventsSheet = ({ isOpen, onClose, savedEvents = [], onRemove, onSelec
                                                     alt={event.title}
                                                     className="w-20 h-20 rounded-xl object-cover"
                                                     loading="lazy"
+                                                    onError={(e) => { e.target.style.display = 'none'; }}
                                                 />
                                                 <div className="flex-1 min-w-0">
                                                     <h3 className="font-bold text-sm truncate text-secondary">{event.title}</h3>

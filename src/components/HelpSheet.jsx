@@ -93,7 +93,7 @@ const HelpSheet = ({ isOpen, onClose, onDeleteAccount }) => {
                                         <div key={i} className="bg-secondary/5 rounded-2xl border border-secondary/10 overflow-hidden">
                                             <button
                                                 onClick={() => { playClick(); setOpenFaq(openFaq === i ? null : i); }}
-                                                className="w-full p-4 flex items-center justify-between text-left"
+                                                className="w-full p-4 flex items-center justify-between text-left focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                                             >
                                                 <span className="font-bold text-sm text-secondary">{faq.q}</span>
                                                 <motion.div
@@ -162,7 +162,7 @@ const HelpSheet = ({ isOpen, onClose, onDeleteAccount }) => {
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
-                                className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-md flex items-center justify-center p-6"
+                                className="fixed inset-0 z-[60] bg-secondary/70 backdrop-blur-md flex items-center justify-center p-6"
                                 onClick={() => !deleting && setShowDeleteConfirm(false)}
                                 role="alertdialog"
                                 aria-modal="true"
@@ -189,7 +189,7 @@ const HelpSheet = ({ isOpen, onClose, onDeleteAccount }) => {
                                         <button
                                             onClick={handleDeleteAccount}
                                             disabled={deleting}
-                                            className="w-full py-4 rounded-2xl bg-red-500 text-white text-[12px] font-black uppercase tracking-widest shadow-lg transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+                                            className="w-full py-4 rounded-2xl bg-red-500 text-white text-[12px] font-black uppercase tracking-widest shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                         >
                                             {deleting ? (
                                                 <>
@@ -210,7 +210,7 @@ const HelpSheet = ({ isOpen, onClose, onDeleteAccount }) => {
                                         <button
                                             onClick={() => setShowDeleteConfirm(false)}
                                             disabled={deleting}
-                                            className="w-full py-4 rounded-2xl bg-secondary/10 text-secondary text-[12px] font-black uppercase tracking-widest transition-all active:scale-95 disabled:opacity-50"
+                                            className="w-full py-4 rounded-2xl bg-secondary/10 text-secondary text-[12px] font-black uppercase tracking-widest transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
                                             Cancel
                                         </button>

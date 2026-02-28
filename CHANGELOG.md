@@ -25,7 +25,12 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Empty alt text on content images** — replaced `alt=""` with descriptive alt text on EventDetailSheet host avatar, GroupChatsSheet message avatars, and OrganiserDashboard cover photo
 - **Missing text color on TribeDiscovery search** — added `text-[var(--text)]` to ensure input text is visible against the design system background
 - **Broken image graceful degradation** — added `onError` handlers to EventDetailSheet, MangoChat event card, OrganiserDashboard cover photo, EventCard, FeedItem post image, and MyBookingsSheet that hide the element on load failure instead of showing a broken image icon
-- **Focus visibility** — added `focus-visible:ring-2 focus-visible:ring-primary/30` to BottomNav tabs, Sidebar nav buttons, Sidebar upgrade button, and HubTab "Find New Tribe" button for keyboard navigation clarity
+- **Focus visibility** — added `focus-visible:ring-2 focus-visible:ring-primary/30` to BottomNav tabs, Sidebar nav buttons, Sidebar upgrade button, HubTab "Find New Tribe" button, HelpSheet FAQ accordions, and SavedEventsSheet event cards for keyboard navigation clarity
+- **Design system overlay compliance** — replaced `bg-black/60` with `bg-secondary/60` in DateRangeCalendar, TribeSheet, and HelpSheet delete confirm overlays. Replaced `bg-black/30` with `bg-secondary/30` on ProfileTab avatar hover overlay
+- **Keyboard-accessible saved events** — SavedEventsSheet event cards now support keyboard activation (Enter/Space)
+- **Image error handling** — added `onError` fallbacks to SavedEventsSheet event images
+- **Disabled cursor** — added `disabled:cursor-not-allowed` to ProUpgradeModal upgrade button and HelpSheet delete/cancel buttons
+- **Sidebar cleanup** — removed dead "Dark Mode toggle removed" comment, replaced with flex spacer for proper layout
 
 ### Fixed
 - **Loading glitch on tab switches and initial load** — removed `AnimatePresence mode="wait"` that forced sequential exit→enter animations, creating a visible flash where content disappeared then reappeared. Tabs now cross-fade simultaneously. Also removed the artificial 600ms skeleton delay on initial load (content appears immediately) and sped up all tab transition animations

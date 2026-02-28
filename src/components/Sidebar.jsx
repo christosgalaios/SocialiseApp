@@ -33,9 +33,7 @@ const Sidebar = ({ experimentalFeatures, activeTab, setActiveTab }) => {
                 </div>
             </div>
 
-            <div className="mt-4 px-2 mb-8">
-                {/* Dark Mode toggle removed */}
-            </div>
+            <div className="flex-1" />
 
             {experimentalFeatures && (
             <div className="mt-auto p-5 rounded-2xl bg-gradient-to-br from-secondary/5 to-primary/5 border border-secondary/10 text-center">

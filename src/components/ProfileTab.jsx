@@ -395,7 +395,7 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
             <div className="relative inline-block group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
               <div className="w-32 h-32 rounded-[32px] overflow-hidden border-4 border-white/10 shadow-2xl mx-auto md:mx-0 mb-4 relative z-10 transition-transform group-hover:scale-105">
                 <img src={user?.avatar || DEFAULT_AVATAR} className="w-full h-full object-cover" alt="Profile" loading="lazy" />
-                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <div className="absolute inset-0 bg-secondary/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                   <Camera className="text-white drop-shadow-md" size={32} />
                 </div>
               </div>

@@ -107,7 +107,7 @@ const ProUpgradeModal = ({ isOpen, onClose, onUpgrade }) => {
                             <button
                                 onClick={handleUpgrade}
                                 disabled={isProcessing}
-                                className="w-full bg-gradient-to-r from-primary to-accent py-4 rounded-2xl font-black text-white uppercase tracking-widest shadow-lg hover:shadow-xl transition-all active:scale-[0.98] disabled:opacity-70 flex items-center justify-center gap-2"
+                                className="w-full bg-gradient-to-r from-primary to-accent py-4 rounded-2xl font-black text-white uppercase tracking-widest shadow-lg hover:shadow-xl transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                             >
                                 {isProcessing ? (
                                     <>
