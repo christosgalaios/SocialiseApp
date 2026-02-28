@@ -196,10 +196,10 @@ const DateRangeCalendar = ({ isOpen, onClose, dateRange, setDateRange, setThisWe
                                 >
                                     {day?.getDate()}
                                     {isStartDay && !isEndDay && dateRange.end && (
-                                        <div className="absolute right-0 top-0 bottom-0 w-1/2 bg-primary/30 -z-10" />
+                                        <div className="absolute right-0 top-0 bottom-0 w-1/2 bg-primary/30 -z-10" aria-hidden="true" />
                                     )}
                                     {isEndDay && dateRange.start && (
-                                        <div className="absolute left-0 top-0 bottom-0 w-1/2 bg-primary/30 -z-10" />
+                                        <div className="absolute left-0 top-0 bottom-0 w-1/2 bg-primary/30 -z-10" aria-hidden="true" />
                                     )}
                                 </button>
                             );

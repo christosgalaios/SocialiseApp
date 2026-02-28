@@ -12,6 +12,10 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 
 ## [Unreleased]
 
+### Added
+- **Double-click guards on destructive actions** — Cancel (MyBookingsSheet), Remove (SavedEventsSheet), and Leave (TribeSheet) buttons now show loading text ("Cancelling…", "Removing…") and disable during the async API call, preventing duplicate requests from spam-clicking
+- **Text overflow protection** — long event titles, locations, community descriptions, user bios, feed posts, and chat comments now use `line-clamp`, `truncate`, or `break-words` to prevent layout breakage from user-generated content
+
 ### Changed
 - **Design system compliance** — replaced `bg-white` with `bg-paper` in VideoWall play button, AuthScreen testimonial nav buttons, ProfileTab toggle switches, ProfileTab camera badge, MangoChat bot messages, MangoChat typing indicator, and EventCard category badge (`bg-white/90` → `bg-paper/90`). Replaced `text-black` with `text-secondary` in VideoWall play icon. Replaced `bg-black/50` with `bg-secondary/50` on VideoWall mute button
 - **Touch target sizes** — enlarged icon-only buttons from 32px to 40px (`w-8 h-8` → `w-10 h-10`) on VideoWall nav arrows, ExploreTab reel scroll buttons, HomeTab micro-meets scroll buttons, and VideoWall mute toggle for better mobile accessibility (44px minimum guideline)
@@ -20,6 +24,7 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Improved empty states** — HomeTab micro-meets empty state now shows an icon, heading, and subtitle instead of a plain text line. HubTab feed empty state similarly improved with an icon and descriptive copy
 
 ### Fixed
+- **Decorative elements hidden from screen readers** — added `aria-hidden="true"` to glow rings, gradient overlays, and blur effects in AnimatedLogo and DateRangeCalendar that were cluttering screen reader output
 - **Missing aria-labels** — added `aria-label` and `title` attributes to 15+ icon-only buttons: VideoWall mute/prev/next, AuthScreen testimonial prev/next/dots, ExploreTab scroll, HomeTab scroll, MangoChat send/close, FeedItem send reply/comment, Sidebar upgrade
 - **Missing form input labels** — added `aria-label` to 5 inputs (LocationPicker, TribeDiscovery, MangoChat, FeedItem reply, FeedItem comment) that only had placeholder text
 - **Empty alt text on content images** — replaced `alt=""` with descriptive alt text on EventDetailSheet host avatar, GroupChatsSheet message avatars, and OrganiserDashboard cover photo

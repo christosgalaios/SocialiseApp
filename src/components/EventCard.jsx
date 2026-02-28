@@ -28,7 +28,7 @@ const EventCard = ({ event, onClick, compact = false, isJoined = false, isHostin
         </div>
         <div className="flex-1 py-1">
           <div className="flex justify-between items-start mb-1">
-            <h4 className="font-extrabold text-lg leading-tight tracking-tight text-secondary">{event.title}</h4>
+            <h4 className="font-extrabold text-lg leading-tight tracking-tight text-secondary line-clamp-2">{event.title}</h4>
             {event.price === 0 && <span className="bg-primary/10 text-primary text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest">Free</span>}
           </div>
           <p className="text-xs text-secondary/60 font-bold mb-3 flex items-center gap-1.5">

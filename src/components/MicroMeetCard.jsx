@@ -21,7 +21,7 @@ const MicroMeetCard = ({ meet, onClick }) => (
         </div>
       </div>
     )}
-    <h3 className="text-2xl font-black mb-1 tracking-tighter text-secondary">{meet.title}</h3>
+    <h3 className="text-2xl font-black mb-1 tracking-tighter text-secondary line-clamp-2">{meet.title}</h3>
     {meet.theme && <p className="text-sm text-secondary/70 font-bold mb-6 uppercase tracking-wider text-[10px]">{meet.theme}</p>}
     {meet.category && !meet.theme && <p className="text-sm text-secondary/70 font-bold mb-6 uppercase tracking-wider text-[10px]">{meet.category}</p>}
     <div className="flex items-center justify-between mt-auto">

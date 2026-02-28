@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Heart, Calendar, MapPin, Trash2 } from 'lucide-react';
 import { useEscapeKey, useFocusTrap, useSwipeToClose } from '../hooks/useAccessibility';
@@ -7,6 +8,7 @@ const SavedEventsSheet = ({ isOpen, onClose, savedEvents = [], onRemove, onSelec
     useEscapeKey(isOpen, onClose);
     const focusTrapRef = useFocusTrap(isOpen);
     const { sheetY, dragZoneProps } = useSwipeToClose(onClose);
+    const [removingId, setRemovingId] = useState(null);
 
     return (
         <AnimatePresence>
@@ -89,14 +91,17 @@ const SavedEventsSheet = ({ isOpen, onClose, savedEvents = [], onRemove, onSelec
                                                             {event.price === 0 ? 'Free' : `£${event.price}`}
                                                         </span>
                                                         <button
-                                                            onClick={(e) => {
+                                                            onClick={async (e) => {
                                                                 e.stopPropagation();
-                                                                onRemove(event.id);
+                                                                if (removingId) return;
+                                                                setRemovingId(event.id);
+                                                                try { await onRemove(event.id); } finally { setRemovingId(null); }
                                                             }}
-                                                            className="text-xs font-bold text-secondary/50 hover:text-red-500 flex items-center gap-1 transition-colors"
+                                                            disabled={removingId === event.id}
+                                                            className="text-xs font-bold text-secondary/50 hover:text-red-500 flex items-center gap-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none rounded"
                                                         >
                                                             <Trash2 size={12} />
-                                                            Remove
+                                                            {removingId === event.id ? 'Removing...' : 'Remove'}
                                                         </button>
                                                     </div>
                                                 </div>

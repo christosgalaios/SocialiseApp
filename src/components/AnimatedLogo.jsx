@@ -16,7 +16,7 @@ const AnimatedLogo = () => {
   return (
     <div className="relative w-80 h-80 flex items-center justify-center">
       {/* Outer glow */}
-      <div className="absolute inset-0 bg-primary/10 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute inset-0 bg-primary/10 rounded-full blur-3xl animate-pulse" aria-hidden="true" />
 
       {/* Rotating Gradient Ring */}
       <svg className="absolute inset-0 w-full h-full animate-[spin_12s_linear_infinite]">
@@ -62,9 +62,9 @@ const AnimatedLogo = () => {
         transition={{ duration: 0.8, ease: "backOut" }}
         className="absolute inset-5 bg-dark rounded-full border-2 border-white/5 shadow-2xl flex items-center justify-center overflow-hidden"
       >
-        <div className="absolute inset-0 bg-gradient-radial from-primary/15 to-transparent opacity-60" />
+        <div className="absolute inset-0 bg-gradient-radial from-primary/15 to-transparent opacity-60" aria-hidden="true" />
         {/* Subtle shimmer */}
-        <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-secondary/5 animate-pulse" />
+        <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-secondary/5 animate-pulse" aria-hidden="true" />
       </motion.div>
 
       {/* Radial Icons with glow */}
@@ -90,6 +90,7 @@ const AnimatedLogo = () => {
               <div
                 className="absolute inset-0 rounded-full blur-md opacity-40"
                 style={{ backgroundColor: color }}
+                aria-hidden="true"
               />
               <div
                 className="relative w-7 h-7 rounded-xl flex items-center justify-center"

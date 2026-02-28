@@ -89,7 +89,7 @@ const UserProfileSheet = ({ profile, isOpen, onClose, onMessage }) => {
                                     </div>
                                 </div>
 
-                                <p className="text-sm text-secondary/70 font-medium max-w-xs mb-6">{bio}</p>
+                                <p className="text-sm text-secondary/70 font-medium max-w-xs mb-6 line-clamp-4">{bio}</p>
 
                                 <div className="flex gap-3 w-full">
                                     <button

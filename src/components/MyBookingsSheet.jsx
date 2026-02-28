@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Calendar, MapPin, Clock, Ticket, Trash2 } from 'lucide-react';
 import { useEscapeKey, useFocusTrap, useSwipeToClose } from '../hooks/useAccessibility';
@@ -7,6 +8,7 @@ const MyBookingsSheet = ({ isOpen, onClose, bookings = [], onCancel }) => {
     useEscapeKey(isOpen, onClose);
     const focusTrapRef = useFocusTrap(isOpen);
     const { sheetY, dragZoneProps } = useSwipeToClose(onClose);
+    const [cancellingId, setCancellingId] = useState(null);
 
     return (
         <AnimatePresence>
@@ -86,11 +88,16 @@ const MyBookingsSheet = ({ isOpen, onClose, bookings = [], onCancel }) => {
                                                             Confirmed
                                                         </span>
                                                         <button
-                                                            onClick={() => onCancel(event.id)}
-                                                            className="text-xs font-bold text-red-500 hover:text-red-600 flex items-center gap-1"
+                                                            onClick={async () => {
+                                                                if (cancellingId) return;
+                                                                setCancellingId(event.id);
+                                                                try { await onCancel(event.id); } finally { setCancellingId(null); }
+                                                            }}
+                                                            disabled={cancellingId === event.id}
+                                                            className="text-xs font-bold text-red-500 hover:text-red-600 flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity focus-visible:ring-2 focus-visible:ring-red-500/30 focus-visible:outline-none rounded"
                                                         >
                                                             <Trash2 size={12} />
-                                                            Cancel
+                                                            {cancellingId === event.id ? 'Cancelling...' : 'Cancel'}
                                                         </button>
                                                     </div>
                                                 </div>

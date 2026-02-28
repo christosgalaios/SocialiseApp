@@ -19,7 +19,7 @@ const MessageBubble = ({ msg }) => {
         {!msg.isMe && (
           <div className="flex items-center gap-2 mb-1 ml-1">
             <img src={msg.avatar || DEFAULT_AVATAR} alt={msg.user || 'User'} className="w-5 h-5 rounded-full object-cover" loading="lazy" />
-            <span className="text-[10px] font-bold text-secondary/60">{msg.user}</span>
+            <span className="text-[10px] font-bold text-secondary/60 truncate block">{msg.user}</span>
           </div>
         )}
         <div

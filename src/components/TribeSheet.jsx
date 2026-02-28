@@ -15,6 +15,7 @@ const TribeSheet = ({ tribe, isOpen, onClose, onLeave }) => {
     const focusTrapRef = useFocusTrap(isOpen);
     const { sheetY, dragZoneProps } = useSwipeToClose(onClose);
     const [tribePosts, setTribePosts] = useState([]);
+    const [isLeaving, setIsLeaving] = useState(false);
     const reviews = [];
 
     useEffect(() => {
@@ -63,7 +64,7 @@ const TribeSheet = ({ tribe, isOpen, onClose, onLeave }) => {
                                         {tribe.avatar}
                                     </div>
                                     <div>
-                                        <h2 className="text-2xl font-black tracking-tight text-primary">{tribe.name}<span className="text-accent">.</span></h2>
+                                        <h2 className="text-2xl font-black tracking-tight text-primary truncate">{tribe.name}<span className="text-accent">.</span></h2>
                                         <p className="text-sm text-secondary/60 flex items-center gap-2">
                                             <Users size={14} />
                                             {tribe.members.toLocaleString()} members
@@ -98,7 +99,7 @@ const TribeSheet = ({ tribe, isOpen, onClose, onLeave }) => {
                                 )}
                             </div>
 
-                            <p className="text-sm text-secondary/80 mb-4">{tribe.description}</p>
+                            <p className="text-sm text-secondary/80 mb-4 line-clamp-3">{tribe.description}</p>
 
                             {/* Member avatars + follower count */}
                             <div className="flex items-center justify-between mb-4">
@@ -150,8 +151,13 @@ const TribeSheet = ({ tribe, isOpen, onClose, onLeave }) => {
                                     {notificationsOn ? <Bell size={16} /> : <BellOff size={16} />}
                                 </button>
                                 <button
-                                    onClick={() => onLeave(tribe.id)}
-                                    className="px-4 py-3 rounded-xl text-xs font-bold bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 transition-all flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-red-500/30 focus-visible:outline-none"
+                                    onClick={async () => {
+                                        if (isLeaving) return;
+                                        setIsLeaving(true);
+                                        try { await onLeave(tribe.id); } finally { setIsLeaving(false); }
+                                    }}
+                                    disabled={isLeaving}
+                                    className="px-4 py-3 rounded-xl text-xs font-bold bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 transition-all flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-red-500/30 focus-visible:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
                                     aria-label="Leave tribe"
                                 >
                                     <LogOut size={16} />

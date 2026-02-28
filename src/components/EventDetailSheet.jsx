@@ -101,7 +101,7 @@ const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMe
                   <h4 className="text-secondary/40 text-[10px] font-black uppercase tracking-widest mb-4 flex items-center gap-2.5">
                     <MapPin size={16} className="text-primary" /> Location Details
                   </h4>
-                  <p className="text-xl font-extrabold mb-2 tracking-tight text-secondary group-hover:text-primary transition-colors">{event.location}</p>
+                  <p className="text-xl font-extrabold mb-2 tracking-tight text-secondary group-hover:text-primary transition-colors break-words">{event.location}</p>
                   <button className="text-primary text-xs font-black flex items-center gap-2 hover:translate-x-1 transition-transform focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none rounded">Get Directions <ChevronRight size={14} /></button>
                 </div>
 

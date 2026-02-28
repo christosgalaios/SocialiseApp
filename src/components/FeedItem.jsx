@@ -85,7 +85,7 @@ const CommentItem = ({ comment, onReact, onReply, isReply = false, currentUser, 
           ) : (
             <span className="text-xs font-bold text-secondary">{comment.user}</span>
           )}
-          <p className="text-sm text-secondary/80">{comment.text}</p>
+          <p className="text-sm text-secondary/80 break-words">{comment.text}</p>
 
           {/* Emoji picker trigger */}
           <button
@@ -369,7 +369,7 @@ const FeedItem = ({ post, currentUser = { name: 'Ben B.', avatar: '/ben-avatar.p
           </>
         )}
       </div>
-      <p className="text-[15px] font-medium leading-relaxed mb-4 tracking-tight text-secondary/90">{post.content}</p>
+      <p className="text-[15px] font-medium leading-relaxed mb-4 tracking-tight text-secondary/90 break-words">{post.content}</p>
       {post.image && (
         <div className="rounded-2xl overflow-hidden mb-4 border border-secondary/10 shadow-2xl">
           <img src={post.image} className="w-full h-56 object-cover transition-transform duration-1000 group-hover:scale-105" alt="Post content" loading="lazy" onError={(e) => { e.target.parentElement.style.display = 'none'; }} />
