@@ -65,6 +65,13 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **HTML meta tags** — added `<meta name="description">` and `<meta name="apple-mobile-web-app-title">` with descriptive content, improved `<title>` to include tagline
 - **Focus rings (round 6)** — added `focus-visible:ring` to remaining 5 buttons: ExploreTab reel scroll arrows (x2), Toast dismiss, IOSInstallPrompt dismiss, ErrorBoundary Try Again/Reload
 - **Skeleton scrollbar hidden** — horizontal scroll areas in loading skeleton (micro-meets cards, filter pills) now use `no-scrollbar` to match production layout
+- **IOSInstallPrompt design system compliance** — replaced off-brand `slate-*` color palette with design tokens (`bg-secondary/95`, `text-white/70`, `bg-primary/20`, `text-accent`), matching the "Warm Hearth" design language instead of generic dark mode styling
+- **Focus ring consistency** — standardised focus rings from `focus-visible:ring-white/30` to `focus-visible:ring-primary/30` across LevelUpModal (close + continue), ProUpgradeModal (close), MatchAnalysisModal (cancel), and IOSInstallPrompt (dismiss) for consistent keyboard navigation
+- **GroupChatsSheet reaction accessibility** — emoji quick-reaction buttons now have `aria-label="React with {emoji}"`, `active:scale-95` press feedback, and `focus-visible:ring` for keyboard navigation
+- **GroupChatsSheet placeholder buttons** — phone and video call buttons now show as `disabled` with `opacity-50`, `cursor-not-allowed`, and "coming soon" labels so users know the features aren't live yet
+- **HomeTab refresh button** — "Refresh recommendations" icon button now has `aria-label` (previously only had `title`) for proper screen reader support
+- **TribeSheet review button accessibility** — "Helpful" button now has `aria-label`, `focus-visible:ring`, and `rounded` styling for keyboard focus visibility
+- **ProUpgradeModal double-click guard** — upgrade button now guards against repeated clicks (`isProcessing` check) and clears previous timer before starting a new one, preventing timer accumulation
 
 ### Fixed
 - **Loading glitch on tab switches and initial load** — removed `AnimatePresence mode="wait"` that forced sequential exit→enter animations, creating a visible flash where content disappeared then reappeared. Tabs now cross-fade simultaneously. Also removed the artificial 600ms skeleton delay on initial load (content appears immediately) and sped up all tab transition animations

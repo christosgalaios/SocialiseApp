@@ -51,7 +51,7 @@ const MatchAnalysisModal = ({ event, onConfirm, onCancel }) => (
         Our AI has analyzed the attendee list. You have a <span className="text-primary font-black">94% match</span> with this tribe based on your interests in <span className="text-white font-bold">{(event.matchTags?.slice(0, 2).join(' & ')) ?? 'this event'}</span>.
       </p>
       <div className="flex gap-3">
-        <button onClick={onCancel} className="flex-1 py-4 rounded-xl font-bold bg-white/5 hover:bg-white/10 transition-colors focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:outline-none">Cancel</button>
+        <button onClick={onCancel} className="flex-1 py-4 rounded-xl font-bold bg-white/5 hover:bg-white/10 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none">Cancel</button>
         <button onClick={onConfirm} className="flex-1 py-4 rounded-xl font-black bg-primary text-white shadow-lg glow-primary hover:scale-[1.02] transition-transform focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none">Join Tribe</button>
       </div>
     </motion.div>

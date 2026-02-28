@@ -57,7 +57,8 @@ const MessageBubble = ({ msg }) => {
                 <button
                   key={emoji}
                   onClick={() => { setReaction(emoji); setShowReactions(false); }}
-                  className="w-8 h-8 rounded-full hover:bg-secondary/10 flex items-center justify-center text-lg transition-all hover:scale-125"
+                  className="w-8 h-8 rounded-full hover:bg-secondary/10 flex items-center justify-center text-lg transition-all hover:scale-125 active:scale-95 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+                  aria-label={`React with ${emoji}`}
                 >
                   {emoji}
                 </button>
@@ -201,10 +202,10 @@ export default function GroupChatsSheet({ isOpen, onClose, joinedCommunities = [
                     </p>
                   </div>
                   <div className="flex items-center gap-1">
-                    <button className="w-9 h-9 rounded-full bg-secondary/10 flex items-center justify-center text-secondary/60 hover:bg-secondary/20 transition-colors" aria-label="Voice call">
+                    <button disabled className="w-9 h-9 rounded-full bg-secondary/10 flex items-center justify-center text-secondary/60 transition-colors opacity-50 cursor-not-allowed" aria-label="Voice call (coming soon)" title="Coming soon">
                       <Phone size={16} />
                     </button>
-                    <button className="w-9 h-9 rounded-full bg-secondary/10 flex items-center justify-center text-secondary/60 hover:bg-secondary/20 transition-colors" aria-label="Video call">
+                    <button disabled className="w-9 h-9 rounded-full bg-secondary/10 flex items-center justify-center text-secondary/60 transition-colors opacity-50 cursor-not-allowed" aria-label="Video call (coming soon)" title="Coming soon">
                       <Video size={16} />
                     </button>
                     <button

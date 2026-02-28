@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Crown, Check, Zap, Users, BarChart3, Wand2, Shield } from 'lucide-react';
 import { useEscapeKey, useFocusTrap } from '../hooks/useAccessibility';
@@ -8,10 +8,15 @@ const ProUpgradeModal = ({ isOpen, onClose, onUpgrade }) => {
     useEscapeKey(isOpen, onClose);
     const focusTrapRef = useFocusTrap(isOpen);
     const [isProcessing, setIsProcessing] = useState(false);
+    const timerRef = useRef(null);
+
+    useEffect(() => () => clearTimeout(timerRef.current), []);
 
     const handleUpgrade = () => {
+        if (isProcessing) return;
         setIsProcessing(true);
-        setTimeout(() => {
+        clearTimeout(timerRef.current);
+        timerRef.current = setTimeout(() => {
             onUpgrade();
             setIsProcessing(false);
             onClose();
@@ -64,7 +69,7 @@ const ProUpgradeModal = ({ isOpen, onClose, onUpgrade }) => {
                             {/* Close button */}
                             <button
                                 onClick={() => { playSwooshClose(); hapticTap(); onClose(); }}
-                                className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:outline-none"
+                                className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                                 aria-label="Close"
                             >
                                 <X size={18} className="text-white" />
