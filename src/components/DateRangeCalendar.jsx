@@ -103,6 +103,9 @@ const DateRangeCalendar = ({ isOpen, onClose, dateRange, setDateRange, setThisWe
                 exit={{ opacity: 0 }}
                 className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-secondary/60 backdrop-blur-sm"
                 onClick={onClose}
+                role="dialog"
+                aria-modal="true"
+                aria-label="Date range picker"
             >
                 <motion.div
                     initial={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -117,7 +120,8 @@ const DateRangeCalendar = ({ isOpen, onClose, dateRange, setDateRange, setThisWe
                         <h3 className="text-lg font-black tracking-tight text-paper">Select Dates</h3>
                         <button
                             onClick={onClose}
-                            className="w-10 h-10 rounded-full bg-paper/10 flex items-center justify-center hover:bg-paper/20 transition-colors text-paper"
+                            className="w-10 h-10 rounded-full bg-paper/10 flex items-center justify-center hover:bg-paper/20 transition-colors text-paper focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+                            aria-label="Close"
                         >
                             <X size={20} />
                         </button>
@@ -143,14 +147,16 @@ const DateRangeCalendar = ({ isOpen, onClose, dateRange, setDateRange, setThisWe
                     <div className="flex items-center justify-between mb-4">
                         <button
                             onClick={() => navigateMonth(-1)}
-                            className="w-10 h-10 rounded-full bg-paper/10 flex items-center justify-center hover:bg-paper/20 transition-colors text-paper"
+                            className="w-10 h-10 rounded-full bg-paper/10 flex items-center justify-center hover:bg-paper/20 transition-colors text-paper focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+                            aria-label="Previous month"
                         >
                             <ChevronLeft size={20} />
                         </button>
                         <span className="text-sm font-black uppercase tracking-widest text-paper">{formatMonthYear(currentMonth)}</span>
                         <button
                             onClick={() => navigateMonth(1)}
-                            className="w-10 h-10 rounded-full bg-paper/10 flex items-center justify-center hover:bg-paper/20 transition-colors text-paper"
+                            className="w-10 h-10 rounded-full bg-paper/10 flex items-center justify-center hover:bg-paper/20 transition-colors text-paper focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
+                            aria-label="Next month"
                         >
                             <ChevronRight size={20} />
                         </button>
@@ -212,14 +218,14 @@ const DateRangeCalendar = ({ isOpen, onClose, dateRange, setDateRange, setThisWe
                         {(dateRange.start || dateRange.end) && (
                             <button
                                 onClick={clearSelection}
-                                className="flex-1 py-3 rounded-xl text-sm font-bold bg-paper/10 hover:bg-paper/20 transition-colors text-paper"
+                                className="flex-1 py-3 rounded-xl text-sm font-bold bg-paper/10 hover:bg-paper/20 transition-colors text-paper focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                             >
                                 Clear
                             </button>
                         )}
                         <button
                             onClick={onClose}
-                            className="flex-1 py-3 rounded-xl text-sm font-bold bg-primary text-white shadow-lg active:scale-95 transition-transform"
+                            className="flex-1 py-3 rounded-xl text-sm font-bold bg-primary text-white shadow-lg active:scale-95 transition-transform focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                         >
                             Apply
                         </button>

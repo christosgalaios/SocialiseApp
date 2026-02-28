@@ -46,6 +46,10 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **TribeSheet design system compliance** — replaced `bg-white/*` and `border-white/*` with `bg-secondary/*` and `border-secondary/*` on drag handle, close button, section border, and notification toggle inactive state. Added `aria-hidden` to drag handle
 - **Focus rings (round 3)** — added `focus-visible:ring` to TribeSheet close/follow/notifications/leave/write-review buttons, EventDetailSheet close/get-directions/hosted-by/chat-username buttons
 - **Image error handling (round 2)** — added `onError` fallbacks to TribeSheet member avatars and review avatars, EventDetailSheet host avatar and chat message avatars
+- **ExploreFilters full keyboard accessibility** — added `focus-visible:ring` to all 9 filter buttons (toggle, this week, date picker, clear dates, category pills, size toggle, inclusivity tags, reset all). Added `aria-label="Search events"` to search input, `aria-label`/`aria-expanded` to filter toggle, `aria-hidden` on decorative search icon and indicator dot
+- **DateRangeCalendar accessibility** — added `role="dialog"`, `aria-modal`, `aria-label` to calendar overlay. Added `aria-label` to close, previous month, and next month buttons. Added `focus-visible:ring` to close, nav, clear, and apply buttons
+- **IOSInstallPrompt touch target** — enlarged dismiss button to 40px with proper `aria-label`
+- **Decorative aria-hidden (round 3)** — added `aria-hidden="true"` to Confetti particle container and SplashScreen warm glow effect
 
 ### Fixed
 - **Loading glitch on tab switches and initial load** — removed `AnimatePresence mode="wait"` that forced sequential exit→enter animations, creating a visible flash where content disappeared then reappeared. Tabs now cross-fade simultaneously. Also removed the artificial 600ms skeleton delay on initial load (content appears immediately) and sped up all tab transition animations

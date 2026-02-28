@@ -90,6 +90,7 @@ const SplashScreen = ({ onFinish }) => {
                         animate={{ opacity: 0.15 }}
                         transition={{ duration: 1.5 }}
                         className="absolute inset-0 bg-[radial-gradient(circle_at_center,var(--primary),transparent_60%)]"
+                        aria-hidden="true"
                     />
                 )}
             </AnimatePresence>
