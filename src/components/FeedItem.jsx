@@ -70,7 +70,7 @@ const CommentItem = ({ comment, onReact, onReply, isReply = false, currentUser, 
   return (
     <div className={`flex gap-2 group/comment ${isReply ? 'ml-10' : ''}`}>
       {onOpenProfile && !isCurrentUser ? (
-        <button type="button" onClick={handleProfileClick} className="flex-shrink-0 rounded-full focus:outline-none focus:ring-2 focus:ring-primary/30">
+        <button type="button" onClick={handleProfileClick} className="flex-shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30">
           <img src={comment.avatar || DEFAULT_AVATAR} alt={comment.user} className={`rounded-full object-cover border border-secondary/10 ${isReply ? 'w-6 h-6' : 'w-8 h-8'}`} loading="lazy" />
         </button>
       ) : (
@@ -79,7 +79,7 @@ const CommentItem = ({ comment, onReact, onReply, isReply = false, currentUser, 
       <div className="flex-1 min-w-0">
         <div className="bg-secondary/5 rounded-2xl px-3 py-2 relative">
           {onOpenProfile && !isCurrentUser ? (
-            <button type="button" onClick={handleProfileClick} className="text-xs font-bold text-secondary hover:text-primary transition-colors text-left">
+            <button type="button" onClick={handleProfileClick} className="text-xs font-bold text-secondary hover:text-primary transition-colors text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 rounded">
               {comment.user}
             </button>
           ) : (
@@ -90,7 +90,7 @@ const CommentItem = ({ comment, onReact, onReply, isReply = false, currentUser, 
           {/* Emoji picker trigger */}
           <button
             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-            className="absolute -right-1 -bottom-1 w-5 h-5 rounded-full bg-paper border border-secondary/20 flex items-center justify-center opacity-0 group-hover/comment:opacity-100 transition-opacity hover:bg-secondary/10"
+            className="absolute -right-1 -bottom-1 w-5 h-5 rounded-full bg-paper border border-secondary/20 flex items-center justify-center opacity-0 group-hover/comment:opacity-100 transition-opacity hover:bg-secondary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
             aria-label="React with emoji"
           >
             <Smile size={10} className="text-secondary/60" />
@@ -117,7 +117,7 @@ const CommentItem = ({ comment, onReact, onReply, isReply = false, currentUser, 
                         onReact(comment.id, emoji, isReply);
                         setShowEmojiPicker(false);
                       }}
-                      className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors text-sm ${isMyReaction ? 'bg-primary/20 ring-1 ring-primary' : 'hover:bg-secondary/10'}`}
+                      className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 ${isMyReaction ? 'bg-primary/20 ring-1 ring-primary' : 'hover:bg-secondary/10'}`}
                     >
                       {emoji}
                     </button>
@@ -138,7 +138,7 @@ const CommentItem = ({ comment, onReact, onReply, isReply = false, currentUser, 
                   <button
                     key={emoji}
                     onClick={() => onReact(comment.id, emoji, isReply)}
-                    className={`flex items-center gap-0.5 transition-transform ${isMyReaction ? 'scale-110' : 'hover:scale-110'}`}
+                    className={`flex items-center gap-0.5 transition-transform rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 ${isMyReaction ? 'scale-110' : 'hover:scale-110'}`}
                   >
                     <span className="text-[10px]">{emoji}</span>
                     <span className={`text-[9px] font-bold ${isMyReaction ? 'text-primary' : 'text-secondary/60'}`}>{users.length}</span>
@@ -151,7 +151,7 @@ const CommentItem = ({ comment, onReact, onReply, isReply = false, currentUser, 
           {!isReply && (
             <button
               onClick={() => setShowReplyInput(!showReplyInput)}
-              className="text-[10px] font-bold text-secondary/50 hover:text-primary flex items-center gap-0.5 transition-colors"
+              className="text-[10px] font-bold text-secondary/50 hover:text-primary flex items-center gap-0.5 transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
             >
               <Reply size={10} />
               Reply
@@ -160,7 +160,7 @@ const CommentItem = ({ comment, onReact, onReply, isReply = false, currentUser, 
           {hasReplies && (
             <button
               onClick={() => setShowReplies(!showReplies)}
-              className="text-[10px] font-bold text-primary flex items-center gap-0.5"
+              className="text-[10px] font-bold text-primary flex items-center gap-0.5 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
             >
               {showReplies ? <ChevronUp size={10} /> : <ChevronDown size={10} />}
               {comment.replies.length} {comment.replies.length === 1 ? 'reply' : 'replies'}
@@ -192,7 +192,7 @@ const CommentItem = ({ comment, onReact, onReply, isReply = false, currentUser, 
                 <button
                   onClick={submitReply}
                   disabled={!replyText.trim()}
-                  className="w-7 h-7 rounded-lg bg-primary text-white flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed text-xs"
+                  className="w-7 h-7 rounded-lg bg-primary text-white flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
                   aria-label="Send reply"
                 >
                   <Send size={12} />
@@ -346,7 +346,7 @@ const FeedItem = ({ post, currentUser = { name: 'Ben B.', avatar: '/ben-avatar.p
           <button
             type="button"
             onClick={() => onOpenProfile({ name: post.user, avatar: post.avatar, community: post.community })}
-            className="flex items-center gap-3 text-left focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-2xl -m-1 p-1"
+            className="flex items-center gap-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 rounded-2xl -m-1 p-1"
           >
             <img src={post.avatar || DEFAULT_AVATAR} className="w-10 h-10 rounded-[14px] object-cover border border-secondary/10 shadow-inner" alt={post.user} loading="lazy" />
             <div>
@@ -377,7 +377,7 @@ const FeedItem = ({ post, currentUser = { name: 'Ben B.', avatar: '/ben-avatar.p
       <div className="flex items-center gap-6">
         <button
           onClick={handleLike}
-          className={`flex items-center gap-2 group transition-all ${liked ? 'text-primary' : 'text-secondary/40 hover:text-primary'}`}
+          className={`flex items-center gap-2 group transition-all rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 ${liked ? 'text-primary' : 'text-secondary/40 hover:text-primary'}`}
         >
           <motion.div
             whileTap={{ scale: 1.3 }}
@@ -389,7 +389,7 @@ const FeedItem = ({ post, currentUser = { name: 'Ben B.', avatar: '/ben-avatar.p
         </button>
         <button
           onClick={toggleComments}
-          className={`flex items-center gap-2 group transition-all ${showComments ? 'text-secondary' : 'text-secondary/40 hover:text-secondary'}`}
+          className={`flex items-center gap-2 group transition-all rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 ${showComments ? 'text-secondary' : 'text-secondary/40 hover:text-secondary'}`}
         >
           <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${showComments ? 'bg-secondary/10' : 'bg-secondary/5 group-hover:bg-secondary/10'}`}>
             <MessageCircle size={16} />
@@ -445,7 +445,7 @@ const FeedItem = ({ post, currentUser = { name: 'Ben B.', avatar: '/ben-avatar.p
                 <button
                   onClick={submitComment}
                   disabled={!comment.trim()}
-                  className="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors"
+                  className="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
                   aria-label="Send comment"
                 >
                   <Send size={16} />

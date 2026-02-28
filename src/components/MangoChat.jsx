@@ -233,7 +233,7 @@ const MangoChat = ({ user = {}, events = [] }) => {
                 </div>
                 <button
                     onClick={() => { setIsChatOpen(false); setPose('wave'); }}
-                    className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary hover:bg-secondary/20 transition-colors"
+                    className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary hover:bg-secondary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                     aria-label="Close chat"
                 >
                     <X size={20} />
@@ -247,7 +247,7 @@ const MangoChat = ({ user = {}, events = [] }) => {
                         <button
                             key={i}
                             onClick={() => handleQuickPrompt(prompt.label)}
-                            className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-secondary/5 border border-secondary/10 text-xs font-bold text-secondary/70 whitespace-nowrap hover:bg-primary/10 hover:text-primary hover:border-primary/20 transition-all shrink-0"
+                            className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-secondary/5 border border-secondary/10 text-xs font-bold text-secondary/70 whitespace-nowrap hover:bg-primary/10 hover:text-primary hover:border-primary/20 transition-all shrink-0 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                         >
                             <span>{prompt.icon}</span>
                             {prompt.label}
@@ -314,7 +314,7 @@ const MangoChat = ({ user = {}, events = [] }) => {
                                             <Users size={12} />
                                             {msg.isMicro ? `${msg.card.spotsLeft} spots left` : `${msg.card.attendees} going`}
                                         </span>
-                                        <button className="px-4 py-2 bg-primary text-white rounded-xl text-xs font-black uppercase tracking-widest active:scale-95 transition-transform">
+                                        <button className="px-4 py-2 bg-primary text-white rounded-xl text-xs font-black uppercase tracking-widest active:scale-95 transition-transform focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none">
                                             View
                                         </button>
                                     </div>
@@ -351,7 +351,7 @@ const MangoChat = ({ user = {}, events = [] }) => {
                     <button
                         type="submit"
                         disabled={!input.trim()}
-                        className="absolute right-2 w-10 h-10 bg-primary text-white rounded-xl disabled:opacity-30 disabled:bg-secondary/20 disabled:cursor-not-allowed transition-all hover:scale-105 active:scale-95 shadow-md flex items-center justify-center"
+                        className="absolute right-2 w-10 h-10 bg-primary text-white rounded-xl disabled:opacity-30 disabled:bg-secondary/20 disabled:cursor-not-allowed transition-all hover:scale-105 active:scale-95 shadow-md flex items-center justify-center focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                         aria-label="Send message"
                     >
                         <Send size={18} />

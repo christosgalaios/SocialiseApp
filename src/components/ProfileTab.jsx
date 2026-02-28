@@ -233,7 +233,7 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
             <button
               key={item.label}
               onClick={item.action}
-              className="w-full flex items-center justify-between p-6 border-b border-secondary/10 last:border-0 hover:bg-secondary/5 transition-all active:pl-8"
+              className="w-full flex items-center justify-between p-6 border-b border-secondary/10 last:border-0 hover:bg-secondary/5 transition-all active:pl-8 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
             >
               <div className="flex items-center gap-5">
                 <div className="w-10 h-10 rounded-2xl bg-secondary/10 flex items-center justify-center border border-secondary/10">
@@ -257,7 +257,7 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           onClick={() => { playTap(); onLogout(); }}
-          className="w-full p-6 mt-6 rounded-[32px] bg-red-500/10 border border-red-500/20 flex items-center justify-center gap-3 text-red-500 font-black uppercase tracking-widest hover:bg-red-500/20 transition-all active:scale-95"
+          className="w-full p-6 mt-6 rounded-[32px] bg-red-500/10 border border-red-500/20 flex items-center justify-center gap-3 text-red-500 font-black uppercase tracking-widest hover:bg-red-500/20 transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
         >
           <LogOut size={18} />
           Log Out
@@ -291,7 +291,7 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
         >
           <button
             onClick={() => { playTap(); setProfileSubTab('profile'); }}
-            className="flex items-center gap-2 text-secondary/60 hover:text-secondary font-bold text-sm mb-2 transition-colors"
+            className="flex items-center gap-2 text-secondary/60 hover:text-secondary font-bold text-sm mb-2 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none rounded-lg"
           >
             <ArrowLeft size={18} />
             Back to Profile
@@ -313,7 +313,7 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
                 role="switch"
                 aria-checked={soundEnabled}
                 onClick={() => { playToggle(!soundEnabled); setSoundEnabled(!soundEnabled); }}
-                className={`relative w-12 h-7 rounded-full transition-colors ${soundEnabled ? 'bg-primary' : 'bg-secondary/20'}`}
+                className={`relative w-12 h-7 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${soundEnabled ? 'bg-primary' : 'bg-secondary/20'}`}
               >
                 <motion.div
                   className="absolute top-1 w-5 h-5 rounded-full bg-paper shadow"
@@ -336,7 +336,7 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
                 role="switch"
                 aria-checked={experimentalFeatures}
                 onClick={() => { playToggle(!experimentalFeatures); setExperimentalFeatures(!experimentalFeatures); }}
-                className={`relative w-12 h-7 rounded-full transition-colors ${experimentalFeatures ? 'bg-primary' : 'bg-secondary/20'}`}
+                className={`relative w-12 h-7 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${experimentalFeatures ? 'bg-primary' : 'bg-secondary/20'}`}
               >
                 <motion.div
                   className="absolute top-1 w-5 h-5 rounded-full bg-paper shadow"
@@ -351,7 +351,7 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
                 <button
                   type="button"
                   onClick={() => setShowGroupChats(true)}
-                  className="w-full flex items-center gap-3 p-3 rounded-2xl bg-secondary/5 hover:bg-secondary/10 transition-colors text-left"
+                  className="w-full flex items-center gap-3 p-3 rounded-2xl bg-secondary/5 hover:bg-secondary/10 transition-colors text-left focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                 >
                   <MessageCircle className="text-secondary" size={20} />
                   <span className="font-bold text-secondary">Group Chats</span>
@@ -444,7 +444,7 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
         {/* Fame Score Progress Card */}
         <motion.div
           variants={itemVariants}
-          className="premium-card p-6 overflow-hidden relative cursor-pointer active:scale-[0.98] transition-transform"
+          className="premium-card p-6 overflow-hidden relative cursor-pointer active:scale-[0.98] transition-transform focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
           onClick={() => { playClick(); setShowLevelDetail(true); }}
         >
           <div className="absolute -right-10 -top-10 w-40 h-40 bg-accent/5 rounded-full blur-3xl" />
@@ -572,7 +572,7 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
         {!isOrganiser && (
           <motion.div
             variants={itemVariants}
-            className="premium-card p-6 relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform group"
+            className="premium-card p-6 relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform group focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
             onClick={() => { playClick(); hapticTap(); setShowOrganiserSetup(true); }}
           >
             <div className="absolute -left-8 -bottom-8 w-36 h-36 bg-accent/10 rounded-full blur-3xl group-hover:bg-accent/20 transition-colors" />
@@ -607,7 +607,7 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
             <p className="text-xs text-secondary/60 mb-6 px-4 font-medium leading-relaxed italic">Unlock advanced matchmaking and event analytics for £12.99/mo</p>
             <button
               onClick={() => setShowProModal(true)}
-              className="w-full bg-gradient-to-r from-primary to-accent py-4 rounded-2xl text-[12px] font-black uppercase tracking-widest shadow-2xl glow-primary transition-all active:scale-95 text-white"
+              className="w-full bg-gradient-to-r from-primary to-accent py-4 rounded-2xl text-[12px] font-black uppercase tracking-widest shadow-2xl glow-primary transition-all active:scale-95 text-white focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
             >
               Go Pro
             </button>
@@ -626,7 +626,7 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
           <button
             key={item.label}
             onClick={item.action}
-            className="w-full flex items-center justify-between p-6 border-b border-secondary/10 last:border-0 hover:bg-secondary/5 transition-all active:pl-8"
+            className="w-full flex items-center justify-between p-6 border-b border-secondary/10 last:border-0 hover:bg-secondary/5 transition-all active:pl-8 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
           >
             <div className="flex items-center gap-5">
               <div className="w-10 h-10 rounded-2xl bg-secondary/10 flex items-center justify-center border border-secondary/10">
@@ -649,7 +649,7 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
       <motion.button
         variants={itemVariants}
         onClick={() => { playTap(); onLogout(); }}
-        className="w-full p-6 mt-6 rounded-[32px] bg-red-500/10 border border-red-500/20 flex items-center justify-center gap-3 text-red-500 font-black uppercase tracking-widest hover:bg-red-500/20 transition-all active:scale-95"
+        className="w-full p-6 mt-6 rounded-[32px] bg-red-500/10 border border-red-500/20 flex items-center justify-center gap-3 text-red-500 font-black uppercase tracking-widest hover:bg-red-500/20 transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
       >
         <LogOut size={18} />
         Log Out

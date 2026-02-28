@@ -137,7 +137,7 @@ const VideoCard = ({ ad, onSelect, muted, onToggleMute, isSponsored = true }) =>
                         e.stopPropagation();
                         onToggleMute();
                     }}
-                    className="w-10 h-10 rounded-full bg-secondary/50 backdrop-blur-md flex items-center justify-center text-white/80 hover:bg-paper/20 transition-colors"
+                    className="w-10 h-10 rounded-full bg-secondary/50 backdrop-blur-md flex items-center justify-center text-white/80 hover:bg-paper/20 transition-colors focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:outline-none"
                     aria-label={muted ? 'Unmute' : 'Mute'}
                     title={muted ? 'Unmute' : 'Mute'}
                 >
@@ -246,7 +246,7 @@ const VideoWall = ({ onEventSelect, userName = "You" }) => {
                     <button
                         onClick={() => scrollTo('left')}
                         disabled={activeIndex === 0}
-                        className="w-10 h-10 rounded-full bg-secondary/10 border border-secondary/15 flex items-center justify-center text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-secondary/10 disabled:hover:text-secondary disabled:hover:border-secondary/15"
+                        className="w-10 h-10 rounded-full bg-secondary/10 border border-secondary/15 flex items-center justify-center text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-secondary/10 disabled:hover:text-secondary disabled:hover:border-secondary/15 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                         aria-label="Previous card"
                         title="Previous card"
                     >
@@ -255,7 +255,7 @@ const VideoWall = ({ onEventSelect, userName = "You" }) => {
                     <button
                         onClick={() => scrollTo('right')}
                         disabled={activeIndex === totalItems - 1}
-                        className="w-10 h-10 rounded-full bg-secondary/10 border border-secondary/15 flex items-center justify-center text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-secondary/10 disabled:hover:text-secondary disabled:hover:border-secondary/15"
+                        className="w-10 h-10 rounded-full bg-secondary/10 border border-secondary/15 flex items-center justify-center text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-secondary/10 disabled:hover:text-secondary disabled:hover:border-secondary/15 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                         aria-label="Next card"
                         title="Next card"
                     >

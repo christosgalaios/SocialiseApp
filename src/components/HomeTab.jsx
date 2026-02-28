@@ -125,7 +125,7 @@ export default function HomeTab({ onProfileClick, onCreateEvent, fetchAllData })
         </div>
         <motion.button
           whileTap={{ scale: 0.95 }}
-          className="relative group cursor-pointer"
+          className="relative group cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none rounded-2xl"
           onClick={onProfileClick}
         >
           <div className="absolute inset-0 bg-primary rounded-full blur-md opacity-20 group-hover:opacity-40 transition-opacity" aria-hidden="true" />
@@ -148,7 +148,7 @@ export default function HomeTab({ onProfileClick, onCreateEvent, fetchAllData })
             </div>
             <button
               onClick={() => { playClick(); hapticTap(); onCreateEvent?.(); }}
-              className="ml-auto flex items-center gap-1 px-3 py-1.5 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-[11px] font-bold active:scale-95 transition-transform"
+              className="ml-auto flex items-center gap-1 px-3 py-1.5 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-[11px] font-bold active:scale-95 transition-transform focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
             >
               <Plus size={12} />
               New Event
@@ -231,7 +231,7 @@ export default function HomeTab({ onProfileClick, onCreateEvent, fetchAllData })
                 const el = document.getElementById('micro-meets-scroll');
                 if (el) el.scrollBy({ left: -316, behavior: 'smooth' });
               }}
-              className="w-10 h-10 rounded-full bg-secondary/10 border border-secondary/15 flex items-center justify-center text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all"
+              className="w-10 h-10 rounded-full bg-secondary/10 border border-secondary/15 flex items-center justify-center text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
               aria-label="Scroll left"
               title="Scroll left"
             >
@@ -243,7 +243,7 @@ export default function HomeTab({ onProfileClick, onCreateEvent, fetchAllData })
                 const el = document.getElementById('micro-meets-scroll');
                 if (el) el.scrollBy({ left: 316, behavior: 'smooth' });
               }}
-              className="w-10 h-10 rounded-full bg-secondary/10 border border-secondary/15 flex items-center justify-center text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all"
+              className="w-10 h-10 rounded-full bg-secondary/10 border border-secondary/15 flex items-center justify-center text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
               aria-label="Scroll right"
               title="Scroll right"
             >
@@ -284,7 +284,7 @@ export default function HomeTab({ onProfileClick, onCreateEvent, fetchAllData })
           <button
             onClick={refreshRecommendations}
             disabled={isRefreshingRecs}
-            className="w-8 h-8 rounded-full bg-secondary/10 border border-secondary/15 flex items-center justify-center text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-8 h-8 rounded-full bg-secondary/10 border border-secondary/15 flex items-center justify-center text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
             title="Refresh recommendations"
           >
             <RefreshCw size={14} strokeWidth={2.5} className={isRefreshingRecs ? 'animate-spin' : ''} />
