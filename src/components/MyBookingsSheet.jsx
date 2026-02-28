@@ -68,6 +68,7 @@ const MyBookingsSheet = ({ isOpen, onClose, bookings = [], onCancel }) => {
                                                     alt={event.title}
                                                     className="w-20 h-20 rounded-xl object-cover"
                                                     loading="lazy"
+                                                    onError={(e) => { e.target.style.display = 'none'; }}
                                                 />
                                                 <div className="flex-1 min-w-0">
                                                     <h3 className="font-bold text-sm truncate text-secondary">{event.title}</h3>

@@ -6,8 +6,11 @@ import { playCardPress, hapticTap } from '../utils/feedback';
 const MicroMeetCard = ({ meet, onClick }) => (
   <motion.div
     whileTap={{ scale: 0.95 }}
-    className="min-w-[300px] premium-card p-6 mr-4 relative overflow-hidden group shadow-2xl"
+    className="min-w-[300px] premium-card p-6 mr-4 relative overflow-hidden group shadow-2xl cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
     onClick={() => { playCardPress(); hapticTap(); onClick(meet); }}
+    tabIndex={0}
+    role="button"
+    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); playCardPress(); hapticTap(); onClick(meet); } }}
   >
     <div className="absolute -right-8 -top-8 w-32 h-32 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/20 transition-all duration-700" />
     {meet.matchScore !== undefined && (

@@ -6,8 +6,11 @@ import { playCardPress, hapticTap } from '../utils/feedback';
 const EventCard = ({ event, onClick, compact = false, isJoined = false, isHosting = false }) => (
   <motion.div
     whileTap={{ scale: 0.96 }}
-    className={`premium-card overflow-hidden group ${compact ? 'flex gap-4 p-4' : 'mb-6 shadow-2xl'}`}
+    className={`premium-card overflow-hidden group cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${compact ? 'flex gap-4 p-4' : 'mb-6 shadow-2xl'}`}
     onClick={() => { playCardPress(); hapticTap(); onClick(event); }}
+    tabIndex={0}
+    role="button"
+    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); playCardPress(); hapticTap(); onClick(event); } }}
   >
     {compact ? (
       <>
@@ -42,7 +45,7 @@ const EventCard = ({ event, onClick, compact = false, isJoined = false, isHostin
     ) : (
       <>
         <div className="relative h-52 overflow-hidden">
-          <img src={event.image} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt={event.title} loading="lazy" />
+          <img src={event.image} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt={event.title} loading="lazy" onError={(e) => { e.target.style.display = 'none'; }} />
           <div className="absolute inset-0 bg-gradient-to-t from-secondary/80 via-transparent to-transparent" />
           <div className="absolute top-4 left-4 right-4 flex flex-wrap gap-1.5">
             <span className="bg-paper/90 backdrop-blur-md px-3 py-1.5 rounded-full text-[10px] font-black text-secondary uppercase tracking-widest shadow-lg">{event.category}</span>

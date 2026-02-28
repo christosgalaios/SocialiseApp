@@ -182,6 +182,7 @@ const CommentItem = ({ comment, onReact, onReply, isReply = false, currentUser, 
                 <input
                   type="text"
                   placeholder="Write a reply..."
+                  aria-label="Write a reply"
                   value={replyText}
                   onChange={(e) => setReplyText(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && submitReply()}
@@ -191,7 +192,8 @@ const CommentItem = ({ comment, onReact, onReply, isReply = false, currentUser, 
                 <button
                   onClick={submitReply}
                   disabled={!replyText.trim()}
-                  className="w-7 h-7 rounded-lg bg-primary text-white flex items-center justify-center disabled:opacity-50 text-xs"
+                  className="w-7 h-7 rounded-lg bg-primary text-white flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed text-xs"
+                  aria-label="Send reply"
                 >
                   <Send size={12} />
                 </button>
@@ -369,7 +371,7 @@ const FeedItem = ({ post, currentUser = { name: 'Ben B.', avatar: '/ben-avatar.p
       <p className="text-[15px] font-medium leading-relaxed mb-4 tracking-tight text-secondary/90">{post.content}</p>
       {post.image && (
         <div className="rounded-2xl overflow-hidden mb-4 border border-secondary/10 shadow-2xl">
-          <img src={post.image} className="w-full h-56 object-cover transition-transform duration-1000 group-hover:scale-105" alt="Post content" loading="lazy" />
+          <img src={post.image} className="w-full h-56 object-cover transition-transform duration-1000 group-hover:scale-105" alt="Post content" loading="lazy" onError={(e) => { e.target.parentElement.style.display = 'none'; }} />
         </div>
       )}
       <div className="flex items-center gap-6">
@@ -434,6 +436,7 @@ const FeedItem = ({ post, currentUser = { name: 'Ben B.', avatar: '/ben-avatar.p
                 <input
                   type="text"
                   placeholder="Write a comment..."
+                  aria-label="Write a comment"
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && submitComment()}
@@ -443,6 +446,7 @@ const FeedItem = ({ post, currentUser = { name: 'Ben B.', avatar: '/ben-avatar.p
                   onClick={submitComment}
                   disabled={!comment.trim()}
                   className="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors"
+                  aria-label="Send comment"
                 >
                   <Send size={16} />
                 </button>

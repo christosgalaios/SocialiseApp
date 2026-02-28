@@ -263,7 +263,13 @@ export default function HomeTab({ onProfileClick, onCreateEvent, fetchAllData })
             </div>
           ))}
           {microMeets.length === 0 && (
-            <div className="text-center text-secondary/40 text-sm font-medium py-8 w-full">No micro-meets available yet</div>
+            <div className="text-center py-12 w-full">
+              <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-accent/10 flex items-center justify-center border border-accent/20">
+                <Zap size={24} className="text-accent" />
+              </div>
+              <p className="text-sm font-bold text-secondary/50 mb-1">No micro-meets yet</p>
+              <p className="text-xs text-secondary/40">Check back soon — curated dinners are coming</p>
+            </div>
           )}
         </motion.div>
       </div>
