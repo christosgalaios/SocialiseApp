@@ -64,6 +64,7 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **PWA manifest enrichment** — added `id`, `categories`, and expanded `description` for better app store discoverability
 - **HTML meta tags** — added `<meta name="description">` and `<meta name="apple-mobile-web-app-title">` with descriptive content, improved `<title>` to include tagline
 - **Focus rings (round 6)** — added `focus-visible:ring` to remaining 5 buttons: ExploreTab reel scroll arrows (x2), Toast dismiss, IOSInstallPrompt dismiss, ErrorBoundary Try Again/Reload
+- **Skeleton scrollbar hidden** — horizontal scroll areas in loading skeleton (micro-meets cards, filter pills) now use `no-scrollbar` to match production layout
 
 ### Fixed
 - **Loading glitch on tab switches and initial load** — removed `AnimatePresence mode="wait"` that forced sequential exit→enter animations, creating a visible flash where content disappeared then reappeared. Tabs now cross-fade simultaneously. Also removed the artificial 600ms skeleton delay on initial load (content appears immediately) and sped up all tab transition animations

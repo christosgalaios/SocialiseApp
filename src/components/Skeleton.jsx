@@ -106,7 +106,7 @@ export function HomeSkeleton() {
         <Skeleton className="w-8 h-8 rounded-xl" />
         <Skeleton className="h-6 w-48" />
       </div>
-      <div className="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 overflow-x-auto pb-8">
+      <div className="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 overflow-x-auto no-scrollbar pb-8">
         <MicroMeetCardSkeleton />
         <MicroMeetCardSkeleton />
         <MicroMeetCardSkeleton />
@@ -164,7 +164,7 @@ export function ExploreSkeleton() {
     <div className="p-5 md:p-10 max-w-7xl mx-auto pb-32">
       <div className="mb-8">
         <Skeleton className="h-10 w-32 mb-6" />
-        <div className="flex gap-2 overflow-x-auto pb-4 -mx-5 px-5 md:mx-0 md:px-0">
+        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-4 -mx-5 px-5 md:mx-0 md:px-0">
           <Skeleton className="h-10 w-20 shrink-0 rounded-full" />
           <Skeleton className="h-10 w-24 shrink-0 rounded-full" />
           <Skeleton className="h-10 w-28 shrink-0 rounded-full" />
