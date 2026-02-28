@@ -27,7 +27,7 @@ const containerVariants = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
-    transition: { staggerChildren: 0.1, delayChildren: 0.1 },
+    transition: { staggerChildren: 0.05, delayChildren: 0.02 },
   },
 };
 
@@ -192,8 +192,8 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
       <motion.div
         key="organiser-dashboard"
         initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
+        animate={{ opacity: 1, transition: { duration: 0.15 } }}
+        exit={{ opacity: 0, transition: { duration: 0.08 } }}
         className="p-5 md:p-10 max-w-4xl mx-auto pb-32 relative"
         style={{ overscrollBehavior: 'contain' }}
       >
@@ -280,8 +280,8 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
       <motion.div
         key="profile"
         initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
+        animate={{ opacity: 1, transition: { duration: 0.15 } }}
+        exit={{ opacity: 0, transition: { duration: 0.08 } }}
         className="p-5 md:p-10 max-w-4xl mx-auto pb-32 relative"
       >
         <motion.div
@@ -384,8 +384,8 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
     <motion.div
       key="profile"
       initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+      animate={{ opacity: 1, transition: { duration: 0.15 } }}
+      exit={{ opacity: 0, transition: { duration: 0.08 } }}
       className="p-5 md:p-10 max-w-4xl mx-auto pb-32 relative"
     >
       <motion.div variants={containerVariants} initial="hidden" animate="show" className="space-y-6 relative">

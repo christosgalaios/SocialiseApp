@@ -13,6 +13,7 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 ## [Unreleased]
 
 ### Fixed
+- **Loading glitch on tab switches and initial load** — removed `AnimatePresence mode="wait"` that forced sequential exit→enter animations, creating a visible flash where content disappeared then reappeared. Tabs now cross-fade simultaneously. Also removed the artificial 600ms skeleton delay on initial load (content appears immediately) and sped up all tab transition animations
 - **Organiser dashboard content invisible** — replaced Framer Motion's `containerVariants`/`itemVariants` variant propagation with explicit `initial`/`animate`/`transition` on each section. The variant propagation pattern (`staggerChildren` + `delayChildren`) was silently failing — children stayed at `opacity: 0` despite correct variant setup. Each section now independently animates in with staggered delays via a `staggerDelay(i)` helper
 - **Silent dashboard load failure** — added a visible error state with retry button when the organiser stats API fails, instead of silently showing an empty dashboard with no explanation
 - **Host avatar always showing default** — event detail host section now shows the actual host's avatar instead of always falling back to the default. Backend enriches all event responses with `hostAvatar` from the users table

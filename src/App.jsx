@@ -151,14 +151,9 @@ function App() {
     return () => el.removeEventListener('scroll', handleScroll);
   }, [activeTab, setRecommendedLimit, setExploreLimit]);
 
-  // Content loading: show skeletons then reveal
+  // Content loading: reveal immediately when app is ready (no artificial delay)
   useEffect(() => {
-    if (appState !== 'app') {
-      setContentReady(false);
-      return;
-    }
-    const t = setTimeout(() => setContentReady(true), 600);
-    return () => clearTimeout(t);
+    setContentReady(appState === 'app');
   }, [appState, setContentReady]);
 
   // Show changelog sheet 500ms after home page is ready
@@ -609,7 +604,7 @@ function App() {
                 </motion.div>
 
                 <motion.div style={activeTab === 'home' ? { translateY: pullY } : undefined} className="min-h-full">
-                  <AnimatePresence mode="wait">
+                  <AnimatePresence>
                     {activeTab === 'home' && (
                       contentReady ? (
                         <HomeTab

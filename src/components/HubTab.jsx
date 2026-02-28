@@ -18,8 +18,8 @@ export default function HubTab() {
     <motion.div
       key="hub"
       initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+      animate={{ opacity: 1, transition: { duration: 0.15 } }}
+      exit={{ opacity: 0, transition: { duration: 0.08 } }}
       className="p-5 md:p-10 max-w-7xl mx-auto pb-32"
     >
       <header className="mb-10">

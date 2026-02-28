@@ -28,7 +28,7 @@ const containerVariants = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
-    transition: { staggerChildren: 0.1, delayChildren: 0.1 },
+    transition: { staggerChildren: 0.05, delayChildren: 0.02 },
   },
 };
 
@@ -104,7 +104,7 @@ export default function HomeTab({ onProfileClick, onCreateEvent, fetchAllData })
       variants={containerVariants}
       initial="hidden"
       animate="show"
-      exit={{ opacity: 0, transition: { duration: 0.2 } }}
+      exit={{ opacity: 0, transition: { duration: 0.08 } }}
       className="p-5 md:p-10 space-y-10 max-w-7xl mx-auto"
     >
       <motion.header variants={itemVariants} className="flex justify-between items-center mb-8">
