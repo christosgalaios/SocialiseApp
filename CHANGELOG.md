@@ -43,6 +43,9 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Focus rings (round 2)** — added `focus-visible:ring` to OnboardingFlow Continue button, BugReportModal Submit, FeatureRequestModal Submit, ProUpgradeModal Upgrade Now, AppModals MatchAnalysisModal Cancel/Join, AvatarCropModal Cancel/Save/zoom buttons, and UserProfileSheet Follow/Message buttons
 - **Decorative aria-hidden (round 2)** — added `aria-hidden="true"` to LevelUpScreen particles container and glow blob, AppModals MatchAnalysisModal shimmer bar, and ProUpgradeModal radial gradient overlay
 - **Bug report textarea overflow** — added `break-words` and `overflow-wrap` to BugReportModal description textarea to prevent long unbroken strings from overflowing
+- **TribeSheet design system compliance** — replaced `bg-white/*` and `border-white/*` with `bg-secondary/*` and `border-secondary/*` on drag handle, close button, section border, and notification toggle inactive state. Added `aria-hidden` to drag handle
+- **Focus rings (round 3)** — added `focus-visible:ring` to TribeSheet close/follow/notifications/leave/write-review buttons, EventDetailSheet close/get-directions/hosted-by/chat-username buttons
+- **Image error handling (round 2)** — added `onError` fallbacks to TribeSheet member avatars and review avatars, EventDetailSheet host avatar and chat message avatars
 
 ### Fixed
 - **Loading glitch on tab switches and initial load** — removed `AnimatePresence mode="wait"` that forced sequential exit→enter animations, creating a visible flash where content disappeared then reappeared. Tabs now cross-fade simultaneously. Also removed the artificial 600ms skeleton delay on initial load (content appears immediately) and sped up all tab transition animations

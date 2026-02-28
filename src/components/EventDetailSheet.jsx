@@ -54,7 +54,7 @@ const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMe
 
             {/* Sticky bar: close + tabs - stays at top when image scrolls away */}
             <div className="sticky top-0 z-10 bg-paper border-b border-secondary/10 flex items-stretch shrink-0">
-              <button onClick={() => { playSwooshClose(); hapticTap(); onClose(); }} className="p-4 flex items-center justify-center text-secondary/70 hover:text-secondary active:scale-90 transition-all" aria-label="Close">
+              <button onClick={() => { playSwooshClose(); hapticTap(); onClose(); }} className="p-4 flex items-center justify-center text-secondary/70 hover:text-secondary active:scale-90 transition-all focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none" aria-label="Close">
                 <X size={24} strokeWidth={2.5} />
               </button>
               <div role="tablist" aria-label="Event sections" className="flex flex-1">
@@ -102,7 +102,7 @@ const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMe
                     <MapPin size={16} className="text-primary" /> Location Details
                   </h4>
                   <p className="text-xl font-extrabold mb-2 tracking-tight text-secondary group-hover:text-primary transition-colors">{event.location}</p>
-                  <button className="text-primary text-xs font-black flex items-center gap-2 hover:translate-x-1 transition-transform">Get Directions <ChevronRight size={14} /></button>
+                  <button className="text-primary text-xs font-black flex items-center gap-2 hover:translate-x-1 transition-transform focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none rounded">Get Directions <ChevronRight size={14} /></button>
                 </div>
 
                 {/* Hosted By */}
@@ -116,10 +116,10 @@ const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMe
                           useUIStore.getState().setShowOrganiserProfile(event.host_id);
                         }
                       }}
-                      className="flex items-center gap-3 group/host w-full text-left p-3 rounded-2xl bg-secondary/5 border border-secondary/10 hover:bg-secondary/10 transition-colors"
+                      className="flex items-center gap-3 group/host w-full text-left p-3 rounded-2xl bg-secondary/5 border border-secondary/10 hover:bg-secondary/10 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                     >
                       <div className="w-12 h-12 rounded-2xl overflow-hidden bg-secondary/10 border-2 border-primary/20 shadow-sm shrink-0">
-                        <img src={event.hostAvatar || DEFAULT_AVATAR} className="w-full h-full object-cover" alt={event.host || 'Host'} loading="lazy" />
+                        <img src={event.hostAvatar || DEFAULT_AVATAR} className="w-full h-full object-cover" alt={event.host || 'Host'} loading="lazy" onError={(e) => { e.target.style.display = 'none'; }} />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5">
@@ -226,10 +226,10 @@ const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMe
                                 onClick={() => onOpenProfile({ name: msg.user, avatar: msg.avatar })}
                                 className="rounded-[18px] focus:outline-none focus:ring-2 focus:ring-primary/40"
                               >
-                                <img src={msg.avatar || DEFAULT_AVATAR} className="w-12 h-12 rounded-[18px] object-cover shadow-2xl border border-secondary/10" alt={msg.user} loading="lazy" />
+                                <img src={msg.avatar || DEFAULT_AVATAR} className="w-12 h-12 rounded-[18px] object-cover shadow-2xl border border-secondary/10" alt={msg.user} loading="lazy" onError={(e) => { e.target.style.display = 'none'; }} />
                               </button>
                             ) : (
-                              <img src={msg.avatar || DEFAULT_AVATAR} className="w-12 h-12 rounded-[18px] object-cover shadow-2xl border border-secondary/10" alt={msg.user} loading="lazy" />
+                              <img src={msg.avatar || DEFAULT_AVATAR} className="w-12 h-12 rounded-[18px] object-cover shadow-2xl border border-secondary/10" alt={msg.user} loading="lazy" onError={(e) => { e.target.style.display = 'none'; }} />
                             )}
                             {msg.isHost && <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-primary rounded-full border-2 border-dark flex items-center justify-center"><Check size={10} strokeWidth={4} className="text-white" /></div>}
                           </div>
@@ -238,7 +238,7 @@ const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMe
                           {!msg.isSystem && (
                             <div className="flex items-center gap-2 mb-1.5 px-1">
                               {onOpenProfile && !msg.isMe ? (
-                                <button type="button" onClick={() => onOpenProfile({ name: msg.user, avatar: msg.avatar })} className={`text-[10px] font-black uppercase tracking-widest hover:text-primary transition-colors ${msg.isHost ? 'text-primary' : 'text-secondary/60'}`}>
+                                <button type="button" onClick={() => onOpenProfile({ name: msg.user, avatar: msg.avatar })} className={`text-[10px] font-black uppercase tracking-widest hover:text-primary transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none rounded ${msg.isHost ? 'text-primary' : 'text-secondary/60'}`}>
                                   {msg.user}
                                 </button>
                               ) : (

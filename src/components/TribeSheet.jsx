@@ -54,7 +54,7 @@ const TribeSheet = ({ tribe, isOpen, onClose, onLeave }) => {
                         {/* Drag zone — handle + header title row */}
                         <div {...dragZoneProps}>
                         <div className="flex justify-center pt-3 pb-2">
-                            <div className="w-12 h-1 rounded-full bg-white/20" />
+                            <div className="w-12 h-1 rounded-full bg-secondary/20" aria-hidden="true" />
                         </div>
                         <div className="px-6">
                             <div className="flex items-start justify-between mb-4">
@@ -72,7 +72,7 @@ const TribeSheet = ({ tribe, isOpen, onClose, onLeave }) => {
                                 </div>
                                 <button
                                     onClick={() => { playSwooshClose(); hapticTap(); onClose(); }}
-                                    className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
+                                    className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                                     aria-label="Close"
                                 >
                                     <X size={20} />
@@ -82,7 +82,7 @@ const TribeSheet = ({ tribe, isOpen, onClose, onLeave }) => {
                         </div>
 
                         {/* Header details */}
-                        <div className="px-6 pb-6 border-b border-white/5">
+                        <div className="px-6 pb-6 border-b border-secondary/10">
 
                             {/* Curated badge + rating */}
                             <div className="flex items-center gap-3 mb-3">
@@ -108,9 +108,10 @@ const TribeSheet = ({ tribe, isOpen, onClose, onLeave }) => {
                                             <img
                                                 key={i}
                                                 src={avatar || DEFAULT_AVATAR}
-                                                alt=""
+                                                alt="Member"
                                                 className="w-8 h-8 rounded-full border-2 border-paper object-cover"
                                                 loading="lazy"
+                                                onError={(e) => { e.target.style.display = 'none'; }}
                                             />
                                         ))}
                                     </div>
@@ -130,7 +131,7 @@ const TribeSheet = ({ tribe, isOpen, onClose, onLeave }) => {
                             <div className="flex gap-3">
                                 <button
                                     onClick={() => setIsFollowing(!isFollowing)}
-                                    className={`flex-1 py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${isFollowing
+                                    className={`flex-1 py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${isFollowing
                                         ? 'bg-primary/10 text-primary border border-primary/20'
                                         : 'bg-primary text-white'
                                     }`}
@@ -140,9 +141,9 @@ const TribeSheet = ({ tribe, isOpen, onClose, onLeave }) => {
                                 </button>
                                 <button
                                     onClick={() => setNotificationsOn(!notificationsOn)}
-                                    className={`py-3 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${notificationsOn
+                                    className={`py-3 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${notificationsOn
                                         ? 'bg-secondary/10 text-secondary border border-secondary/20'
-                                        : 'bg-white/5 text-secondary/50 border border-white/10'
+                                        : 'bg-secondary/5 text-secondary/50 border border-secondary/10'
                                         }`}
                                     aria-label={notificationsOn ? 'Mute notifications' : 'Enable notifications'}
                                 >
@@ -150,7 +151,7 @@ const TribeSheet = ({ tribe, isOpen, onClose, onLeave }) => {
                                 </button>
                                 <button
                                     onClick={() => onLeave(tribe.id)}
-                                    className="px-4 py-3 rounded-xl text-xs font-bold bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 transition-all flex items-center gap-2"
+                                    className="px-4 py-3 rounded-xl text-xs font-bold bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 transition-all flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-red-500/30 focus-visible:outline-none"
                                     aria-label="Leave tribe"
                                 >
                                     <LogOut size={16} />
@@ -213,7 +214,7 @@ const TribeSheet = ({ tribe, isOpen, onClose, onLeave }) => {
                                             </div>
                                             <p className="text-xs text-secondary/50 font-bold">{tribe.reviewCount} reviews</p>
                                         </div>
-                                        <button className="px-4 py-2.5 rounded-2xl bg-primary text-white text-xs font-black uppercase tracking-widest">
+                                        <button className="px-4 py-2.5 rounded-2xl bg-primary text-white text-xs font-black uppercase tracking-widest focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none">
                                             Write Review
                                         </button>
                                     </div>
@@ -221,7 +222,7 @@ const TribeSheet = ({ tribe, isOpen, onClose, onLeave }) => {
                                         {reviews.map(review => (
                                             <div key={review.id} className="premium-card p-5">
                                                 <div className="flex items-center gap-3 mb-3">
-                                                    <img src={review.avatar || DEFAULT_AVATAR} alt={review.user} className="w-10 h-10 rounded-full object-cover border border-secondary/10" loading="lazy" />
+                                                    <img src={review.avatar || DEFAULT_AVATAR} alt={review.user} className="w-10 h-10 rounded-full object-cover border border-secondary/10" loading="lazy" onError={(e) => { e.target.style.display = 'none'; }} />
                                                     <div className="flex-1">
                                                         <h4 className="font-bold text-sm text-secondary">{review.user}</h4>
                                                         <p className="text-[10px] text-secondary/40">{review.time}</p>
