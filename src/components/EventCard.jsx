@@ -15,7 +15,7 @@ const EventCard = ({ event, onClick, compact = false, isJoined = false, isHostin
     {compact ? (
       <>
         <div className="relative w-24 h-24 shrink-0 overflow-hidden rounded-2xl shadow-inner border border-paper/10">
-          <img src={event.image} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={event.title} loading="lazy" />
+          <img src={event.image} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={event.title} loading="lazy" onError={(e) => { e.target.style.display = 'none'; }} />
           {isHosting ? (
             <div className="absolute inset-0 bg-accent/40 backdrop-blur-sm flex items-center justify-center">
               <Megaphone className="text-white" size={22} strokeWidth={2.5} />

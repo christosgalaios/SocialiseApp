@@ -28,7 +28,8 @@ Versions follow the pattern `0.1.{PR}` — derived automatically from the latest
 - **Focus visibility** — added `focus-visible:ring-2 focus-visible:ring-primary/30` to BottomNav tabs, Sidebar nav buttons, Sidebar upgrade button, HubTab "Find New Tribe" button, HelpSheet FAQ accordions, and SavedEventsSheet event cards for keyboard navigation clarity
 - **Design system overlay compliance** — replaced `bg-black/60` with `bg-secondary/60` in DateRangeCalendar, TribeSheet, and HelpSheet delete confirm overlays. Replaced `bg-black/30` with `bg-secondary/30` on ProfileTab avatar hover overlay
 - **Keyboard-accessible saved events** — SavedEventsSheet event cards now support keyboard activation (Enter/Space)
-- **Image error handling** — added `onError` fallbacks to SavedEventsSheet event images
+- **Image error handling** — added `onError` fallbacks across the app: EventCard (both compact and full), EventDetailSheet, MangoChat, OrganiserDashboard (cover, best event, audience insights, next event, event list), OrganiserProfileSheet (cover, highlight, event list), FeedItem, GroupChatsSheet shared images, MyBookingsSheet, and SavedEventsSheet. Broken remote images now hide gracefully instead of showing broken icons
+- **Profile photo is now a proper button** — ProfileTab avatar upload trigger changed from `<div>` to `<button>` with `aria-label="Change profile photo"` and focus-visible ring for keyboard accessibility. Also replaced `border-white/10` with `border-secondary/10` on the avatar frame
 - **Disabled cursor** — added `disabled:cursor-not-allowed` to ProUpgradeModal upgrade button and HelpSheet delete/cancel buttons
 - **Sidebar cleanup** — removed dead "Dark Mode toggle removed" comment, replaced with flex spacer for proper layout
 

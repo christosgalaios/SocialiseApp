@@ -31,7 +31,7 @@ const MessageBubble = ({ msg }) => {
           onDoubleClick={() => setShowReactions(!showReactions)}
         >
           {msg.isImage ? (
-            <img src={msg.message} alt="Shared" className="w-48 h-36 object-cover rounded-xl" loading="lazy" />
+            <img src={msg.message} alt="Shared" className="w-48 h-36 object-cover rounded-xl" loading="lazy" onError={(e) => { e.target.style.display = 'none'; }} />
           ) : (
             <p className="text-sm font-medium leading-relaxed">{msg.message}</p>
           )}

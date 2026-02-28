@@ -392,8 +392,8 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
         {/* Header with avatar and WarmthScore */}
         <motion.div variants={itemVariants} className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-10">
           <div className="text-center md:text-left">
-            <div className="relative inline-block group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-              <div className="w-32 h-32 rounded-[32px] overflow-hidden border-4 border-white/10 shadow-2xl mx-auto md:mx-0 mb-4 relative z-10 transition-transform group-hover:scale-105">
+            <button type="button" className="relative inline-block group cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none rounded-[32px]" onClick={() => fileInputRef.current?.click()} aria-label="Change profile photo">
+              <div className="w-32 h-32 rounded-[32px] overflow-hidden border-4 border-secondary/10 shadow-2xl mx-auto md:mx-0 mb-4 relative z-10 transition-transform group-hover:scale-105">
                 <img src={user?.avatar || DEFAULT_AVATAR} className="w-full h-full object-cover" alt="Profile" loading="lazy" />
                 <div className="absolute inset-0 bg-secondary/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                   <Camera className="text-white drop-shadow-md" size={32} />
@@ -411,7 +411,7 @@ export default function ProfileTab({ onLogout, onCreateEvent }) {
               />
               <div className="absolute inset-0 bg-primary/20 blur-3xl -z-10 transform scale-150" />
               {experimentalFeatures && proEnabled && <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 md:left-0 md:translate-x-0 z-20 bg-amber-500 text-[10px] font-black px-3 py-1 rounded-full text-white shadow-lg border border-white/20 whitespace-nowrap flex items-center gap-1"><Crown size={10} /> PRO</div>}
-            </div>
+            </button>
             <h1 className="text-3xl font-black tracking-tighter mb-2 text-primary">{user?.name}<span className="text-accent">.</span></h1>
             {user?.selectedTitle && (
               <span className="inline-block px-3 py-1 mb-2 bg-accent/10 rounded-full border border-accent/20 text-[10px] font-black text-accent uppercase tracking-widest">{user.selectedTitle}</span>
