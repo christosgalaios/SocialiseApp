@@ -89,7 +89,7 @@ const TribeDiscovery = ({ isOpen, onClose, onJoin, joinedTribes = [] }) => {
                         </div>
 
                         {/* Tribes List */}
-                        <div className="p-4 overflow-y-auto" style={{ maxHeight: 'calc(80vh - 160px)' }}>
+                        <div className="p-4 overflow-y-auto no-scrollbar overscroll-contain" style={{ maxHeight: 'calc(80vh - 160px)' }}>
                             <p className="text-xs font-bold text-secondary/50 uppercase tracking-widest mb-3 px-2">
                                 Suggested for you
                             </p>

@@ -179,7 +179,7 @@ const TribeSheet = ({ tribe, isOpen, onClose, onLeave }) => {
                         </div>
 
                         {/* Content */}
-                        <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 400px)' }}>
+                        <div className="p-6 overflow-y-auto no-scrollbar overscroll-contain" style={{ maxHeight: 'calc(100vh - 400px)' }}>
                             {activeSection === 'activity' ? (
                                 <>
                                     <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-4">

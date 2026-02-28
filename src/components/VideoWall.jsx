@@ -116,7 +116,7 @@ const VideoCard = ({ ad, onSelect, muted, onToggleMute, isSponsored = true }) =>
             />
 
             {/* Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-secondary/80 via-transparent to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-t from-secondary/80 via-transparent to-transparent pointer-events-none" aria-hidden="true" />
 
             {/* Top badges row */}
             <div className="absolute top-4 left-4 right-4 z-20 flex justify-between items-start">

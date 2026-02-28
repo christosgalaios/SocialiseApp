@@ -81,7 +81,7 @@ const HelpSheet = ({ isOpen, onClose, onDeleteAccount }) => {
                         </div>
                         </div>
 
-                        <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+                        <div className="p-6 overflow-y-auto no-scrollbar overscroll-contain" style={{ maxHeight: 'calc(100vh - 200px)' }}>
                             {/* FAQ Section */}
                             <div className="mb-8">
                                 <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-4 flex items-center gap-2">

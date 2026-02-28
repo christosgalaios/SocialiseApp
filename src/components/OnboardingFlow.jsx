@@ -99,7 +99,7 @@ const OnboardingFlow = ({ onComplete, userName = 'there' }) => {
             </div>
 
             {/* Content */}
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="flex-1 overflow-y-auto no-scrollbar overscroll-contain p-6">
                 <AnimatePresence mode="wait">
                     {step === 0 && (
                         <motion.div

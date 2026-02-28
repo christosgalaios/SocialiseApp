@@ -257,7 +257,7 @@ const MangoChat = ({ user = {}, events = [] }) => {
             )}
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-secondary/[0.02]">
+            <div className="flex-1 overflow-y-auto no-scrollbar overscroll-contain p-4 space-y-4 bg-secondary/[0.02]">
                 <div className="text-center text-[10px] font-bold uppercase tracking-wider text-secondary/30 my-3">Today</div>
 
                 {messages.map((msg) => (

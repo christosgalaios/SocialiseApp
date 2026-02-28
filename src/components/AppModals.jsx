@@ -202,7 +202,7 @@ export default function AppModals({ handleJoin, sendMessage }) {
           onClick={() => setShowLevelDetail(false)}
         >
           <motion.div
-            className="w-full max-w-lg bg-paper rounded-t-[40px] p-6 pb-12 max-h-[90vh] overflow-y-auto no-scrollbar border-t border-secondary/10"
+            className="w-full max-w-lg bg-paper rounded-t-[40px] p-6 pb-12 max-h-[90vh] overflow-y-auto no-scrollbar overscroll-contain border-t border-secondary/10"
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}

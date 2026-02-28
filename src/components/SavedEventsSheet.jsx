@@ -53,7 +53,7 @@ const SavedEventsSheet = ({ isOpen, onClose, savedEvents = [], onRemove, onSelec
                         </div>
 
                         {/* Saved Events List */}
-                        <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+                        <div className="p-6 overflow-y-auto no-scrollbar overscroll-contain" style={{ maxHeight: 'calc(100vh - 200px)' }}>
                             {savedEvents.length > 0 ? (
                                 <div className="space-y-4">
                                     {savedEvents.map((event) => (

@@ -214,7 +214,7 @@ const AvatarCropModal = ({ imageUrl, isOpen, onSave, onCancel }) => {
                 className="relative w-full aspect-square rounded-[28px] overflow-hidden bg-secondary/5 cursor-grab active:cursor-grabbing touch-none select-none"
               >
                 {/* Guide overlay — subtle rounded-square outline */}
-                <div className="absolute inset-3 rounded-[24px] border-2 border-white/40 pointer-events-none z-10" />
+                <div className="absolute inset-3 rounded-[24px] border-2 border-white/40 pointer-events-none z-10" aria-hidden="true" />
 
                 <img
                   ref={imgRef}

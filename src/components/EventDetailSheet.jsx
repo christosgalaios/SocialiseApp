@@ -38,7 +38,7 @@ const EventDetailSheet = ({ event, onClose, isJoined, onJoin, messages, onSendMe
 
         {/* Scrollable area: image scrolls up, tabs + content get more space */}
         <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
-          <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar flex flex-col">
+          <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar overscroll-contain flex flex-col">
             {/* Header Image - scrolls up and hides */}
             <div className="relative h-64 shrink-0 mx-5 rounded-[32px] overflow-hidden shadow-2xl border border-secondary/10 group">
               <img src={event.image} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt={event.title} loading="lazy" onError={(e) => { e.target.style.display = 'none'; }} />
